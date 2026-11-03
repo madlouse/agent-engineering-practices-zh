@@ -103,6 +103,11 @@ verified `context.userId`** — never a client-sent id, never a demo/mock user.
 If `AGENTS.project.md` exists, it holds the user's project instructions. Follow
 it with the same priority as this file.
 
+User wording for this blog lives in `docs/requirements/timeline.md`. The
+thematic checklist is `docs/requirements/summary.md`. Read both before
+changing the site. If they disagree, the timeline wins. Do not fill in
+message 1; the saved text is only a fragment.
+
 ---
 
 ## 1. Your environment / workspace (for you, never surfaced to the user)

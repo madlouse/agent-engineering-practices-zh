@@ -2,6 +2,15 @@
 
 本文件是这个博客的项目说明。沙箱契约以 `AGENTS.md` 为准：预览、端口、认证和数据库不要在这里改。
 
+## 用户原话
+
+改站点前先读这两份，不要凭记忆：
+
+- 原句：[docs/requirements/timeline.md](docs/requirements/timeline.md)
+- 按主题汇总、不改原意：[docs/requirements/summary.md](docs/requirements/summary.md)
+
+汇总和原句冲突时，以原句为准。第 1 条只有残段，不要补写。
+
 ## 这篇站点在做什么
 
 收录公开的 Agent 工程实践，以及一篇双语的 Agent 与生活。官方中文原样保留。没有官方中文时，按信达雅翻译。学习分享，不替代原文。

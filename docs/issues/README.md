@@ -4,7 +4,7 @@
 
 | 编号 | 事项 | 状态 |
 | --- | --- | --- |
-| 01 | 用户原话放进 [timeline.md](../requirements/timeline.md) | 完成 |
+| 01 | 用户原话放进 [timeline.md](../requirements/timeline.md)，汇总在 [summary.md](../requirements/summary.md) | 完成。第 1 条仍只有残段 |
 | 02 | 剩余范围写成 [PRD](../prd/remaining.md) | 完成 |
 | 03 | 站名、主页、语言的 [界面说明](../uiue/identity.md) | 完成 |
 | 04 | 按界面说明改站名。页眉、标题、分享卡一致 | 完成。分享卡图片由品牌资源另行替换 |

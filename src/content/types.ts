@@ -31,6 +31,6 @@ export type Post = {
 };
 
 export const SECTION_LABEL: Record<Section, string> = {
-  engineering: "工程实践",
-  life: "Agent 与生活",
+  engineering: "工程",
+  life: "生活",
 };

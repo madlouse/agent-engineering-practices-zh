@@ -4,7 +4,7 @@ export const engineeringPosts: Post[] = [
   {
     slug: "manus-rebuilding",
     title: "用 Manus 重建 Manus",
-    dek: "什么变了，什么出了问题，以及现在如何工作。官方中文。",
+    dek: "什么变了，什么出了问题，以及现在如何工作。",
     author: "张涛，Manus 联合创始人兼首席产品官",
     date: "2026-10-30",
     minutes: 24,

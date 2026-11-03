@@ -20,10 +20,9 @@ export const Route = createFileRoute("/posts/$slug")({
 function Missing() {
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-5">
-      <p className="text-sm text-cinnabar">未收录</p>
-      <h1 className="mt-3 font-serif text-4xl font-semibold text-balance">这篇还不在目录里。</h1>
+      <h1 className="mt-3 font-serif text-4xl font-semibold text-balance">没有这一篇。</h1>
       <Link to="/" className="mt-6 inline-flex min-h-11 items-center text-sm underline decoration-cinnabar underline-offset-4">
-        返回目录
+        回首页
       </Link>
     </main>
   );
@@ -82,7 +81,7 @@ function ArticlePage() {
         <div className="lg:col-span-7">
           <p className="text-sm text-cinnabar">
             {SECTION_LABEL[post.section]}
-            {post.official ? " · 官方中文" : " · 中文整理"}
+            {post.official ? " · 官方中文" : " · 译文"}
           </p>
           <h1
             className={
@@ -151,7 +150,7 @@ function ArticlePage() {
                 {post.sourceName}
               </a>
             </p>
-            <p className="mt-1">版权：{post.copyright}。本页仅供学习分享，不替代原文。</p>
+            <p className="mt-1">版权：{post.copyright}。请以原文为准。</p>
           </aside>
           <nav className="mt-10 grid max-w-2xl gap-4 border-t border-line pt-8 sm:grid-cols-2">
             {prev ? (

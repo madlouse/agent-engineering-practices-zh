@@ -80,9 +80,7 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
                   打开原视频
                 </a>
               </video>
-              <figcaption className="border-t border-line px-4 py-3 text-sm leading-6 text-muted">
-                <span className="text-cinnabar">原文视频，不译。</span> {block.caption}
-              </figcaption>
+              <figcaption className="border-t border-line px-4 py-3 text-sm leading-6 text-muted">{block.caption}</figcaption>
             </figure>
           );
         }
@@ -90,9 +88,7 @@ export function ArticleBody({ blocks }: { blocks: Block[] }) {
           return (
             <figure key={index} className="border border-line bg-card">
               <img src={block.src} alt={block.alt ?? block.caption} className="w-full" />
-              <figcaption className="border-t border-line px-4 py-3 text-sm leading-6 text-muted">
-                <span className="text-cinnabar">原图，不译。</span> {block.caption}
-              </figcaption>
+              <figcaption className="border-t border-line px-4 py-3 text-sm leading-6 text-muted">{block.caption}</figcaption>
             </figure>
           );
         }

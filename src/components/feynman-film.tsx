@@ -12,8 +12,6 @@ type Cue = {
   voice: string;
 };
 
-const VOICE_LABEL = { zh: "晓晓", en: "Andrew" } as const;
-
 export function FeynmanFilm({ film, lang }: { film: Explainer; lang: "zh" | "en" }) {
   const playerRef = useRef<PlayerRef>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -135,32 +133,28 @@ export function FeynmanFilm({ film, lang }: { film: Explainer; lang: "zh" | "en"
   const zoomClass = zoom === 1 ? "short-fit" : zoom === 2 ? "short-lg" : "short-xl";
 
   return (
-    <section aria-label="三分钟讲解短片" className="max-w-2xl">
-      <p className="text-xs font-medium tracking-wide text-cinnabar">讲解短片 · 费曼</p>
-      <p className="mt-2 text-sm leading-6 text-muted">
-        {cue
-          ? `图和表讲机制。中文是晓晓，英文是 Andrew。现在是${VOICE_LABEL[voiceLang]}。点播放就能听，也可以放大看清。`
-          : "图和表讲机制。旁白还在装上。可以先看画面，也可以放大。"}
-      </p>
+    <section aria-label="三分钟讲解" className="max-w-2xl">
+      <p className="text-xs font-medium tracking-wide text-cinnabar">三分钟讲解</p>
+      <p className="mt-2 text-sm leading-6 text-muted">先看短片，再读文章。</p>
       <div className="mt-4 flex flex-wrap gap-2">
         <ZoomButton current={zoom} value={1} onPick={setZoom}>
-          适应
+          正常
         </ZoomButton>
         <ZoomButton current={zoom} value={2} onPick={setZoom}>
           放大
         </ZoomButton>
         <ZoomButton current={zoom} value={3} onPick={setZoom}>
-          再放大
+          更大
         </ZoomButton>
         <VoiceButton current={voiceLang} value="zh" onPick={setVoiceLang}>
-          晓晓
+          中文
         </VoiceButton>
         <VoiceButton current={voiceLang} value="en" onPick={setVoiceLang}>
-          Andrew
+          English
         </VoiceButton>
         {voiceBlocked ? (
           <button type="button" onClick={unlockVoice} className="inline-flex min-h-11 items-center border border-cinnabar bg-card px-4 text-sm text-cinnabar">
-            播放旁白
+            打开声音
           </button>
         ) : null}
       </div>
@@ -201,7 +195,7 @@ export function FeynmanFilm({ film, lang }: { film: Explainer; lang: "zh" | "en"
             <div className="short-poster">
               <p className="text-xs font-medium tracking-wide text-cinnabar">01 / 05</p>
               <p className="mt-6 font-serif text-3xl font-semibold leading-snug text-balance">{film.scenes[0]?.title}</p>
-              <p className="mt-8 text-sm text-muted">{loadError || "短片正在装上"}</p>
+              <p className="mt-8 text-sm text-muted">{loadError || "加载中"}</p>
             </div>
           )}
         </div>

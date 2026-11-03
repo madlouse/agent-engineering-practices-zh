@@ -1,12 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="落地实践">
-  <rect width="32" height="32" rx="7" fill="#F4F1EA"/>
-  <rect x="3.5" y="3.5" width="25" height="25" rx="2" fill="#9A3412"/>
-  <g fill="none" stroke="#F4F1EA" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M13.4 7.6 16.3 10.1"/>
-    <path d="M8.2 11.7h15.6"/>
-    <path d="M8.4 17.2h15.2"/>
-    <path d="M16 17.2v2.4"/>
-    <path d="M16 18.8 10.2 24.6"/>
-    <path d="M16 18.8 21.8 24.6"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="同席">
+  <rect width="32" height="32" rx="7" fill="#f3efe6"/>
+  <circle cx="10.5" cy="8.5" r="3.5" fill="#1c1915"/>
+  <circle cx="21.5" cy="8.5" r="3.5" fill="#9c3b1e"/>
+  <rect x="8" y="13" width="5" height="9" rx="2" fill="#1c1915"/>
+  <rect x="19" y="13" width="5" height="9" rx="2" fill="#9c3b1e"/>
+  <rect x="4" y="22" width="24" height="5" rx="2" fill="#1c1915"/>
 </svg>

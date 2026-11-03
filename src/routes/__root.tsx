@@ -13,7 +13,7 @@ export const Route = createRootRoute({
       { title: APP_NAME },
       {
         name: "description",
-        content: "别人怎么和 agent 一起工作。公开文章的中文阅读，译文标出原文链接。",
+        content: "人和 agent，一起走向还没到来的 AGI。按时间阅读这条路上的文章。",
       },
       { name: "theme-color", content: "#f3efe6" },
     ],

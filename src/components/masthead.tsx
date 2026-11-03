@@ -17,16 +17,10 @@ export function Masthead({
           </Link>
           <nav className="flex items-center gap-1 text-sm text-muted sm:gap-2">
             <a
-              href="/#engineering"
+              href="/#record"
               className="inline-flex min-h-11 items-center px-2 underline-offset-4 hover:text-ink hover:underline hover:decoration-cinnabar motion-safe:transition-colors"
             >
-              工程
-            </a>
-            <a
-              href="/#life"
-              className="inline-flex min-h-11 items-center px-2 underline-offset-4 hover:text-ink hover:underline hover:decoration-cinnabar motion-safe:transition-colors"
-            >
-              生活
+              记录
             </a>
           </nav>
         </div>

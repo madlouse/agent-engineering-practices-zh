@@ -3,7 +3,7 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "落地实践";
+const APP_NAME = "同席";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -13,7 +13,7 @@ export const Route = createRootRoute({
       { title: APP_NAME },
       {
         name: "description",
-        content: "AI Agent 工程落地实践的中文阅读站。收录来源、版权与双语稿。",
+        content: "人和 agent 一起工作、生活，把做法留下来。",
       },
       { name: "theme-color", content: "#f3efe6" },
     ],

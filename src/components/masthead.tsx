@@ -13,8 +13,8 @@ export function Masthead({
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
           <Link to="/" className="group flex min-h-11 items-center gap-3">
             <span className="size-2 shrink-0 rounded-full bg-cinnabar" />
-            <span className="font-serif text-xl font-semibold tracking-tight text-ink">落地实践</span>
-            <span className="hidden text-sm text-faint sm:inline">Agent 工程阅读</span>
+            <span className="font-serif text-xl font-semibold tracking-tight text-ink">同席</span>
+            <span className="hidden text-sm text-faint sm:inline">人和 agent</span>
           </Link>
           <nav className="flex items-center gap-1 text-sm text-muted sm:gap-2">
             <a

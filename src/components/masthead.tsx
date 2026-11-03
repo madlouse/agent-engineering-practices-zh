@@ -33,7 +33,7 @@ export function Masthead({
               href="/#method"
               className="inline-flex min-h-11 items-center px-2 underline-offset-4 hover:text-ink hover:underline hover:decoration-cinnabar motion-safe:transition-colors"
             >
-              体例
+              说明
             </a>
           </nav>
         </div>

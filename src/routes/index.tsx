@@ -80,7 +80,7 @@ function Home() {
         })}
 
         <section id="method" className="scroll-mt-20 grid gap-8 py-14 lg:grid-cols-12">
-          <h2 className="font-serif text-2xl font-semibold lg:col-span-3">体例</h2>
+          <h2 className="font-serif text-2xl font-semibold lg:col-span-3">说明</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:col-span-9">
             {[
               ["栏目", "工程实践，以及 Agent 与生活。新文章只进已有栏目，不另起视觉。"],

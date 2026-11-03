@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans SC", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", "Source Serif 4", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-paper: #f3efe6;
+  --color-ink: #1c1915;
+  --color-muted: #6f675e;
+  --color-faint: #8d847a;
+  --color-line: #e3d9cc;
+  --color-card: #faf7f1;
+  --color-cinnabar: #9c3b1e;
+  --color-wash: #f6e7df;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  summary {
+    cursor: pointer;
+  }
+
+  .toc-rail {
+    max-height: calc(100svh - 8.5rem);
+    overflow: auto;
+    scrollbar-width: thin;
+  }
+
+  .code-scroll {
+    font-family: "IBM Plex Mono", "Noto Sans SC", ui-monospace, monospace;
+    font-variant-ligatures: none;
+    tab-size: 2;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line) transparent;
+  }
+
+  ::selection {
+    background: #e8cfc4;
+    color: var(--color-ink);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .film-enter {
+    animation: none;
+  }
+}
+
+@keyframes film-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.film-enter {
+  animation: film-in 400ms ease-out;
+}
+
+.short-scroll {
+  max-height: 82svh;
+  overflow: auto;
+}
+
+.short-fit,
+.short-lg,
+.short-xl {
+  margin-inline: auto;
+}
+
+.short-fit {
+  width: min(100%, calc(70svh * 9 / 16));
+}
+
+.short-lg {
+  width: min(165%, calc(70svh * 9 / 16 * 1.65));
+}
+
+.short-xl {
+  width: min(230%, calc(70svh * 9 / 16 * 2.3));
+}
+
+.short-poster {
+  aspect-ratio: 9 / 16;
+  padding: 1.5rem;
+  background: var(--color-card);
+}
+
+[data-lang="en"] {
+  font-family: "IBM Plex Sans", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-lang="en"] :is(h1, h2, h3, .font-serif) {
+  font-family: "Source Serif 4", Georgia, serif;
+}

@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8081/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "落地实践",
+      "hasCanvas": false,
+      "bodyTextLen": 755,
+      "bodyTextHash": "2835a878c7008b5cc392e2635993b9aa81197bd57c8c9068b65fc3ee120c6c4c",
+      "bodyTextPrefix": "落地实践 Agent 工程阅读 工程 生活 体例 第 01 期 · 2026 先有框架， 再把文章放进去。 公开的 Agent ",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "落地实践",
+      "hasCanvas": false,
+      "bodyTextLen": 744,
+      "bodyTextHash": "71ebdb11f5bd5835145c69f08714d1c1ab66b093dab26a16347ce7d75303b644",
+      "bodyTextPrefix": "落地实践 工程 生活 体例 第 01 期 · 2026 先有框架， 再把文章放进去。 公开的 Agent 工程实践，按同一套阅读",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-built-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-built.json",
+  "divergesFromBaseline": false,
+  "baselineReasons": []
+}

@@ -1,0 +1,46 @@
+<svg class="art-diagram-wide" aria-hidden="true" focusable="false" id="code-review-layers" width="651" height="369" viewBox="0 0 651 369" xmlns="http://www.w3.org/2000/svg"><style>svg{--bg:#faf9f5;--fig-focal:#c15f3c;--ink:#141413;--ink-2:#4c4b45;--line:#14141338;--line-soft:#1414131c;--viz-b9:#8e8c87;--viz-m1:#3d3d3a;--viz-muted:#65645e}#code-review-layers text{font-family:'Anthropic Sans','Anthropic Sans Fallback','Anthropic Sans Fallback Roboto',system-ui,sans-serif}#code-review-layers .mono{font-family:'Anthropic Mono','Anthropic Mono Fallback',ui-monospace,'SF Mono',Menlo,monospace}</style>
+<text x="40" y="14" font-size="13" style="fill:var(--ink-2)">problems in</text>
+<path d="M188 22 L188 343" fill="none" stroke-width="1" stroke-dasharray="3 3" style="stroke:var(--fig-focal)"/>
+<path d="M78.8 22 L78.8 54" fill="none" stroke-width="1" stroke-dasharray="3 3" opacity=".55" style="stroke:var(--fig-focal)"/>
+<path d="M297.2 22 L297.2 54" fill="none" stroke-width="1" stroke-dasharray="3 3" opacity=".55" style="stroke:var(--fig-focal)"/>
+<path d="M110 65.5 L110 104" fill="none" stroke-width="1" stroke-dasharray="3 3" opacity=".55" style="stroke:var(--fig-focal)"/>
+<path d="M271.2 115.5 L271.2 154" fill="none" stroke-width="1" stroke-dasharray="3 3" opacity=".55" style="stroke:var(--fig-focal)"/>
+<path d="M136 165.5 L136 204" fill="none" stroke-width="1" stroke-dasharray="3 3" opacity=".55" style="stroke:var(--fig-focal)"/>
+<path d="M253 215.5 L253 254" fill="none" stroke-width="1" stroke-dasharray="3 3" opacity=".55" style="stroke:var(--fig-focal)"/>
+<path d="M99.6 265.5 L99.6 304" fill="none" stroke-width="1" stroke-dasharray="3 3" opacity=".55" style="stroke:var(--fig-focal)"/>
+<polygon points="40,72 300,72 336,50 76,50" stroke-width="1" style="fill:var(--line-soft);stroke:var(--line)"/>
+<ellipse cx="188" cy="61" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<ellipse cx="110" cy="61" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<text x="358" y="65.5" font-size="13" style="fill:var(--ink)">verification</text>
+<polygon points="40,122 300,122 336,100 76,100" stroke-width="1" style="fill:var(--line-soft);stroke:var(--line)"/>
+<ellipse cx="188" cy="111" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<ellipse cx="271.2" cy="111" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<text x="358" y="115.5" font-size="13" style="fill:var(--ink)">required CI</text>
+<polygon points="40,172 300,172 336,150 76,150" stroke-width="1" style="fill:var(--line-soft);stroke:var(--line)"/>
+<ellipse cx="188" cy="161" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<ellipse cx="136" cy="161" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<text x="358" y="165.5" font-size="13" style="fill:var(--ink)">AI review</text>
+<polygon points="40,222 300,222 336,200 76,200" stroke-width="1" style="fill:var(--line-soft);stroke:var(--line)"/>
+<ellipse cx="188" cy="211" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<ellipse cx="253" cy="211" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<text x="358" y="215.5" font-size="13" style="fill:var(--ink)">security review</text>
+<polygon points="40,272 300,272 336,250 76,250" stroke-width="1" style="fill:var(--line-soft);stroke:var(--line)"/>
+<ellipse cx="188" cy="261" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<ellipse cx="99.6" cy="261" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<text x="358" y="265.5" font-size="13" style="fill:var(--ink)">human approval</text>
+<polygon points="40,322 300,322 336,300 76,300" stroke-width="1" style="fill:var(--line-soft);stroke:var(--line)"/>
+<ellipse cx="188" cy="311" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<ellipse cx="281.6" cy="311" rx="14" ry="4.5" stroke-width="1" style="fill:var(--bg);stroke:var(--line)"/>
+<text x="358" y="315.5" font-size="13" style="fill:var(--ink)">merge queue + flags</text>
+<path d="M188 56.5 L188 315.5" fill="none" stroke-width="1" stroke-dasharray="3 3" style="stroke:var(--fig-focal)"/>
+<circle cx="78.8" cy="59" r="4.5" stroke-width="2" style="fill:var(--fig-focal);stroke:var(--bg)"/>
+<circle cx="297.2" cy="59" r="4.5" stroke-width="2" style="fill:var(--fig-focal);stroke:var(--bg)"/>
+<circle cx="110" cy="109" r="4.5" stroke-width="2" style="fill:var(--fig-focal);stroke:var(--bg)"/>
+<circle cx="271.2" cy="159" r="4.5" stroke-width="2" style="fill:var(--fig-focal);stroke:var(--bg)"/>
+<circle cx="136" cy="209" r="4.5" stroke-width="2" style="fill:var(--fig-focal);stroke:var(--bg)"/>
+<circle cx="253" cy="259" r="4.5" stroke-width="2" style="fill:var(--fig-focal);stroke:var(--bg)"/>
+<circle cx="99.6" cy="309" r="4.5" stroke-width="2" style="fill:var(--fig-focal);stroke:var(--bg)"/>
+<path d="M144 341 Q188 369 232 341" fill="none" stroke-width="1" style="stroke:var(--fig-focal)"/>
+<circle cx="188" cy="351" r="5.5" stroke-width="2" style="fill:var(--fig-focal);stroke:var(--bg)"/>
+<text x="358" y="355.5" font-size="13" font-weight="500" style="fill:var(--fig-focal)">fast rollback</text>
+</svg>

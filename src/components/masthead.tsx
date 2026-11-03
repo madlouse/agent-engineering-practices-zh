@@ -1,49 +1,70 @@
 import { Link } from "@tanstack/react-router";
+import { useLang, type Lang } from "@/lib/lang";
 
-export function Masthead({
-  compact = false,
-  progress,
-}: {
-  compact?: boolean;
-  progress?: number;
-}) {
+export function Masthead({ progress }: { compact?: boolean; progress?: number }) {
+  const { lang, setLang } = useLang();
   return (
-    <>
-      <div className="sticky top-0 z-30 bg-paper">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
-          <Link to="/" className="group flex min-h-11 items-center gap-3">
-            <span className="size-2 shrink-0 rounded-full bg-cinnabar" />
-            <span className="font-serif text-xl font-semibold tracking-tight text-ink">同席</span>
-          </Link>
-          <nav className="flex items-center gap-1 text-sm text-muted sm:gap-2">
+    <div className="sticky top-0 z-30 bg-paper">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
+        <Link to="/" className="group flex min-h-11 items-center gap-3">
+          <span className="size-2 shrink-0 rounded-full bg-cinnabar" />
+          <span className="font-serif text-xl font-semibold tracking-tight text-ink">同席</span>
+          <span className="hidden text-sm text-muted sm:inline">{lang === "en" ? "people and agents" : "人和 agent"}</span>
+        </Link>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <nav className="flex items-center text-sm text-muted">
             <a
               href="/#record"
               className="inline-flex min-h-11 items-center px-2 underline-offset-4 hover:text-ink hover:underline hover:decoration-cinnabar motion-safe:transition-colors"
             >
-              记录
+              {lang === "en" ? "Record" : "记录"}
             </a>
           </nav>
-        </div>
-        {typeof progress === "number" ? (
-          <div className="h-1 bg-line" aria-hidden>
-            <div className="h-full bg-cinnabar" style={{ width: `${progress * 100}%` }} />
+          <div className="flex items-center" role="group" aria-label={lang === "en" ? "Language" : "语言"}>
+            <LangButton current={lang} value="zh" onPick={setLang}>
+              中文
+            </LangButton>
+            <LangButton current={lang} value="en" onPick={setLang}>
+              English
+            </LangButton>
           </div>
-        ) : (
-          <div className="h-px bg-line" />
-        )}
+        </div>
       </div>
-      {compact ? null : (
-        <div className="border-b border-line">
-          <div className="mx-auto max-w-6xl px-5 pt-12 pb-16 sm:pt-16 sm:pb-20">
-            <h1 className="mt-0 max-w-3xl font-serif text-5xl font-semibold leading-tight tracking-tight text-balance text-ink sm:text-6xl">
-              别人怎么和 agent 一起工作
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
-              这里读公开的文章。有官方中文，就用官方中文。没有的，译成中文，并放上原文链接。
-            </p>
-          </div>
+      {typeof progress === "number" ? (
+        <div className="h-1 bg-line" aria-hidden>
+          <div className="h-full bg-cinnabar" style={{ width: `${progress * 100}%` }} />
         </div>
+      ) : (
+        <div className="h-px bg-line" />
       )}
-    </>
+    </div>
+  );
+}
+
+function LangButton({
+  current,
+  value,
+  onPick,
+  children,
+}: {
+  current: Lang;
+  value: Lang;
+  onPick: (lang: Lang) => void;
+  children: string;
+}) {
+  const on = current === value;
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      onClick={() => onPick(value)}
+      className={
+        on
+          ? "inline-flex min-h-11 items-center bg-ink px-3 text-sm text-paper"
+          : "inline-flex min-h-11 items-center px-3 text-sm text-muted"
+      }
+    >
+      {children}
+    </button>
   );
 }

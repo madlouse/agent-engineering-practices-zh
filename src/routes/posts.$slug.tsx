@@ -6,6 +6,7 @@ import { Masthead } from "@/components/masthead";
 import { getPost, neighbors } from "@/content";
 import { getExplainer } from "@/content/explainers";
 import { SECTION_LABEL } from "@/content/types";
+import { useLang } from "@/lib/lang";
 
 export const Route = createFileRoute("/posts/$slug")({
   loader: ({ params }) => {
@@ -31,7 +32,7 @@ function Missing() {
 function ArticlePage() {
   const { post } = Route.useLoaderData();
   const { prev, next } = neighbors(post.slug);
-  const [lang, setLang] = useState<"zh" | "en">("zh");
+  const { lang } = useLang();
   const [progress, setProgress] = useState(0);
   const [active, setActive] = useState("");
   const blocks = lang === "en" && post.blocksEn ? post.blocksEn : post.blocks;
@@ -100,34 +101,11 @@ function ArticlePage() {
             <span aria-hidden>·</span>
             <span>{post.date}</span>
             <span aria-hidden>·</span>
-            <span>{post.minutes} 分钟</span>
+            <span>
+              {post.minutes} {lang === "en" ? "min" : "分钟"}
+            </span>
           </div>
-          {post.blocksEn ? (
-            <div className="mt-4 inline-flex rounded-full border border-line p-1">
-              <button
-                type="button"
-                onClick={() => setLang("zh")}
-                className={
-                  lang === "zh"
-                    ? "min-h-11 rounded-full bg-ink px-4 text-sm text-paper"
-                    : "min-h-11 rounded-full px-4 text-sm text-muted"
-                }
-              >
-                中文
-              </button>
-              <button
-                type="button"
-                onClick={() => setLang("en")}
-                className={
-                  lang === "en"
-                    ? "min-h-11 rounded-full bg-ink px-4 text-sm text-paper"
-                    : "min-h-11 rounded-full px-4 text-sm text-muted"
-                }
-              >
-                English
-              </button>
-            </div>
-          ) : null}
+          {lang === "en" && !post.blocksEn ? <p className="mt-4 text-sm text-cinnabar">这篇还没有英文。</p> : null}
           {film ? (
             <div className="mt-10">
               <FeynmanFilm film={film} lang={lang} />

@@ -14,4 +14,4 @@ effort: medium
 5. 写法：按 `velicoach-content` 的审核清单；术语和 `docs/GLOSSARY.md` 一致；英文是按英语读者重写，不是逐句直译；没有占位符、过程说明、口头禅和转写错误。
 6. 范围：改动没越过 `docs/standards/pipeline.md` §4.1 的内容车道边界；票的每条验收都有对应的内容或证据。
 
-每条发现打 0–100 的可信度分，低于 80 不报。在 PR 上留**一条**评论：结论「通过 / 要改」、阻塞项、建议项；最后一行 `<!-- vc-review kind=content verdict=pass|rework sha=<PR 头提交完整 sha> -->`，再换标签 `agent:pass` 或 `agent:rework`（保留 `owner:merge`）。GitHub 只用 `gh api` REST。
+每条发现打 0–100 的可信度分，低于 80 不报。在 PR 上留**一条**评论（首行 `<!-- vc-bot role=评审 -->`）：结论「通过 / 要改」、阻塞项、建议项；最后一行 `<!-- vc-review kind=content verdict=pass|rework sha=<PR 头提交完整 sha> -->`，再换标签 `agent:pass` 或 `agent:rework`（保留 `owner:merge`）。GitHub 只用 `gh api` REST。

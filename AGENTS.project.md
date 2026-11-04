@@ -36,7 +36,8 @@
 ### 给 Matt Pocock 技能的约定
 
 - **Issue tracker**：本仓库的 GitHub Issues；云端会话只能用 REST（`gh api`）。
-- **Triage labels**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 上另有 `agent:pass`、`agent:rework`、`agent:hold`、`owner:merge`；状态 issue 上的 `agent:stop` 是总开关（`docs/standards/pipeline.md` §5）。
+- **Triage labels**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 上另有 `agent:pass`、`agent:rework`、`agent:hold`、`owner:merge`、`risk:high`、`security:pass`、`security:rework`；状态 issue #13 上的 `agent:stop` 是总开关（`docs/standards/pipeline.md` §5）。
+- **评论**：Agent 写的每一条评论首行都是 `<!-- vc-bot role=<角色> -->`；不带它的评论才算产品负责人的回复。
 - **Domain docs**：单一上下文，术语表 `docs/GLOSSARY.md`，ADR 在 `docs/architecture/adr/`。
 
 ## 不能越过的线
@@ -49,7 +50,7 @@
 6. **事实有出处**：数字、研究、引用都写明出处；官方中文原样保留，学习分享，不替代原文。
 7. **一条意见代表一类问题**：改完所有同类位置，把原则写回技能、设计系统或术语表，在 `docs/requirements/trace.md` 记一笔。
 8. 密钥只放在服务端环境变量，不写进代码、文档和提交信息。
-9. **流水线的票不直接进 `site`**：所有票的 PR 合并进集成分支 `feature/v1`，关口四通过后由产品负责人确认一次合并进 `site`；合并只走合并脚本（`docs/standards/pipeline.md` §5）。
+9. **合并只走合并脚本**：上线前所有票的 PR 合并进集成分支 `feature/v1`，关口四通过后由产品负责人确认一次合并进 `site`；上线后 PR 直接进 `site`，门不变（`docs/standards/pipeline.md` §5）。
 
 ## 收录一篇时
 

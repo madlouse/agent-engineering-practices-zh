@@ -391,3 +391,20 @@
 > 再穷举一下，看一下有没有，选最合适的方式.还有就是，不管站点还是产品，应该都要支持浅色和深色模式的切换，默认跟随系统：系统是深色就深色模式，系统是浅色就浅色模式。
 >
 > 手机端可以跟随系统，但 Web 站点不知道能不能读到。如果读不到的话，看哪一个视觉效果更好，就以哪一个作为默认
+
+## 56
+
+2026-11-04 01:57 ET
+
+> [madlouse/thin-muscle-coach](https://github.com/madlouse/thin-muscle-coach)
+> [madlouse/agent-engineering-practices-zh](https://github.com/madlouse/agent-engineering-practices-zh)
+>
+> 对，整个项目暂时应该就涉及到这两个仓库。需要改名的话，就按合适的来改。
+>
+> 包括相应的文档、设计文档、README 等等，做相应的统一更新，不需要的直接改掉
+
+## 57
+
+2026-11-04 01:58 ET
+
+> 可以

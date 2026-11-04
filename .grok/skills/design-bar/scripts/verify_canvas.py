@@ -1,0 +1,347 @@
+#!/usr/bin/env python3
+"""画板验证：把 Claude Design 画布的每块画板、每个状态，按浅色和深色各渲染一次，只报真问题，最后给结论。
+
+和 check_page.py 的分工：check_page 看真实页面（多宽度、响应式）；本脚本看固定尺寸的画板（390×844 之类），
+所以不会把「画板比 375 宽」当成溢出，也不会把画板里有意写的内联样式当成问题。
+
+检查项（都是会让用户看错、点不到、看不清的问题，不报审美意见）：
+  1. 主按钮被挡住：宽度 ≥ 画板 60%、高度 ≥ 44 的实色按钮，底边落在底部输入区或画板外
+  2. 文字被挤成竖排：一段文字的宽度不到两个字、高度却超过 2.5 行
+  3. 内容超出画板：元素右边超出画板（画板会把它裁掉）
+  4. 对比度：正文 < 4.5:1、大字 < 3:1（禁用态按钮除外；浅色、深色各查一次）
+  5. 触控目标 < 44×44（段落里的文字链接除外）
+  6. 引用了没定义的 token：var(--x) 在样式表里找不到
+  7. 写死的颜色：画板源码里出现 #hex、rgb()、hsl()（token 文件除外）
+  8. 页面报错：控制台 error、脚本异常（字体等网络资源加载失败只记为提示）
+  9. 画出来就要能用（来自 baoyu-design「Accessible as drawn」）：<a> 没有 href、div/span 上挂点击、
+     只有图标的按钮没有可读名称、输入框没有标签——静态稿也要用真的 <button> / <a href> / <label>
+ 10. 弹性布局吞掉空格：flex / grid 容器里的文字和元素挨着时，文字两头的空格会被吞掉（「还剩3天」）
+
+另外列出「模板味信号」（来自 unslop 的信号清单里机器能看出的那部分：emoji、渐变文字、全大写加宽字距、
+特粗标题、感叹号、按钮文字带句号、斜体强调、小字负字距、transition: all），只作提示，不影响结论；
+要不要改按 unslop 的审计判断。
+
+伪语言（--themes 里加 pseudo）：把每段文字加长 35%（PRD 常见的「德语比中文长 35%」口径），按浅色再查一遍
+版式类问题（主按钮被挡或挤扁、竖排、超出画板、吞空格），看换语言以后会不会坏；对比度和 token 不在这一遍重复查。
+
+用法：
+  python verify_canvas.py <画板目录或 .dc.html ...> --out <报告目录> [--themes light,dark,pseudo] [--only AI-Plans]
+画板尺寸从同目录的 canvas.json 读（没有就用 390x844；带 expand 的说明文档页不查触控尺寸）；状态从 <sc-if value="{{ sN }}"> 自动发现。
+结论：没有问题时 done（退出码 0），有问题时 needs_work（退出码 1）。需要 Python Playwright 和 Chromium。
+"""
+import argparse
+import glob
+import json
+import os
+import re
+import sys
+import tempfile
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from render_dc import render_html  # noqa: E402
+
+PSEUDO_JS = r"""
+() => {
+  const root = document.querySelector('[data-theme]') || document.body;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (w.nextNode()) nodes.push(w.currentNode);
+  for (const n of nodes) {
+    const t = n.textContent; const core = t.trim();
+    if (core.length < 2 || n.parentElement.closest('script, style, svg')) continue;
+    const extra = Math.ceil(core.length * 0.35);
+    n.textContent = t.replace(core, core + core.repeat(2).slice(0, extra));
+  }
+}
+"""
+
+LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格'}
+
+CHECK_JS = r"""
+() => {
+  const issues = [];
+  const root = document.querySelector('[data-theme]') || document.body;
+  const R = root.getBoundingClientRect();
+  const footers = [...root.querySelectorAll('footer')];
+  const footer = footers.length ? footers[footers.length - 1] : null;
+  const fTop = footer ? footer.getBoundingClientRect().top : R.bottom;
+  const visible = el => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; };
+  const name = el => ((el.getAttribute && el.getAttribute('aria-label')) || el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 36);
+  const parse = c => { const m = c && c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(',').map(x => parseFloat(x)); return {r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1}; };
+  const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
+  const blend = (top, under) => ({r: top.r * top.a + under.r * (1 - top.a), g: top.g * top.a + under.g * (1 - top.a), b: top.b * top.a + under.b * (1 - top.a), a: 1});
+  const bgOf = el => {
+    const layers = [];
+    for (let e = el; e; e = e.parentElement) {
+      const cs = getComputedStyle(e);
+      if (cs.backgroundImage && cs.backgroundImage !== 'none' && !/gradient/.test(cs.backgroundImage)) return null; // 图片上的字交给人看
+      const c = parse(cs.backgroundColor);
+      if (c && c.a > 0) { layers.push(c); if (c.a >= 1) break; }
+    }
+    let base = {r: 255, g: 255, b: 255, a: 1};
+    for (let i = layers.length - 1; i >= 0; i--) base = blend(layers[i], base);
+    return base;
+  };
+  const clipped = el => { for (let e = el.parentElement; e && e !== root; e = e.parentElement) { const ox = getComputedStyle(e).overflowX; if (ox === 'auto' || ox === 'scroll' || ox === 'hidden') return true; } return false; };
+
+  // 1、5：按钮
+  for (const el of root.querySelectorAll('button, a, [role="button"], input, label')) {
+    if (!visible(el) || (footer && footer.contains(el) && el.tagName !== 'BUTTON')) continue;
+    const r = el.getBoundingClientRect(); const cs = getComputedStyle(el);
+    const bg = parse(cs.backgroundColor);
+    const filled = (bg && bg.a > 0.5) || (cs.backgroundImage && cs.backgroundImage !== 'none');
+    let squashed = false;
+    if ((el.tagName === 'BUTTON' || el.tagName === 'A') && !(footer && footer.contains(el)) && filled && r.width >= R.width * 0.6) {
+      const limit = Math.min(fTop, R.bottom);
+      if (r.bottom > limit + 1) issues.push({type: '主按钮被挡住或在首屏外', where: name(el), detail: `按钮底边 ${Math.round(r.bottom)}，可见到 ${Math.round(limit)}；首屏放不下时先删说明文字，再压缩卡片，不靠滚动`});
+      if (r.height < 43.5) { squashed = true; issues.push({type: '主按钮被挤扁', where: name(el), detail: `高 ${Math.round(r.height)}：上面的内容太多，flex 把按钮压扁了（按钮加 flex: none，并按上一条压缩内容）`}); }
+    }
+    const interactive = el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'button';
+    if (interactive && !name(el) && !el.getAttribute('title')) issues.push({type: '控件没有可读名称', where: el.tagName.toLowerCase(), detail: '只有图标的按钮要写 aria-label，读屏才念得出来'});
+    if (el.tagName === 'INPUT' && !['checkbox', 'radio', 'hidden'].includes(el.type) && !el.getAttribute('aria-label') && !el.closest('label') && !(el.id && document.querySelector(`label[for="${el.id}"]`)))
+      issues.push({type: '控件没有可读名称', where: el.placeholder || 'input', detail: '输入框要有 <label> 或 aria-label，占位文字不算'});
+    if (interactive && !squashed && r.width > 0 && (r.width < 43.5 || r.height < 43.5) && !el.closest('p, li > span')) {
+      issues.push({type: '触控目标小于 44', where: name(el) || el.tagName.toLowerCase(), detail: `${Math.round(r.width)}×${Math.round(r.height)}`});
+    }
+  }
+  // 2、3、4：文字
+  const seen = new Set();
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const t = walker.currentNode; const text = t.textContent.trim();
+    if (!text) continue;
+    const el = t.parentElement;
+    if (!el || seen.has(el) || !visible(el) || el.closest('[aria-hidden="true"], svg, script, style')) continue;
+    seen.add(el);
+    const cs = getComputedStyle(el); const fs = parseFloat(cs.fontSize); const lh = parseFloat(cs.lineHeight) || fs * 1.4;
+    const r = el.getBoundingClientRect();
+    if (text.length >= 3 && r.width < fs * 2.2 && r.height > lh * 2.5) issues.push({type: '文字被挤成竖排', where: text.slice(0, 20), detail: `宽 ${Math.round(r.width)}、高 ${Math.round(r.height)}`});
+    if (r.right > R.right + 1 && !clipped(el)) issues.push({type: '内容超出画板', where: text.slice(0, 20), detail: `右边 ${Math.round(r.right)} > ${Math.round(R.right)}`});
+    if (el.closest('button[disabled], [aria-disabled="true"]')) continue;
+    const fg = parse(cs.color); const bg = bgOf(el);
+    if (fg && bg) {
+      const f = fg.a < 1 ? blend(fg, bg) : fg;
+      const L1 = lum(f), L2 = lum(bg); const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
+      const large = fs >= 24 || (fs >= 18.66 && parseInt(cs.fontWeight) >= 700);
+      const need = large ? 3 : 4.5;
+      if (ratio < need - 0.05) issues.push({type: '对比度不够', where: text.slice(0, 20), detail: `${ratio.toFixed(2)}:1，要 ${need}:1`});
+    }
+  }
+  // 10：弹性布局吞掉空格
+  for (const el of root.querySelectorAll('*')) {
+    if (!visible(el)) continue;
+    const dcs = getComputedStyle(el); const d = dcs.display;
+    if (!/flex|grid/.test(d) || parseFloat(dcs.columnGap) > 0) continue; // 有 gap 时空格本来就由 gap 代替
+    const kids = [...el.childNodes];
+    kids.forEach((n, i) => {
+      if (n.nodeType !== 3 || !n.textContent.trim()) return;
+      const prevEl = kids.slice(0, i).reverse().find(k => k.nodeType === 1 || (k.nodeType === 3 && k.textContent.trim()));
+      const nextEl = kids.slice(i + 1).find(k => k.nodeType === 1 || (k.nodeType === 3 && k.textContent.trim()));
+      if ((/^\s/.test(n.textContent) && prevEl && prevEl.nodeType === 1) || (/\s$/.test(n.textContent) && nextEl && nextEl.nodeType === 1))
+        issues.push({type: '弹性布局吞掉了空格', where: (el.innerText || '').trim().replace(/\s+/g, '').slice(0, 24), detail: '容器是 flex/grid，文字和元素之间的空格不显示；改成 inline-block 或用 gap'});
+    });
+  }
+  // 模板味信号（提示）
+  const hints = [];
+  const emoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{2728}]/u;
+  for (const el of root.querySelectorAll('*')) {
+    if (!visible(el) || el.closest('svg')) continue;
+    const own = [...el.childNodes].filter(n => n.nodeType === 3).map(n => n.textContent).join('').trim();
+    const cs = getComputedStyle(el);
+    if (own && emoji.test(own)) hints.push({sign: 'emoji', where: own.slice(0, 24)});
+    if (own && /[!！]/.test(own)) hints.push({sign: '感叹号', where: own.slice(0, 24)});
+    if (own && cs.textTransform === 'uppercase' && parseFloat(cs.letterSpacing) > 0.5) hints.push({sign: '全大写加宽字距', where: own.slice(0, 24)});
+    if (own && parseInt(cs.fontWeight) >= 800) hints.push({sign: '特粗字重', where: own.slice(0, 24)});
+    if (own && cs.fontStyle === 'italic') hints.push({sign: '斜体强调', where: own.slice(0, 24)});
+    if (own && parseFloat(cs.fontSize) < 14 && parseFloat(cs.letterSpacing) < 0) hints.push({sign: '小字负字距', where: own.slice(0, 24)});
+    if ((cs.backgroundClip === 'text' || cs.webkitBackgroundClip === 'text') && /gradient/.test(cs.backgroundImage)) hints.push({sign: '渐变文字', where: (el.innerText || '').trim().slice(0, 24)});
+    if (/(^|,)\s*all\b/.test(cs.transitionProperty) && cs.transitionDuration !== '0s') hints.push({sign: 'transition: all', where: el.tagName.toLowerCase()});
+    if ((el.tagName === 'BUTTON' || el.getAttribute('role') === 'button') && /[。.]$/.test((el.innerText || '').trim())) hints.push({sign: '按钮文字带句号', where: (el.innerText || '').trim().slice(0, 24)});
+  }
+  // 6：定义过的 token
+  const defined = [];
+  const walk = rules => { for (const r of rules || []) { if (r.style) for (const p of r.style) if (p.startsWith('--')) defined.push(p); try { walk(r.cssRules); } catch (e) {} } };
+  for (const ss of document.styleSheets) { try { walk(ss.cssRules); } catch (e) {} }
+  for (const el of root.querySelectorAll('[style]')) for (const p of el.style) if (p.startsWith('--')) defined.push(p);
+  return {issues, hints, defined: [...new Set(defined)]};
+}
+"""
+
+
+def discover_states(src):
+    names = sorted(set(re.findall(r'<sc-if value="\{\{\s*(s\d+)\s*\}\}"', src)), key=lambda x: int(x[1:]))
+    return names or [None]
+
+
+def stage_labels(src):
+    m = re.search(r'"options":\s*(\[[^\]]*\])', src)
+    try:
+        return json.loads(m.group(1)) if m else []
+    except Exception:
+        return []
+
+
+def board_meta(path):
+    """返回 (宽, 高, 是否文档页)。canvas.json 里带 expand 的画板是说明文档（旅程图之类），不按产品界面查触控尺寸。"""
+    cj = os.path.join(os.path.dirname(path), 'canvas.json')
+    try:
+        b = json.load(open(cj, encoding='utf-8'))['boards'][os.path.basename(path)]
+        return int(b['w']), int(b['h']), bool(b.get('expand'))
+    except Exception:
+        return 390, 844, False
+
+
+COLOR_RE = re.compile(r'#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(')
+
+
+def literal_colors(src):
+    body = re.sub(r'<script type="text/x-dc".*?</script>', '', src, flags=re.S)
+    body = re.sub(r'<link[^>]+>', '', body)
+    hits = []
+    for m in COLOR_RE.finditer(body):
+        ctx = body[max(0, m.start() - 30):m.end() + 10]
+        if 'var(--' in ctx[:30] and ',' in ctx:  # var(--x, #fff) 这样的兜底值
+            continue
+        if re.search(r'href=|src=|&#', ctx):
+            continue
+        hits.append(ctx.replace('\n', ' ').strip())
+    return hits
+
+
+INTERACTIVE_TAGS = ('a', 'button', 'input', 'select', 'textarea', 'label', 'summary')
+
+
+def static_a11y(src):
+    """源码里就能看出的「画出来不能用」：<a> 没有 href、非交互元素上挂点击、事件绑定写错。"""
+    body = re.sub(r'<script.*?</script>', '', src, flags=re.S)
+    out = []
+    for m in re.finditer(r'<a\b([^>]*)>', body):
+        if 'href=' not in m.group(1):
+            text = re.sub(r'<[^>]*>?', '', body[m.end():m.end() + 120]).strip()[:20]
+            out.append({'type': '控件不能用键盘到达', 'where': text or '<a>', 'detail': '<a> 没有 href，Tab 到不了；跳转用 <a href>，动作用 <button>'})
+    for m in re.finditer(r'<(\w+)\b[^>]*\bonClick=', body, flags=re.I):
+        if m.group(1).lower() not in INTERACTIVE_TAGS:
+            out.append({'type': '控件不能用键盘到达', 'where': '<' + m.group(1) + '>', 'detail': '点击挂在非交互元素上；改成 <button>'})
+    # 交互绑定写错：生成脚本把空值写成 {{ None }}，或 f-string 少了一层括号变成 { x }；点了没反应甚至报错
+    for m in re.finditer(r'\bon[A-Z]\w*="(\{\{\s*(?:None|null|undefined)?\s*\}\}|\{(?!\{)[^"]*)"', body):
+        out.append({'type': '交互绑定写错', 'where': m.group(0)[:40], 'detail': '事件绑定是空值或只有一层花括号；不跳转的按钮就不要写 onClick'})
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('paths', nargs='+')
+    ap.add_argument('--out', required=True)
+    ap.add_argument('--themes', default='light,dark')
+    ap.add_argument('--only', default='', help='只查文件名包含这些词的画板，逗号分隔')
+    a = ap.parse_args()
+
+    files = []
+    for p in a.paths:
+        files += sorted(glob.glob(os.path.join(p, '*.dc.html'))) if os.path.isdir(p) else [p]
+    if a.only:
+        keys = a.only.split(',')
+        files = [f for f in files if any(k in os.path.basename(f) for k in keys)]
+    if not files:
+        sys.exit('没有找到 .dc.html 画板')
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        sys.exit('需要 Python Playwright：pip install playwright && playwright install chromium')
+
+    os.makedirs(a.out, exist_ok=True)
+    report, total = [], 0
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch()
+        for f in files:
+            src = open(f, encoding='utf-8').read()
+            w, h, is_doc = board_meta(f)
+            labels = stage_labels(src)
+            refs = set(re.findall(r'var\(--([\w-]+)', src))
+            # file:// 下读不到外部样式表的规则，直接从链接的 css 文件和内联 <style> 里收集定义
+            css_defined = set(re.findall(r'--([\w-]+)\s*:', re.sub(r'<script.*?</script>', '', src, flags=re.S)))
+            for href in re.findall(r'<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"', src):
+                cp = os.path.join(os.path.dirname(os.path.abspath(f)), href)
+                if not href.startswith(('http', '/')) and os.path.exists(cp):
+                    css_defined |= set(re.findall(r'--([\w-]+)\s*:', open(cp, encoding='utf-8').read()))
+            board_issues = [{'state': '源码', 'theme': '-', 'type': '写死的颜色', 'where': c, 'detail': ''} for c in literal_colors(src)]
+            board_issues += [{'state': '源码', 'theme': '-', **i} for i in static_a11y(src)]
+            board_hints = {}
+            for st in discover_states(src):
+                state = {st: True} if st else {}
+                label = labels[int(st[1:])] if st and int(st[1:]) < len(labels) else (st or '默认')
+                for theme in a.themes.split(','):
+                    html = render_html(src, state)
+                    if theme in ('dark',):
+                        html = html.replace('data-theme="light"', 'data-theme="dark"')
+                    fd, tmp = tempfile.mkstemp(prefix='.verify_', suffix='.html', dir=os.path.dirname(os.path.abspath(f)))
+                    with os.fdopen(fd, 'w', encoding='utf-8') as fh:
+                        fh.write(html)
+                    errors, net = [], []
+                    pg = browser.new_page(viewport={'width': w, 'height': h}, reduced_motion='reduce',  # pseudo 按浅色查
+                                          color_scheme='dark' if theme == 'dark' else 'light')
+                    pg.on('pageerror', lambda e: errors.append(str(e)[:120]))
+                    pg.on('console', lambda m: (net if 'net::' in m.text or 'Failed to load resource' in m.text else errors).append(m.text[:120]) if m.type == 'error' else None)
+                    try:
+                        pg.goto('file://' + tmp)
+                        pg.wait_for_timeout(250)
+                        if theme == 'pseudo':
+                            pg.evaluate(PSEUDO_JS)
+                            pg.wait_for_timeout(50)
+                        res = pg.evaluate(CHECK_JS)
+                        if theme == 'pseudo':
+                            res['issues'] = [i for i in res['issues'] if i['type'] in LAYOUT_TYPES]
+                            res['hints'] = []
+                    finally:
+                        pg.close()
+                        os.remove(tmp)
+                    for hnt in res.get('hints', []):
+                        board_hints.setdefault((hnt['sign'], hnt['where']), set()).add(label)
+                    for i in res['issues']:
+                        if is_doc and i['type'] == '触控目标小于 44':
+                            continue
+                        board_issues.append({'state': label, 'theme': theme, **i})
+                    if theme == a.themes.split(',')[0]:
+                        for name in sorted(refs - {d[2:] for d in res['defined']} - css_defined):
+                            board_issues.append({'state': label, 'theme': theme, 'type': '没定义的 token', 'where': '--' + name, 'detail': ''})
+                    for e in errors:
+                        board_issues.append({'state': label, 'theme': theme, 'type': '页面报错', 'where': e, 'detail': ''})
+            # 同一个问题在多个状态里重复出现时合并
+            merged = {}
+            for i in board_issues:
+                k = (i['type'], i['where'], i['detail'])
+                m = merged.setdefault(k, {**i, 'states': [], 'themes': []})
+                m['states'].append(i['state'])
+                if i['theme'] not in m['themes']:
+                    m['themes'].append(i['theme'])
+            items = list(merged.values())
+            for i in items:
+                i['theme'] = '、'.join(i['themes'])
+            total += len(items)
+            report.append((os.path.basename(f), items, board_hints))
+
+        browser.close()
+
+    verdict = 'done' if total == 0 else 'needs_work'
+    lines = [f'# 画板验证报告', '', f'**结论：{verdict}**（{total} 个问题，{len(files)} 块画板，主题：{a.themes}）', '',
+             '只报会让用户看错、点不到、看不清的问题。审美判断交给评审。', '']
+    for name, items, hints in report:
+        lines.append(f'## {name}' + ('（通过）' if not items else f'（{len(items)}）'))
+        if items:
+            lines += ['', '| 类型 | 位置 | 细节 | 主题 | 状态 |', '|---|---|---|---|---|']
+            for i in sorted(items, key=lambda x: x['type']):
+                st = '、'.join(dict.fromkeys(i['states']))
+                lines.append(f"| {i['type']} | {i['where'].replace('|', '/')} | {i['detail']} | {i['theme']} | {st[:80]} |")
+        if hints:
+            lines += ['', '模板味信号（提示，不影响结论）：' + '；'.join(f'{k[0]}「{k[1]}」' for k in list(hints)[:12])]
+        lines.append('')
+    out = os.path.join(a.out, 'verify-canvas.md')
+    open(out, 'w', encoding='utf-8').write('\n'.join(lines))
+    json.dump({'verdict': verdict, 'boards': {n: it for n, it, _ in report},
+               'hints': {n: [{'sign': k[0], 'where': k[1], 'states': sorted(v)} for k, v in h.items()] for n, _, h in report}}, open(os.path.join(a.out, 'verify-canvas.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    print(f'{verdict}: {total} 个问题 → {out}')
+    sys.exit(0 if verdict == 'done' else 1)
+
+
+if __name__ == '__main__':
+    main()

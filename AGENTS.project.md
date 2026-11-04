@@ -14,6 +14,7 @@
 | 改看清的文章部分的范围 | [docs/prd/remaining.md](docs/prd/remaining.md)、[docs/uiue/identity.md](docs/uiue/identity.md)、[docs/issues/README.md](docs/issues/README.md) |
 | 写、改、审内容 | 技能 `velicoach-content`；收录一篇文章另见下面「收录一篇时」 |
 | 改界面、版式、交互、动效 | 技能 `velicoach-layout`、[docs/uiue/design-system.md](docs/uiue/design-system.md)、[docs/uiue/decisions.md](docs/uiue/decisions.md)；界面实现另开已有的 `design-ui` |
+| 做票、拆票、跑流水线、改协作机制 | [docs/standards/pipeline.md](docs/standards/pipeline.md)（关口、角色、循环、车道、复用 Veli 的方式）、[docs/standards/observer.md](docs/standards/observer.md)、[docs/delivery/loops/](docs/delivery/loops/)（定时任务的提示词）、[docs/delivery/lessons.md](docs/delivery/lessons.md)；子 Agent 定义在 `.claude/agents/` |
 | 技术选型、部署、结构变化 | [docs/architecture/overview.md](docs/architecture/overview.md)、[docs/architecture/adr/](docs/architecture/adr/)、[docs/deploy.md](docs/deploy.md)；先写 ADR 再动手 |
 
 ## 技能
@@ -27,6 +28,16 @@
 | `article-pipeline` | 收录一篇文章：顺序、该停的地方、每一步叫哪一份技能都写在那里 |
 | `design-ui` | 界面实现和打磨 |
 | `threejs` | 首页「叶与网」动效的实现 |
+| `design-bar` | 画板和页面的只读验证（`verify_canvas.py`、`check_page.py`、`lint_tokens.py`）、独立设计评审、需求覆盖；关口三 a 和界面票都用。从 Veli 复用 |
+| `grill-with-docs`、`to-spec`、`to-tickets` | 新需求开工前逐题追问；把定下来的需求写成规格、拆成带依赖的票（关口三 b）。Matt Pocock 的技能，MIT，从 Veli 复用 |
+| `implement`、`implement-spec`、`tdd`、`code-review` | 按票实现、测试先行、代码评审（站点车道）。同上 |
+| `domain-modeling`、`grilling` | 改术语表、写 ADR；追问一个方案。同上 |
+
+### 给 Matt Pocock 技能的约定
+
+- **Issue tracker**：本仓库的 GitHub Issues；云端会话只能用 REST（`gh api`）。
+- **Triage labels**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 上另有 `agent:pass`、`agent:rework`、`agent:hold`、`owner:merge`；状态 issue 上的 `agent:stop` 是总开关（`docs/standards/pipeline.md` §5）。
+- **Domain docs**：单一上下文，术语表 `docs/GLOSSARY.md`，ADR 在 `docs/architecture/adr/`。
 
 ## 不能越过的线
 
@@ -38,6 +49,7 @@
 6. **事实有出处**：数字、研究、引用都写明出处；官方中文原样保留，学习分享，不替代原文。
 7. **一条意见代表一类问题**：改完所有同类位置，把原则写回技能、设计系统或术语表，在 `docs/requirements/trace.md` 记一笔。
 8. 密钥只放在服务端环境变量，不写进代码、文档和提交信息。
+9. **流水线的票不直接进 `site`**：所有票的 PR 合并进集成分支 `feature/v1`，关口四通过后由产品负责人确认一次合并进 `site`；合并只走合并脚本（`docs/standards/pipeline.md` §5）。
 
 ## 收录一篇时
 

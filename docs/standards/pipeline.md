@@ -26,7 +26,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 0. **标杆卡**：`docs/uiue/bar-sheet.md`（2026-11-04 已写），标杆原则 P1–P5 由 `docs/standards/quality-terms.md` 的规则判定。它是体验类决定，由主会话定、记进 `docs/uiue/decisions.md`，产品负责人有意见再改。没有它，评审打不了分，停止条件也判不了。
 1. **只读验证**：`verify_canvas.py <画板目录> --out docs/uiue/reviews/<日期>-ui-v1 --themes light,dark,pseudo`，结论只有 `done` 或 `needs_work`，修到 `done`。画板引用的共享样式表在 `/_blob/` 上，加 `--blob <id>=<本地文件>` 指过去（`design-bar` 2026-11-04 加的参数）。
 2. **两份独立评审**：`design-reviewer`（Opus）和 `design-reviewer-b`（Sonnet）各派一个新的，互相看不到。只给它们：三种版式 × 两种主题的截图、PRD（功能表 F01–F25、步数预算、页面状态，当作 brief）、标杆卡 `docs/uiue/bar-sheet.md`、设计系统 README、`velicoach-layout` 技能、`design-bar` 的 `references/rubric.md` 和 `anti-patterns.md`，以及上一轮的问题清单。不给制作过程。
-3. **合并与修**：主会话把两份清单去重，按「影响 × 修复成本」排序，每轮修前 3 项，再派新的评审核对。停止条件照 `design-bar`：标杆原则都 ≥ 4 分且检查全过；或一轮没有提升；或已经 3 轮。
+3. **合并与修**：主会话把两份清单去重，按「影响 × 修复成本」排序，每轮修前 3 项，再派新的评审核对。停止条件见 `bar-sheet.md` §7：P1–P5 都 ≥ 4 分且底线全过才算通过；一轮没有提升或已经 3 轮还没通过，就在 #13 上报，不算通过。
 4. **需求覆盖**：PRD 每个 v1 功能都在画板上有状态，或在覆盖表里写明为什么没有界面。
 5. **出口**：报告放 `docs/uiue/reviews/<日期>-ui-v1/`，P0、P1 为 0，P1–P5 都 ≥ 4 分或按停止条件结束；主会话判定 3a 通过，在 #13 写明结论和理由（体验类决定，产品负责人有意见再改；涉及需求的改动另外说清）。被接受的修改写回设计系统和 `docs/uiue/decisions.md`。
 
@@ -45,7 +45,9 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 - PRD「关键路径与页面状态」的六条路径各有一条端到端测试，跑过且没有未说明的跳过；
 - Lighthouse（性能预算作为上线关口，PRD 第 8 节）；axe 严重和较严重的问题为 0；
 - 真机各走一遍：iOS 和 iPadOS 的 Safari、Android 的 Chrome（产品负责人在场，同 Veli 的多端通道 B）；
-- 两份独立走查（`design-reviewer` 两份）P0、P1 为 0；`npm run check:terms` 通过；中英两版齐全；
+- 两份独立走查（`design-reviewer` 两份）P0、P1 为 0；`quality-terms.md` 里适用的规则全部通过（含只能在实现上查的 U8 速度、U9 响应时间）；
+- 五秒测试：5 个没看过的人看首页和三站首屏 5 秒，至少 4 人说得出「给谁的、能做什么、点哪里」（U2，产品负责人找人）；
+- `npm run check:terms`、`npm run check:vague` 通过；中英两版齐全；
 - 带 `risk:high` 的 PR 都有安全评审的通过记录。
 
 ## 3. 角色：谁做、谁查、交接物
@@ -133,7 +135,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 质量词 | `npm run check:vague`；票和规格的正文先存成临时文件再跑 `node scripts/check-vague.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 脚本单元测试 | `npm test`（含 `node --test 'scripts/**/*.test.mjs'`；2026-11-04 有 8 个失败，见 §8 第 0 阶段） | `reviewer` |
 | 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖（云端会话装不了依赖，同 Veli 的做法） | `reviewer` 用 Vercel 连接器看构建日志 |
-| 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 375,744,1180`：三种版式、浅色深色的截图，溢出、小字、对比度、触控、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |
+| 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |
 | token | `python .grok/skills/design-bar/scripts/lint_tokens.py src --tokens <token 文件>` | `reviewer`（界面票） |
 | 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo`（`--out` 必填） | 关口三 a；改了画板的票 |
 | 内容 | 出处逐条打开核对；授权状态；`velicoach-content` 的审核清单；中英两版都在 | `content-reviewer` |

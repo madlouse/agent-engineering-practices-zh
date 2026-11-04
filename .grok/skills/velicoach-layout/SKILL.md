@@ -13,7 +13,7 @@ description: Velicoach 主站的页面排版与布局规范：页面骨架、手
 - 需求以主站 PRD 为准（`docs/prd/velicoach.md`，在线文档是唯一来源）；设计上的取舍记在 `docs/uiue/decisions.md`。
 - 样式只引用 token（`--vc-*`、`--space-*`、`--radius-*`、`--duration-*` 等），不写死颜色、字号、间距、圆角和时长。媒体查询里不能用 CSS 变量，断点写死同值并注明来自哪个 token。
 - 需要新 token 或新规则时，先改设计系统，再同步到代码；不在页面里临时发明。
-- 「好看」「好用」「舒适」「有品味」这些词的意思以 `docs/standards/quality-terms.md` 为准（规则 U、V、K、A）；设计评审按 `docs/uiue/bar-sheet.md` 的 P1–P5 打分。和本技能冲突时以那里为准，再回来改本技能。
+- 「好看」「好用」「舒适」「有品味」这些词的意思以 `docs/standards/quality-terms.md` 为准（规则 U、V、A）；设计评审按 `docs/uiue/bar-sheet.md` 的 P1–P5 打分。和本技能冲突时以那里为准，再回来改本技能。
 - 流程沿用 `design-bar` 技能：开工前确认关键信息与标杆，交付前跑检查，评审意见写回设计系统。
 
 ## 2. 开工前回答四个问题

@@ -202,6 +202,7 @@ def main():
     ap.add_argument("--dark", action="store_true", help="另截一组深色模式截图")
     ap.add_argument("--min-font", type=float, default=14)
     ap.add_argument("--min-target", type=float, default=44)
+    ap.add_argument('--targets-up-to', type=int, default=MOBILE_MAX, help='在不超过这个宽度的截图上检查触控目标（默认 480，只查手机）；全站要求可点区域都够大时设成最大宽度')
     ap.add_argument("--max-font-sizes", type=int, default=8)
     ap.add_argument("--max-text-colors", type=int, default=6)
     a = ap.parse_args()
@@ -234,7 +235,7 @@ def main():
                 page.screenshot(path=str(out / f"shot-{w}{suffix}-full.png"), full_page=True)
                 if not a.shots_only and scheme == "light":
                     report["widths"][w] = page.evaluate(COLLECT_JS, {
-                        "minFont": a.min_font, "minTarget": a.min_target, "mobileMax": MOBILE_MAX})
+                        "minFont": a.min_font, "minTarget": a.min_target, "mobileMax": a.targets_up_to})
                     if not report["widths"][w]["hasReducedMotionQuery"]:
                         # file:// 或跨域样式表的 cssRules 读不到：直接读样式表源文件
                         report["widths"][w]["hasReducedMotionQuery"] = stylesheets_mention(
@@ -278,7 +279,7 @@ def write_markdown(r, a):
         item(not d["smallText"], f"没有小于 {a.min_font}px 的文字", d["smallText"])
         unknown = f"（另有 {d['contrastUnknown']} 处位于图片或渐变背景上，需人工检查）" if d["contrastUnknown"] else ""
         item(not d["lowContrast"], f"文本对比度达标{unknown}", d["lowContrast"])
-        if int(w) <= MOBILE_MAX:
+        if int(w) <= a.targets_up_to:
             item(not d["smallTargets"], f"触控目标 ≥ {a.min_target}px", d["smallTargets"])
 
     widest = r["widths"][max(r["widths"], key=int)]

@@ -2,7 +2,7 @@
 name: article-fidelity
 description: >
   Keep 100% of source media and untranslatable wording when adding a post to
-  落地实践. Triggers on "原文", "100%", "视频", "图", "不译", "版权",
+  同席 (the Velicoach Mind station). Triggers on "原文", "100%", "视频", "图", "不译", "版权",
   "fidelity", "漏了", "图标".
 metadata:
   short-description: "原文保真：全文、原视频、原图，不能译的不译"

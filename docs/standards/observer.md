@@ -13,12 +13,13 @@
 
 照 Veli `observer.md` §2–§5：先看组织和协作（`pipeline.md` §3 的角色表：交接物有没有留下、接手方有没有读、哪一段没人负责），再看过程合规（每次运行的运行锁、领票、证据、评审、合并、交接）、证据能不能在干净检出上重跑、冷评审的漏检。主站另外看：
 
-| 抓手 | 看什么 | 到位的标准 |
+| 方面 | 看什么 | 到位的标准 |
 |---|---|---|
 | 两条车道 | 站点和内容各自的吞吐、周期、返工；有没有越过 `pipeline.md` §4.1 的路径边界；跨车道的依赖是不是用「被谁卡住」连起来了 | 越界 0 次；跨车道的依赖都有链接 |
 | 设计质量 | 合并的界面 PR 抽查：自己在预览上跑 `check_page.py`，对照画板和 `velicoach-layout` 再做一次独立评审，记评审漏检 | 只读检查结论 `done`；漏检记进指标 |
 | 内容质量 | 合并的内容 PR 抽查：随机打开 3 处出处核对原句；授权状态；术语；英文是不是按英语读者重写 | 出处可复现 100%；授权不明的只做讲解和摘要 |
 | 需求覆盖 | PRD v1 的每个功能：有票、有画板状态、有验收；还没画的写明理由 | 当前里程碑 100% 有验收 |
+| 质量词 | 验收和评审结论里的质量词是不是都链到了 `quality-terms.md`；评审写的「规则缺口」有没有补进规则；「自定」的数两周后按数据复核 | `check:vague` 通过；规则缺口都有去向 |
 | 人的注意力 | 等你决定的事、周一选题和周五定稿有没有按时被处理，卡在人身上的等待有多长 | 等你决定 ≤ 3 条 |
 
 ## 3. 设计和内容的评审，怎样才可信（复用 `design-bar`）
@@ -49,4 +50,4 @@
 
 阶段 1 每个合并的 PR 都抽查；之后 3 个抽 1 个。
 
-**规范篇幅预算**：`docs/standards/*.md`、`docs/delivery/loops/*.md`、`.claude/agents/*.md`、`AGENTS.project.md` 合计不超过 6 万字节，量法 `cat docs/standards/*.md docs/delivery/loops/*.md .claude/agents/*.md AGENTS.project.md | LC_ALL=C wc -c`。超了先合并或删掉同样多的内容，再加新的。主站的机制靠引用 Veli 的版本，不复制原文，所以预算比 Veli 小。
+**规范篇幅预算**：`docs/standards/*.md`、`docs/delivery/loops/*.md`、`.claude/agents/*.md`、`AGENTS.project.md` 合计不超过 6 万字节（`quality-terms.md` 是词典，和术语表一样不计入），量法 `ls docs/standards/*.md docs/delivery/loops/*.md .claude/agents/*.md AGENTS.project.md | grep -v quality-terms | xargs cat | LC_ALL=C wc -c`。超了先合并或删掉同样多的内容，再加新的。主站的机制靠引用 Veli 的版本，不复制原文，所以预算比 Veli 小。

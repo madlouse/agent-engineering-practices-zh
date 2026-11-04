@@ -34,6 +34,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 
 - 站点车道：按 v1 范围拆里程碑和票，竖切（数据 → 页面 → 测试），一次会话做得完。规格和票的出口标准照 Veli 的 `spec-quality.md` §2–§3，主站不同的两处：没有数据库和健康数据的条目不适用；每张界面票必须写明对应的画板和状态。
 - 内容车道：已有总票 #3 和九个模块票 #4–#12。每张票先补齐验收，标 `ready-for-agent`。
+- 两条车道的验收都不能用没定义的质量词和虚词：质量词链到 `quality-terms.md` 或直接写成那里的规则（`check-vague.mjs` 判定）。
 - `spec-reviewer` 冷审一批票，结论「就绪：是 / 否」。两轮不过交产品负责人。产品负责人看过拆分，关口三通过，循环开始跑（§8）。
 
 ### 2.3 关口四：上线
@@ -129,6 +130,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 检查 | 命令 | 谁跑 |
 |---|---|---|
 | 术语 | `npm run check:terms` | 两条车道的评审 |
+| 质量词 | `npm run check:vague`；票和规格的正文先存成临时文件再跑 `node scripts/check-vague.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 脚本单元测试 | `npm test`（含 `node --test 'scripts/**/*.test.mjs'`；2026-11-04 有 8 个失败，见 §8 第 0 阶段） | `reviewer` |
 | 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖（云端会话装不了依赖，同 Veli 的做法） | `reviewer` 用 Vercel 连接器看构建日志 |
 | 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 375,744,1180`：三种版式、浅色深色的截图，溢出、小字、对比度、触控、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |

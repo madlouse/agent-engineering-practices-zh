@@ -134,7 +134,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 术语 | `npm run check:terms` | 两条车道的评审 |
 | 质量词 | `npm run check:vague`；票和规格的正文先存成临时文件再跑 `node scripts/check-vague.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 脚本单元测试 | `npm test`（含 `node --test 'scripts/**/*.test.mjs'`；2026-11-04 有 8 个失败，见 §8 第 0 阶段） | `reviewer` |
-| 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖（云端会话装不了依赖，同 Veli 的做法） | `reviewer` 用 Vercel 连接器看构建日志 |
+| 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖（同 Veli 的做法） | `reviewer` 用 Vercel 连接器看构建日志 |
 | 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |
 | token | `python .grok/skills/design-bar/scripts/lint_tokens.py src --tokens <token 文件>` | `reviewer`（界面票） |
 | 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo`（`--out` 必填） | 关口三 a；改了画板的票 |

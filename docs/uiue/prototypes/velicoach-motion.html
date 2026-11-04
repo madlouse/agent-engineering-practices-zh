@@ -1,0 +1,681 @@
+<title>Velicoach 动效原型</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* 布局：上半是可交互的首屏（三种主动效共用同一套文字与交互），下半是对比与推荐，读完即可拍板 */
+:root {
+  /* 品牌色：首屏固定，不随主题变化 */
+  --paper: #f4f2ec;
+  --ink: #17150f;
+  --moss: #365640;
+  --moss-deep: #263b2e;
+  --moss-light: #b9d0b3;
+  --cinnabar: #e0784f;
+  --amber: #ecc39a;
+  --on-ink: #efe8da;
+  --on-ink-2: #cfc6b4;
+  --on-paper-2: #4b4c45;
+
+  /* 页面色：随主题变化 */
+  --bg: #f4f2ec;
+  --fg: #1c1d19;
+  --muted: #4b4c45;
+  --faint: #6b6c63;
+  --line: #e0dcd1;
+  --card: #fffdf8;
+  --accent: #365640;
+  --accent-soft: #e3e8df;
+  --mark: #9c3b1e;
+
+  --f-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Inter Tight", "Noto Sans SC", system-ui, sans-serif;
+  --f-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Inter Tight", "Noto Sans SC", sans-serif;
+  --f-serif: ui-serif, "New York", "Songti SC", "Noto Serif SC", serif;
+  --f-mono: ui-monospace, "SF Mono", "IBM Plex Mono", Menlo, monospace;
+
+  --split: 0.5;
+  --ease: cubic-bezier(.2,.8,.2,1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121310; --fg: #edebe4; --muted: #c8c6bc; --faint: #9d9b90; --line: #2f3129;
+    --card: #1b1c18; --accent: #97b79d; --accent-soft: #25302a; --mark: #e0784f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121310; --fg: #edebe4; --muted: #c8c6bc; --faint: #9d9b90; --line: #2f3129;
+  --card: #1b1c18; --accent: #97b79d; --accent-soft: #25302a; --mark: #e0784f; color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--f-sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid #2f5fb3; outline-offset: 2px; }
+
+/* ---------- 玻璃材质 ---------- */
+.glass {
+  background: rgba(250, 249, 246, .62);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), 0 0 0 1px rgba(255,255,255,.24), 0 16px 40px -16px rgba(0,0,0,.42);
+  color: #1c1d19;
+}
+.glass-moss {
+  background: rgba(38, 59, 46, .84);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 0 0 1px rgba(255,255,255,.16), 0 20px 44px -16px rgba(0,0,0,.55);
+  color: #fffdf8;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: #e9e6df; } .glass-moss { background: #263b2e; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass { background: #e9e6df; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .glass-moss { background: #263b2e; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* ---------- 首屏 ---------- */
+.hero { position: relative; height: clamp(600px, 88svh, 880px); overflow: hidden; isolation: isolate; }
+.hero .bg { position: absolute; top: 0; bottom: 0; }
+.hero .bg.body { left: 0; width: calc(var(--split) * 100%); background: var(--paper); }
+.hero .bg.mind { right: 0; left: calc(var(--split) * 100%); background: var(--ink); }
+#gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.nav {
+  position: absolute; z-index: 5; top: calc(20px + env(safe-area-inset-top, 0px)); left: clamp(400px, calc(var(--split) * 100%), calc(100% - 400px));
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 999px; white-space: nowrap;
+}
+.brand { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px 0 10px; font-family: var(--f-display); font-weight: 600; font-size: 17px; letter-spacing: -0.01em; }
+.sep { width: 1px; height: 20px; background: rgba(28,29,25,.18); }
+.seg { display: flex; padding: 2px; gap: 2px; }
+.seg button, .toggle {
+  min-height: 40px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: #1c1d19; font-size: 14px; font-weight: 500;
+  transition: background-color 150ms var(--ease), color 150ms var(--ease);
+}
+.seg button:hover, .toggle:hover { background: rgba(28,29,25,.07); }
+.seg button[aria-pressed="true"] { background: #1d1c1a; color: #fffdf8; }
+.seg button .k { font-family: var(--f-mono); font-size: 12px; opacity: .72; margin-right: 6px; }
+.toggle[aria-pressed="true"] { background: rgba(28,29,25,.1); }
+.status { font-family: var(--f-mono); font-size: 12px; color: #4b4c45; padding: 0 12px 0 6px; font-variant-numeric: tabular-nums; min-width: 9.5em; }
+
+.copy { position: absolute; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; gap: 22px; z-index: 2; pointer-events: none; }
+.copy a, .copy button { pointer-events: auto; }
+/* 靠接缝一侧留出 168px，给接缝上的主动效让位 */
+.copy.left { left: 0; width: calc(var(--split) * 100%); box-sizing: border-box; padding: 120px 168px 120px max(56px, env(safe-area-inset-left, 0px)); color: #1c1d19; }
+.copy.right { left: calc(var(--split) * 100%); right: 0; box-sizing: border-box; padding: 120px max(56px, env(safe-area-inset-right, 0px)) 120px 168px; color: var(--on-ink); }
+.kicker { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .06em; }
+.left .kicker { color: var(--moss); }
+.right .kicker { color: var(--cinnabar); font-family: var(--f-mono); font-weight: 500; }
+.copy h1 { margin: 0; max-width: 9em; line-height: 1.08; text-wrap: balance; }
+.left h1 { font-family: var(--f-display); font-weight: 700; letter-spacing: -0.025em; font-size: clamp(36px, calc(44px + (var(--split) - 0.38) * 150px), 84px); }
+.right h1 { font-family: var(--f-serif); font-weight: 600; letter-spacing: -0.01em; font-size: clamp(36px, calc(44px + (0.62 - var(--split)) * 150px), 84px); }
+.copy p.lead { margin: 0; max-width: 24em; font-size: 18px; line-height: 1.6; }
+.left p.lead { color: var(--on-paper-2); opacity: clamp(0, calc((var(--split) - 0.42) * 10), 1); }
+.right p.lead { color: var(--on-ink-2); opacity: clamp(0, calc((0.58 - var(--split)) * 10), 1); }
+.copy .limit { max-width: 440px; display: flex; flex-direction: column; gap: 22px; }
+.cta { align-self: flex-start; display: inline-flex; align-items: center; min-height: 50px; padding: 0 24px; border-radius: 999px; font-size: 16px; font-weight: 500; text-decoration: none; }
+.left .cta { background: #1d1c1a; color: #fffdf8; opacity: clamp(0, calc((var(--split) - 0.42) * 10), 1); }
+.right .cta { border: 1px solid #5a5244; color: var(--on-ink); opacity: clamp(0, calc((0.58 - var(--split)) * 10), 1); }
+
+.orb {
+  position: absolute; z-index: 4; bottom: calc(40px + env(safe-area-inset-bottom, 0px)); left: calc(var(--split) * 100%);
+  width: 112px; height: 112px; margin-left: -56px; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none;
+  transition: transform 420ms cubic-bezier(.34,1.4,.64,1);
+}
+.orb:hover { transform: scale(1.06); }
+.orb .n { font-size: 12px; font-weight: 600; letter-spacing: .06em; color: var(--amber); }
+.orb .w { font-size: 17px; font-weight: 600; }
+.hint { position: absolute; z-index: 3; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); margin: 0; font-size: 12px; color: var(--faint); font-family: var(--f-mono); }
+
+@media (max-width: 760px) {
+  .hero { height: auto; min-height: 0; }
+  .hero .bg.body { width: 100%; height: 50%; top: 0; bottom: auto; }
+  .hero .bg.mind { left: 0; right: 0; top: 50%; }
+  .nav { left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); transform: none; flex-wrap: wrap; justify-content: center; border-radius: 22px; white-space: normal; }
+  .nav .sep, .nav .status { display: none; }
+  .copy { position: relative; justify-content: flex-start; }
+  .copy.left { width: 100%; min-height: 50svh; padding: 168px 20px 132px; justify-content: flex-end; }
+  .copy.right { left: 0; width: 100%; min-height: 50svh; padding: 132px 20px 72px; }
+  .left h1, .right h1 { font-size: 38px; }
+  .left p.lead, .right p.lead, .left .cta, .right .cta { opacity: 1; }
+  .orb { top: calc(50% - 48px); bottom: auto; left: 50%; width: 96px; height: 96px; margin-left: -48px; }
+  .hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .orb, .seg button, .toggle { transition: none; } }
+
+/* ---------- 对比 ---------- */
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 72px 88px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 56px; }
+.wrap > section { display: flex; flex-direction: column; gap: 20px; }
+h2 { margin: 0; font-family: var(--f-display); font-size: clamp(26px, 3.2vw, 36px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; text-wrap: balance; }
+h3 { margin: 0; font-family: var(--f-display); font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.intro { margin: 0; max-width: 40em; color: var(--muted); font-size: 17px; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.card { background: var(--card); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 0 0 1px var(--line); }
+.card.rec { box-shadow: 0 0 0 2px var(--accent); }
+.card .tag { align-self: flex-start; font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); }
+.card .tag.no { background: transparent; color: var(--faint); box-shadow: inset 0 0 0 1px var(--line); }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.card dl { margin: 4px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.card dt { color: var(--faint); }
+.card dd { margin: 0; }
+.card button.try { align-self: flex-start; min-height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); font-size: 14px; font-weight: 500; }
+.card button.try:hover { border-color: var(--accent); }
+.table-wrap { overflow-x: auto; border-radius: 16px; box-shadow: 0 0 0 1px var(--line); background: var(--card); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 15px; }
+th, td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child th, tr:last-child td { border-bottom: 0; }
+thead th { font-size: 13px; color: var(--faint); font-weight: 500; }
+tbody th { font-weight: 500; color: var(--muted); width: 22%; }
+.dots { font-family: var(--f-mono); letter-spacing: 2px; color: var(--accent); white-space: nowrap; }
+.dots .off { color: var(--line); }
+.decision { background: var(--card); border-radius: 20px; padding: 28px; box-shadow: 0 0 0 1px var(--line); display: flex; flex-direction: column; gap: 14px; }
+.decision p { margin: 0; max-width: 46em; }
+.decision ul, .notes ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; max-width: 46em; }
+.notes li, .decision li { color: var(--muted); }
+.sources { font-size: 14px; color: var(--faint); }
+.sources ul { margin: 6px 0 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+@media (max-width: 860px) { .cards { grid-template-columns: 1fr; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.tsl.min.js"
+} }
+</script>
+
+<section class="hero" id="hero" aria-label="首屏原型">
+  <div class="bg body" aria-hidden="true"></div>
+  <div class="bg mind" aria-hidden="true"></div>
+  <canvas id="gl" aria-hidden="true"></canvas>
+
+  <nav class="nav glass" aria-label="原型控制">
+    <span class="brand">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z" fill="#365640"/><path d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" stroke="#f4f2ec" stroke-width="1.6" stroke-linecap="round" fill="none"/></g></svg>
+      Velicoach
+    </span>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="seg" role="group" aria-label="动效方向">
+      <button type="button" id="btn-ink" data-key="ink" aria-pressed="false"><span class="k">A</span>墨入纸</button>
+      <button type="button" id="btn-tokens" data-key="tokens" aria-pressed="false"><span class="k">B</span>注意力</button>
+      <button type="button" id="btn-leaf" data-key="leaf" aria-pressed="false"><span class="k">C</span>叶与网</button>
+    </div>
+    <span class="sep" aria-hidden="true"></span>
+    <button type="button" class="toggle" id="btn-motion" aria-pressed="true">动效开</button>
+    <span class="status" id="status" aria-live="polite">正在加载</span>
+  </nav>
+
+  <div class="copy left">
+    <div class="limit">
+      <p class="kicker">01 · 站稳</p>
+      <h1>先有强健的身体</h1>
+      <p class="lead">AI 把越来越多的事搬进屏幕，人坐得更久、睡得更晚。肌肉是存得下来的健康：老了少摔跤，现在更有精神。</p>
+      <a class="cta" href="#h-three">和威利开始第一练</a>
+    </div>
+  </div>
+  <div class="copy right">
+    <div class="limit">
+      <p class="kicker">02 · 看清</p>
+      <h1>再学会与智能共事</h1>
+      <p class="lead">从 1950 年图灵的提问，到今天和 agent 一起写代码。读懂这条路，找到人和 agent 最好的分工。</p>
+      <a class="cta" href="#h-three">进入心智</a>
+    </div>
+  </div>
+
+  <a class="orb glass-moss" href="#decision" aria-label="第三站：动手，成为 builder">
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><g transform="rotate(45 12 12)"><path d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z" fill="#b9d0b3"/><path d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" stroke="#263b2e" stroke-width="1.6" stroke-linecap="round" fill="none"/></g></svg>
+    <span class="n">03</span><span class="w">动手</span>
+  </a>
+  <p class="hint">把鼠标移到左右两侧，首屏会向那一侧倾斜</p>
+</section>
+
+<main class="wrap">
+  <section aria-labelledby="h-three">
+    <h2 id="h-three">三个动效方向</h2>
+    <p class="intro">同一个首屏、同一套交互，只换主动效。点上方的 A、B、C 切换；导航右侧显示当前用的是 WebGPU 还是 WebGL2，以及实时帧率。三个方向都用 three.js 的 TSL 写着色器，同一份代码能跑在两种后端上。</p>
+    <div class="cards">
+      <article class="card">
+        <span class="tag no">保留为材质</span>
+        <h3>A · 墨入纸</h3>
+        <p>纸色和墨色在接缝处像水墨一样互相渗透，边界随呼吸节奏起伏（每分钟 6 次，接近放松时的呼吸）；鼠标靠近时，墨会微微扩散。人和智能不是被一刀切开的两半，而是彼此渗透。</p>
+        <dl><dt>技术</dt><dd>一个全屏着色器，分形噪声</dd><dt>成本</dt><dd>最轻，每个像素一次计算</dd></dl>
+        <button type="button" class="try" data-key="ink">看 A</button>
+      </article>
+      <article class="card">
+        <span class="tag no">不采用</span>
+        <h3>B · 注意力</h3>
+        <p>左边的光点像花粉一样自由上浮；同样的光点到了右边排成网格，像模型里的 token。鼠标是注意力，经过的地方被点亮，一道道脉冲从接缝向右传开。</p>
+        <dl><dt>技术</dt><dd>3,200 个实例化粒子，顶点着色器里计算位置</dd><dt>成本</dt><dd>中等</dd></dl>
+        <button type="button" class="try" data-key="tokens">看 B</button>
+      </article>
+      <article class="card rec">
+        <span class="tag">推荐</span>
+        <h3>C · 叶与网</h3>
+        <p>接缝上只有一个主角：Veli 的那片叶子，由几千个点组成。首屏向右倾斜时，叶子散开、重组成一张网；向左时，又长回一片叶子。每个点的颜色取决于它落在哪一侧。</p>
+        <dl><dt>技术</dt><dd>5,000 个点在两组目标形状之间形变</dd><dt>成本</dt><dd>中等</dd></dl>
+        <button type="button" class="try" data-key="leaf">看 C</button>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-compare">
+    <h2 id="h-compare">逐项对比</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">维度</th><th scope="col">A · 墨入纸</th><th scope="col">B · 注意力</th><th scope="col">C · 叶与网</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">讲清「身体 × 心智」</th><td><span class="dots">●●●○○</span><br>讲的是交融，看不出两侧各是什么</td><td><span class="dots">●●●●○</span><br>生长与结构的对比清楚</td><td><span class="dots">●●●●●</span><br>叶子和网就是两站本身</td></tr>
+          <tr><th scope="row">品牌独特性</th><td><span class="dots">●●●○○</span><br>水墨有东方气质，但不专属</td><td><span class="dots">●●○○○</span><br>粒子网格是常见的「AI 感」</td><td><span class="dots">●●●●●</span><br>Veli 的叶子只属于我们</td></tr>
+          <tr><th scope="row">首屏文字可读性</th><td><span class="dots">●●●●○</span><br>接缝起伏不碰到文字</td><td><span class="dots">●●●○○</span><br>光点会从文字后面经过</td><td><span class="dots">●●●●●</span><br>只占接缝，文字两侧干净</td></tr>
+          <tr><th scope="row">性能成本</th><td><span class="dots">●●●●●</span><br>最轻</td><td><span class="dots">●●●○○</span><br>中等</td><td><span class="dots">●●●●○</span><br>中等，可按设备减少点数</td></tr>
+          <tr><th scope="row">能延续到往下滚动的叙事</th><td><span class="dots">●●○○○</span><br>没有变化的主体</td><td><span class="dots">●●●○○</span><br>可以聚成文字</td><td><span class="dots">●●●●●</span><br>叶 → 网 → 搭起来的结构，正好对应站稳、看清、动手</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="decision" aria-labelledby="h-decision">
+    <h2 id="h-decision">定下的方向</h2>
+    <div class="decision">
+      <p><strong>首页主动效用 C「叶与网」；A 的墨色渗透降为分站的背景材质；B 不采用。</strong></p>
+      <ul>
+        <li>C 的主角就是品牌签名，讲清「身体 × 心智」最直接，别人拿不走。</li>
+        <li>C 可以延续成往下滚动的叙事：叶子（站稳）散成网（看清），再搭成一个结构（动手）。获奖站点普遍采用这种滚动叙事。</li>
+        <li>A 很轻，适合放在三站页面的顶部，做成几乎静止的纸墨质感，和首页保持同一种气质。</li>
+        <li>每屏只有一个主动效：首页是 C，分站只有 A 的材质，不叠加。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="notes" aria-labelledby="h-notes">
+    <h2 id="h-notes">实现约定</h2>
+    <ul>
+      <li>three.js 的 WebGPURenderer 加 TSL：同一份着色器在 WebGPU 和 WebGL2 上都能跑；两种都不可用时显示静态画面，文字和按钮照常可用。</li>
+      <li>首屏文字和按钮先出现，three.js（约 260 KB，压缩后）在首屏绘制完成后再加载，不拖慢最大内容绘制（LCP）。</li>
+      <li>滚出视口或切到别的标签页时暂停渲染；帧率持续低于 40 时，自动把像素密度降到 1 倍。</li>
+      <li>系统开启「减弱动态效果」时只画一帧静态画面；开启「降低透明度」时，玻璃换成实色底。</li>
+      <li>性能预算：中端手机上每帧不超过 4 毫秒，帧率稳定在 60。</li>
+      <li>玻璃只用在浮在内容上的导航和「动手」圆上，背后的动效透过玻璃变得柔和。</li>
+    </ul>
+  </section>
+
+  <section class="sources" aria-labelledby="h-src">
+    <h3 id="h-src">参考</h3>
+    <ul>
+      <li><a href="https://www.utsubo.com/blog/best-threejs-websites-2026">8 Best Three.js Websites of 2026</a>：WebGPU 加 WebGL 回退的做法、按场景控制资源预算</li>
+      <li><a href="https://www.utsubo.com/ja/blog/webgpu-threejs-migration-guide">WebGPU + Three.js 迁移指南（2026）</a>：浏览器支持情况、回退机制、上线注意事项</li>
+      <li><a href="https://digitalstrategyforce.com/journal/why-are-immersive-experiences-dominating-the-2026-awwwards/">Why Are Immersive Experiences Dominating the 2026 Awwwards</a>：滚动叙事、手机端降级、帧率稳定性</li>
+      <li><a href="https://github.com/dgreenheck/webgpu-claude-skill">dgreenheck/webgpu-claude-skill</a>：TSL 粒子、计算着色器、后期处理的示例（MIT）</li>
+    </ul>
+  </section>
+</main>
+
+<script type="module">
+const hero = document.getElementById('hero');
+const canvas = document.getElementById('gl');
+const statusEl = document.getElementById('status');
+const motionBtn = document.getElementById('btn-motion');
+const root = document.documentElement;
+const mqMobile = matchMedia('(max-width: 760px)');
+const mqReduce = matchMedia('(prefers-reduced-motion: reduce)');
+const KEYS = ['ink', 'tokens', 'leaf'];
+
+let reduce = mqReduce.matches;
+let key = KEYS.includes(location.hash.slice(1)) ? location.hash.slice(1) : null;
+if (!key) { try { key = localStorage.getItem('vc-motion'); } catch (e) {} }
+if (!KEYS.includes(key)) key = 'leaf';
+
+function setStatus(text) { statusEl.textContent = text; }
+function syncButtons() {
+  document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.key === key)));
+  motionBtn.setAttribute('aria-pressed', String(!reduce));
+  motionBtn.textContent = reduce ? '动效关' : '动效开';
+}
+syncButtons();
+
+let THREE, T;
+try {
+  THREE = await import('three/webgpu');
+  T = await import('three/tsl');
+} catch (e) {
+  hero.classList.add('static');
+  setStatus('静态画面');
+}
+
+if (THREE) {
+  const { Fn, uniform, uv, vec2, vec3, float, color, mix, smoothstep, sin, cos, exp, length, dot, fract, abs, clamp, floor, pow,
+    mx_fractal_noise_float, mx_noise_float, instancedBufferAttribute } = T;
+
+  const forceWebGL = new URLSearchParams(location.search).has('webgl');
+  let renderer = null, backend = '静态';
+  try {
+    renderer = new THREE.WebGPURenderer({ canvas, antialias: true, alpha: true, forceWebGL });
+    await renderer.init();
+    backend = renderer.backend.isWebGPUBackend ? 'WebGPU' : 'WebGL2';
+    renderer.setClearColor(0x000000, 0);
+  } catch (e) {
+    renderer = null;
+    setStatus('静态画面');
+  }
+
+  const U = {
+    split: uniform(0.5), vertical: uniform(0), aspect: uniform(1),
+    mouse: uniform(new THREE.Vector2(0.5, 0.5)), mouseAmt: uniform(0),
+    t: uniform(0), breath: uniform(0), morph: uniform(0.5), rot: uniform(0), scale: uniform(1)
+  };
+  const ONE = float(1);
+
+  /* ---------- A 墨入纸：全屏着色器 ---------- */
+  function buildInk() {
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2);
+    camera.position.z = 1;
+    const mat = new THREE.MeshBasicNodeMaterial();
+    mat.colorNode = Fn(() => {
+      const st = uv();
+      const a = mix(st.x, ONE.sub(st.y), U.vertical);
+      const q = vec2(st.x.mul(U.aspect), st.y);
+      const mq = vec2(U.mouse.x.mul(U.aspect), U.mouse.y);
+      const d = length(q.sub(mq));
+      const near = exp(d.mul(d).mul(-14)).mul(U.mouseAmt);
+      const n1 = mx_fractal_noise_float(vec3(q.mul(1.4), U.t.mul(0.035)), 4, 2.0, 0.5);
+      const n2 = mx_fractal_noise_float(vec3(q.mul(5.0).add(7.3), U.t.mul(0.06)), 3, 2.0, 0.5);
+      const amp = float(0.045).add(U.breath.mul(0.02)).add(near.mul(0.07));
+      const x = a.add(n1.mul(amp)).add(n2.mul(0.012));
+      const edge = float(0.006).add(abs(n2).mul(0.05)).add(near.mul(0.02));
+      const m = smoothstep(U.split.sub(edge), U.split.add(edge), x);
+      const paperCol = mix(color(0xf4f2ec), color(0xe3e8df), clamp(n1.mul(0.9).add(0.25), 0, 1).mul(0.55));
+      const inkCol = mix(color(0x17150f), color(0x0d0c08), clamp(n1.add(0.3), 0, 1).mul(0.6));
+      const s = x.sub(U.split);
+      const glowInk = exp(s.mul(s).mul(-2600)).mul(m).mul(float(0.07).add(U.breath.mul(0.12)).add(near.mul(0.22)));
+      const glowPaper = exp(s.mul(s).mul(-1800)).mul(ONE.sub(m)).mul(float(0.06).add(U.breath.mul(0.08)));
+      let col = mix(paperCol, inkCol, m);
+      col = col.add(color(0xe0784f).mul(glowInk));
+      col = mix(col, color(0x4a6b53), glowPaper);
+      const g = fract(sin(dot(st.mul(vec2(1731.0, 977.0)), vec2(12.9898, 78.233))).mul(43758.5453));
+      return col.add(g.sub(0.5).mul(mix(float(0.014), float(0.008), m)));
+    })();
+    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
+    return { scene, camera, resize() {}, update() {} };
+  }
+
+  /* ---------- B 注意力：实例化粒子 ---------- */
+  function buildTokens() {
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 2);
+    camera.position.z = 1;
+    const N = mqMobile.matches ? 1400 : 3200;
+    const seeds = new Float32Array(N * 4);
+    for (let i = 0; i < seeds.length; i++) seeds[i] = Math.random();
+    const s4 = instancedBufferAttribute(new THREE.InstancedBufferAttribute(seeds, 4));
+    const hx = s4.x, hy = s4.y;
+    const axisHome = mix(hx, ONE.sub(hy), U.vertical);
+    const w = smoothstep(U.split.sub(0.02), U.split.add(0.02), axisHome);
+    const speed = float(0.012).add(s4.z.mul(0.03));
+    const along = fract(mix(hy, hx, U.vertical).add(U.t.mul(speed)));
+    const wob = sin(U.t.mul(0.5).add(s4.w.mul(6.2832))).mul(0.012);
+    const nz = mx_noise_float(vec3(hx.mul(4), hy.mul(4), U.t.mul(0.08))).mul(0.02);
+    const orgU = vec2(mix(hx.add(wob).add(nz), along, U.vertical), mix(along, hy.add(wob).add(nz), U.vertical));
+    const cellY = float(0.06);
+    const cellX = cellY.div(U.aspect);
+    const jit = vec2(s4.z.sub(0.5).mul(cellX), s4.w.sub(0.5).mul(cellY)).mul(0.28);
+    const latU = vec2(floor(hx.div(cellX)).add(0.5).mul(cellX), floor(hy.div(cellY)).add(0.5).mul(cellY)).add(jit);
+    const pu0 = mix(orgU, latU, w);
+    const d = length(vec2(pu0.x.sub(U.mouse.x).mul(U.aspect), pu0.y.sub(U.mouse.y)));
+    const att = exp(d.mul(d).mul(-30)).mul(U.mouseAmt);
+    const dist = abs(mix(pu0.x, ONE.sub(pu0.y), U.vertical).sub(U.split));
+    const wave = pow(sin(dist.mul(40).sub(U.t.mul(1.6))).mul(0.5).add(0.5), float(12)).mul(w).mul(exp(dist.mul(-3)));
+    const glow = clamp(att.add(wave.mul(0.8)), 0, 1);
+    const pu = pu0.add(vec2(U.mouse.x.sub(pu0.x), U.mouse.y.sub(pu0.y)).mul(att.mul(0.08)));
+    const mat = new THREE.SpriteNodeMaterial({ transparent: true, depthWrite: false });
+    mat.positionNode = vec3(pu.x.mul(2).sub(1).mul(U.aspect), pu.y.mul(2).sub(1), 0);
+    mat.scaleNode = mix(float(0.007).add(s4.z.mul(0.006)), float(0.005), w).add(glow.mul(0.009));
+    mat.colorNode = mix(color(0x365640), mix(color(0xefe8da), color(0xe0784f), glow), w);
+    const disc = ONE.sub(smoothstep(0.28, 0.5, length(uv().sub(0.5))));
+    mat.opacityNode = mix(float(0.5).add(s4.w.mul(0.3)), float(0.24).add(glow.mul(0.7)), w).mul(disc);
+    const sprite = new THREE.Sprite(mat);
+    sprite.count = N;
+    sprite.frustumCulled = false;
+    scene.add(sprite);
+    return {
+      scene, camera,
+      resize(aspect) { camera.left = -aspect; camera.right = aspect; camera.updateProjectionMatrix(); },
+      update() {}
+    };
+  }
+
+  /* ---------- C 叶与网：点云形变 ---------- */
+  function leafPoints(n) {
+    const out = [];
+    const L = 0.5, W = 0.27;
+    const halfW = y => W * Math.pow(Math.max(0, 1 - (y / L) ** 2), 0.72);
+    const tan15 = Math.tan(15 * Math.PI / 180);
+    while (out.length < n) {
+      const r = Math.random();
+      let x, y, flag = 0;
+      if (r < 0.56) { y = (Math.random() * 2 - 1) * L; x = (Math.random() * 2 - 1) * halfW(y); }
+      else if (r < 0.8) {
+        y = -0.41 + Math.random() * 0.74;
+        x = (Math.random() < 0.5 ? -1 : 1) * tan15 * (y + 0.41) + (Math.random() - 0.5) * 0.008;
+        if (Math.abs(x) > halfW(y)) continue;
+        flag = 1;
+      } else { y = (Math.random() * 2 - 1) * L * 0.98; x = (Math.random() < 0.5 ? -1 : 1) * halfW(y) * (0.97 + Math.random() * 0.03); flag = 0.5; }
+      const z = 0.11 * (x / W) ** 2 - 0.05 + (Math.random() - 0.5) * 0.012;
+      const ang = -38 * Math.PI / 180, c = Math.cos(ang), s = Math.sin(ang);
+      out.push([x * c - y * s, x * s + y * c, z, flag]);
+    }
+    return out;
+  }
+  function netPoints(n) {
+    const K = 110, R = 0.46, nodes = [];
+    for (let i = 0; i < K; i++) {
+      const y = 1 - (i + 0.5) * 2 / K, r = Math.sqrt(1 - y * y), th = i * Math.PI * (3 - Math.sqrt(5));
+      nodes.push([Math.cos(th) * r * R, y * R, Math.sin(th) * r * R]);
+    }
+    const edges = new Set();
+    nodes.forEach((a, i) => {
+      nodes.map((b, j) => [j, (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2])
+        .filter(([j]) => j !== i).sort((p, q) => p[1] - q[1]).slice(0, 3)
+        .forEach(([j]) => edges.add(i < j ? i + ',' + j : j + ',' + i));
+    });
+    const E = [...edges].map(e => e.split(',').map(Number));
+    const out = [];
+    while (out.length < n) {
+      if (Math.random() < 0.22) {
+        const p = nodes[(Math.random() * K) | 0];
+        out.push([p[0] + (Math.random() - 0.5) * 0.02, p[1] + (Math.random() - 0.5) * 0.02, p[2] + (Math.random() - 0.5) * 0.02, 1]);
+      } else {
+        const [i, j] = E[(Math.random() * E.length) | 0], t = 0.08 + Math.random() * 0.84;
+        const a = nodes[i], b = nodes[j];
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t, 0]);
+      }
+    }
+    return out;
+  }
+  function buildLeaf() {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 20);
+    camera.position.z = 3.2;
+    const N = mqMobile.matches ? 2600 : 5000;
+    const leaf = leafPoints(N).sort((a, b) => b[1] - a[1]);
+    const net = netPoints(N).sort((a, b) => b[1] - a[1]);
+    const aL = new Float32Array(N * 3), aN = new Float32Array(N * 3), aS = new Float32Array(N * 4);
+    for (let i = 0; i < N; i++) {
+      aL.set(leaf[i].slice(0, 3), i * 3); aN.set(net[i].slice(0, 3), i * 3);
+      aS.set([Math.random(), Math.random(), leaf[i][3], net[i][3]], i * 4);
+    }
+    const pL = instancedBufferAttribute(new THREE.InstancedBufferAttribute(aL, 3));
+    const pN = instancedBufferAttribute(new THREE.InstancedBufferAttribute(aN, 3));
+    const s4 = instancedBufferAttribute(new THREE.InstancedBufferAttribute(aS, 4));
+    const st = s4.x.mul(0.55);
+    const m = smoothstep(st, st.add(0.45), U.morph);
+    const base = mix(pL, pN, m);
+    const turb = sin(m.mul(Math.PI));
+    const tt = U.t.mul(0.2);
+    const n3 = vec3(
+      mx_noise_float(base.mul(2.4).add(vec3(0, 0, tt))),
+      mx_noise_float(base.mul(2.4).add(vec3(7.1, 3.3, tt))),
+      mx_noise_float(base.mul(2.4).add(vec3(1.7, 9.2, tt)))
+    );
+    const p = base.add(n3.mul(turb.mul(0.16).add(0.006))).mul(U.scale);
+    const c = cos(U.rot), s = sin(U.rot);
+    const rx = p.x.mul(c).add(p.z.mul(s));
+    const rz = p.z.mul(c).sub(p.x.mul(s));
+    const mat = new THREE.SpriteNodeMaterial({ transparent: true, depthWrite: false });
+    mat.positionNode = vec3(rx, p.y, rz);
+    const flag = mix(s4.z, s4.w, m);
+    mat.scaleNode = float(0.010).add(s4.y.mul(0.006)).add(flag.mul(0.006)).mul(U.scale);
+    const side = smoothstep(-0.012, 0.012, mix(rx, p.y.negate(), U.vertical));
+    const bodyCol = mix(color(0x4a6b53), color(0x263b2e), flag);
+    const mindCol = mix(color(0xd9d2c3), color(0xe0784f), flag);
+    mat.colorNode = mix(bodyCol, mindCol, side);
+    const disc = ONE.sub(smoothstep(0.28, 0.5, length(uv().sub(0.5))));
+    mat.opacityNode = mix(float(0.72), float(0.95), flag).mul(clamp(rz.mul(0.6).add(0.8), 0.45, 1)).mul(disc);
+    const sprite = new THREE.Sprite(mat);
+    sprite.count = N;
+    sprite.frustumCulled = false;
+    scene.add(sprite);
+    let halfH = 1, halfW = 1;
+    return {
+      scene, camera, sprite,
+      resize(aspect) {
+        camera.aspect = aspect; camera.updateProjectionMatrix();
+        halfH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
+        halfW = halfH * aspect;
+        // 按首屏高度控制大小：桌面半径约 130px，手机约 100px，不压到文字
+        const heroH = hero.clientHeight || 800;
+        const pxPerUnit = heroH / (2 * halfH);
+        const radiusPx = mqMobile.matches ? 100 : Math.min(130, heroH * 0.17);
+        U.scale.value = radiusPx / (0.5 * pxPerUnit);
+      },
+      update(state) {
+        if (state.vertical) { sprite.position.set(0, (1 - 2 * state.split) * halfH, 0); }
+        else { sprite.position.set((state.split * 2 - 1) * halfW, 0.04, 0); }
+        sprite.rotation.x = (0.5 - state.mouse.y) * 0.35 * state.mouseAmt;
+      }
+    };
+  }
+
+  const BUILDERS = { ink: buildInk, tokens: buildTokens, leaf: buildLeaf };
+  const state = { split: 0.5, splitTarget: 0.5, vertical: false, mouse: { x: 0.5, y: 0.5 }, mouseTarget: { x: 0.5, y: 0.5 }, mouseAmt: 0, mouseAmtTarget: 0, lean: null, morph: 0.5, t: 0 };
+  const built = {};
+  let current = null, running = null, visible = true, dpr = 1;
+  let frames = 0, fpsClock = performance.now(), slowSeconds = 0;
+
+  function applyUniforms() {
+    U.split.value = state.split;
+    U.vertical.value = state.vertical ? 1 : 0;
+    U.mouse.value.set(state.mouse.x, state.mouse.y);
+    U.mouseAmt.value = state.mouseAmt;
+    U.t.value = state.t;
+    U.breath.value = 0.5 - 0.5 * Math.cos(2 * Math.PI * state.t / 10);
+    U.morph.value = state.morph;
+    U.rot.value = state.t * 0.18 + (state.mouse.x - 0.5) * 0.8 * state.mouseAmt;
+    root.style.setProperty('--split', state.split.toFixed(4));
+  }
+
+  function resize() {
+    if (!renderer) return;
+    const r = hero.getBoundingClientRect();
+    state.vertical = mqMobile.matches;
+    dpr = Math.min(window.devicePixelRatio || 1, state.vertical ? 1.5 : 2);
+    renderer.setPixelRatio(dpr);
+    renderer.setSize(r.width, r.height, false);
+    U.aspect.value = r.width / r.height;
+    if (current) current.resize(r.width / r.height);
+  }
+
+  function renderOnce() {
+    if (!renderer || !current) return;
+    applyUniforms();
+    current.update(state);
+    renderer.render(current.scene, current.camera);
+  }
+
+  function frame(now) {
+    const dt = Math.min(0.05, (now - (frame.last || now)) / 1000);
+    frame.last = now;
+    state.t += dt;
+    const k = 1 - Math.exp(-dt * 6);
+    state.split += (state.splitTarget - state.split) * k;
+    state.mouse.x += (state.mouseTarget.x - state.mouse.x) * (1 - Math.exp(-dt * 8));
+    state.mouse.y += (state.mouseTarget.y - state.mouse.y) * (1 - Math.exp(-dt * 8));
+    state.mouseAmt += (state.mouseAmtTarget - state.mouseAmt) * (1 - Math.exp(-dt * 4));
+    const morphTarget = state.lean === 'left' ? 0 : state.lean === 'right' ? 1 : 0.5 + 0.5 * Math.sin(state.t * 0.32);
+    state.morph += (morphTarget - state.morph) * (1 - Math.exp(-dt * 2.2));
+    renderOnce();
+    frames++;
+    if (now - fpsClock >= 1000) {
+      const fps = Math.round(frames * 1000 / (now - fpsClock));
+      frames = 0; fpsClock = now;
+      if (fps < 40 && dpr > 1) { slowSeconds++; if (slowSeconds >= 2) { dpr = 1; renderer.setPixelRatio(1); resize(); slowSeconds = 0; } }
+      else slowSeconds = 0;
+      setStatus(`${backend} · ${fps} fps${dpr === 1 && (window.devicePixelRatio || 1) > 1 ? ' · 1×' : ''}`);
+    }
+  }
+
+  function updateLoop() {
+    const shouldRun = !!renderer && !reduce && visible && !document.hidden;
+    if (shouldRun === running) return;
+    running = shouldRun;
+    frame.last = undefined;
+    renderer && renderer.setAnimationLoop(running ? frame : null);
+    if (!running) {
+      if (renderer && reduce) {
+        state.t = 14; state.morph = state.lean === 'right' ? 1 : state.lean === 'left' ? 0 : 0.18;
+        state.mouseAmt = 0;
+        renderOnce();
+        setStatus(`${backend} · 静态一帧`);
+      }
+    }
+  }
+
+  function select(next) {
+    key = next;
+    try { localStorage.setItem('vc-motion', key); } catch (e) {}
+    syncButtons();
+    if (!renderer) return;
+    // 三个场景共用一组 uniform，所以各建一次、切换时不销毁
+    if (!built[key]) built[key] = BUILDERS[key]();
+    current = built[key];
+    resize();
+    renderOnce();
+  }
+
+  if (renderer) {
+    setStatus(backend);
+    select(key);
+    updateLoop();
+
+    hero.addEventListener('pointermove', e => {
+      const r = hero.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width, y = 1 - (e.clientY - r.top) / r.height;
+      state.mouseTarget.x = x; state.mouseTarget.y = y; state.mouseAmtTarget = 1;
+      if (!state.vertical) {
+        state.lean = x < state.split ? 'left' : 'right';
+        state.splitTarget = state.lean === 'left' ? 0.62 : 0.38;
+      }
+      if (reduce) { state.split = state.splitTarget; updateLoop(); renderOnce(); }
+    });
+    const settle = () => {
+      state.lean = null; state.splitTarget = 0.5; state.mouseAmtTarget = 0;
+      if (reduce) { state.split = 0.5; renderOnce(); }
+    };
+    hero.addEventListener('pointerleave', settle);
+    window.addEventListener('keydown', e => { if (e.key === 'Escape') settle(); });
+    new ResizeObserver(() => { resize(); if (!running) renderOnce(); }).observe(hero);
+    new IntersectionObserver(entries => { visible = entries[0].isIntersecting; updateLoop(); }).observe(hero);
+    document.addEventListener('visibilitychange', updateLoop);
+    mqReduce.addEventListener('change', e => { reduce = e.matches; syncButtons(); updateLoop(); });
+  }
+
+  document.querySelectorAll('[data-key]').forEach(b => b.addEventListener('click', () => {
+    select(b.dataset.key);
+    if (b.classList.contains('try')) hero.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+  }));
+  motionBtn.addEventListener('click', () => { reduce = !reduce; syncButtons(); updateLoop(); });
+  window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (KEYS.includes(h)) select(h); });
+}
+</script>

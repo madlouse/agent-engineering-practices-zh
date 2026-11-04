@@ -37,6 +37,7 @@
   --vc-error:#9c3b1e;
   --opacity-disabled:0.45;
   --text-max-en:612px;
+  --vc-seg-selected:#fffdf8;
   --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.24), 0 16px 40px -16px rgba(0, 0, 0, 0.42);
   --shadow-glass-moss:inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.16), 0 20px 44px -16px rgba(0, 0, 0, 0.55);
   --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 0 0 1px rgba(30, 28, 22, 0.045), 0 12px 32px -16px rgba(30, 28, 22, 0.2);
@@ -112,6 +113,7 @@
   --vc-glass-fallback:#25271f;
   --vc-focus:#86a9f2;
   --vc-error:#e0784f;
+  --vc-seg-selected:#464740;
   --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
   --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 32px -18px rgba(0, 0, 0, 0.6);
 } }
@@ -146,6 +148,7 @@
   --vc-glass-fallback:#25271f;
   --vc-focus:#86a9f2;
   --vc-error:#e0784f;
+  --vc-seg-selected:#464740;
   --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
   --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 32px -18px rgba(0, 0, 0, 0.6);
 }
@@ -171,7 +174,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .kicker { font-size: 13px; letter-spacing: .06em; font-weight: 500; }
 .seg { display: inline-flex; padding: 0; border-radius: var(--radius-pill); background: var(--vc-state-hover); }
 .seg a, .seg button { display: inline-flex; align-items: center; justify-content: center; min-height: var(--control-height); min-width: var(--control-height); padding: 0 12px; border: 3px solid transparent; background-clip: padding-box; border-radius: var(--radius-pill); background-color: transparent; color: inherit; font: inherit; font-size: 14px; text-decoration: none; cursor: pointer; }
-.seg [aria-current="true"], .seg [aria-pressed="true"] { background-color: var(--vc-paper-surface); color: var(--vc-text); }
+.seg [aria-current="true"], .seg [aria-pressed="true"] { background-color: var(--vc-seg-selected); color: var(--vc-text); font-weight: 600; }
 .seg-on-ink { background: var(--vc-state-hover); }
 .icon-btn { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); border: 0; border-radius: var(--radius-pill); background: transparent; color: inherit; cursor: pointer; }
 .field { min-height: var(--control-height); min-width: 0; padding: 0 16px; border: 1px solid var(--vc-paper-line); border-radius: var(--radius-pill); background: var(--vc-paper-surface); color: var(--vc-text); font: inherit; font-size: 16px; }
@@ -184,18 +187,22 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 交互状态（设计系统「状态」）：悬停叠一层 state-hover，按下叠 state-press 并缩到 0.98，焦点是 2px 焦点色外圈。
    .is-hover / .is-press / .is-focus 只给画板上静态展示状态用，实现里用伪类。 */
 .navlink:hover, .navlink.is-hover, .icon-btn:hover, .icon-btn.is-hover, .seg :not([aria-current="true"]):not([aria-pressed="true"]):hover, .seg .is-hover { background-color: var(--vc-state-hover); }
-.navlink:active, .navlink.is-press, .icon-btn:active, .icon-btn.is-press, .seg a:active, .seg button:active, .seg .is-press { background-color: var(--vc-state-press); }
+.navlink[aria-current="page"]:hover, .navlink[aria-current="page"].is-hover, .navlink:active, .navlink.is-press, .icon-btn:active, .icon-btn.is-press, .seg a:active, .seg button:active, .seg .is-press { background-color: var(--vc-state-press); }
 .btn:hover, .btn.is-hover, .spine:hover, .spine.is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
 .btn:active, .btn.is-press { transform: scale(.98); background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
-.opt:hover, .opt.is-hover { background: var(--vc-action); color: var(--vc-on-action); }
-.opt:active, .opt.is-press { transform: scale(.98); background: var(--vc-action); color: var(--vc-on-action); }
+.opt:hover, .opt.is-hover { background-color: var(--vc-action); color: var(--vc-on-action); }
+.opt:active, .opt.is-press { transform: scale(.98); background-color: var(--vc-action); background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); color: var(--vc-on-action); }
 .quick:hover, .quick.is-hover, .row-link:hover .row-title, .row-link.is-hover .row-title { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-cinnabar-deep); }
 .quick:active, .quick.is-press { opacity: .72; }
 :focus-visible, .is-focus { outline: 2px solid var(--vc-focus); outline-offset: 2px; }
 .field:focus-visible, .field.is-focus { outline-offset: 0; border-color: var(--vc-focus); }
 :disabled, [aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; transform: none; background-image: none; }
 /* 深色底上（墨色一半、苔绿、书脊）焦点色换成浅的一档，浅色主题下也保证 ≥ 3:1 */
-.on-dark, .spine-mind, .glass-ink, .glass-moss { --vc-focus: var(--vc-focus-on-dark); }
+.on-dark, .spine-mind, .glass-ink, .glass-moss { --vc-focus: var(--vc-focus-on-dark); --vc-error: var(--vc-cinnabar); }
+.on-dark .quick:hover, .on-dark .quick.is-hover, .on-dark .row-link:hover .row-title, .on-dark .row-link.is-hover .row-title { text-decoration-color: var(--vc-cinnabar); }
+.on-dark .opt:hover, .on-dark .opt.is-hover, .on-dark .opt:active, .on-dark .opt.is-press { background-color: var(--vc-on-ink); color: var(--vc-ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); } }
+[data-theme="dark"] .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } .btn:active, .btn.is-press, .opt:active, .opt.is-press { transform: none; } }
 
 /* 书脊：进入一站后，另一站收成右侧 56px 的竖条，点它直接换过去（设计系统「三种版式」） */
@@ -207,3 +214,12 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 英文正文（设计系统「阅读版式」）：18px、行高 1.45、版心 612px，每行约 68 个字符；中文 17px、行高 1.8、版心 640px，每行约 37 字 */
 .prose:lang(en) { max-width: var(--text-max-en); }
 .prose:lang(en) p, .prose:lang(en) ol, .prose:lang(en) ul { font-size: 18px; line-height: 1.45; }
+
+/* 实色浮层面：原地展开的卡片、展开成表单的订阅条（V5：跨底色的浮层用实色，不用玻璃） */
+.surface-solid{background:var(--vc-paper-surface);color:var(--vc-text);box-shadow:0 0 0 1px var(--vc-paper-line),var(--shadow-glass)}
+/* 开关：已登录时的订阅开关这类一步就生效的设置；点按区 60×44，轨道 51×31 */
+.switch{display:inline-flex;align-items:center;justify-content:center;width:60px;height:var(--control-height);padding:0;border:0;border-radius:var(--radius-pill);background:transparent;cursor:pointer;flex:none}
+.switch-track{position:relative;width:51px;height:31px;border-radius:var(--radius-pill);background:var(--vc-state-press);box-shadow:inset 0 0 0 1.5px var(--vc-text-3);transition:background var(--duration-fast) var(--ease-out)}
+.switch-thumb{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:var(--vc-paper-surface);box-shadow:var(--shadow-card);transition:transform var(--duration-fast) var(--ease-out)}
+.switch[aria-checked="true"] .switch-track{background:var(--vc-moss);box-shadow:none}
+.switch[aria-checked="true"] .switch-thumb{transform:translateX(20px)}

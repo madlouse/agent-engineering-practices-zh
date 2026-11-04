@@ -25,6 +25,9 @@
 伪语言（--themes 里加 pseudo）：把每段文字加长 35%（PRD 常见的「德语比中文长 35%」口径），按浅色再查一遍
 版式类问题（主按钮被挡或挤扁、竖排、超出画板、吞空格），看换语言以后会不会坏；对比度和 token 不在这一遍重复查。
 
+属性和视口：data-props 里的枚举属性（theme 除外，主题由 --themes 管）每个非默认选项各查一遍，别的属性取默认，
+报告里记作「lang=English」；--size 名称=宽x高 让一块自适应的画板在另一个视口下再查一遍（例如手机画板在 320 宽下）。
+
 用法：
   python verify_canvas.py <画板目录或 .dc.html ...> --out <报告目录> [--themes light,dark,pseudo] [--only AI-Plans]
 画板尺寸从同目录的 canvas.json 读（没有就用 390x844；带 expand 的说明文档页不查触控尺寸）；状态从 <sc-if value="{{ sN }}"> 自动发现。
@@ -183,6 +186,23 @@ def stage_labels(src):
         return []
 
 
+def prop_variants(src, labels):
+    """data-props 里的枚举属性（主题和画板状态的标签除外），每个非默认选项各算一个要查的变体，别的属性保持默认。"""
+    m = re.search(r"data-props='([^']*)'", src)
+    try:
+        props = json.loads(m.group(1)) if m else {}
+    except Exception:
+        return []
+    out = []
+    for k, v in props.items():
+        if k.startswith('$') or k == 'theme' or not isinstance(v, dict) or v.get('editor') != 'enum':
+            continue
+        if labels and v.get('options') == labels:
+            continue
+        out += [(f'{k}={o}', {k: o}) for o in v.get('options', []) if o != v.get('default')]
+    return out
+
+
 def board_meta(path):
     """返回 (宽, 高, 是否文档页)。canvas.json 里带 expand 的画板是说明文档（旅程图之类），不按产品界面查触控尺寸。"""
     cj = os.path.join(os.path.dirname(path), 'canvas.json')
@@ -239,7 +259,16 @@ def main():
     ap.add_argument('--placeholders', default='示例,占位,待定,即将上线,敬请期待,TBD,TODO,Lorem,ipsum,二维码', help='出现在画板文字里就算问题的占位词，逗号分隔')
     ap.add_argument('--blob', action='append', default=[], metavar='ID=PATH',
                     help='画板里 /_blob/<ID> 引用的上传文件在本地的路径（例如共享样式表），可以写多次；不给的话这些样式读不到，会误报 token 没定义和触控过小')
+    ap.add_argument('--size', action='append', default=[], metavar='NAME=WxH',
+                    help='画板在另一个视口宽度下再查一遍（例如手机画板在 320 宽下），可以写多次；画板要按宽度自适应才有意义')
     a = ap.parse_args()
+    extra_sizes = {}
+    for m in a.size:
+        name, _, wh = m.partition('=')
+        try:
+            extra_sizes.setdefault(name, []).append(tuple(int(x) for x in wh.lower().split('x')))
+        except ValueError:
+            sys.exit(f'--size {m}：写成 名称=宽x高，例如 Mobile.dc.html=320x700')
 
     files = []
     for p in a.paths:
@@ -279,19 +308,25 @@ def main():
             board_issues += [{'state': '源码', 'theme': '-', **i} for i in static_a11y(src)]
             board_hints = {}
             states = discover_states(src)
+            variants = []
             for st in states:
                 # 只打开这一个状态，别的状态显式关掉（renderVals() 算出的默认状态不能混进来）
                 state = {k: k == st for k in states if k} if st else {}
                 label = labels[int(st[1:])] if st and int(st[1:]) < len(labels) else (st or '默认')
+                variants.append((label, state, {}, (w, h)))
+            first_state = variants[0][1]
+            variants += [(lbl, first_state, po, (w, h)) for lbl, po in prop_variants(src, labels if states[0] else [])]
+            variants += [(f'{vw}×{vh}', first_state, {}, (vw, vh)) for vw, vh in extra_sizes.get(os.path.basename(f), [])]
+            for label, state, props_override, (vw, vh) in variants:
                 for theme in a.themes.split(','):
-                    html = render_html(src, state, logic_values(src, state, logic_page))
+                    html = render_html(src, state, logic_values(src, state, logic_page, props_override))
                     if theme in ('dark',):
                         html = html.replace('data-theme="light"', 'data-theme="dark"')
                     fd, tmp = tempfile.mkstemp(prefix='.verify_', suffix='.html', dir=os.path.dirname(os.path.abspath(f)))
                     with os.fdopen(fd, 'w', encoding='utf-8') as fh:
                         fh.write(html)
                     errors, net = [], []
-                    pg = browser.new_page(viewport={'width': w, 'height': h}, reduced_motion='reduce',  # pseudo 按浅色查
+                    pg = browser.new_page(viewport={'width': vw, 'height': vh}, reduced_motion='reduce',  # pseudo 按浅色查
                                           color_scheme='dark' if theme == 'dark' else 'light')
                     pg.on('pageerror', lambda e: errors.append(str(e)[:120]))
                     pg.on('console', lambda m: (net if 'net::' in m.text or 'Failed to load resource' in m.text else errors).append(m.text[:120]) if m.type == 'error' else None)

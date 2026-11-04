@@ -31,7 +31,7 @@ EXPECT = {
 
 def main():
     out = tempfile.mkdtemp(prefix='verify-selftest-')
-    subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), FIXTURES, '--out', out],
+    subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), FIXTURES, '--out', out, '--size', 'SelftestProps.dc.html=320x600'],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     data = json.load(open(os.path.join(out, 'verify-canvas.json'), encoding='utf-8'))
     items = data['boards']['Selftest.dc.html']
@@ -53,11 +53,23 @@ def main():
     for t in false_pos:
         failures.append(f'误报：「好的画板」不该报「{t}」')
 
+    # 属性的每个选项、额外视口各查一遍：英文版里的占位词、320 宽下超出画板；默认的中文、390 宽不误报
+    props_items = data['boards']['SelftestProps.dc.html']
+    pfound = {(st, i['type']) for i in props_items for st in i['states']}
+    for st, typ in (('lang=English', '占位文字'), ('320×600', '内容超出画板')):
+        if (st, typ) not in pfound:
+            failures.append(f'漏报：SelftestProps「{st}」应该报「{typ}」')
+    for st, typ in sorted(pfound):
+        if st == '默认':
+            failures.append(f'误报：SelftestProps 默认状态不该报「{typ}」')
+    if any(st.startswith('theme=') for st, _ in pfound):
+        failures.append('误查：theme 属性由 --themes 负责，不该再按属性查一遍')
+
     if failures:
         print('selftest 不通过：\n  ' + '\n  '.join(failures))
         print(f'报告：{out}/verify-canvas.md')
         sys.exit(1)
-    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题和 4 种模板味信号都抓到了，好的状态没有误报')
+    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项和额外视口都抓到了，好的状态没有误报')
 
 
 if __name__ == '__main__':

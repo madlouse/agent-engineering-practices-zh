@@ -75,7 +75,7 @@ python <本技能目录>/scripts/init_project.py <项目根目录> \
 1. 每个关键界面一张 390×844 的画板（网页用 1440 宽、`expand: "fill"` 的流式页面），覆盖关键状态：默认、完成的那一刻、第一次使用、空状态、出错。平台不止一个时（App 和网页），先定好各自的角色（例：App 负责「做」，网页负责「看」），两端都出稿。
 2. 画板之间用链接串成流程，状态用 `data-props` 开关切换，让用户能点一遍。
 3. 安装设计系统（画布的 `designSystems` 记录和 `project/ds/<folder>/tokens.json`），样式只引用 token；稿子里需要设计系统没有的值时，先补进设计系统。
-4. 每改一轮，先跑只读验证：`python scripts/verify_canvas.py <画板目录> --out <设计目录>/reviews/<日期-主题> --themes light,dark,pseudo`（pseudo 把文字加长 35%，模拟换语言）。它把每块画板的每个状态在浅色、深色下各渲染一次，只报真问题（主按钮被挡、文字挤成竖排、超出画板、对比度、触控、未定义 token、写死颜色、页面报错），给出 `done` 或 `needs_work`；修到 `done` 再给人看。画板用 `/_blob/<id>` 引用了上传的样式表时，加 `--blob <id>=<本地文件>`（可以写多次），否则样式读不到，会误报一串「token 没定义」和「触控过小」。画板的 `renderVals()` 会在浏览器里执行一次（props 取 `data-props` 的默认值），`<sc-for>` 可以嵌套；`componentDidMount` 这类生命周期不执行，所以 WebGL、计时器画的东西截不到，要在画布上看。单张截图核对用 `render_dc.py <画板> <输出.png> --state '<json>'`。
+4. 每改一轮，先跑只读验证：`python scripts/verify_canvas.py <画板目录> --out <设计目录>/reviews/<日期-主题> --themes light,dark,pseudo`（pseudo 把文字加长 35%，模拟换语言）。它把每块画板的每个状态在浅色、深色下各渲染一次，只报真问题（主按钮被挡、文字挤成竖排、超出画板、对比度、触控、未定义 token、写死颜色、页面报错），给出 `done` 或 `needs_work`；修到 `done` 再给人看。画板用 `/_blob/<id>` 引用了上传的样式表时，加 `--blob <id>=<本地文件>`（可以写多次），否则样式读不到，会误报一串「token 没定义」和「触控过小」。`data-props` 里的枚举属性（语言、订阅状态这类）每个选项各查一遍；自适应的画板加 `--size <画板>=320x700` 在窄屏下再查一遍。画板的 `renderVals()` 会在浏览器里执行一次（props 取 `data-props` 的默认值），`<sc-for>` 可以嵌套；`componentDidMount` 这类生命周期不执行，所以 WebGL、计时器画的东西截不到，要在画布上看。单张截图核对用 `render_dc.py <画板> <输出.png> --state '<json>'`。
 5. 画板标题和生成脚本里不要手写「N 个场景」这类计数，会过时；需要时由脚本算。
 6. 进入第 5 步的评审循环（同样必须独立评审），达标后再实现。实现时以画布为准，代码截图和画板并排对照。
 

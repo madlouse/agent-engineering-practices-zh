@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """把 Claude Design 画布的 .dc.html 画板按给定状态渲染成普通页面并截图，用于本地核对高保真稿。
 
-只支持画板常用的语法：{{ 路径 }} 洞、<sc-if value="{{ x }}">、不嵌套的 <sc-for list="{{ xs }}" as="it">。
-renderVals() 里的计算不会执行：把模板要用的值直接写进 --state。
+只支持画板常用的语法：{{ 路径 }} 洞、<sc-if value="{{ x }}">、<sc-for list="{{ xs }}" as="it">（可以嵌套）。
+画板的 renderVals() 会在浏览器里执行一次（props 取 data-props 的默认值，--state 同时作为组件的 state），
+算出的值填进模板；函数和引用类的值丢掉。--state 里写的值优先。
 
 用法：
   python render_dc.py Main.dc.html out.png --state '{"cardPending": true}'
@@ -46,26 +47,82 @@ def fill_holes(text, scope):
     return re.sub(r'\{\{\s*([^}]+?)\s*\}\}', rep, text)
 
 
+def _matching_end(text, start, tag):
+    """从 start 处的 <tag ...> 开始，找到和它配对的 </tag> 的位置（支持嵌套）。"""
+    depth, i = 0, start
+    pat = re.compile(r'<(/?)' + tag + r'\b[^>]*>')
+    for m in pat.finditer(text, start):
+        depth += -1 if m.group(1) else 1
+        if depth == 0:
+            return m.start(), m.end()
+    return len(text), len(text)
+
+
 def expand(text, scope):
-    def for_rep(m):
+    out, pos = [], 0
+    open_for = re.compile(r'<sc-for([^>]*)>')
+    while True:
+        m = open_for.search(text, pos)
+        if not m:
+            out.append(text[pos:])
+            break
+        out.append(text[pos:m.start()])
+        end_start, end_end = _matching_end(text, m.start(), 'sc-for')
+        body = text[m.end():end_start]
         lst = re.search(r'list="\{\{\s*([^}]+?)\s*\}\}"', m.group(1))
         name = re.search(r'as="([^"]+)"', m.group(1))
         items = lookup(lst.group(1), scope) if lst else None
-        return ''.join(expand(m.group(2), {**scope, name.group(1): it, '$index': i})
-                       for i, it in enumerate(items or []))
-    text = re.sub(r'<sc-for([^>]*)>(.*?)</sc-for>', for_rep, text, flags=re.S)
+        out.append(''.join(expand(body, {**scope, name.group(1): it, '$index': i})
+                           for i, it in enumerate(items or [])))
+        pos = end_end
+    text = ''.join(out)
     inner_if = re.compile(r'<sc-if value="\{\{\s*([^}]+?)\s*\}\}"[^>]*>((?:(?!<sc-if).)*?)</sc-if>', re.S)
     while inner_if.search(text):
         text = inner_if.sub(lambda m: m.group(2) if lookup(m.group(1), scope) else '', text)
     return fill_holes(text, scope)
 
 
-def render_html(src, state):
+LOGIC_JS = r"""([code, props, state]) => {
+  class DCLogic {
+    constructor(p) { this.props = p; this.state = {}; }
+    setState(u) { Object.assign(this.state, typeof u === 'function' ? u(this.state, this.props) : u); }
+    forceUpdate() {}
+  }
+  try {
+    const Component = new Function('DCLogic', code + '\n;return Component;')(DCLogic);
+    const c = new Component(props);
+    Object.assign(c.state, state);
+    const vals = c.renderVals ? c.renderVals() : {};
+    return JSON.parse(JSON.stringify(vals, (k, v) => (typeof v === 'function' ? undefined : v)));
+  } catch (e) { return { __error: String(e) }; }
+}"""
+
+
+def logic_values(src, state, page):
+    """在浏览器里执行画板的 renderVals()，返回能填进模板的值；没有逻辑或出错时返回 {}。"""
+    m = re.search(r'<script type="text/x-dc"([^>]*)>(.*?)</script>', src, flags=re.S)
+    if not m:
+        return {}
+    props = {}
+    dp = re.search(r"data-props='([^']*)'", m.group(1))
+    if dp:
+        try:
+            props = {k: v.get('default') for k, v in json.loads(dp.group(1)).items() if isinstance(v, dict) and not k.startswith('$')}
+        except ValueError:
+            pass
+    vals = page.evaluate(LOGIC_JS, [m.group(2), props, state])
+    if '__error' in vals:
+        print(f'renderVals() 执行出错，按 --state 渲染：{vals["__error"]}', file=sys.stderr)
+        return {}
+    return vals
+
+
+def render_html(src, state, vals=None):
     s = re.sub(r'<script src="\./support\.js"></script>', '', src)
     s = re.sub(r'<script type="text/x-dc".*?</script>', '', s, flags=re.S)
     for tag in ('<helmet>', '</helmet>', '<x-dc>', '</x-dc>'):
         s = s.replace(tag, '')
-    return expand(s, state)
+    return expand(s, {**(vals or {}), **state})
 
 
 def main():
@@ -83,23 +140,26 @@ def main():
     a = ap.parse_args()
 
     board = os.path.abspath(a.board)
-    html = render_html(open(board, encoding='utf-8').read(), json.loads(a.state))
-    # 写在画板旁边，相对路径的样式表才能加载
-    fd, tmp = tempfile.mkstemp(prefix='.render_', suffix='.html', dir=os.path.dirname(board))
-    with os.fdopen(fd, 'w', encoding='utf-8') as f:
-        f.write(html)
-    if a.keep_html:
-        with open(a.keep_html, 'w', encoding='utf-8') as f:
-            f.write(html)
+    src = open(board, encoding='utf-8').read()
+    state = json.loads(a.state)
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
-        os.remove(tmp)
         sys.exit('需要 Python Playwright：pip install playwright && playwright install chromium')
     w, h = (int(x) for x in a.size.lower().split('x'))
+    tmp = None
     try:
         with sync_playwright() as p:
             b = p.chromium.launch()
+            vals = logic_values(src, state, b.new_page())
+            html = render_html(src, state, vals)
+            # 写在画板旁边，相对路径的样式表才能加载
+            fd, tmp = tempfile.mkstemp(prefix='.render_', suffix='.html', dir=os.path.dirname(board))
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                f.write(html)
+            if a.keep_html:
+                with open(a.keep_html, 'w', encoding='utf-8') as f:
+                    f.write(html)
             pg = b.new_page(viewport={'width': w, 'height': h}, device_scale_factor=2,
                             reduced_motion='reduce' if a.still else 'no-preference',
                             color_scheme='dark' if a.dark_os else 'light')
@@ -111,7 +171,8 @@ def main():
             pg.screenshot(path=a.out, full_page=a.full)
             b.close()
     finally:
-        os.remove(tmp)
+        if tmp:
+            os.remove(tmp)
     print(a.out)
 
 

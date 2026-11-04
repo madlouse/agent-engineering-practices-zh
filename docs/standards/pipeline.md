@@ -45,6 +45,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 - PRD「关键路径与页面状态」的六条路径各有一条端到端测试，跑过且没有未说明的跳过；
 - Lighthouse（性能预算作为上线关口，PRD 第 8 节）；axe 严重和较严重的问题为 0；
 - 真机各走一遍：iOS 和 iPadOS 的 Safari、Android 的 Chrome（产品负责人在场，同 Veli 的多端通道 B）；
+- 折叠屏：382、669、951、984 四个宽度截图；在 Android 折叠屏模拟器和 iPhone Duo 模拟器上各折叠、展开一次（U13、A8）；
 - 两份独立走查（`design-reviewer` 两份）P0、P1 为 0；`quality-terms.md` 里适用的规则全部通过（含只能在实现上查的 U8 速度、U9 响应时间）；
 - 五秒测试：5 个没看过的人看首页和三站首屏 5 秒，至少 4 人说得出「给谁的、能做什么、点哪里」（U2，产品负责人找人）；
 - `npm run check:terms`、`npm run check:vague` 通过；中英两版齐全；

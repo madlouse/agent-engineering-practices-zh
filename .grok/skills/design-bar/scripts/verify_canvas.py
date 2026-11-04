@@ -38,7 +38,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from render_dc import render_html  # noqa: E402
+from render_dc import render_html, logic_values  # noqa: E402
 
 PSEUDO_JS = r"""
 () => {
@@ -255,6 +255,7 @@ def main():
     report, total = [], 0
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
+        logic_page = browser.new_page()  # 执行画板的 renderVals()，算出模板里的值
         for f in files:
             src = open(f, encoding='utf-8').read()
             for m in a.blob:
@@ -278,7 +279,7 @@ def main():
                 state = {st: True} if st else {}
                 label = labels[int(st[1:])] if st and int(st[1:]) < len(labels) else (st or '默认')
                 for theme in a.themes.split(','):
-                    html = render_html(src, state)
+                    html = render_html(src, state, logic_values(src, state, logic_page))
                     if theme in ('dark',):
                         html = html.replace('data-theme="light"', 'data-theme="dark"')
                     fd, tmp = tempfile.mkstemp(prefix='.verify_', suffix='.html', dir=os.path.dirname(os.path.abspath(f)))

@@ -58,7 +58,7 @@
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
 | U1 核心场景两步内完成，不常用的不超过三步；悬停不算一步 | 全站 | 按 PRD 步数预算逐条走，记点按次数（设计评审；关口四走实现） | PRD 第 4 节；[NN/g：三次点击规则没有数据支持](https://www.nngroup.com/articles/3-click-rule/) |
-| U2 首屏回答三件事：这是给谁的、能做什么、下一步点哪里 | 首页、三站首屏 | 关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）；之前由设计评审看截图预检，预检不算通过 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
+| U2 首屏回答三件事：这是给谁的、能做什么、下一步点哪里 | 首页、三站首屏 | 关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
 | U3 一个区域只有 1 个主操作；整个首屏的主操作不超过 2 个 | 首页、三站首屏 | 数截图上的实色主按钮（设计评审） | apple.com、stripe.com、vercel.com 首屏各 2 个，linear.app 1 个；设计系统「一个区域只有一个主按钮」 |
 | U4 主导航不超过 6 项 | 全站 | 数导航（设计评审） | linear.app、stripe.com、anthropic.com 各 6 项，vercel.com 4 项；apple.com 的 11 项是零售站，不算 |
 | U5 导航标签和按钮文字说出去处或结果，不用「了解更多」「点击这里」 | 全站 | 逐个读（设计评审、内容评审） | [NN/g 信息气味](https://www.nngroup.com/articles/3-click-rule/)；[Mailchimp](https://styleguide.mailchimp.com/web-elements/) |
@@ -94,11 +94,11 @@
 |---|---|---|---|
 | V1 字体三种：无衬线正文、衬线标题（看清和首页的看清一侧）、等宽（代码和元信息）；不用 Ultralight、Thin、Light 三档字重 | 全站 | `check_page.py` 的字体统计；读 token（设计评审） | 设计系统「字体三种」；HIG「Minimize the number of typefaces」；Stripe、Anthropic 都只用两个文字字族 |
 | V2 颜色按设计系统「三站，三种底色」：每站一种底色；强调色只给主操作、链接和「当前所在」；一种强调色只在自己的底上出现；不只靠颜色表达信息 | 全站 | 读 token、看截图（设计评审） | 设计系统；[HIG 颜色](https://developer.apple.com/design/human-interface-guidelines/color)：「Apply color sparingly」 |
-| V3 每个区域只放标题、一句说明和操作；标题加说明合计中文不超过 50 字、英文不超过 35 词 | 首页每一半、三站首屏 | 数截图上的字（设计评审） | 五个对标站首屏标题加副标题都在约 35 词以内；50 字是按 C1 的折算自定 |
+| V3 每个区域只放标题、一句说明和操作；标题加说明合计中文不超过 50 字、英文不超过 35 词 | 首页每一半、三站首屏 | 数截图上的字（设计评审） | 五个对标站首屏标题加副标题都在约 35 词以内；50 字是自定：按一个英文词约合 1.5 个汉字，35 词约 52 字，取整 |
 | V4 一页的分区用同一种模块格式重复，一页 5–6 个分区（自定） | 首页、三站首页 | 数分区（设计评审） | linear.app 6 个，stripe.com、vercel.com 各 5 个；apple.com 9 个推广模块同一格式（零售站，只借「同一格式」） |
-| V5 玻璃只用在浮在内容上的导航和控件，正文内容层不用；玻璃上的文字对比度 ≥ 4.5:1，浅色深色各查；系统减少透明度时换成实色 | 全站 | 找出所有用玻璃的元素；对比度：脚本能算的看 `verify_canvas.py`、`check_page.py`，标「需人工」的由设计评审在截图上取色计算 | [HIG 材质](https://developer.apple.com/design/human-interface-guidelines/materials)：「Don't use Liquid Glass in the content layer」「Use Liquid Glass effects sparingly」 |
+| V5 玻璃只用在浮在内容上的导航和控件，正文内容层不用；玻璃上的文字对比度 ≥ 4.5:1，浅色深色各查；系统减少透明度时换成实色 | 全站 | 找出所有用玻璃的元素；对比度：脚本能算的看 `verify_canvas.py`、`check_page.py`，标「需人工」的由设计评审在截图上取色计算 | [HIG 材质](https://developer.apple.com/design/human-interface-guidelines/materials)：「Don't use Liquid Glass in the content layer」「Use Liquid Glass effects sparingly」。单一来源：HIG 是苹果设计语言的原文；对标站的玻璃用法待关口三 a 实测补上 |
 | V6 样式只引用 token；用留白分组，对齐到间距阶梯 | 全站 | `lint_tokens.py` 为 0；`verify_canvas.py` 写死的颜色为 0 | 设计系统；`design-bar` rubric「版式与留白」 |
-| V7 动效有含义：首页的主动效「叶与网」表达三站的关系，每屏最多一个主动效；站稳和动手首屏只用几乎静止的纸墨质感；看清没有动效；时长只用 `duration-*` token | 全站 | 对照设计系统「动效」（设计评审） | 设计系统「动效」；[Apple Design Awards](https://developer.apple.com/design/awards/)「high-quality animations with a distinctive and cohesive theme」 |
+| V7 动效有含义：首页的主动效「叶与网」表达三站的关系，每屏最多一个主动效；站稳和动手首屏的纸墨质感不做循环动画，只在首屏出现时变化一次，时长不超过 `duration-lean`（自定，把设计系统的「几乎静止」写成可查的规则）；看清没有动效；时长只用 `duration-*` token | 全站 | 对照设计系统「动效」（设计评审） | 设计系统「动效」；[Apple Design Awards](https://developer.apple.com/design/awards/)「high-quality animations with a distinctive and cohesive theme」 |
 | V8 元信息克制：文章页只放标题、作者、所属的线、阅读时长，日期见 T3，授权见 T5；不放阅读数、点赞数 | 看清文章页 | 看文章页（设计评审） | 酷壳、Fowler、Willison、Distill 都只有标题、作者、日期和少量标签；PRD 第 5 节「文章」字段 |
 | V9 排版细节：中西文之间留空、标点不出现在行首、标题用 `text-wrap: balance`、长段落用 `text-wrap: pretty`、避免孤字成行 | 全站 | 看截图（设计评审）；`velicoach-content` 第 6 节的检查 | `velicoach-content` 第 6 节；`design-bar` rubric「排版」 |
 | V10 没有模板味：`anti-patterns.md` 和 unslop 的信号为 0；把站名换掉，这一屏就不成立 | 全站 | `verify_canvas.py` 的模板味提示；设计评审做换名测试 | `design-bar` 的 `references/anti-patterns.md`、`craft.md` §1 |
@@ -130,7 +130,7 @@
 | A3 320px 宽不横向滚动；文字放大到 200% 不丢内容；按 WCAG 1.4.12 加大行距和字距后页面不坏 | 全站 | `check_page.py --widths 320,…`；手工放大（设计评审） | WCAG 1.4.10、1.4.4、1.4.12 |
 | A4 动效不让人晕、能停：系统减弱动态效果时只留一帧；自动播放超过 5 秒的动效能暂停，滚出视野就停；有声媒体不自动播放 | 全站 | 打开系统设置看；找暂停入口（设计评审） | WCAG 2.2.2、1.4.2；[web.dev](https://web.dev/articles/prefers-reduced-motion)；HIG：位移改成淡入淡出 |
 | A5 不打扰：首次访问不弹遮挡内容的弹窗；订阅只在页内原地展开；不自动轮播 | 全站 | 清空浏览器数据后打开（设计评审） | [Google 侵入式弹窗](https://developers.google.com/search/docs/appearance/avoid-intrusive-interstitials)；[Nielsen 十大界面烦恼](https://www.uxtigers.com/post/ui-annoyances) |
-| A6 读起来不累：正文 ≥ 16px；中文每行 32–40 字、行高 1.6–1.8；英文每行 60–75 个字符、行高为字号的 1.2–1.45 倍；段落之间用段距，不同时用首行缩进 | 全站正文 | 量版心和字号（设计评审） | [Butterick](https://practicaltypography.com/summary-of-key-rules.html)（正文 15–25px，行高 120–145%，行长 45–90 字符）；Bringhurst 45–75 字符（转引）；W3C clreq 讨论中文每行不超过 48 字、书籍多为 17–40 字（未进正式版）；`velicoach-layout` 第 6 节取中文 32–40 字、英文 60–75 字符；`design-bar` rubric 中文行高 1.6–1.8 |
+| A6 读起来不累：正文 ≥ 16px；中文每行 32–40 字、行高 1.6–1.8；英文每行 60–75 个字符、行高为字号的 1.2–1.45 倍（英文行高单一来源：Butterick）；段落之间用段距，不同时用首行缩进 | 全站正文 | 量版心和字号（设计评审） | [Butterick](https://practicaltypography.com/summary-of-key-rules.html)（正文 15–25px，行高 120–145%，行长 45–90 字符）；Bringhurst 45–75 字符（转引）；W3C clreq 讨论中文每行不超过 48 字、书籍多为 17–40 字（未进正式版）；`velicoach-layout` 第 6 节取中文 32–40 字、英文 60–75 字符；`design-bar` rubric 中文行高 1.6–1.8 |
 | A7 媒体有替代：视频有字幕和文字稿，图片有替代文字；axe 严重和较严重的问题为 0 | 全站 | `check_page.py` 的替代文字检查；关口四跑 axe（评审） | PRD 第 8 节「无障碍」；WCAG 1.1.1、1.2.2 |
 
 ### 4.6 用这些规则对照现有设计，发现的冲突
@@ -168,7 +168,7 @@
 
 ## 6. 不能出现在验收里的虚词
 
-这些词判不了对错，验收里出现就不通过，换成具体的数、动作或产出。加了引号（「」、“”、``）表示在提到这个词本身，不算。
+这些词判不了对错，验收里出现就不通过，换成具体的数、动作或产出。虚词加了引号（「」、“”、``）表示在提到这个词本身，不算。
 
 ```filler-terms
 适当
@@ -201,7 +201,9 @@ TBD
 
 ## 7. 怎么用
 
-- 验收里用到 §8 的质量词：写上「quality-terms <规则编号>」（例如「首屏主操作不超过 2 个，quality-terms U3」），或者直接把规则写进验收。编号必须真实存在，脚本会核对。
+- 验收里用到 §8 的质量词：写上它所在维度的规则编号「quality-terms <规则编号>」（例如「首页好看：首屏每个区域只放标题、一句说明和操作，quality-terms V3」），或者直接把规则写进验收。编号必须真实存在，而且要和这个词属于同一个维度（「好看」要引 V 开头的规则），脚本会核对。
+- 「体验友好」「拿奖」「极致」这类组合词，写「quality-terms §2.2」，或者拆成具体规则。
+- 加了引号只对虚词有效（表示在提到这个词）；质量词加了引号照样要有定义。
 - 检查范围：勾选项；标题含「验收」「完成标准」「出口」「退出条件」等字样的小节下的列表；表格里表头含「验收」「出口」「交付物」「怎么查」「门槛」「完成标准」等字样的列。说明性的正文不查。
 - 新的质量词：先按 §3 定义，加进 §2.1 的词表和 §8，再用。
 

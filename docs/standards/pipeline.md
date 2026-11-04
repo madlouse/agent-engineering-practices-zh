@@ -25,10 +25,10 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 
 0. **标杆卡**：`docs/uiue/bar-sheet.md`（2026-11-04 已写），标杆原则 P1–P5 由 `docs/standards/quality-terms.md` 的规则判定。它是体验类决定，由主会话定、记进 `docs/uiue/decisions.md`，产品负责人有意见再改。没有它，评审打不了分，停止条件也判不了。
 1. **只读验证**：`verify_canvas.py <画板目录> --out docs/uiue/reviews/<日期>-ui-v1 --themes light,dark,pseudo`，结论只有 `done` 或 `needs_work`，修到 `done`。画板引用的共享样式表在 `/_blob/` 上，加 `--blob <id>=<本地文件>` 指过去（`design-bar` 2026-11-04 加的参数）。
-2. **两份独立评审**：`design-reviewer`（Opus）和 `design-reviewer-b`（Sonnet）各派一个新的，互相看不到。只给它们：三种版式 × 两种主题的截图、PRD（功能表 F01–F25、步数预算、页面状态，当作 brief）、标杆卡 `docs/uiue/bar-sheet.md`、设计系统 README、`velicoach-layout` 技能、`design-bar` 的 `references/rubric.md` 和 `anti-patterns.md`，以及上一轮的问题清单。不给制作过程。
+2. **两份独立评审**：`design-reviewer`（Opus）和 `design-reviewer-b`（Sonnet）各派一个新的，互相看不到。只给它们：三种版式 × 两种主题的截图、PRD（功能表 F01–F25、步数预算、页面状态，当作 brief）、标杆卡 `docs/uiue/bar-sheet.md` 和规则原文 `docs/standards/quality-terms.md`、设计系统 README、`velicoach-layout` 技能、`design-bar` 的 `references/rubric.md` 和 `anti-patterns.md`，以及上一轮的问题清单。不给制作过程。规则里写明由内容评审查的（C1、C2、C6、T1、T6、T7 等），同时派一个 `content-reviewer` 审画板上的文字，结论并进同一份清单。
 3. **合并与修**：主会话把两份清单去重，按「影响 × 修复成本」排序，每轮修前 3 项，再派新的评审核对。停止条件见 `bar-sheet.md` §7：P1–P5 都 ≥ 4 分且底线全过才算通过；一轮没有提升或已经 3 轮还没通过，就在 #13 上报，不算通过。
 4. **需求覆盖**：PRD 每个 v1 功能都在画板上有状态，或在覆盖表里写明为什么没有界面。
-5. **出口**：报告放 `docs/uiue/reviews/<日期>-ui-v1/`，P0、P1 为 0，P1–P5 都 ≥ 4 分或按停止条件结束；主会话判定 3a 通过，在 #13 写明结论和理由（体验类决定，产品负责人有意见再改；涉及需求的改动另外说清）。被接受的修改写回设计系统和 `docs/uiue/decisions.md`。
+5. **出口**：报告放 `docs/uiue/reviews/<日期>-ui-v1/`。P1–P5 都 ≥ 4 分、底线全过、P0 和 P1 为 0 时，主会话判定 3a 通过，在 #13 写明结论和理由（体验类决定，产品负责人有意见再改；涉及需求的改动另外说清）；没到这条线就按 `bar-sheet.md` §7 上报，不算通过。被接受的修改写回设计系统和 `docs/uiue/decisions.md`。
 
 ### 2.2 关口三 b：拆成规格和票
 

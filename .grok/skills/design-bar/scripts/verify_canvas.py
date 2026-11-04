@@ -234,6 +234,8 @@ def main():
     ap.add_argument('--out', required=True)
     ap.add_argument('--themes', default='light,dark')
     ap.add_argument('--only', default='', help='只查文件名包含这些词的画板，逗号分隔')
+    ap.add_argument('--blob', action='append', default=[], metavar='ID=PATH',
+                    help='画板里 /_blob/<ID> 引用的上传文件在本地的路径（例如共享样式表），可以写多次；不给的话这些样式读不到，会误报 token 没定义和触控过小')
     a = ap.parse_args()
 
     files = []
@@ -255,6 +257,11 @@ def main():
         browser = pw.chromium.launch()
         for f in files:
             src = open(f, encoding='utf-8').read()
+            for m in a.blob:
+                bid, _, bpath = m.partition('=')
+                if not bpath or not os.path.exists(bpath):
+                    sys.exit(f'--blob {m}：本地文件不存在')
+                src = src.replace('/_blob/' + bid, os.path.relpath(os.path.abspath(bpath), os.path.dirname(os.path.abspath(f))))
             w, h, is_doc = board_meta(f)
             labels = stage_labels(src)
             refs = set(re.findall(r'var\(--([\w-]+)', src))

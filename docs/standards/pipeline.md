@@ -24,7 +24,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 复用 `design-bar` 第 5 步和 Veli 的两人走查（不同模型、互相看不到）。
 
 0. **先写标杆卡**：主会话按 `design-bar` 第 2 步，从设计系统 README、`velicoach-layout` 和 PRD 写 `docs/uiue/bar-sheet.md`：体验关键词、参考作品拆解、3–5 条能检查的标杆原则、签名时刻、明确不做。产品负责人确认后再评审；没有它，评审打不了分，停止条件也判不了。
-1. **只读验证**：`verify_canvas.py <画板目录> --out docs/uiue/reviews/<日期>-ui-v1 --themes light,dark,pseudo`，结论只有 `done` 或 `needs_work`，修到 `done`。画板引用的样式表在 `/_blob/` 上，先下载到画板旁边、把链接改成相对路径再跑。
+1. **只读验证**：`verify_canvas.py <画板目录> --out docs/uiue/reviews/<日期>-ui-v1 --themes light,dark,pseudo`，结论只有 `done` 或 `needs_work`，修到 `done`。画板引用的共享样式表在 `/_blob/` 上，加 `--blob <id>=<本地文件>` 指过去（`design-bar` 2026-11-04 加的参数）。
 2. **两份独立评审**：`design-reviewer`（Opus）和 `design-reviewer-b`（Sonnet）各派一个新的，互相看不到。只给它们：三种版式 × 两种主题的截图、PRD（功能表 F01–F25、步数预算、页面状态，当作 brief）、标杆卡 `docs/uiue/bar-sheet.md`、设计系统 README、`velicoach-layout` 技能、`design-bar` 的 `references/rubric.md` 和 `anti-patterns.md`，以及上一轮的问题清单。不给制作过程。
 3. **合并与修**：主会话把两份清单去重，按「影响 × 修复成本」排序，每轮修前 3 项，再派新的评审核对。停止条件照 `design-bar`：标杆原则都 ≥ 4 分且检查全过；或一轮没有提升；或已经 3 轮。
 4. **需求覆盖**：PRD 每个 v1 功能都在画板上有状态，或在覆盖表里写明为什么没有界面。

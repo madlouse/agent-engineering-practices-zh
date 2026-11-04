@@ -14,12 +14,14 @@
 | 改看清的文章部分的范围 | [docs/prd/remaining.md](docs/prd/remaining.md)、[docs/uiue/identity.md](docs/uiue/identity.md)、[docs/issues/README.md](docs/issues/README.md) |
 | 写、改、审内容 | 技能 `velicoach-content`；收录一篇文章另见下面「收录一篇时」 |
 | 改界面、版式、交互、动效 | 技能 `velicoach-layout`、[docs/uiue/design-system.md](docs/uiue/design-system.md)、[docs/uiue/decisions.md](docs/uiue/decisions.md)；界面实现另开已有的 `design-ui` |
-| 做票、拆票、跑流水线、改协作机制 | [docs/standards/pipeline.md](docs/standards/pipeline.md)（关口、角色、循环、车道、复用 Veli 的方式）、[docs/standards/observer.md](docs/standards/observer.md)、[docs/delivery/loops/](docs/delivery/loops/)（定时任务的提示词）、[docs/delivery/lessons.md](docs/delivery/lessons.md)；子 Agent 定义在 `.claude/agents/` |
+| 做票、拆票、跑流水线、改协作机制 | [docs/delivery/README.md](docs/delivery/README.md)（开发团队和开发路线的入口：`team-setup.md`、`roadmap.md`）、[docs/standards/pipeline.md](docs/standards/pipeline.md)（关口、角色、循环、车道、复用 Veli 的方式）、[docs/standards/observer.md](docs/standards/observer.md)、[docs/delivery/loops/](docs/delivery/loops/)（定时任务的提示词）、[docs/delivery/lessons.md](docs/delivery/lessons.md)；子 Agent 定义在 `.claude/agents/` |
 | 技术选型、部署、结构变化 | [docs/architecture/overview.md](docs/architecture/overview.md)、[docs/architecture/adr/](docs/architecture/adr/)、[docs/deploy.md](docs/deploy.md)；先写 ADR 再动手 |
 
 ## 技能
 
-技能都在 `.grok/skills/`。`.claude/skills/` 里放了指向主站相关技能的链接，Claude Code 能自动发现；新加的技能要在那里也加一个链接。做对应的事情时先加载技能，再动手：
+技能都在 `.grok/skills/`。`.claude/skills/` 里放了指向主站相关技能的链接，Claude Code 能自动发现；新加的技能要在那里也加一个链接。做对应的事情时先加载技能，再动手。
+
+**技能在这里迭代，这里是唯一来源。** 打磨中改进的技能（包括从 Veli 复用来的）都改在 `.grok/skills/<名字>/` 并随 PR 提交；账号里的同名技能是副本，仓库里改完再同步过去。观察者每周对比一次，发现副本落后就在观察报告里写明。
 
 | 技能 | 什么时候用 |
 |---|---|
@@ -32,6 +34,7 @@
 | `grill-with-docs`、`to-spec`、`to-tickets` | 新需求开工前逐题追问；把定下来的需求写成规格、拆成带依赖的票（关口三 b）。Matt Pocock 的技能，MIT，从 Veli 复用 |
 | `implement`、`implement-spec`、`tdd`、`code-review` | 按票实现、测试先行、代码评审（站点车道）。同上 |
 | `domain-modeling`、`grilling` | 改术语表、写 ADR；追问一个方案。同上 |
+| `agent-team-setup` | 给一个产品仓库搭多 Agent 开发团队：关口、角色、车道、循环、观察者，复用已经在跑的流水线。主站是第一次做成的例子 |
 
 ### 给 Matt Pocock 技能的约定
 

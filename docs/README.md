@@ -24,7 +24,7 @@
 | [architecture/](architecture/) | 技术方案、路由表、ADR | 写代码前；技术选型或结构变化前 |
 | [issues/](issues/) | 原同席博客开过的打磨项和状态 | 接着打磨文章部分时 |
 | [standards/](standards/) | 流水线：从需求到上线的关口、多 Agent 的角色和循环、两条车道、观察者；复用 Veli 的机制 | 做票、拆票、改协作机制前 |
-| [delivery/](delivery/) | 定时任务的提示词（`loops/`）、经验库（`lessons.md`） | 建或改定时任务时；子 Agent 开工前读经验库 |
+| [delivery/](delivery/) | 开发团队和开发路线：团队怎么搭（`team-setup.md`）、开发路线（`roadmap.md`）、定时任务的提示词（`loops/`）、经验库（`lessons.md`） | 想知道现在走到哪、下一步做什么；建或改定时任务时；子 Agent 开工前读经验库 |
 | [deploy.md](deploy.md) | 上线到 velicoach.com 的分流，`with.velicoach.com` 的跳转 | 部署时 |
 
 ## 相关仓库

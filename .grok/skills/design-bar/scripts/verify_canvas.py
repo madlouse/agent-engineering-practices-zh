@@ -11,6 +11,7 @@
   4. 对比度：正文 < 4.5:1、大字 < 3:1（禁用态按钮除外；浅色、深色各查一次）
   5. 触控目标 < 44×44（段落里的文字链接除外）
   6. 引用了没定义的 token：var(--x) 在样式表里找不到
+  （另）占位文字：画板上出现「示例」「待定」「即将上线」「二维码」这类占位词（--placeholders 可改）
   7. 写死的颜色：画板源码里出现 #hex、rgb()、hsl()（token 文件除外）
   8. 页面报错：控制台 error、脚本异常（字体等网络资源加载失败只记为提示）
   9. 画出来就要能用（来自 baoyu-design「Accessible as drawn」）：<a> 没有 href、div/span 上挂点击、
@@ -115,7 +116,8 @@ CHECK_JS = r"""
     seen.add(el);
     const cs = getComputedStyle(el); const fs = parseFloat(cs.fontSize); const lh = parseFloat(cs.lineHeight) || fs * 1.4;
     const r = el.getBoundingClientRect();
-    if (text.length >= 3 && r.width < fs * 2.2 && r.height > lh * 2.5) issues.push({type: '文字被挤成竖排', where: text.slice(0, 20), detail: `宽 ${Math.round(r.width)}、高 ${Math.round(r.height)}`});
+    const vertical = cs.writingMode.startsWith('vertical');  // 有意的竖排（书脊）不算
+    if (!vertical && text.length >= 3 && r.width < fs * 2.2 && r.height > lh * 2.5) issues.push({type: '文字被挤成竖排', where: text.slice(0, 20), detail: `宽 ${Math.round(r.width)}、高 ${Math.round(r.height)}`});
     if (r.right > R.right + 1 && !clipped(el)) issues.push({type: '内容超出画板', where: text.slice(0, 20), detail: `右边 ${Math.round(r.right)} > ${Math.round(R.right)}`});
     if (el.closest('button[disabled], [aria-disabled="true"]')) continue;
     const fg = parse(cs.color); const bg = bgOf(el);
@@ -234,6 +236,7 @@ def main():
     ap.add_argument('--out', required=True)
     ap.add_argument('--themes', default='light,dark')
     ap.add_argument('--only', default='', help='只查文件名包含这些词的画板，逗号分隔')
+    ap.add_argument('--placeholders', default='示例,占位,待定,即将上线,敬请期待,TBD,TODO,Lorem,ipsum,二维码', help='出现在画板文字里就算问题的占位词，逗号分隔')
     ap.add_argument('--blob', action='append', default=[], metavar='ID=PATH',
                     help='画板里 /_blob/<ID> 引用的上传文件在本地的路径（例如共享样式表），可以写多次；不给的话这些样式读不到，会误报 token 没定义和触控过小')
     a = ap.parse_args()
@@ -275,8 +278,10 @@ def main():
             board_issues = [{'state': '源码', 'theme': '-', 'type': '写死的颜色', 'where': c, 'detail': ''} for c in literal_colors(src)]
             board_issues += [{'state': '源码', 'theme': '-', **i} for i in static_a11y(src)]
             board_hints = {}
-            for st in discover_states(src):
-                state = {st: True} if st else {}
+            states = discover_states(src)
+            for st in states:
+                # 只打开这一个状态，别的状态显式关掉（renderVals() 算出的默认状态不能混进来）
+                state = {k: k == st for k in states if k} if st else {}
                 label = labels[int(st[1:])] if st and int(st[1:]) < len(labels) else (st or '默认')
                 for theme in a.themes.split(','):
                     html = render_html(src, state, logic_values(src, state, logic_page))
@@ -297,6 +302,11 @@ def main():
                             pg.evaluate(PSEUDO_JS)
                             pg.wait_for_timeout(50)
                         res = pg.evaluate(CHECK_JS)
+                        if theme == 'light':
+                            shown = pg.evaluate('document.body.innerText')
+                            for word in a.placeholders.split(','):
+                                if word and word in shown:
+                                    res['issues'].append({'type': '占位文字', 'where': word, 'detail': '对外页面不放占位符和过程说明'})
                         if theme == 'pseudo':
                             res['issues'] = [i for i in res['issues'] if i['type'] in LAYOUT_TYPES]
                             res['hints'] = []

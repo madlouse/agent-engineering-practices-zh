@@ -10,6 +10,7 @@
   python render_dc.py Web.dc.html web.png --size 1440x900 --full
 选项：
   --state JSON     模板里洞和条件用到的值
+  --props JSON     覆盖 data-props 的默认值（例如切到深色主题）
   --size WxH       视口，默认 390x844
   --full           整页截图
   --still          prefers-reduced-motion: reduce（看静止的最终状态）
@@ -98,7 +99,7 @@ LOGIC_JS = r"""([code, props, state]) => {
 }"""
 
 
-def logic_values(src, state, page):
+def logic_values(src, state, page, props_override=None):
     """在浏览器里执行画板的 renderVals()，返回能填进模板的值；没有逻辑或出错时返回 {}。"""
     m = re.search(r'<script type="text/x-dc"([^>]*)>(.*?)</script>', src, flags=re.S)
     if not m:
@@ -110,6 +111,7 @@ def logic_values(src, state, page):
             props = {k: v.get('default') for k, v in json.loads(dp.group(1)).items() if isinstance(v, dict) and not k.startswith('$')}
         except ValueError:
             pass
+    props.update(props_override or {})
     vals = page.evaluate(LOGIC_JS, [m.group(2), props, state])
     if '__error' in vals:
         print(f'renderVals() 执行出错，按 --state 渲染：{vals["__error"]}', file=sys.stderr)
@@ -130,6 +132,7 @@ def main():
     ap.add_argument('board')
     ap.add_argument('out')
     ap.add_argument('--state', default='{}')
+    ap.add_argument('--props', default='{}', help='覆盖 data-props 的默认值，例如 \'{"theme": "深色"}\'')
     ap.add_argument('--size', default='390x844')
     ap.add_argument('--full', action='store_true')
     ap.add_argument('--still', action='store_true')
@@ -151,7 +154,7 @@ def main():
     try:
         with sync_playwright() as p:
             b = p.chromium.launch()
-            vals = logic_values(src, state, b.new_page())
+            vals = logic_values(src, state, b.new_page(), json.loads(a.props))
             html = render_html(src, state, vals)
             # 写在画板旁边，相对路径的样式表才能加载
             fd, tmp = tempfile.mkstemp(prefix='.render_', suffix='.html', dir=os.path.dirname(board))

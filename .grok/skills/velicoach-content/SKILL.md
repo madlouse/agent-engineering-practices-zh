@@ -5,7 +5,7 @@ description: Velicoach 全站内容的写作、审核与校准规范：研究卡
 
 # Velicoach 内容规范
 
-Velicoach（velicoach.com）是「AGI 路上的陪练」：01 身体（力量训练，产品是 Veli）、02 AI（AI 与 agent）、03 项目（和 agent 一起做出能用的东西）。本技能规定所有对外内容怎么写、怎么审、怎么定期校准。页面怎么排版见 `velicoach-layout` 技能。
+Velicoach（velicoach.com）是「AGI 路上的陪练」：01 站稳（力量训练，产品是 Veli）、02 看清（AI 与 agent）、03 动手（和 agent 一起做出能用的东西）。本技能规定所有对外内容怎么写、怎么审、怎么定期校准。页面怎么排版见 `velicoach-layout` 技能。
 
 技术内容的中文排版沿用冯大辉的《中文技术文档写作风格指南》（Fenng/Tech-Doc-Style-Chinese，MIT 许可），本技能按 Velicoach 的读者和品牌做了取舍和补充。
 
@@ -65,7 +65,7 @@ Velicoach（velicoach.com）是「AGI 路上的陪练」：01 身体（力量训
 
 - 英文按英语读者重写，不逐句直译；中文里的对仗、四字格、排比不硬搬。
 - 美式拼写；标题用 sentence case（只有首词和专有名词大写）；列表用 serial comma。
-- 名词用术语表的英文：站名 Body、AI、Projects；Veli、Newsletter、Devlog 照写。
+- 名词用术语表的英文：站名 Body、Mind、Build；Veli、Newsletter、Devlog 照写。
 - 句子比中文更短，主动语态；不用 leverage、empower、unlock、seamless、delve、journey、game-changer 这类空泛词。
 - 中英两版同时发布；英文页面里不出现中文正文和未翻译的界面文字。
 

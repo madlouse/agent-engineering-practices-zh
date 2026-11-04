@@ -2,7 +2,7 @@
 
 本文件是这个仓库的项目说明。沙箱契约以 `AGENTS.md` 为准：预览、端口、认证和数据库不要在这里改。
 
-本仓库是 velicoach.com 主站：「AGI 路上的陪练」，先站稳，再看清，然后动手。首页、三站（身体、AI、项目）的页面，以及 AI 站的文章（原来的同席博客）都在这里。Veli（身体站的产品）在 `madlouse/thin-muscle-coach`；以后的新产品各开仓库，从项目站链接过去。
+本仓库是 velicoach.com 主站：「AGI 路上的陪练」，先站稳，再看清，然后动手。首页、三站（站稳、看清、动手）的页面，以及看清一站的文章（原来的同席博客）都在这里。Veli（站稳一站的产品）在 `madlouse/thin-muscle-coach`；以后的新产品各开仓库，从动手一站链接过去。
 
 ## 先读什么
 
@@ -11,7 +11,7 @@
 | 任何任务 | [docs/README.md](docs/README.md)（文档地图）、[docs/GLOSSARY.md](docs/GLOSSARY.md)（术语，一个词一个意思） |
 | 弄清用户到底要什么 | [docs/requirements/timeline.md](docs/requirements/timeline.md)（用户原句，按时间）→ [docs/requirements/trace.md](docs/requirements/trace.md)（第 28 条起每条怎么理解、落在哪）→ [docs/requirements/summary.md](docs/requirements/summary.md)（原同席博客部分按主题汇总）。汇总和原句冲突时，以原句为准；原句按语义和整体目标理解，语音转写错误不照字面；第 1 条只有残段，不要补写 |
 | 改主站需求或产品规则 | [docs/prd/velicoach.md](docs/prd/velicoach.md)（主站 PRD 快照，在线文档是唯一来源）、[docs/prd/velicoach-strategy.md](docs/prd/velicoach-strategy.md) |
-| 改 AI 站文章部分的范围 | [docs/prd/remaining.md](docs/prd/remaining.md)、[docs/uiue/identity.md](docs/uiue/identity.md)、[docs/issues/README.md](docs/issues/README.md) |
+| 改看清的文章部分的范围 | [docs/prd/remaining.md](docs/prd/remaining.md)、[docs/uiue/identity.md](docs/uiue/identity.md)、[docs/issues/README.md](docs/issues/README.md) |
 | 写、改、审内容 | 技能 `velicoach-content`；收录一篇文章另见下面「收录一篇时」 |
 | 改界面、版式、交互、动效 | 技能 `velicoach-layout`、[docs/uiue/design-system.md](docs/uiue/design-system.md)、[docs/uiue/decisions.md](docs/uiue/decisions.md)；界面实现另开已有的 `design-ui` |
 | 技术选型、部署、结构变化 | [docs/architecture/overview.md](docs/architecture/overview.md)、[docs/architecture/adr/](docs/architecture/adr/)、[docs/deploy.md](docs/deploy.md)；先写 ADR 再动手 |

@@ -41,6 +41,12 @@
   --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.24), 0 16px 40px -16px rgba(0, 0, 0, 0.42);
   --shadow-glass-moss:inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.16), 0 20px 44px -16px rgba(0, 0, 0, 0.55);
   --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 0 0 1px rgba(30, 28, 22, 0.045), 0 12px 32px -16px rgba(30, 28, 22, 0.2);
+  --shadow-bevel:inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -1px 0 rgba(0, 0, 0, 0.32), 0 1px 2px rgba(20, 18, 14, 0.18), 0 6px 14px -6px rgba(20, 18, 14, 0.32);
+  --shadow-bevel-press:inset 0 2px 3px rgba(0, 0, 0, 0.28), inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  --shadow-liquid:inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.14), inset 0 0 0 1px rgba(255, 255, 255, 0.22), 0 1px 2px rgba(20, 18, 14, 0.14), 0 10px 28px -12px rgba(20, 18, 14, 0.42);
+  --shadow-pop:0 0 0 1px rgba(20, 18, 14, 0.06), 0 4px 6px -2px rgba(20, 18, 14, 0.2);
+  --shadow-modal:0 0 0 1px rgba(20, 18, 14, 0.06), 0 20px 20px -8px rgba(20, 18, 14, 0.28);
+  --btn-sheen:linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%);
   --space-1:4px;
   --space-2:8px;
   --space-3:12px;
@@ -70,13 +76,16 @@
   --gutter-desktop:48px;
   --nav-height:52px;
   --sidenote-width:240px;
+  --duration-press:100ms;
   --duration-fast:150ms;
+  --duration-exit:160ms;
   --duration-base:240ms;
   --duration-spring:420ms;
   --duration-lean:600ms;
   --duration-breath:10000ms;
   --ease-out:cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring:cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-in:cubic-bezier(0.4, 0, 1, 1);
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Inter Tight", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Inter Tight", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
   --font-serif: ui-serif, "New York", "Songti SC", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", Georgia, serif;
@@ -117,6 +126,11 @@
   --vc-seg-selected:#464740;
   --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
   --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 32px -18px rgba(0, 0, 0, 0.6);
+  --shadow-bevel:inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(0, 0, 0, 0.16), 0 1px 2px rgba(0, 0, 0, 0.45), 0 6px 14px -6px rgba(0, 0, 0, 0.6);
+  --shadow-bevel-press:inset 0 2px 3px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  --shadow-liquid:inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -12px rgba(0, 0, 0, 0.7);
+  --shadow-pop:0 0 0 1px rgba(204, 204, 204, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+  --shadow-modal:0 0 0 1px rgba(204, 204, 204, 0.08), 0 20px 20px -8px rgba(0, 0, 0, 0.6);
 } }
 :root[data-theme="dark"], :root:has([data-theme="dark"]), [data-theme="dark"] {
   --vc-paper:#121310;
@@ -152,6 +166,11 @@
   --vc-seg-selected:#464740;
   --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
   --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 32px -18px rgba(0, 0, 0, 0.6);
+  --shadow-bevel:inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(0, 0, 0, 0.16), 0 1px 2px rgba(0, 0, 0, 0.45), 0 6px 14px -6px rgba(0, 0, 0, 0.6);
+  --shadow-bevel-press:inset 0 2px 3px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  --shadow-liquid:inset 0 1px 0 rgba(255, 255, 255, 0.22), inset 0 -1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px -12px rgba(0, 0, 0, 0.7);
+  --shadow-pop:0 0 0 1px rgba(204, 204, 204, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+  --shadow-modal:0 0 0 1px rgba(204, 204, 204, 0.08), 0 20px 20px -8px rgba(0, 0, 0, 0.6);
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--vc-paper); color: var(--vc-text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
@@ -164,9 +183,12 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 @media (prefers-reduced-transparency: reduce) { .glass, .glass-thick { background: var(--vc-glass-fallback); } .glass-moss { background: var(--vc-moss-hero); } .glass-ink { background: var(--vc-ink-surface); } }
 .navlink { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; min-height: var(--control-height); min-width: var(--control-height); padding: 0 12px; border-radius: var(--radius-pill); text-decoration: none; font-size: 15px; transition: background var(--duration-fast) var(--ease-out); }
 .navlink[aria-current="page"] { background: var(--vc-state-selected); font-weight: 600; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; white-space: nowrap; min-height: var(--control-height-lg); padding: 0 24px; border: 0; border-radius: var(--radius-pill); font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; transition: transform var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out); }
-.btn-action { background: var(--vc-action); color: var(--vc-on-action); }
-.btn-on-ink { background: var(--vc-on-ink); color: var(--vc-ink); }
+.btn { --btn-face: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; white-space: nowrap; min-height: var(--control-height-lg); padding: 0 24px; border: 0; border-radius: var(--radius-pill); font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; transition: background-color var(--duration-press) var(--ease-out), box-shadow var(--duration-press) var(--ease-out); }
+.btn-action { background-color: var(--vc-action); color: var(--vc-on-action); }
+.btn-on-ink { background-color: var(--vc-on-ink); color: var(--vc-ink); }
+.btn-on-moss { background-color: var(--vc-on-moss); color: var(--vc-moss-hero); }
+/* 实色按钮的边缘光（Polaris 的 bevel 做法）：顶边一道细高光、底边一道暗线、贴身的短影子；按下改成内凹 */
+.btn-action, .btn-on-ink, .btn-on-moss { --btn-face: var(--btn-sheen); background-image: var(--btn-face); box-shadow: var(--shadow-bevel); }
 .btn-quiet { background: transparent; color: inherit; box-shadow: inset 0 0 0 1px currentColor; }
 .opt { display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: var(--radius); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line); text-decoration: none; font-size: 15px; font-weight: 500; transition: background var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out); }
 .quick { display: inline-flex; align-items: center; min-height: var(--control-height); font-size: 15px; text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 5px; text-decoration-thickness: 1px; }
@@ -189,13 +211,16 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
    .is-hover / .is-press / .is-focus 只给画板上静态展示状态用，实现里用伪类。 */
 .navlink:hover, .navlink.is-hover, .seg :not([aria-current="true"]):not([aria-pressed="true"]):hover, .seg .is-hover { background-color: var(--vc-state-hover); }
 .navlink[aria-current="page"]:hover, .navlink[aria-current="page"].is-hover, .navlink:active, .navlink.is-press, .seg a:active, .seg button:active, .seg .is-press { background-color: var(--vc-state-press); }
-.btn:hover, .btn.is-hover, .spine:hover, .spine.is-hover, .icon-btn:hover, .icon-btn.is-hover, .switch:hover .switch-track, .switch.is-hover .switch-track { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
-.btn:active, .btn.is-press { transform: scale(.98); background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
+.spine:hover, .spine.is-hover, .icon-btn:hover, .icon-btn.is-hover, .switch:hover .switch-track, .switch.is-hover .switch-track { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
+.btn:hover, .btn.is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)), var(--btn-face); }
+/* 按下：叠一层 state-press，内容下移 1px，阴影从凸起改成内凹；不缩放（缩放会让文字发虚） */
+.btn:active, .btn.is-press { padding-top: 2px; padding-bottom: 0; background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
+.btn-action:active, .btn-action.is-press, .btn-on-ink:active, .btn-on-ink.is-press, .btn-on-moss:active, .btn-on-moss.is-press { box-shadow: var(--shadow-bevel-press); }
 .icon-btn:active, .icon-btn.is-press { background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
 .switch:active .switch-thumb, .switch.is-press .switch-thumb { width: 33px; }
 .switch[aria-checked="true"]:active .switch-thumb, .switch[aria-checked="true"].is-press .switch-thumb { transform: translateX(14px); }
 .opt:hover, .opt.is-hover { background-color: var(--vc-action); color: var(--vc-on-action); }
-.opt:active, .opt.is-press { transform: scale(.98); background-color: var(--vc-action); background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); color: var(--vc-on-action); }
+.opt:active, .opt.is-press { padding-top: 2px; background-color: var(--vc-action); background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); color: var(--vc-on-action); }
 .quick:hover, .quick.is-hover, .row-link:hover .row-title, .row-link.is-hover .row-title { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-cinnabar-deep); }
 .quick:active, .quick.is-press { opacity: .72; }
 :focus-visible, .is-focus { outline: 2px solid var(--vc-focus); outline-offset: 2px; }
@@ -212,7 +237,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .on-dark .opt:hover, .on-dark .opt.is-hover, .on-dark .opt:active, .on-dark .opt.is-press { background-color: var(--vc-on-ink); color: var(--vc-ink); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not(:has([data-theme="light"])) .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); } }
 [data-theme="dark"] .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } .btn:active, .btn.is-press, .opt:active, .opt.is-press { transform: none; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } .orb:hover, .orb.is-hover, .orb:active, .orb.is-press { transform: none; } }
 
 /* 书脊：进入一站后，另一站收成右侧 56px 的竖条，点它直接换过去（设计系统「三种版式」） */
 .spine { position: absolute; top: 0; right: 0; bottom: 0; z-index: 15; width: var(--spine-width); display: flex; align-items: center; justify-content: center; gap: 12px; writing-mode: vertical-rl; text-decoration: none; font-size: 15px; letter-spacing: 0.12em; transition: background var(--duration-fast) var(--ease-out); }
@@ -239,3 +264,14 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 
 /* 中文的标题、链接、按钮、标签不把一个词拆到两行（V9「词中断行」）；放不下时仍可在任意处折行，不会撑破版面。正文段落照中文习惯在字间断行 */
 :lang(zh-CN) :is(h1,h2,h3,h4,a,button,dt,th,.row-title,.kicker,.who){word-break:keep-all;overflow-wrap:anywhere}
+
+/* 液态玻璃（设计系统「玻璃材质」）：只给浮在会变的内容上的控件——压在动效上的「动手」圆和暂停按钮、视频上的播放条、滚动时压过内容的导航。
+   四层：背景模糊加饱和（glass-* 已有）、边缘光（shadow-liquid）、顶部的镜面高光（::before）、按下时整块变亮。
+   折射是 Chromium 才有的增强：页面根上有 data-refract 时，backdrop-filter 再叠一层 SVG 位移滤镜 #vc-refract；别的浏览器照常模糊，不会坏。 */
+.liquid { position: relative; isolation: isolate; box-shadow: var(--shadow-liquid); transition: box-shadow var(--duration-press) var(--ease-out), background-color var(--duration-press) var(--ease-out); }
+.liquid::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; background: radial-gradient(120% 90% at 28% 0%, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 58%); }
+.liquid:hover, .liquid.is-hover { box-shadow: var(--shadow-liquid), inset 0 0 0 999px rgba(255, 255, 255, 0.05); }
+.liquid:active, .liquid.is-press { box-shadow: var(--shadow-liquid), inset 0 0 0 999px rgba(255, 255, 255, 0.1); }
+[data-refract] .liquid.glass, [data-refract] .liquid.glass-ink, [data-refract] .liquid.glass-moss { -webkit-backdrop-filter: url(#vc-refract) blur(var(--blur-glass)) saturate(180%); backdrop-filter: url(#vc-refract) blur(var(--blur-glass)) saturate(180%); }
+@media (prefers-reduced-transparency: reduce) { .liquid::before { display: none; } [data-refract] .liquid.glass, [data-refract] .liquid.glass-ink, [data-refract] .liquid.glass-moss { -webkit-backdrop-filter: none; backdrop-filter: none; } }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .liquid::before { display: none; } }

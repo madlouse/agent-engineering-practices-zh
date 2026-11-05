@@ -70,7 +70,8 @@ def main():
     gfound = {(st, i['type'], th) for i in g for st in i['states'] for th in i['theme'].split('、')}
     for st, typ, th in (('case=展开层超出', '展开层超出所在区块', None), ('case=被盖住', '可点元素被盖住', None),
                         ('case=首屏外', '首屏主操作在视口外', None), ('case=深色露底', '深色下露出浅色底', 'dark'),
-                        ('case=按钮折行', '按钮文字折行', None), ('case=浮层无出路', '浮层没有出路', None), ('case=孤字', '孤字成行', None)):
+                        ('case=按钮折行', '按钮文字折行', None), ('case=浮层无出路', '浮层没有出路', None), ('case=孤字', '孤字成行', None),
+                        ('case=词中断行', '词中断行', None), ('case=冲出容器', '文字冲出容器', None)):
         if not any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in gfound):
             failures.append(f'漏报：SelftestGeometry「{st}」应该报「{typ}」')
     for s_, t_, h_ in sorted(gfound):
@@ -81,7 +82,7 @@ def main():
         print('selftest 不通过：\n  ' + '\n  '.join(failures))
         print(f'报告：{out}/verify-canvas.md')
         sys.exit(1)
-    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 7 类几何和排版问题都抓到了，好的状态没有误报')
+    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 9 类几何和排版问题都抓到了，好的状态没有误报')
 
 
 if __name__ == '__main__':

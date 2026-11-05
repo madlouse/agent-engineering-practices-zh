@@ -58,7 +58,7 @@
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
 | U1 核心场景两步内完成，不常用的不超过三步；悬停不算一步 | 全站 | 按 PRD 步数预算逐条走，记点按次数（设计评审；关口四走实现） | PRD 第 4 节；[NN/g：三次点击规则没有数据支持](https://www.nngroup.com/articles/3-click-rule/) |
-| U2 首屏回答三件事：这是给谁的（首屏或首屏说明里有受众词，例如「上班族」「想跟上 AI 的人」）、能做什么、下一步点哪里；主操作和订阅在 1280×720、1440×790、390×664、320×568 下完整留在首屏里，首屏高度按视口（`100svh`）算，不写死 | 首页、三站首屏 | 视口：`verify_canvas.py --size` 按这四个尺寸各查一遍；关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
+| U2 首屏回答三件事：这是给谁的（首屏里有受众词，例如「上班族」「想跟上 AI 的人」，矮屏收起说明时也留着）、能做什么、下一步点哪里；主操作和订阅在 1280×720、1440×790、390×664、320×568 下完整留在首屏里，首屏高度按视口（`100svh`）算，不写死 | 首页、三站首屏 | 视口：`verify_canvas.py --size` 按这四个尺寸各查一遍；关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
 | U3 一个区域只有 1 个主操作；整个首屏的主操作不超过 2 个 | 首页、三站首屏 | 数截图上的实色主按钮（设计评审） | apple.com、stripe.com、vercel.com 首屏各 2 个，linear.app 1 个；设计系统「一个区域只有一个主按钮」 |
 | U4 主导航不超过 6 项 | 全站 | 数导航（设计评审） | linear.app、stripe.com、anthropic.com 各 6 项，vercel.com 4 项；apple.com 的 11 项是零售站，不算 |
 | U5 导航标签和按钮文字说出去处或结果，不用「了解更多」「点击这里」；常驻的导航（书脊、本站操作条）在任何滚动位置、包括第一屏，标签都在视口里 | 全站 | 逐个读（设计评审、内容评审） | [NN/g 信息气味](https://www.nngroup.com/articles/3-click-rule/)；[Mailchimp](https://styleguide.mailchimp.com/web-elements/) |
@@ -101,7 +101,7 @@
 | V6 样式只引用 token；用留白分组，对齐到间距阶梯；左右分屏的两半，眉标、标题、主按钮的起点在同一条水平线上 | 全站 | `lint_tokens.py` 为 0；`verify_canvas.py` 写死的颜色为 0 | 设计系统；`design-bar` rubric「版式与留白」 |
 | V7 动效有含义：首页的主动效「叶与网」表达三站的关系，每屏最多一个主动效；站稳和动手首屏的纸墨质感不做循环动画，只在首屏出现时变化一次，时长不超过 `duration-lean`（自定，把设计系统的「几乎静止」写成可查的规则）；看清没有动效；时长只用 `duration-*` token | 全站 | 对照设计系统「动效」（设计评审） | 设计系统「动效」；[Apple Design Awards](https://developer.apple.com/design/awards/)「high-quality animations with a distinctive and cohesive theme」 |
 | V8 元信息克制：文章页只放标题、作者、所属的线、阅读时长，日期见 T3，授权见 T5；不放阅读数、点赞数 | 看清文章页 | 看文章页（设计评审） | 酷壳、Fowler、Willison、Distill 都只有标题、作者、日期和少量标签；PRD 第 5 节「文章」字段 |
-| V9 排版细节：中西文之间留空、标点不出现在行首、标题用 `text-wrap: balance`、长段落用 `text-wrap: pretty`、避免孤字成行（`verify_canvas.py` 的「孤字成行」，两行以上的标题和段落最后一行不只剩一个字） | 全站 | 看截图（设计评审）；`velicoach-content` 第 6 节的检查 | `velicoach-content` 第 6 节；`design-bar` rubric「排版」 |
+| V9 排版细节：中西文之间留空、标点不出现在行首、标题用 `text-wrap: balance`、长段落用 `text-wrap: pretty`、避免孤字成行（`verify_canvas.py` 的「孤字成行」，两行以上的标题和段落最后一行不只剩一个字，标点不算字）；标题、按钮、标签这类短文字不把一个词拆到两行（「词中断行」），正文按中文习惯可以在字间断行 | 全站 | 看截图（设计评审）；`velicoach-content` 第 6 节的检查 | `velicoach-content` 第 6 节；`design-bar` rubric「排版」 |
 | V10 没有模板味：`anti-patterns.md` 和 unslop 的信号为 0；把站名换掉，这一屏就不成立；眉标一屏最多一行，中文页上不重复英文站名 | 全站 | `verify_canvas.py` 的模板味提示；设计评审做换名测试 | `design-bar` 的 `references/anti-patterns.md`、`craft.md` §1 |
 
 ### 4.4 可信（T）

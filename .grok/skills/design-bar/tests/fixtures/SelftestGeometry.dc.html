@@ -23,13 +23,15 @@ a{color:inherit}
 </section>
 <sc-if value="{{ wrapBtn }}"><button type="button" class="btn" style="width: 90px; min-height: 48px; font-size: 16px;">开始第一次训练</button></sc-if>
 <sc-if value="{{ dialog }}"><div role="dialog" aria-label="登录" style="padding: 12px;"><a href="#g" style="display: block; height: 48px; font-size: 16px;">用 Google 继续</a></div></sc-if>
+<sc-if value="{{ wordBreak }}"><h3 style="width: 4em; font-size: 16px; line-height: 1.5;">我们的学习课程</h3></sc-if>
+<sc-if value="{{ overflowBox }}"><div style="width: 160px; height: 44px; border-radius: 22px; background: var(--ground); box-shadow: 0 0 0 1px var(--ink); display: flex; align-items: center; padding: 0 12px; overflow: visible; white-space: nowrap;"><span style="font-size: 15px;">这一条说明文字比胶囊条长很多</span></div></sc-if>
 <sc-if value="{{ orphan }}"><p style="width: 12em; font-size: 16px; line-height: 1.6;">这段文字排到最后一行剩一字</p></sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "展开层超出", "被盖住", "首屏外", "深色露底", "按钮折行", "浮层无出路", "孤字"], "default": "好的"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "展开层超出", "被盖住", "首屏外", "深色露底", "按钮折行", "浮层无出路", "孤字", "词中断行", "冲出容器"], "default": "好的"}}'>
 class Component extends DCLogic { renderVals() {
   const c = this.props.case;
-  return { rootH: 600, rootTop: c === '深色露底' ? 40 : 0, heroH: c === '首屏外' ? 560 : 400, menuH: c === '展开层超出' ? 400 : 120, subTop: c === '被盖住' ? 120 : (c === '首屏外' ? 620 : 300), wrapBtn: c === '按钮折行', dialog: c === '浮层无出路', orphan: c === '孤字' };
+  return { rootH: 600, rootTop: c === '深色露底' ? 40 : 0, heroH: c === '首屏外' ? 560 : 400, menuH: c === '展开层超出' ? 400 : 120, subTop: c === '被盖住' ? 120 : (c === '首屏外' ? 620 : 300), wrapBtn: c === '按钮折行', dialog: c === '浮层无出路', orphan: c === '孤字', wordBreak: c === '词中断行', overflowBox: c === '冲出容器' };
 } }
 </script>
 </body>

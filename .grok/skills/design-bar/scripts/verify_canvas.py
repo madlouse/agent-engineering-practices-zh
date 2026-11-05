@@ -18,6 +18,8 @@
   15. 按钮文字折行：按钮里的字折成两行（伪语言那一遍最容易出现）
   16. 浮层没有出路：对话框、菜单里没有「关闭」按钮，画板逻辑也没处理 Esc
   17. 孤字成行：两行以上的标题和段落，最后一行只剩一个汉字或一个短词
+  18. 词中断行：标题、按钮、标签这类 40 字以内的短文字里，中文词被拆到两行（Intl.Segmenter 分词）；正文段落只查孤字
+  19. 文字冲出容器、短标签被挤成多行：文字超出所在的圆角条或卡片；一行控件里三个词以内的标签折成三行以上
   （另）占位文字：画板上出现「示例」「待定」「即将上线」「二维码」这类占位词（--placeholders 可改）
   7. 写死的颜色：画板源码里出现 #hex、rgb()、hsl()（token 文件除外）
   8. 页面报错：控制台 error、脚本异常（字体等网络资源加载失败只记为提示）
@@ -66,7 +68,7 @@ PSEUDO_JS = r"""
 }
 """
 
-LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格', '展开层超出所在区块', '可点元素被盖住', '首屏主操作在视口外', '按钮文字折行'}
+LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格', '展开层超出所在区块', '可点元素被盖住', '首屏主操作在视口外', '按钮文字折行', '文字冲出容器', '短标签被挤成多行'}
 
 CHECK_JS = r"""
 () => {
@@ -78,6 +80,7 @@ CHECK_JS = r"""
   const fTop = footer ? footer.getBoundingClientRect().top : R.bottom;
   const visible = el => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; };
   const name = el => ((el.getAttribute && el.getAttribute('aria-label')) || el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 36);
+  const parseColor = c => { const m = c && c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(',').map(x => parseFloat(x)); return (p.length > 3 ? p[3] : 1) > 0.05 ? p : null; };
   const parse = c => { const m = c && c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(',').map(x => parseFloat(x)); return {r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1}; };
   const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
   const blend = (top, under) => ({r: top.r * top.a + under.r * (1 - top.a), g: top.g * top.a + under.g * (1 - top.a), b: top.b * top.a + under.b * (1 - top.a), a: 1});
@@ -192,7 +195,7 @@ CHECK_JS = r"""
     if (!closer && !window.__dcHandlesEscape) issues.push({type: '浮层没有出路', where: name(layer) || layer.getAttribute('role'), detail: '弹层里放一个「关闭」按钮，并处理 Esc 和点外面关闭'});
   }
   // 17：孤字成行（V9）：两行以上的段落，最后一行只有一个汉字或一个词
-  for (const el of root.querySelectorAll('h1, h2, h3, p, li, figcaption, .lead')) {
+  for (const el of root.querySelectorAll('h1, h2, h3, h4, p, li, figcaption, dd, td, .lead, .row-title, .row-line')) {
     if (!visible(el) || el.closest('svg, [aria-hidden="true"]')) continue;
     if (/flex|grid|table/.test(getComputedStyle(el).display)) continue;  // 弹性和网格容器里各格并排，不是一段文字的多行
     const rg = document.createRange(); rg.selectNodeContents(el);
@@ -206,8 +209,48 @@ CHECK_JS = r"""
     const text = (el.innerText || '').trim();
     if (/[\/.:]\S*$/.test(text.split(/\s+/).pop() || '') && /\//.test(text)) continue;  // 网址、路径折到下一行不算孤字
     const cjk = /[一-鿿]$/.test(text.replace(/[。，、；：！？」』）)\]]+$/, ''));
-    if ((cjk && lastW < fs * 1.6) || (!cjk && lastW < fs * 3 && !/\s/.test(text.slice(-12).trim().split(/\s+/).pop() || ' ')))
+    const endsPunct = /[。，、；：！？」』）]$/.test(text);
+    if ((cjk && lastW < fs * (endsPunct ? 2.6 : 1.6)) || (!cjk && lastW < fs * 3 && !/\s/.test(text.slice(-12).trim().split(/\s+/).pop() || ' ')))
       issues.push({type: '孤字成行', where: text.slice(-16), detail: `最后一行只剩约 ${Math.round(lastW)}px；用 text-wrap: pretty 或调整断句`});
+  }
+  // 18：词中断行（V9）：标题、按钮、标签这类短文字里，中文词被拆到两行（「课 / 程」）；正文段落按中文排版习惯可以在字间断行，只查孤字
+  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+    const seg = new Intl.Segmenter('zh', {granularity: 'word'});
+    const seenW = new Set();
+    for (const el of root.querySelectorAll('h1, h2, h3, h4, a, button, dt, th, .row-title, .kicker, .who')) {
+      if (!visible(el) || el.closest('svg, [aria-hidden="true"]') || (el.innerText || '').trim().length > 40) continue;
+      for (const node of el.childNodes) {
+        if (node.nodeType !== 3) continue;
+        const t = node.textContent; if (t.length < 2 || !/[一-鿿]{2}/.test(t)) continue;
+        const tops = []; const rg = document.createRange();
+        for (let i = 0; i < t.length; i++) { rg.setStart(node, i); rg.setEnd(node, i + 1); const r = rg.getClientRects()[0]; tops.push(r ? r.top : null); }
+        for (const w of seg.segment(t)) {
+          if (!w.isWordLike || w.segment.length < 2 || !/^[一-鿿]+$/.test(w.segment)) continue;
+          const a = tops[w.index], b = tops[w.index + w.segment.length - 1];
+          if (a !== null && b !== null && Math.abs(b - a) > 4) {
+            const key = w.segment + '|' + t.slice(0, 12);
+            if (!seenW.has(key)) { seenW.add(key); issues.push({type: '词中断行', where: w.segment, detail: `「${t.slice(Math.max(0, w.index - 6), w.index + w.segment.length + 4)}」里的「${w.segment}」被拆到两行；调整断句、给词加 word-break: keep-all 的包裹，或改宽度`}); }
+          }
+        }
+      }
+    }
+  }
+  // 19：文字冲出所在的圆角容器（胶囊条、卡片），或短标签被挤成三行以上
+  for (const el of root.querySelectorAll('span, time, a, button, p, small')) {
+    if (!visible(el) || el.closest('svg')) continue;
+    const t = (el.innerText || '').trim(); if (!t || el.children.length > 2) continue;
+    const r = el.getBoundingClientRect();
+    let box = null;
+    for (let e = el.parentElement; e && e !== root; e = e.parentElement) { const cs = getComputedStyle(e); if (parseFloat(cs.borderTopLeftRadius) >= 8 && (parseColor(cs.backgroundColor) || cs.backdropFilter !== 'none')) { box = e; break; } }
+    if (box) { const b = box.getBoundingClientRect(); if (r.right > b.right + 2 || r.bottom > b.bottom + 2 || r.left < b.left - 2) issues.push({type: '文字冲出容器', where: t.slice(0, 24), detail: '文字超出所在的圆角条或卡片；给它换一行，或让容器跟着内容长'}); }
+    const words = t.split(/\s+/).length;
+    if (words <= 3 && t.length <= 24 && !getComputedStyle(el).writingMode.startsWith('vertical') && el.parentElement && getComputedStyle(el.parentElement).display.includes('flex')) {
+      const lh = parseFloat(getComputedStyle(el).lineHeight) || parseFloat(getComputedStyle(el).fontSize) * 1.3;
+      const tops = []; const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      while (tw.nextNode()) { if (!tw.currentNode.textContent.trim()) continue; const rg = document.createRange(); rg.selectNodeContents(tw.currentNode); for (const q of rg.getClientRects()) if (q.width > 1) tops.push(q.top); }
+      tops.sort((a, b) => a - b); let n = 0, last = -1e9; for (const tp of tops) if (tp - last > lh * 0.5) { n++; last = tp; }
+      if (n >= 3) issues.push({type: '短标签被挤成多行', where: t, detail: `折成 ${n} 行；标签加 white-space: nowrap，放不下就换到下一行`});
+    }
   }
   // 10：弹性布局吞掉空格
   for (const el of root.querySelectorAll('*')) {
@@ -393,7 +436,10 @@ def main():
                 variants.append((label, state, {}, (w, h)))
             first_state = variants[0][1]
             variants += [(lbl, first_state, po, (w, h)) for lbl, po in prop_variants(src, labels if states[0] else [])]
-            variants += [(f'{vw}×{vh}', first_state, {}, (vw, vh)) for vw, vh in extra_sizes.get(os.path.basename(f), [])]
+            langs = [po for lbl, po in prop_variants(src, labels if states[0] else []) if 'lang' in po]
+            for vw, vh in extra_sizes.get(os.path.basename(f), []):
+                variants.append((f'{vw}×{vh}', first_state, {}, (vw, vh)))
+                variants += [(f'{vw}×{vh} lang={po["lang"]}', first_state, po, (vw, vh)) for po in langs]  # 窄屏最容易坏在另一种语言上
             for label, state, props_override, (vw, vh) in variants:
                 for theme in a.themes.split(','):
                     html = render_html(src, state, logic_values(src, state, logic_page, props_override))

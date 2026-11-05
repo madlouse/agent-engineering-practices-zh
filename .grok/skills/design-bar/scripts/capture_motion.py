@@ -148,6 +148,7 @@ def main():
     ap.add_argument('--blob', action='append', default=[], metavar='ID=PATH')
     ap.add_argument('--wait', type=int, default=3000)
     ap.add_argument('--scroll', type=int, default=0, metavar='Y', help='截图前把页面滚到 Y（看吸顶玻璃压在真实正文上的样子）')
+    ap.add_argument('--focus', metavar='SELECTOR', help='截图前用键盘焦点（focus-visible）聚焦这个元素，看焦点圈')
     ap.add_argument('--probe')
     ap.add_argument('--probe-frames', type=int, default=8)
     ap.add_argument('--probe-interval', type=int, default=250)
@@ -194,6 +195,9 @@ def main():
             info = pg.evaluate('() => window.__mount()')
             if a.scroll:
                 pg.evaluate('(y) => window.scrollTo(0, y)', a.scroll)
+            if a.focus:
+                if not pg.evaluate('(s) => { const e = document.querySelector(s); if (!e) return false; e.focus({focusVisible: true}); return e.matches(":focus-visible"); }', a.focus):
+                    sys.exit(f'--focus {a.focus}：找不到元素，或聚焦后不是 :focus-visible')
             for xy in a.hover:
                 x, y = (float(v) for v in xy.split(','))
                 pg.mouse.move(x, y, steps=8)

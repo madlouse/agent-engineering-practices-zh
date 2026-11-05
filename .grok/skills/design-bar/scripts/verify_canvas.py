@@ -202,7 +202,7 @@ CHECK_JS = r"""
     if (!closer && !window.__dcHandlesEscape) issues.push({type: '浮层没有出路', where: name(layer) || layer.getAttribute('role'), detail: '弹层里放一个「关闭」按钮，并处理 Esc 和点外面关闭'});
   }
   // 17：孤字成行（V9）：两行以上的段落，最后一行只有一个汉字或一个词
-  for (const el of root.querySelectorAll('h1, h2, h3, h4, p, li, figcaption, dd, td, .lead, .row-title, .row-line')) {
+  for (const el of root.querySelectorAll('h1, h2, h3, h4, p, li, figcaption, dd, td, .lead, .row-title, .row-line, .meta-part, .meta > span, .card-meta > span')) {
     if (!visible(el) || el.closest('svg, [aria-hidden="true"]')) continue;
     if (/flex|grid|table/.test(getComputedStyle(el).display)) continue;  // 弹性和网格容器里各格并排，不是一段文字的多行
     if ([...el.children].some(c => !getComputedStyle(c).display.startsWith('inline'))) continue;  // 里面有块级子元素，最后一行属于别的块

@@ -208,7 +208,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .notice { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line); font-size: 15px; }
 .skeleton { display: block; border-radius: var(--radius-sm); background: var(--vc-state-selected); }
 
-/* 交互状态（设计系统「状态」）：悬停叠一层 state-hover，按下叠 state-press 并缩到 0.98，焦点是 2px 焦点色外圈。
+/* 交互状态（设计系统「状态」）：悬停叠一层 state-hover，按下叠 state-press、内容下移 1px（不缩放），焦点是 2px 焦点色外圈。
    .is-hover / .is-press / .is-focus 只给画板上静态展示状态用，实现里用伪类。 */
 .navlink:hover, .navlink.is-hover, .seg :not([aria-current="true"]):not([aria-pressed="true"]):hover, .seg .is-hover { background-color: var(--vc-state-hover); }
 .navlink[aria-current="page"]:hover, .navlink[aria-current="page"].is-hover, .navlink:active, .navlink.is-press, .seg a:active, .seg button:active, .seg .is-press { background-color: var(--vc-state-press); }
@@ -229,7 +229,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 出错的输入框获得焦点：错误描边留在里面，焦点外圈向外偏 2px，两个都看得见 */
 .field[aria-invalid="true"]:focus-visible, .field[aria-invalid="true"].is-focus { border-color: var(--vc-error); outline-offset: 2px; }
 :disabled, [aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; transform: none; background-image: none; }
-/* 「动手」圆：放大缩小加一层状态色（尺寸各页自己定） */
+/* 「动手」圆：悬停、按下各叠一层状态色，不缩放（尺寸各页自己定） */
 .orb:hover,.orb.is-hover{background-image:linear-gradient(var(--vc-state-hover),var(--vc-state-hover))}
 .orb:active,.orb.is-press{background-image:linear-gradient(var(--vc-state-press),var(--vc-state-press))}
 /* 深色底上（墨色一半、苔绿、书脊）焦点色换成浅的一档，浅色主题下也保证 ≥ 3:1 */
@@ -284,4 +284,4 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 整块是链接的卡片里，正文照中文习惯断行，否则标点会被挤到行首 */
 :lang(zh-CN) a :is(p, .row-line, .card-body, .lead) { word-break: normal; }
 /* 研究卡片的元信息：研究类型、样本量、证据可信度各占一行（首页、站稳同一种写法） */
-.meta-part { display: block; text-wrap: pretty; }
+.meta-part { display: block; text-wrap: balance; word-break: normal; }

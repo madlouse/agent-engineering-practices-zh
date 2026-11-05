@@ -92,7 +92,9 @@ CHECK_JS = r"""
 () => {
   const issues = [];
   const root = document.querySelector('[data-theme]') || document.body;
-  const R = root.getBoundingClientRect();
+  const R0 = root.getBoundingClientRect(); const VW = document.documentElement.clientWidth;
+  // 比的是视口，不是画板：画板写死了比视口还宽的宽度时，超出视口的部分用户看不到
+  const R = {top: R0.top, left: R0.left, bottom: R0.bottom, height: R0.height, width: Math.min(R0.width, VW), right: Math.min(R0.right, VW)};
   const footers = [...root.querySelectorAll('footer')];
   const footer = footers.length ? footers[footers.length - 1] : null;
   const fTop = footer ? footer.getBoundingClientRect().top : R.bottom;
@@ -399,6 +401,7 @@ CHECK_JS = r"""
   const walk = rules => { for (const r of rules || []) { if (r.style) for (const p of r.style) if (p.startsWith('--')) defined.push(p); try { walk(r.cssRules); } catch (e) {} } };
   for (const ss of document.styleSheets) { try { walk(ss.cssRules); } catch (e) {} }
   for (const el of root.querySelectorAll('[style]')) for (const p of el.style) if (p.startsWith('--')) defined.push(p);
+  if (R0.right > VW + 1) issues.push({type: '画板比视口宽', where: (root.className || root.tagName).toString().slice(0, 30), detail: `画板 ${Math.round(R0.width)}px，视口 ${VW}px：自适应的画板根节点用 width: 100%（或 min(100%, …)），不写死像素宽度`});
   for (const c of window.__vcUnparsed) issues.push({type: '颜色算不了', where: c.slice(0, 40), detail: '检查读不出这个颜色，对比度和背景判断会失真；换成浏览器能解析的写法，或在 verify_canvas.py 的 parseColor 里补上'});
   return {issues, hints, defined: [...new Set(defined)]};
 }

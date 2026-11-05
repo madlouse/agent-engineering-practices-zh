@@ -61,6 +61,8 @@
 - 放进 SVG 滤镜：`feImage`（位移图）加 `feDisplacementMap`，`scale = 2 × 最大偏移`；再把 `url(#id)` 加到 `backdrop-filter` 末尾。
 - **色散**：分三遍，红色多偏 15%，蓝色少偏 15%，每遍用 `feColorMatrix` 只留自己的通道，再用 screen 叠回去。在宽边缘、复杂背景的角上检查；变成一团雾时就减小色散。
 - **浏览器**：只有 Chromium 会画 `backdrop-filter` 里的 `url()`。判断 `CSS.supports('backdrop-filter', 'url(#a)')`，再排除 Firefox（认得写法却什么都不画）；Safari 的 `@supports` 也会通过却不画，所以同时要求是 Chromium 内核。别的浏览器只留纯 CSS 的玻璃。
+- **滤镜区域比表面大一圈**（`liquid-glass.js` 按表面长边各向外放一倍）：区域只要比表面小一点（量的时候还没排完版、吸顶偏移、缩放取整），区域外的像素变成透明，背后的正文会不经模糊直接透出来。
+- **吸顶玻璃的祖先不能是另一个「背景根」**：祖先上有 `filter`、`opacity < 1`、`mask`、`backdrop-filter` 或 `will-change` 时，模糊只取到那一层为止，滚过去的正文糊不掉。实现时用 `capture_motion.py --scroll` 在 Chromium 截，关口四在 Safari、Firefox 真机上再看一次。
 - **等位移图解码完**再把表面指向滤镜，否则会画出没有模糊的样子。每个滤镜一个唯一 id、放在自己的 `<svg>` 里。位移图按「圆角 × rim」缓存复用；尺寸变了只移动位移图，不重建。
 - **不加透镜**：小于 32px 的表面；有 `will-change` 或自己合成层的表面（菜单、做动画的面板），Chrome 在那里可能把位移图本身画出来，而不是弯折后的背景。
 

@@ -86,7 +86,8 @@ AGI 路上的陪练：先站稳，再看清，然后动手。
 | 3 分钟视频的播放条 | `lg lg-on-dark`，`data-backdrop="video"` | 视频画面 | 有 |
 | 站稳、文章页的吸顶胶囊导航 | `lg`（深色主题自动换深色一档），`data-backdrop="scroll"`；模糊用导航一档 `--lg-blur-scroll` 20px | 滚过的正文和卡片 | 有 |
 | 站稳滚过首屏后的本站栏（全局导航收起，同一条栏换成站名、锚点、主按钮，apple.com 本地导航的做法） | `lg lg-bar`，`data-backdrop="scroll"`：纸色 72% 底、`saturate(120%)`、20px 模糊、**不加内光**、只留底边 0.5px `vc-paper-line` | 滚过的正文和卡片 | 没有（整宽的栏不弯边） |
-| 动手的吸顶导航 | `lg lg-on-dark lg-moss`，`data-backdrop="scroll"` | 苔绿首屏，往下是纸色正文 | 有 |
+| 动手的吸顶导航（首屏） | 苔绿实色 `nav-moss` | 平涂的苔绿首屏 | 无 |
+| 动手的吸顶导航（滚到正文） | `lg`，`data-backdrop="scroll"` | 纸色正文 | 有 |
 | 首页导航、订阅条、看清的导航、暂停按钮、展开的卡片和表单 | `surface-solid`、`surface-ink` | 平涂纸色或墨色 | — |
 | 「然后动手」圆 | `orb`：实色苔绿 `vc-moss-hero` 加 `shadow-bevel`，按主按钮做（悬停叠 14% 白、按下内容下移 1px 换 `shadow-bevel-press`） | 首页两块平涂之间的接缝（玻璃在这里只会被劈成两色） | — |
 

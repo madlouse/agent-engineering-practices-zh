@@ -74,7 +74,7 @@ def main():
                         ('case=词中断行', '词中断行', None), ('case=冲出容器', '文字冲出容器', None),
                         ('case=玻璃平涂', '玻璃压在平涂底色上', None), ('case=背景声明不成立', '玻璃的背景声明不成立', None),
                         ('case=没有状态样式', '可点元素没有悬停或按下样式', None), ('case=混排断行', '词中断行', None),
-                        ('case=展开挤动', '展开挤动了版面', None)):
+                        ('case=展开挤动', '展开挤动了版面', None), ('case=写死宽度', '画板比视口宽', None)):
         if not any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in gfound):
             failures.append(f'漏报：SelftestGeometry「{st}」应该报「{typ}」')
     if any(s_ == 'case=玻璃有图' and t_ == '玻璃压在平涂底色上' for s_, t_, _ in gfound):
@@ -103,7 +103,7 @@ def main():
         print('selftest 不通过：\n  ' + '\n  '.join(failures))
         print(f'报告：{out}/verify-canvas.md')
         sys.exit(1)
-    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 14 类几何和排版问题（含玻璃平涂、背景声明、悬停按下样式、中英混排断行、展开挤动）都抓到了，oklab 和 color-mix 写的底色也算得对，好的状态没有误报；coverage.py 的数据字段对照也对')
+    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 14 类几何和排版问题（含玻璃平涂、背景声明、悬停按下样式、中英混排断行、展开挤动、画板比视口宽）都抓到了，oklab 和 color-mix 写的底色也算得对，好的状态没有误报；coverage.py 的数据字段对照也对')
 
 
 if __name__ == '__main__':

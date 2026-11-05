@@ -21,7 +21,7 @@ button:hover,.btn:hover{opacity:.9}
 [data-theme="dark"]{--ground:#121310;--ink:#ecebe4}
 </style>
 </helmet>
-<div data-theme="light" style="position: relative; width: 390px; height: {{ rootH }}px; margin-top: {{ rootTop }}px; background: var(--ground); color: var(--ink); font-family: sans-serif;">
+<div data-theme="light" style="position: relative; width: {{ rootW }}px; height: {{ rootH }}px; margin-top: {{ rootTop }}px; background: var(--ground); color: var(--ink); font-family: sans-serif;">
 <section style="position: relative; height: {{ heroH }}px; padding: 20px; overflow: visible;">
 <button class="btn" type="button" aria-expanded="true" aria-controls="menu" style="height: 48px; padding: 0 16px; border: 0; background: var(--ink); color: var(--ground); font-size: 16px;">开始训练</button>
 <div id="menu" role="group" aria-label="开始方式" style="position: absolute; z-index: 2; left: 20px; top: 80px; width: 300px; height: {{ menuH }}px; background: var(--ground); box-shadow: 0 0 0 1px var(--ink);"><a href="#a" style="display: block; height: 48px; font-size: 16px;">用 Google 继续</a></div>
@@ -46,10 +46,10 @@ button:hover,.btn:hover{opacity:.9}
 <h2 style="font-size: 18px; margin: 12px 0;">下面的标题</h2></div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "展开层超出", "被盖住", "首屏外", "深色露底", "按钮折行", "浮层无出路", "孤字", "词中断行", "冲出容器", "玻璃平涂", "玻璃有图", "背景声明不成立", "背景声明成立", "没有状态样式", "混排断行", "展开挤动", "展开不挤", "新色彩写法"], "default": "好的"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "展开层超出", "被盖住", "首屏外", "深色露底", "按钮折行", "浮层无出路", "孤字", "词中断行", "冲出容器", "玻璃平涂", "玻璃有图", "背景声明不成立", "背景声明成立", "没有状态样式", "混排断行", "展开挤动", "展开不挤", "新色彩写法", "写死宽度"], "default": "好的"}}'>
 class Component extends DCLogic { renderVals() {
   const c = this.props.case;
-  return { rootH: 600, rootTop: c === '深色露底' ? 40 : 0, heroH: c === '首屏外' ? 560 : 400, menuH: c === '展开层超出' ? 400 : 120, subTop: c === '被盖住' ? 120 : (c === '首屏外' ? 620 : 300), wrapBtn: c === '按钮折行', dialog: c === '浮层无出路', orphan: c === '孤字', wordBreak: c === '词中断行', overflowBox: c === '冲出容器', glassFlat: c === '玻璃平涂', glassImg: c === '玻璃有图', backdropBad: c === '背景声明不成立', backdropOk: c === '背景声明成立', noState: c === '没有状态样式', mixedBreak: c === '混排断行', moreOpen: (c === '展开挤动' || c === '展开不挤') ? 'true' : 'false', morePush: c === '展开挤动', moreOverlay: c === '展开不挤', modernColor: c === '新色彩写法' };
+  return { rootW: c === '写死宽度' ? 900 : 390, rootH: 600, rootTop: c === '深色露底' ? 40 : 0, heroH: c === '首屏外' ? 560 : 400, menuH: c === '展开层超出' ? 400 : 120, subTop: c === '被盖住' ? 120 : (c === '首屏外' ? 620 : 300), wrapBtn: c === '按钮折行', dialog: c === '浮层无出路', orphan: c === '孤字', wordBreak: c === '词中断行', overflowBox: c === '冲出容器', glassFlat: c === '玻璃平涂', glassImg: c === '玻璃有图', backdropBad: c === '背景声明不成立', backdropOk: c === '背景声明成立', noState: c === '没有状态样式', mixedBreak: c === '混排断行', moreOpen: (c === '展开挤动' || c === '展开不挤') ? 'true' : 'false', morePush: c === '展开挤动', moreOverlay: c === '展开不挤', modernColor: c === '新色彩写法' };
 } }
 </script>
 </body>

@@ -217,11 +217,13 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .field[aria-invalid="true"]:focus-visible, .field[aria-invalid="true"].is-focus { border-color: var(--vc-error); outline-offset: 2px; }
 :disabled, [aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; transform: none; background-image: none; }
 /* 「动手」圆：背后是两块平涂，用实色苔绿主按钮，不用玻璃。悬停提亮约 14%，按下内容下移 1px、换内凹阴影，不缩放（尺寸、位置各页自己定） */
-.orb { background-color: var(--vc-moss-hero); color: var(--vc-on-moss); box-shadow: var(--shadow-bevel); text-decoration: none; padding: 0; transition: box-shadow var(--duration-press) var(--ease-out), left var(--duration-lean) var(--ease-out); --vc-focus: var(--vc-focus-on-dark); }
+.orb { background-color: var(--vc-moss-hero); color: var(--vc-on-moss); box-shadow: var(--shadow-bevel); text-decoration: none; padding: 0; transition: box-shadow var(--duration-press) var(--ease-out), left var(--duration-lean) var(--ease-out); }
 /* 提亮用一层 14% 的白叠在苔绿上（等于苔绿 86% 混白 14%），不用灰色状态层 */
 .orb { --orb-lift: linear-gradient(rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.14)); }
 .orb:hover, .orb.is-hover { background-image: var(--orb-lift); }
-.orb:active, .orb.is-press { background-image: var(--orb-lift); box-shadow: var(--shadow-bevel-press); padding-top: 2px; }
+.orb:active, .orb.is-press { background-image: none; box-shadow: var(--shadow-bevel-press); padding-top: 2px; }
+/* 圆骑在接缝上，一侧纸色、一侧墨色：焦点用两色圈。贴着圆的一圈墨上白、外面一圈焦点蓝，哪一侧都有一圈 ≥ 3:1（浅色主题：蓝在纸上 5.5:1，白在墨上 17.6:1） */
+.orb:focus-visible, .orb.is-focus { outline: 2px solid var(--vc-focus); outline-offset: 3px; box-shadow: var(--shadow-bevel), 0 0 0 3px var(--vc-on-ink); }
 /* 深色底上（墨色一半、苔绿、书脊）焦点色换成浅的一档，浅色主题下也保证 ≥ 3:1 */
 .on-dark, .spine-mind, .lg-on-dark { --vc-focus: var(--vc-focus-on-dark); --vc-error: var(--vc-cinnabar); }
 .on-dark .quick:hover, .on-dark .quick.is-hover, .on-dark .row-link:hover .row-title, .on-dark .row-link.is-hover .row-title, .on-dark :is(a[href]:not([class]), a.step-name, a.row-title):hover, .on-dark .row-link:not(:has(.row-title)):hover { text-decoration-color: var(--vc-cinnabar); }
@@ -380,8 +382,8 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   --lg-tint: rgb(20 20 24 / calc((0.16 + 0.22 * var(--lg-density)) * var(--lg-tint-scale)));
   --lg-filter: blur(var(--lg-blur)) saturate(calc(160% * var(--lg-sat))) brightness(calc(1 - 0.2 * min(var(--lg-tint-scale), 1)));
   --lg-light: 0.33; --lg-ink: rgb(255 255 255 / 0.94); --lg-ink-2: rgb(235 235 245 / 0.64); --lg-blend: plus-lighter; } }
-/* 品牌的苔绿玻璃：「动手」页的吸顶导航压在苔绿首屏和正文上。浅色字，所以墨色和边缘取 lg-on-dark，只把底色换成苔绿 */
-.lg-moss { --lg-tint: rgb(38 59 46 / calc((0.74 + 0.16 * var(--lg-density)) * var(--lg-tint-scale))); --lg-solid-dark: var(--vc-moss-hero); }
+/* 苔绿实色导航：「动手」页首屏背后是平涂苔绿，导航提亮一层（叠 8% 白）好和首屏分开，浅色字。苔绿玻璃超过约 50% 就是实色，不再做 lg-moss */
+.nav-moss { background-color: var(--vc-moss-hero); background-image: linear-gradient(rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.08)); color: var(--vc-on-moss); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--shadow-pop); }
 /* 吸顶玻璃：背后滚过的是正文，2px 挡不住字形，换成导航一档的 20px */
 :root { --lg-blur-scroll: 20px; }
 .lg[data-backdrop="scroll"] { --lg-blur: var(--lg-blur-scroll); }
@@ -394,4 +396,6 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   --lg-light: 0;
   --lg-ink: var(--vc-text);
 }
-@media (prefers-reduced-transparency: reduce) { .lg-moss { background: var(--vc-moss-hero); } }
+
+/* 研究卡的数字：写在结论句的开头，等宽、加粗、和正文同号，不做大号数字（2026-11-04 决定）。卡片读法：含数字的结论 → 出处 → 研究类型、样本量、可信度 */
+.metric { font-family: var(--font-mono); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--vc-text); white-space: nowrap; }

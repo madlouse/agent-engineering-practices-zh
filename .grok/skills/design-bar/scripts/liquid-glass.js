@@ -91,7 +91,10 @@
     svg.style.position = 'absolute';
     const ch = (k, s) => `<feDisplacementMap in="SourceGraphic" in2="map" scale="${(scale * s).toFixed(2)}" xChannelSelector="R" yChannelSelector="G" result="d${k}"/>` +
       `<feColorMatrix in="d${k}" type="matrix" values="${k === 'r' ? '1 0 0 0 0 0 0 0 0 0 0 0 0 0 0' : k === 'g' ? '0 0 0 0 0 0 1 0 0 0 0 0 0 0 0' : '0 0 0 0 0 0 0 0 0 0 0 0 1 0 0'} 0 0 0 1 0" result="${k}"/>`;
-    svg.innerHTML = `<filter id="${id}" x="0" y="0" width="${w}" height="${h}" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">` +
+    // 滤镜区域比表面大一圈：区域只要比表面小一点（量的时候还没排完版、吸顶偏移、缩放取整），区域外的像素就变成透明，
+    // 背后的正文会不经模糊直接透出来；表面以外的部分本来就被 backdrop-filter 裁掉，放大区域没有代价
+    const pad = Math.max(w, h);
+    svg.innerHTML = `<filter id="${id}" x="${-pad}" y="${-pad}" width="${w + 2 * pad}" height="${h + 2 * pad}" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">` +
       `<feImage result="map" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none"/>` +
       (split > 0 ? ch('r', 1 + split) + ch('g', 1) + ch('b', 1 - split) +
         '<feBlend in="r" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="b" mode="screen"/>'
@@ -137,7 +140,8 @@
       const r2 = radiusOf(el, w, h), rim2 = rimFor(w, h);
       if (Math.round(r2) !== Math.round(r) || Math.round(rim2) !== Math.round(rim)) { r = r2; rim = rim2; tile = cornerTile(Math.round(r), Math.round(rim), n); }
       const f = svg.querySelector('filter');
-      f.setAttribute('width', Math.round(w)); f.setAttribute('height', Math.round(h));
+      const pad = Math.max(Math.round(w), Math.round(h));
+      f.setAttribute('x', -pad); f.setAttribute('y', -pad); f.setAttribute('width', Math.round(w) + 2 * pad); f.setAttribute('height', Math.round(h) + 2 * pad);
       fe.setAttribute('width', Math.round(w)); fe.setAttribute('height', Math.round(h));
       await setMap();                                           // 只重新拼图，角块复用缓存
     });

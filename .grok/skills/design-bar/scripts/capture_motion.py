@@ -114,16 +114,18 @@ def probe(pg, selector, frames, interval):
       return {scroll: els[0].closest('[data-backdrop]')?.getAttribute('data-backdrop') === 'scroll', x: Math.max(0, r.left), y: Math.max(0, r.top), w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top)}; }""", selector)
     if not rect or rect['w'] < 4 or rect['h'] < 4:
         sys.exit(f'--probe {selector}：页面上没有这个元素，或它在视口外')
+    GX, GY = 24, 6
     series = []
     for _ in range(frames):
         im = Image.open(io.BytesIO(pg.screenshot(clip={'x': rect['x'], 'y': rect['y'], 'width': rect['w'], 'height': rect['h']}))).convert('RGB')
         W, H = im.size
-        pts = [im.getpixel((min(W - 1, int(W * (i + 0.5) / 5)), min(H - 1, int(H * (j + 0.5) / 3)))) for j in range(3) for i in range(5)]
+        # 24 × 6 个取样点：5 × 3 会漏掉稀疏的一行字（标题只占条的一角时）
+        pts = [im.getpixel((min(W - 1, int(W * (i + 0.5) / GX)), min(H - 1, int(H * (j + 0.5) / GY)))) for j in range(GY) for i in range(GX)]
         series.append([(0.299 * r + 0.587 * g + 0.114 * b) / 255 for r, g, b in pts])
         pg.wait_for_timeout(interval)
     if 'el' not in rect:
         pg.evaluate("(sel) => document.querySelectorAll(sel).forEach(e => e.style.removeProperty('visibility'))", selector)
-    temporal = max(max(f[k] for f in series) - min(f[k] for f in series) for k in range(15))
+    temporal = max(max(f[k] for f in series) - min(f[k] for f in series) for k in range(GX * GY))
     spatial = max(max(f) - min(f) for f in series)
     # scroll 的表面在截图里不会自己动，背后会变的证据是「此刻有正文压在后面」：按取样点之间的差别判
     changes = spatial >= 0.1 if rect.get('scroll') else temporal >= 0.04
@@ -145,6 +147,7 @@ def main():
     ap.add_argument('--no-webgl', action='store_true')
     ap.add_argument('--blob', action='append', default=[], metavar='ID=PATH')
     ap.add_argument('--wait', type=int, default=3000)
+    ap.add_argument('--scroll', type=int, default=0, metavar='Y', help='截图前把页面滚到 Y（看吸顶玻璃压在真实正文上的样子）')
     ap.add_argument('--probe')
     ap.add_argument('--probe-frames', type=int, default=8)
     ap.add_argument('--probe-interval', type=int, default=250)
@@ -189,6 +192,8 @@ def main():
             pg.goto('file://' + tmp)
             pg.wait_for_timeout(200)
             info = pg.evaluate('() => window.__mount()')
+            if a.scroll:
+                pg.evaluate('(y) => window.scrollTo(0, y)', a.scroll)
             for xy in a.hover:
                 x, y = (float(v) for v in xy.split(','))
                 pg.mouse.move(x, y, steps=8)

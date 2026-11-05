@@ -194,6 +194,7 @@ CHECK_JS = r"""
   // 17：孤字成行（V9）：两行以上的段落，最后一行只有一个汉字或一个词
   for (const el of root.querySelectorAll('h1, h2, h3, p, li, figcaption, .lead')) {
     if (!visible(el) || el.closest('svg, [aria-hidden="true"]')) continue;
+    if (/flex|grid|table/.test(getComputedStyle(el).display)) continue;  // 弹性和网格容器里各格并排，不是一段文字的多行
     const rg = document.createRange(); rg.selectNodeContents(el);
     const rects = [...rg.getClientRects()].filter(r => r.width > 0.5);
     if (rects.length < 2) continue;

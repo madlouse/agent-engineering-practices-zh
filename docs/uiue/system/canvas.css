@@ -164,7 +164,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 @media (prefers-reduced-transparency: reduce) { .glass, .glass-thick { background: var(--vc-glass-fallback); } .glass-moss { background: var(--vc-moss-hero); } .glass-ink { background: var(--vc-ink-surface); } }
 .navlink { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; min-height: var(--control-height); min-width: var(--control-height); padding: 0 12px; border-radius: var(--radius-pill); text-decoration: none; font-size: 15px; transition: background var(--duration-fast) var(--ease-out); }
 .navlink[aria-current="page"] { background: var(--vc-state-selected); font-weight: 600; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--control-height-lg); padding: 0 24px; border: 0; border-radius: var(--radius-pill); font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; transition: transform var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; white-space: nowrap; min-height: var(--control-height-lg); padding: 0 24px; border: 0; border-radius: var(--radius-pill); font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; transition: transform var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out); }
 .btn-action { background: var(--vc-action); color: var(--vc-on-action); }
 .btn-on-ink { background: var(--vc-on-ink); color: var(--vc-ink); }
 .btn-quiet { background: transparent; color: inherit; box-shadow: inset 0 0 0 1px currentColor; }

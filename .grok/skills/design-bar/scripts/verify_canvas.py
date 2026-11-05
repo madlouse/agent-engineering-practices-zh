@@ -430,7 +430,7 @@ def main():
                     for hnt in res.get('hints', []):
                         board_hints.setdefault((hnt['sign'], hnt['where']), set()).add(label)
                     for i in res['issues']:
-                        if is_doc and i['type'] == '触控目标小于 44':
+                        if is_doc and i['type'] in ('触控目标小于 44', '首屏主操作在视口外'):  # 说明文档类画板（组件表、旅程图）没有首屏
                             continue
                         board_issues.append({'state': label, 'theme': theme, **i})
                     if theme == a.themes.split(',')[0]:

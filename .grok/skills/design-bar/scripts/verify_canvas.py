@@ -20,6 +20,8 @@
   17. 孤字成行：两行以上的标题和段落，最后一行只剩一个汉字或一个短词
   18. 词中断行：标题、按钮、标签这类 40 字以内的短文字里，中文词被拆到两行（Intl.Segmenter 分词）；正文段落只查孤字
   19. 文字冲出容器、短标签被挤成多行：文字超出所在的圆角条或卡片；一行控件里三个词以内的标签折成三行以上
+  21. 玻璃压在平涂底色上：用了 backdrop-filter 的元素，背后 5×3 网格的亮度极差 < 0.04（浅色那一遍，需要 Pillow）；
+      背后是静态截图画不出来的动效、视频、滚动内容时，在元素或祖先上写 data-backdrop="motion|video|scroll"，这一项跳过
   20. 标点在行首：中文的逗号、句号、顿号等落到一行开头
   按下和悬停：浅色那一遍另外把所有按钮、液态玻璃控件设成按下（.is-press）、悬停（.is-hover）各算一次对比度
   （另）占位文字：画板上出现「示例」「待定」「即将上线」「二维码」这类占位词（--placeholders 可改）
@@ -326,6 +328,53 @@ STATE_JS = '''(cls) => {
 }'''
 
 
+GLASS_JS = r"""
+() => {
+  const out = [];
+  for (const el of document.querySelectorAll('*')) {
+    const cs = getComputedStyle(el), bf = cs.backdropFilter || cs.webkitBackdropFilter;
+    if (!bf || bf === 'none' || cs.display === 'none' || cs.visibility === 'hidden') continue;
+    const r = el.getBoundingClientRect();
+    if (r.width < 24 || r.height < 24 || r.bottom < 0 || r.top > innerHeight) continue;
+    if (el.closest('[data-backdrop]')) continue;  // 声明了背后是动效、视频或滚动内容：静态截图看不到，交给人在画布上看
+    el.setAttribute('data-vc-glass', out.length);
+    out.push({i: out.length, x: r.left, y: r.top, w: r.width, h: r.height,
+              name: ((el.getAttribute('aria-label') || el.innerText || el.tagName).trim().replace(/\s+/g, ' ').slice(0, 30))});
+  }
+  return out;
+}
+"""
+
+
+def flat_glass(pg):
+    """玻璃压在平涂底色上：把玻璃（连同里面的东西）临时藏起来，截它背后那块，5×3 网格取样；
+    亮度极差 < 0.04 且颜色几乎不变，就是一块平涂底色，玻璃在那里只会是一块灰。"""
+    import io
+    try:
+        from PIL import Image
+    except ImportError:
+        return []
+    issues = []
+    vw, vh = pg.viewport_size['width'], pg.viewport_size['height']
+    for g in pg.evaluate(GLASS_JS):
+        x0, y0 = max(0, g['x']), max(0, g['y'])
+        x1, y1 = min(vw, g['x'] + g['w']), min(vh, g['y'] + g['h'])
+        if x1 - x0 < 8 or y1 - y0 < 8:
+            continue
+        pg.evaluate("i => document.querySelector(`[data-vc-glass=\"${i}\"]`).style.setProperty('visibility', 'hidden', 'important')", g['i'])
+        png = pg.screenshot(clip={'x': x0, 'y': y0, 'width': x1 - x0, 'height': y1 - y0})
+        pg.evaluate("i => document.querySelector(`[data-vc-glass=\"${i}\"]`).style.removeProperty('visibility')", g['i'])
+        im = Image.open(io.BytesIO(png)).convert('RGB')
+        W, H = im.size
+        pts = [im.getpixel((min(W - 1, int(W * (i + 0.5) / 5)), min(H - 1, int(H * (j + 0.5) / 3)))) for j in range(3) for i in range(5)]
+        lum = [(0.299 * r + 0.587 * gg + 0.114 * b) / 255 for r, gg, b in pts]
+        hue = max(max(abs(p[k] - pts[0][k]) for k in range(3)) for p in pts) / 255
+        if max(lum) - min(lum) < 0.04 and hue < 0.06:
+            issues.append({'type': '玻璃压在平涂底色上', 'where': g['name'] or 'glass',
+                           'detail': f'背后亮度极差 {max(lum) - min(lum):.3f}：背后是一种颜色时玻璃只是一块灰，改成实色面；只给压在图片、视频、动效、滚动内容上的表面用玻璃'})
+    return issues
+
+
 def discover_states(src):
     names = sorted(set(re.findall(r'<sc-if value="\{\{\s*(s\d+)\s*\}\}"', src)), key=lambda x: int(x[1:]))
     return names or [None]
@@ -504,6 +553,7 @@ def main():
                             for cls, lbl in (('is-press', '按下'), ('is-hover', '悬停')):
                                 more = pg.evaluate(STATE_JS, cls)
                                 res['issues'] += [{**i, 'type': '对比度不够（' + lbl + '）'} for i in more if i['type'] == '对比度不够']
+                            res['issues'] += flat_glass(pg)
                             shown = pg.evaluate('document.body.innerText')
                             for word in a.placeholders.split(','):
                                 if word and word in shown:
@@ -517,7 +567,7 @@ def main():
                     for hnt in res.get('hints', []):
                         board_hints.setdefault((hnt['sign'], hnt['where']), set()).add(label)
                     for i in res['issues']:
-                        if is_doc and i['type'] in ('触控目标小于 44', '首屏主操作在视口外'):  # 说明文档类画板（组件表、旅程图）没有首屏
+                        if is_doc and i['type'] in ('触控目标小于 44', '首屏主操作在视口外', '玻璃压在平涂底色上'):  # 说明文档类画板（组件表、旅程图）没有首屏
                             continue
                         board_issues.append({'state': label, 'theme': theme, **i})
                     if theme == a.themes.split(',')[0]:

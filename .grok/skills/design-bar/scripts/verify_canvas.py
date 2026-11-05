@@ -62,6 +62,9 @@ PSEUDO_JS = r"""
   for (const n of nodes) {
     const t = n.textContent; const core = t.trim();
     if (core.length < 2 || n.parentElement.closest('script, style, svg')) continue;
+    const own = n.parentElement.closest('[lang]');
+    if (own && own !== root && (own.getAttribute('lang') !== root.getAttribute('lang') || own.closest('button, .seg'))) continue;  // 语言切换按钮上的语言名不随翻译变长
+    if (!/[A-Za-z\u4e00-\u9fff]/.test(core)) continue;  // 只有数字和符号（时间、页码）的不随翻译变长
     const extra = Math.ceil(core.length * 0.35);
     n.textContent = t.replace(core, core + core.repeat(2).slice(0, extra));
   }
@@ -198,6 +201,7 @@ CHECK_JS = r"""
   for (const el of root.querySelectorAll('h1, h2, h3, h4, p, li, figcaption, dd, td, .lead, .row-title, .row-line')) {
     if (!visible(el) || el.closest('svg, [aria-hidden="true"]')) continue;
     if (/flex|grid|table/.test(getComputedStyle(el).display)) continue;  // 弹性和网格容器里各格并排，不是一段文字的多行
+    if ([...el.children].some(c => !getComputedStyle(c).display.startsWith('inline'))) continue;  // 里面有块级子元素，最后一行属于别的块
     const rg = document.createRange(); rg.selectNodeContents(el);
     const rects = [...rg.getClientRects()].filter(r => r.width > 0.5);
     if (rects.length < 2) continue;
@@ -240,8 +244,10 @@ CHECK_JS = r"""
     if (!visible(el) || el.closest('svg')) continue;
     const t = (el.innerText || '').trim(); if (!t || el.children.length > 2) continue;
     const r = el.getBoundingClientRect();
+    if (r.width <= 2 || r.height <= 2 || getComputedStyle(el).clip !== 'auto') continue;  // 只给读屏的隐藏标签
     let box = null;
     for (let e = el.parentElement; e && e !== root; e = e.parentElement) { const cs = getComputedStyle(e); if (parseFloat(cs.borderTopLeftRadius) >= 8 && (parseColor(cs.backgroundColor) || cs.backdropFilter !== 'none')) { box = e; break; } }
+    if (box && /auto|scroll|hidden|clip/.test(getComputedStyle(box).overflowX + getComputedStyle(box).overflowY)) box = null;  // 能滚动或有意裁切的容器
     if (box) { const b = box.getBoundingClientRect(); if (r.right > b.right + 2 || r.bottom > b.bottom + 2 || r.left < b.left - 2) issues.push({type: '文字冲出容器', where: t.slice(0, 24), detail: '文字超出所在的圆角条或卡片；给它换一行，或让容器跟着内容长'}); }
     const words = t.split(/\s+/).length;
     if (words <= 3 && t.length <= 24 && !getComputedStyle(el).writingMode.startsWith('vertical') && el.parentElement && getComputedStyle(el.parentElement).display.includes('flex')) {
@@ -249,7 +255,7 @@ CHECK_JS = r"""
       const tops = []; const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
       while (tw.nextNode()) { if (!tw.currentNode.textContent.trim()) continue; const rg = document.createRange(); rg.selectNodeContents(tw.currentNode); for (const q of rg.getClientRects()) if (q.width > 1) tops.push(q.top); }
       tops.sort((a, b) => a - b); let n = 0, last = -1e9; for (const tp of tops) if (tp - last > lh * 0.5) { n++; last = tp; }
-      if (n >= 3) issues.push({type: '短标签被挤成多行', where: t, detail: `折成 ${n} 行；标签加 white-space: nowrap，放不下就换到下一行`});
+      if (n >= 3 && getComputedStyle(el).webkitLineClamp === 'none') issues.push({type: '短标签被挤成多行', where: t, detail: `折成 ${n} 行；标签加 white-space: nowrap，放不下就换到下一行`});
     }
   }
   // 10：弹性布局吞掉空格
@@ -442,6 +448,8 @@ def main():
                 variants += [(f'{vw}×{vh} lang={po["lang"]}', first_state, po, (vw, vh)) for po in langs]  # 窄屏最容易坏在另一种语言上
             for label, state, props_override, (vw, vh) in variants:
                 for theme in a.themes.split(','):
+                    if theme == 'pseudo' and 'lang' in props_override:
+                        continue  # 伪语言模拟「换成更长的语言」，已经切到另一种语言的变体不再叠加
                     html = render_html(src, state, logic_values(src, state, logic_page, props_override))
                     manual_dark = theme == 'dark' and 'data-theme="light"' in html
                     if manual_dark:  # 手动选了深色、系统是浅色：最容易露出浅色 body 的情形

@@ -236,3 +236,6 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .switch-thumb{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:var(--vc-paper-surface);box-shadow:var(--shadow-card);transition:transform var(--duration-fast) var(--ease-out)}
 .switch[aria-checked="true"] .switch-track{background:var(--vc-moss);box-shadow:none}
 .switch[aria-checked="true"] .switch-thumb{transform:translateX(20px)}
+
+/* 中文的标题、链接、按钮、标签不把一个词拆到两行（V9「词中断行」）；放不下时仍可在任意处折行，不会撑破版面。正文段落照中文习惯在字间断行 */
+:lang(zh-CN) :is(h1,h2,h3,h4,a,button,dt,th,.row-title,.kicker,.who){word-break:keep-all;overflow-wrap:anywhere}

@@ -199,7 +199,8 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .seg a, .seg button { display: inline-flex; align-items: center; justify-content: center; min-height: var(--control-height); min-width: var(--control-height); padding: 0 12px; border: 3px solid transparent; background-clip: padding-box; border-radius: var(--radius-pill); background-color: transparent; color: inherit; font: inherit; font-size: 14px; text-decoration: none; cursor: pointer; }
 .seg [aria-current="true"], .seg [aria-pressed="true"] { background-color: var(--vc-seg-selected); color: var(--vc-text); font-weight: 600; }
 .seg-on-ink { background: var(--vc-state-hover); }
-.icon-btn { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); border: 0; border-radius: var(--radius-pill); background: transparent; color: inherit; cursor: pointer; }
+.icon-btn { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); border: 0; border-radius: var(--radius-pill); color: inherit; cursor: pointer; }
+.icon-btn:not([class*="glass"]):not([class*="surface"]) { background-color: transparent; }
 .field { min-height: var(--control-height); min-width: 0; padding: 0 16px; border: 1px solid var(--vc-paper-line); border-radius: var(--radius-pill); background: var(--vc-paper-surface); color: var(--vc-text); font: inherit; font-size: 16px; }
 .field::placeholder { color: var(--vc-text-3); }
 .field[aria-invalid="true"] { border-color: var(--vc-error); }
@@ -229,15 +230,15 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .field[aria-invalid="true"]:focus-visible, .field[aria-invalid="true"].is-focus { border-color: var(--vc-error); outline-offset: 2px; }
 :disabled, [aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; transform: none; background-image: none; }
 /* 「动手」圆：放大缩小加一层状态色（尺寸各页自己定） */
-.orb:hover,.orb.is-hover{transform:scale(1.04);background-image:linear-gradient(var(--vc-state-hover),var(--vc-state-hover))}
-.orb:active,.orb.is-press{transform:scale(.97);background-image:linear-gradient(var(--vc-state-press),var(--vc-state-press))}
+.orb:hover,.orb.is-hover{background-image:linear-gradient(var(--vc-state-hover),var(--vc-state-hover))}
+.orb:active,.orb.is-press{background-image:linear-gradient(var(--vc-state-press),var(--vc-state-press))}
 /* 深色底上（墨色一半、苔绿、书脊）焦点色换成浅的一档，浅色主题下也保证 ≥ 3:1 */
 .on-dark, .spine-mind, .glass-ink, .glass-moss { --vc-focus: var(--vc-focus-on-dark); --vc-error: var(--vc-cinnabar); }
 .on-dark .quick:hover, .on-dark .quick.is-hover, .on-dark .row-link:hover .row-title, .on-dark .row-link.is-hover .row-title { text-decoration-color: var(--vc-cinnabar); }
 .on-dark .opt:hover, .on-dark .opt.is-hover, .on-dark .opt:active, .on-dark .opt.is-press { background-color: var(--vc-on-ink); color: var(--vc-ink); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not(:has([data-theme="light"])) .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); } }
 [data-theme="dark"] .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } .orb:hover, .orb.is-hover, .orb:active, .orb.is-press { transform: none; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 /* 书脊：进入一站后，另一站收成右侧 56px 的竖条，点它直接换过去（设计系统「三种版式」） */
 .spine { position: absolute; top: 0; right: 0; bottom: 0; z-index: 15; width: var(--spine-width); display: flex; align-items: center; justify-content: center; gap: 12px; writing-mode: vertical-rl; text-decoration: none; font-size: 15px; letter-spacing: 0.12em; transition: background var(--duration-fast) var(--ease-out); }
@@ -254,6 +255,8 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .prose:lang(en) p, .prose:lang(en) ol, .prose:lang(en) ul { font-size: 18px; line-height: 1.45; }
 
 /* 实色浮层面：原地展开的卡片、展开成表单的订阅条（V5：跨底色的浮层用实色，不用玻璃） */
+/* 墨色实色面：压在平涂墨色上的浮动控件（暂停按钮） */
+.surface-ink { background-color: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-ink-line); }
 .surface-solid{background:var(--vc-paper-surface);color:var(--vc-text);box-shadow:0 0 0 1px var(--vc-paper-line),var(--shadow-glass)}
 /* 开关：已登录时的订阅开关这类一步就生效的设置；点按区 60×44，轨道 51×31 */
 .switch{display:inline-flex;align-items:center;justify-content:center;width:60px;height:var(--control-height);padding:0;border:0;border-radius:var(--radius-pill);background:transparent;cursor:pointer;flex:none}
@@ -263,15 +266,22 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .switch[aria-checked="true"] .switch-thumb{transform:translateX(20px)}
 
 /* 中文的标题、链接、按钮、标签不把一个词拆到两行（V9「词中断行」）；放不下时仍可在任意处折行，不会撑破版面。正文段落照中文习惯在字间断行 */
-:lang(zh-CN) :is(h1,h2,h3,h4,a,button,dt,th,.row-title,.kicker,.who){word-break:keep-all;overflow-wrap:anywhere}
+:lang(zh-CN) :is(h1,h2,h3,h4,a,button,dt,th,.row-title,.kicker,.who,.src,.meta,.card-meta){word-break:keep-all;overflow-wrap:anywhere}
 
 /* 液态玻璃（设计系统「玻璃材质」）：只给浮在会变的内容上的控件——压在动效上的「动手」圆和暂停按钮、视频上的播放条、滚动时压过内容的导航。
    四层：背景模糊加饱和（glass-* 已有）、边缘光（shadow-liquid）、顶部的镜面高光（::before）、按下时整块变亮。
    折射是 Chromium 才有的增强：页面根上有 data-refract 时，backdrop-filter 再叠一层 SVG 位移滤镜 #vc-refract；别的浏览器照常模糊，不会坏。 */
 .liquid { position: relative; isolation: isolate; box-shadow: var(--shadow-liquid); transition: box-shadow var(--duration-press) var(--ease-out), background-color var(--duration-press) var(--ease-out); }
-.liquid::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; background: radial-gradient(120% 90% at 28% 0%, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 58%); }
+.liquid::before { content: ""; position: absolute; inset: 0 0 50% 0; z-index: -1; border-radius: inherit; pointer-events: none; background: radial-gradient(120% 90% at 28% 0%, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0) 58%); }
 .liquid:hover, .liquid.is-hover { box-shadow: var(--shadow-liquid), inset 0 0 0 999px rgba(255, 255, 255, 0.05); }
 .liquid:active, .liquid.is-press { box-shadow: var(--shadow-liquid), inset 0 0 0 999px rgba(255, 255, 255, 0.1); }
+/* 深色玻璃（墨色、苔绿）上是浅色字：悬停和按下改成压暗一档，字反而更清楚 */
+.liquid.glass-ink:hover, .liquid.glass-ink.is-hover, .liquid.glass-moss:hover, .liquid.glass-moss.is-hover { box-shadow: var(--shadow-liquid), inset 0 0 0 999px rgba(0, 0, 0, 0.08); }
+.liquid.glass-ink:active, .liquid.glass-ink.is-press, .liquid.glass-moss:active, .liquid.glass-moss.is-press { box-shadow: var(--shadow-liquid), inset 0 0 0 999px rgba(0, 0, 0, 0.16); }
 [data-refract] .liquid.glass, [data-refract] .liquid.glass-ink, [data-refract] .liquid.glass-moss { -webkit-backdrop-filter: url(#vc-refract) blur(var(--blur-glass)) saturate(180%); backdrop-filter: url(#vc-refract) blur(var(--blur-glass)) saturate(180%); }
 @media (prefers-reduced-transparency: reduce) { .liquid::before { display: none; } [data-refract] .liquid.glass, [data-refract] .liquid.glass-ink, [data-refract] .liquid.glass-moss { -webkit-backdrop-filter: none; backdrop-filter: none; } }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .liquid::before { display: none; } }
+/* 整块是链接的卡片里，正文照中文习惯断行，否则标点会被挤到行首 */
+:lang(zh-CN) a :is(p, .row-line, .card-body, .lead) { word-break: normal; }
+/* 研究卡片的元信息：研究类型、样本量、证据可信度各占一行（首页、站稳同一种写法） */
+.meta-part { display: block; text-wrap: pretty; }

@@ -20,6 +20,8 @@
   17. 孤字成行：两行以上的标题和段落，最后一行只剩一个汉字或一个短词
   18. 词中断行：标题、按钮、标签这类 40 字以内的短文字里，中文词被拆到两行（Intl.Segmenter 分词）；正文段落只查孤字
   19. 文字冲出容器、短标签被挤成多行：文字超出所在的圆角条或卡片；一行控件里三个词以内的标签折成三行以上
+  20. 标点在行首：中文的逗号、句号、顿号等落到一行开头
+  按下和悬停：浅色那一遍另外把所有按钮、液态玻璃控件设成按下（.is-press）、悬停（.is-hover）各算一次对比度
   （另）占位文字：画板上出现「示例」「待定」「即将上线」「二维码」这类占位词（--placeholders 可改）
   7. 写死的颜色：画板源码里出现 #hex、rgb()、hsl()（token 文件除外）
   8. 页面报错：控制台 error、脚本异常（字体等网络资源加载失败只记为提示）
@@ -72,6 +74,8 @@ PSEUDO_JS = r"""
 """
 
 LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格', '展开层超出所在区块', '可点元素被盖住', '首屏主操作在视口外', '按钮文字折行', '文字冲出容器', '短标签被挤成多行'}
+
+STATE_JS = None  # 在 CHECK_JS 定义之后生成
 
 CHECK_JS = r"""
 () => {
@@ -258,6 +262,20 @@ CHECK_JS = r"""
       if (n >= 3 && getComputedStyle(el).webkitLineClamp === 'none') issues.push({type: '短标签被挤成多行', where: t, detail: `折成 ${n} 行；标签加 white-space: nowrap，放不下就换到下一行`});
     }
   }
+  // 20：标点在行首（V9）：逗号、句号、顿号这类不该出现在一行的开头
+  for (const el of root.querySelectorAll('h1, h2, h3, h4, p, li, figcaption, dd, td, a, button, span')) {
+    if (!visible(el) || el.closest('svg, [aria-hidden="true"]')) continue;
+    for (const node of el.childNodes) {
+      if (node.nodeType !== 3) continue;
+      const t = node.textContent; if (t.length < 2 || t.length > 400 || !/[，。、；：！？）」』]/.test(t)) continue;
+      const rg = document.createRange(); let prevTop = null;
+      for (let i = 0; i < t.length; i++) {
+        rg.setStart(node, i); rg.setEnd(node, i + 1); const r = rg.getClientRects()[0]; if (!r) continue;
+        if (prevTop !== null && r.top - prevTop > 4 && /[，。、；：！？）」』]/.test(t[i])) { issues.push({type: '标点在行首', where: t.slice(Math.max(0, i - 8), i + 4), detail: '标点落到了下一行开头；检查是不是 word-break: keep-all 用在了带标点的长文字上'}); break; }
+        prevTop = r.top;
+      }
+    }
+  }
   // 10：弹性布局吞掉空格
   for (const el of root.querySelectorAll('*')) {
     if (!visible(el)) continue;
@@ -297,6 +315,15 @@ CHECK_JS = r"""
   return {issues, hints, defined: [...new Set(defined)]};
 }
 """
+
+
+STATE_JS = '''(cls) => {
+  const els = [...document.querySelectorAll('.btn, .liquid, .opt, .icon-btn, .orb')];
+  els.forEach(e => e.classList.add(cls));
+  const res = (''' + CHECK_JS.strip() + ''')();
+  els.forEach(e => e.classList.remove(cls));
+  return res.issues;
+}'''
 
 
 def discover_states(src):
@@ -404,6 +431,9 @@ def main():
         files = [f for f in files if any(k in os.path.basename(f) for k in keys)]
     if not files:
         sys.exit('没有找到 .dc.html 画板')
+    unknown = set(extra_sizes) - {os.path.basename(f) for f in files}
+    if unknown:
+        sys.exit('--size 的画板名没有对上：' + '、'.join(sorted(unknown)) + '（要写全名，例如 Main.dc.html）')
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -471,6 +501,9 @@ def main():
                             pg.wait_for_timeout(50)
                         res = pg.evaluate(CHECK_JS)
                         if theme == 'light':
+                            for cls, lbl in (('is-press', '按下'), ('is-hover', '悬停')):
+                                more = pg.evaluate(STATE_JS, cls)
+                                res['issues'] += [{**i, 'type': '对比度不够（' + lbl + '）'} for i in more if i['type'] == '对比度不够']
                             shown = pg.evaluate('document.body.innerText')
                             for word in a.placeholders.split(','):
                                 if word and word in shown:

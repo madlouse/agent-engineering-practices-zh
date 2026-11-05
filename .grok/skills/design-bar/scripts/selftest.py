@@ -65,11 +65,22 @@ def main():
     if any(st.startswith('theme=') for st, _ in pfound):
         failures.append('误查：theme 属性由 --themes 负责，不该再按属性查一遍')
 
+    # 几何：展开层出区块、可点元素被盖住、首屏主操作在视口外、深色下露出浅色底
+    g = data['boards']['SelftestGeometry.dc.html']
+    gfound = {(st, i['type'], th) for i in g for st in i['states'] for th in i['theme'].split('、')}
+    for st, typ, th in (('case=展开层超出', '展开层超出所在区块', None), ('case=被盖住', '可点元素被盖住', None),
+                        ('case=首屏外', '首屏主操作在视口外', None), ('case=深色露底', '深色下露出浅色底', 'dark')):
+        if not any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in gfound):
+            failures.append(f'漏报：SelftestGeometry「{st}」应该报「{typ}」')
+    for s_, t_, h_ in sorted(gfound):
+        if s_ == '默认' and t_ != '写死的颜色':
+            failures.append(f'误报：SelftestGeometry 默认状态不该报「{t_}」')
+
     if failures:
         print('selftest 不通过：\n  ' + '\n  '.join(failures))
         print(f'报告：{out}/verify-canvas.md')
         sys.exit(1)
-    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项和额外视口都抓到了，好的状态没有误报')
+    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 4 类几何问题都抓到了，好的状态没有误报')
 
 
 if __name__ == '__main__':

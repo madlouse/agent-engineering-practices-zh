@@ -11,6 +11,10 @@
   4. 对比度：正文 < 4.5:1、大字 < 3:1（禁用态按钮除外；浅色、深色各查一次）
   5. 触控目标 < 44×44（段落里的文字链接除外）
   6. 引用了没定义的 token：var(--x) 在样式表里找不到
+  11. 展开层超出所在区块：aria-expanded 的控件用 aria-controls 指向的展开层，要完整留在所在 <section> 里
+  12. 可点元素被盖住：链接、按钮、输入框的中心点上面压着别的控件或浮层
+  13. 首屏主操作在视口外：第一个 <section> 里的按钮和表单，底边超出视口（配合 --size 查 1280×720 这类常见高度）
+  14. 深色下露出浅色底：主题只设在里层，画板比视口矮或有外边距时，外面露出浅色的 body
   （另）占位文字：画板上出现「示例」「待定」「即将上线」「二维码」这类占位词（--placeholders 可改）
   7. 写死的颜色：画板源码里出现 #hex、rgb()、hsl()（token 文件除外）
   8. 页面报错：控制台 error、脚本异常（字体等网络资源加载失败只记为提示）
@@ -59,7 +63,7 @@ PSEUDO_JS = r"""
 }
 """
 
-LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格'}
+LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格', '展开层超出所在区块', '可点元素被盖住', '首屏主操作在视口外'}
 
 CHECK_JS = r"""
 () => {
@@ -131,6 +135,40 @@ CHECK_JS = r"""
       const need = large ? 3 : 4.5;
       if (ratio < need - 0.05) issues.push({type: '对比度不够', where: text.slice(0, 20), detail: `${ratio.toFixed(2)}:1，要 ${need}:1`});
     }
+  }
+  // 11：展开层完整留在所在区块里（aria-expanded="true" 的控件用 aria-controls 指向它）
+  for (const t of root.querySelectorAll('[aria-expanded="true"][aria-controls]')) {
+    const layer = document.getElementById(t.getAttribute('aria-controls'));
+    const sec = layer && layer.closest('section');
+    if (!layer || !sec || !visible(layer)) continue;
+    const a = layer.getBoundingClientRect(), b = sec.getBoundingClientRect();
+    if (a.bottom > b.bottom + 1 || a.right > b.right + 1 || a.top < b.top - 1 || a.left < b.left - 1)
+      issues.push({type: '展开层超出所在区块', where: name(t), detail: `展开层 ${Math.round(a.top)}–${Math.round(a.bottom)}，区块 ${Math.round(b.top)}–${Math.round(b.bottom)}`});
+  }
+  // 12：可点元素被别的东西盖住（看它中心那一点最上面是不是它自己）
+  for (const el of root.querySelectorAll('a[href], button, input')) {
+    if (!visible(el)) continue;
+    const r = el.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2 || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) continue;
+    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    if (!hit || el.contains(hit) || hit.contains(el)) continue;
+    const owner = hit.closest('a[href], button, input, [role="group"], [role="dialog"], [role="menu"], form, header, nav');
+    if (owner && !owner.contains(el) && !el.contains(owner)) issues.push({type: '可点元素被盖住', where: name(el), detail: `被「${name(owner) || owner.tagName.toLowerCase()}」盖住`});
+  }
+  // 13：首屏（第一个 section）里的按钮和表单完整留在视口里
+  const hero = root.querySelector('section');
+  if (hero) for (const el of hero.querySelectorAll('.btn, form, [role="switch"]')) {
+    if (!visible(el) || el.closest('[aria-hidden="true"]')) continue;
+    const r = el.getBoundingClientRect();
+    if (r.bottom > innerHeight + 1) issues.push({type: '首屏主操作在视口外', where: name(el), detail: `底边 ${Math.round(r.bottom)} > 视口 ${innerHeight}；首屏高度按 100svh 算，内容跟着视口压缩`});
+  }
+  // 14：深色主题下画板外露出浅色底
+  {
+    const opaque = el => { const c = parse(getComputedStyle(el).backgroundColor); return c && c.a > 0 ? c : null; };
+    const page = opaque(document.body) || opaque(document.documentElement) || {r: 255, g: 255, b: 255, a: 1};  // 都透明时浏览器画白底
+    const own = bgOf(root);
+    const gap = R.top > 1 || R.left > 1 || R.bottom < Math.max(innerHeight, document.documentElement.scrollHeight) - 1;
+    if (own && lum(own) < 0.2 && gap && page.a > 0 && lum(page) > 0.4) issues.push({type: '深色下露出浅色底', where: 'body', detail: '主题只设在里层，外面的 body 还是浅色；主题设到 :root，body 背景跟着主题'});
   }
   // 10：弹性布局吞掉空格
   for (const el of root.querySelectorAll('*')) {
@@ -320,14 +358,15 @@ def main():
             for label, state, props_override, (vw, vh) in variants:
                 for theme in a.themes.split(','):
                     html = render_html(src, state, logic_values(src, state, logic_page, props_override))
-                    if theme in ('dark',):
+                    manual_dark = theme == 'dark' and 'data-theme="light"' in html
+                    if manual_dark:  # 手动选了深色、系统是浅色：最容易露出浅色 body 的情形
                         html = html.replace('data-theme="light"', 'data-theme="dark"')
                     fd, tmp = tempfile.mkstemp(prefix='.verify_', suffix='.html', dir=os.path.dirname(os.path.abspath(f)))
                     with os.fdopen(fd, 'w', encoding='utf-8') as fh:
                         fh.write(html)
                     errors, net = [], []
                     pg = browser.new_page(viewport={'width': vw, 'height': vh}, reduced_motion='reduce',  # pseudo 按浅色查
-                                          color_scheme='dark' if theme == 'dark' else 'light')
+                                          color_scheme='dark' if theme == 'dark' and not manual_dark else 'light')
                     pg.on('pageerror', lambda e: errors.append(str(e)[:120]))
                     pg.on('console', lambda m: (net if 'net::' in m.text or 'Failed to load resource' in m.text else errors).append(m.text[:120]) if m.type == 'error' else None)
                     try:

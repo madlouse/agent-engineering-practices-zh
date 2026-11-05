@@ -399,3 +399,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 
 /* 研究卡的数字：写在结论句的开头，等宽、加粗、和正文同号，不做大号数字（2026-11-04 决定）。卡片读法：含数字的结论 → 出处 → 研究类型、样本量、可信度 */
 .metric { font-family: var(--font-mono); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--vc-text); white-space: nowrap; }
+
+/* 进度条：「读到一半」这类状态用一条细条表示，不写成文字（C10：能用图形说清的不加说明）。宽度由内层的 width 给出 */
+.progress { display: block; width: 120px; height: 4px; border-radius: var(--radius-pill); background: color-mix(in srgb, currentColor 24%, transparent); overflow: hidden; }
+.progress > span { display: block; height: 100%; border-radius: inherit; background: currentColor; }

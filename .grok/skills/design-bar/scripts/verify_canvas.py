@@ -32,6 +32,11 @@
       链接、输入框位移超过 8px 就报（浅色那一遍）。展开就该把下面的列表推开的（折叠列表），在触发控件或祖先上写
       data-expand="inline" 跳过
   20. 标点在行首：中文的逗号、句号、顿号等落到一行开头
+  25. 画板比视口宽：根节点写死的宽度超出视口（超出画板也按视口量）
+  26. 首屏要读的字太多（C10「不用读就会用」）：标了 data-first-screen 的首屏区域里，标题、按钮、链接、导航、图（figure）、
+      浮层以外要读的说明超过中文 80 字或英文 50 词（自定：约 5 秒扫完）
+  27. 站标不回首页：导航里的站标（.brand、.home、aria-label 写着首页 / home 的链接）链到别处；回本页顶部另放控件
+  （另）颜色算不了：oklab()、color-mix() 这类写法画到画布上也取不到像素时报出来，不拿外层背景顶替
   按下和悬停：浅色那一遍另外把所有按钮、液态玻璃控件设成按下（.is-press）、悬停（.is-hover）各算一次对比度
   （另）占位文字：画板上出现「示例」「待定」「即将上线」「二维码」这类占位词（--placeholders 可改）
   7. 写死的颜色：画板源码里出现 #hex、rgb()、hsl()（token 文件除外）
@@ -402,6 +407,33 @@ CHECK_JS = r"""
   for (const ss of document.styleSheets) { try { walk(ss.cssRules); } catch (e) {} }
   for (const el of root.querySelectorAll('[style]')) for (const p of el.style) if (p.startsWith('--')) defined.push(p);
   if (R0.right > VW + 1) issues.push({type: '画板比视口宽', where: (root.className || root.tagName).toString().slice(0, 30), detail: `画板 ${Math.round(R0.width)}px，视口 ${VW}px：自适应的画板根节点用 width: 100%（或 min(100%, …)），不写死像素宽度`});
+  // 不用读就会用（C10）：首屏里要读的说明文字有上限；站标回首页
+  {
+    // 只量入口页的首屏：画板在首屏区域上标 data-first-screen（首页、三站首屏）；文章这类阅读页不标、不量。
+    // 图（figure）里的东西按图看，浮层（data-pop、dialog）是用户自己打开的，都不算
+    const hero = root.matches('[data-first-screen]') ? root : root.querySelector('[data-first-screen]');
+    const VH = Math.min(window.innerHeight, innerWidth >= 1024 ? 900 : innerWidth >= 744 ? 1180 : 844); let zh = 0, en = 0;
+    const walker = document.createTreeWalker(hero || document.createElement('div'), NodeFilter.SHOW_TEXT);
+    for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+      const el = t.parentElement; if (!el || !t.textContent.trim()) continue;
+      if (el.closest('h1, h2, h3, button, a, nav, header, footer, label, input, [role="button"], [aria-hidden="true"], svg, script, style, .mono, figure, [data-pop], [role="dialog"], [role="group"]')) continue;
+      if (!visible(el)) continue;
+      const r = el.getBoundingClientRect(); if (r.top >= Math.min(VH, R.bottom) || r.bottom <= 0) continue;
+      const tx = t.textContent;
+      zh += (tx.match(/[\u4e00-\u9fff]/g) || []).length;
+      en += (tx.replace(/[\u4e00-\u9fff]/g, ' ').match(/[A-Za-z][A-Za-z'’-]*/g) || []).length;
+    }
+    window.__vcReadLoad = {zh, en};
+    const ZH_MAX = 80, EN_MAX = 50;  // 自定：约 5 秒扫完（中文每分钟约 500 字、英文约 300 词的速读）
+    if (zh > ZH_MAX || en > EN_MAX) issues.push({type: '首屏要读的字太多', where: `中文 ${zh} 字、英文 ${en} 词`, detail: `首屏里标题、按钮、导航、图以外要读的说明不超过中文 ${ZH_MAX} 字、英文 ${EN_MAX} 词（C10）：能用图标和位置说清的删掉说明，必须写的一处一句`});
+    for (const a of root.querySelectorAll('nav a, header a, .brand, .home, [aria-label*="首页"], [aria-label*="home" i]')) {
+      const lbl = ((a.getAttribute('aria-label') || '') + ' ' + (a.innerText || '')).trim();
+      const isBrand = a.matches('.brand, .home') || /^(Velicoach|首页|Home)\b/i.test(lbl);
+      if (!isBrand || !visible(a)) continue;
+      const h = a.getAttribute('href') || '';
+      if (!/^(\/|#home|https?:\/\/[^/]+\/?$|\/index|Main\.dc\.html)/.test(h)) issues.push({type: '站标不回首页', where: lbl.slice(0, 20) || h, detail: `站标链到「${h}」：照通行约定，左上角的站标回首页；回到本页顶部用另一个控件`});
+    }
+  }
   for (const c of window.__vcUnparsed) issues.push({type: '颜色算不了', where: c.slice(0, 40), detail: '检查读不出这个颜色，对比度和背景判断会失真；换成浏览器能解析的写法，或在 verify_canvas.py 的 parseColor 里补上'});
   return {issues, hints, defined: [...new Set(defined)]};
 }

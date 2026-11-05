@@ -26,11 +26,15 @@ COLLECT_JS = r"""
   const vw = document.documentElement.clientWidth;
   const out = {};
 
+  // rgb() 直接读；oklab()、color-mix()、color(srgb …) 画到 1×1 画布上取像素
+  const cv = document.createElement('canvas'); cv.width = cv.height = 1; const cx = cv.getContext('2d', {willReadFrequently: true});
   const parse = (c) => {
-    const m = c && c.match(/rgba?\(([^)]+)\)/);
-    if (!m) return null;
-    const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number);
-    return {r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1};
+    if (!c || c === 'transparent') return null;
+    const m = c.match(/^rgba?\(([^)]+)\)$/);
+    if (m) { const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(Number); return {r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1}; }
+    cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = c; cx.fillRect(0, 0, 1, 1);
+    const d = cx.getImageData(0, 0, 1, 1).data;
+    return {r: d[0], g: d[1], b: d[2], a: d[3] / 255};
   };
   const lum = ({r, g, b}) => {
     const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };

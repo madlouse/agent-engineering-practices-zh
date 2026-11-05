@@ -156,7 +156,7 @@ body { margin: 0; background: var(--vc-paper); color: var(--vc-text); font-famil
 a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 .navlink { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; min-height: var(--control-height); min-width: var(--control-height); padding: 0 12px; border-radius: var(--radius-pill); text-decoration: none; font-size: 15px; transition: background var(--duration-fast) var(--ease-out); }
 .navlink[aria-current="page"] { background: var(--vc-state-selected); font-weight: 600; }
-.btn { --btn-face: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; white-space: nowrap; min-height: var(--control-height-lg); padding: 0 24px; border: 0; border-radius: var(--radius-pill); font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; transition: background-color var(--duration-press) var(--ease-out), box-shadow var(--duration-press) var(--ease-out); }
+.btn { --btn-face: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; white-space: nowrap; min-height: var(--control-height-lg); padding: 0 24px; border: 0; border-radius: var(--radius-pill); font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; transition: box-shadow var(--duration-press) var(--ease-out); }
 .btn-action { background-color: var(--vc-action); color: var(--vc-on-action); }
 .btn-on-ink { background-color: var(--vc-on-ink); color: var(--vc-ink); }
 .btn-on-moss { background-color: var(--vc-on-moss); color: var(--vc-moss-hero); }
@@ -197,17 +197,34 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .opt:active, .opt.is-press { padding-top: 2px; background-color: var(--vc-action); background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); color: var(--vc-on-action); }
 .quick:hover, .quick.is-hover, .row-link:hover .row-title, .row-link.is-hover .row-title { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-cinnabar-deep); }
 .quick:active, .quick.is-press { opacity: .72; }
+/* 每个能点的东西都有悬停和按下（verify 23）。同一类只写一处：
+   文字链接（没有类的 a、步骤名、做成链接的条目标题）和快捷入口一样：悬停加粗下划线，按下变淡 */
+:is(a[href]:not([class]), a.step-name, a.row-title):hover, :is(a[href]:not([class]), a.step-name, a.row-title).is-hover { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-cinnabar-deep); }
+:is(a[href]:not([class]), a.step-name, a.row-title):active, :is(a[href]:not([class]), a.step-name, a.row-title).is-press { opacity: .72; }
+/* 站标（叶子 + 名字）：悬停、按下只变淡，不加下划线 */
+:is(.brand, .home, .lt-name):hover, :is(.brand, .home, .lt-name).is-hover { opacity: .8; }
+:is(.brand, .home, .lt-name):active, :is(.brand, .home, .lt-name).is-press { opacity: .64; }
+/* 整行、整卡的链接：悬停沿用各自的标题下划线；没有标题的行悬停给整行下划线。按下整块变淡，不缩放 */
+.row-link:not(:has(.row-title)):hover, .row-link.is-hover:not(:has(.row-title)) { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-cinnabar-deep); }
+.card-link:hover, .card-link.is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
+:is(.row-link, .card-link, .station):active, :is(.row-link, .card-link, .station).is-press { opacity: .72; }
+/* 书脊、菜单行、语言按钮：和图标按钮一样叠状态层 */
+:is(.menu-row, .lang-one):hover, :is(.menu-row, .lang-one).is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
+:is(.spine, .menu-row, .lang-one):active, :is(.spine, .menu-row, .lang-one).is-press { background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
 :focus-visible, .is-focus { outline: 2px solid var(--vc-focus); outline-offset: 2px; }
 .field:focus-visible, .field.is-focus { outline-offset: 0; border-color: var(--vc-focus); }
 /* 出错的输入框获得焦点：错误描边留在里面，焦点外圈向外偏 2px，两个都看得见 */
 .field[aria-invalid="true"]:focus-visible, .field[aria-invalid="true"].is-focus { border-color: var(--vc-error); outline-offset: 2px; }
 :disabled, [aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; transform: none; background-image: none; }
-/* 「动手」圆：悬停、按下各叠一层状态色，不缩放（尺寸各页自己定） */
-.orb:hover,.orb.is-hover{background-image:linear-gradient(var(--vc-state-hover),var(--vc-state-hover))}
-.orb:active,.orb.is-press{background-image:linear-gradient(var(--vc-state-press),var(--vc-state-press))}
+/* 「动手」圆：背后是两块平涂，用实色苔绿主按钮，不用玻璃。悬停提亮约 14%，按下内容下移 1px、换内凹阴影，不缩放（尺寸、位置各页自己定） */
+.orb { background-color: var(--vc-moss-hero); color: var(--vc-on-moss); box-shadow: var(--shadow-bevel); text-decoration: none; padding: 0; transition: box-shadow var(--duration-press) var(--ease-out), left var(--duration-lean) var(--ease-out); --vc-focus: var(--vc-focus-on-dark); }
+/* 提亮用一层 14% 的白叠在苔绿上（等于苔绿 86% 混白 14%），不用灰色状态层 */
+.orb { --orb-lift: linear-gradient(rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.14)); }
+.orb:hover, .orb.is-hover { background-image: var(--orb-lift); }
+.orb:active, .orb.is-press { background-image: var(--orb-lift); box-shadow: var(--shadow-bevel-press); padding-top: 2px; }
 /* 深色底上（墨色一半、苔绿、书脊）焦点色换成浅的一档，浅色主题下也保证 ≥ 3:1 */
 .on-dark, .spine-mind, .lg-on-dark { --vc-focus: var(--vc-focus-on-dark); --vc-error: var(--vc-cinnabar); }
-.on-dark .quick:hover, .on-dark .quick.is-hover, .on-dark .row-link:hover .row-title, .on-dark .row-link.is-hover .row-title { text-decoration-color: var(--vc-cinnabar); }
+.on-dark .quick:hover, .on-dark .quick.is-hover, .on-dark .row-link:hover .row-title, .on-dark .row-link.is-hover .row-title, .on-dark :is(a[href]:not([class]), a.step-name, a.row-title):hover, .on-dark .row-link:not(:has(.row-title)):hover { text-decoration-color: var(--vc-cinnabar); }
 .on-dark .opt:hover, .on-dark .opt.is-hover, .on-dark .opt:active, .on-dark .opt.is-press { background-color: var(--vc-on-ink); color: var(--vc-ink); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not(:has([data-theme="light"])) .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); } }
 [data-theme="dark"] .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); }
@@ -355,14 +372,26 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 }
 
 /* —— Velicoach 接入（design-bar 的液态玻璃，references/liquid-glass.md）——
-   只给背后会变的表面：压在「叶与网」上的「然后动手」圆（data-backdrop="motion"）、视频播放条（video）、吸顶时压过正文的导航和本站操作条（scroll）。
-   边缘透镜由 liquid-glass.js 挂到有 data-lens 的表面上（只在 Chromium）。平涂底色上的浮动控件用 surface-solid、surface-ink。 */
+   只给背后会变的表面：视频播放条（data-backdrop="video"）、吸顶时压过正文的导航和本站栏（scroll）。
+   边缘透镜由 liquid-glass.js 挂到有 data-lens 的表面上（只在 Chromium）。平涂底色上的东西用实色：「然后动手」圆是 .orb，浮动控件用 surface-solid、surface-ink。 */
 :root { --lg-solid: var(--vc-paper-surface); --lg-solid-dark: var(--vc-ink-surface); }
 @media (prefers-color-scheme: dark) { :root:not(:has([data-theme="light"])) .lg:not(.lg-on-dark) {
   --lg-tint-scale: var(--lg-tint-scale-dark);
   --lg-tint: rgb(20 20 24 / calc((0.16 + 0.22 * var(--lg-density)) * var(--lg-tint-scale)));
   --lg-filter: blur(var(--lg-blur)) saturate(calc(160% * var(--lg-sat))) brightness(calc(1 - 0.2 * min(var(--lg-tint-scale), 1)));
   --lg-light: 0.33; --lg-ink: rgb(255 255 255 / 0.94); --lg-ink-2: rgb(235 235 245 / 0.64); --lg-blend: plus-lighter; } }
-/* 品牌的苔绿玻璃：「然后动手」圆。浅色字，所以墨色和边缘取 lg-on-dark，只把底色换成苔绿 */
+/* 品牌的苔绿玻璃：「动手」页的吸顶导航压在苔绿首屏和正文上。浅色字，所以墨色和边缘取 lg-on-dark，只把底色换成苔绿 */
 .lg-moss { --lg-tint: rgb(38 59 46 / calc((0.74 + 0.16 * var(--lg-density)) * var(--lg-tint-scale))); --lg-solid-dark: var(--vc-moss-hero); }
+/* 吸顶玻璃：背后滚过的是正文，2px 挡不住字形，换成导航一档的 20px */
+:root { --lg-blur-scroll: 20px; }
+.lg[data-backdrop="scroll"] { --lg-blur: var(--lg-blur-scroll); }
+/* 整宽吸顶栏：纸色底、不加内光、只留底边一道 0.5px 分隔线（大面积的内光在浅色里发白、深色里是一块灰斑）。
+   :not(#\_) 只为压过深色主题的玻璃选择器，不匹配任何元素 */
+.lg.lg-bar:not(#\_) {
+  --lg-tint: color-mix(in srgb, var(--vc-paper) 72%, transparent);
+  --lg-filter: blur(var(--lg-blur)) saturate(120%);
+  --lg-edge: 0 0.5px 0 0 var(--vc-paper-line);
+  --lg-light: 0;
+  --lg-ink: var(--vc-text);
+}
 @media (prefers-reduced-transparency: reduce) { .lg-moss { background: var(--vc-moss-hero); } }

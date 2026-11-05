@@ -98,8 +98,20 @@ CHECK_JS = r"""
   const fTop = footer ? footer.getBoundingClientRect().top : R.bottom;
   const visible = el => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; };
   const name = el => ((el.getAttribute && el.getAttribute('aria-label')) || el.innerText || el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 36);
-  const parseColor = c => { const m = c && c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(',').map(x => parseFloat(x)); return (p.length > 3 ? p[3] : 1) > 0.05 ? p : null; };
-  const parse = c => { const m = c && c.match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(',').map(x => parseFloat(x)); return {r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1}; };
+  // rgb() 直接读；oklab()、color-mix()、color(srgb …) 这类先画到 1×1 画布上取像素，算不了的记下来报错，不悄悄往外层找
+  const __cv = document.createElement('canvas'); __cv.width = __cv.height = 1; const __cx = __cv.getContext('2d', { willReadFrequently: true });
+  window.__vcUnparsed = window.__vcUnparsed || new Set();
+  const toRGBA = c => {
+    if (!c || c === 'transparent') return null;
+    const m = c.match(/^rgba?\(([^)]+)\)$/);
+    if (m) { const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(x => parseFloat(x)); return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]; }
+    __cx.clearRect(0, 0, 1, 1); __cx.fillStyle = '#000'; __cx.fillStyle = c; __cx.fillRect(0, 0, 1, 1);
+    const d = __cx.getImageData(0, 0, 1, 1).data;
+    if (d[3] === 0 && !/\/\s*0(\.0*)?\)|,\s*0\)$/.test(c)) window.__vcUnparsed.add(c);
+    return [d[0], d[1], d[2], d[3] / 255];
+  };
+  const parseColor = c => { const p = toRGBA(c); return p && p[3] > 0.05 ? p : null; };
+  const parse = c => { const p = toRGBA(c); return p && {r: p[0], g: p[1], b: p[2], a: p[3]}; };
   const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
   const blend = (top, under) => ({r: top.r * top.a + under.r * (1 - top.a), g: top.g * top.a + under.g * (1 - top.a), b: top.b * top.a + under.b * (1 - top.a), a: 1});
   const bgOf = el => {
@@ -387,6 +399,7 @@ CHECK_JS = r"""
   const walk = rules => { for (const r of rules || []) { if (r.style) for (const p of r.style) if (p.startsWith('--')) defined.push(p); try { walk(r.cssRules); } catch (e) {} } };
   for (const ss of document.styleSheets) { try { walk(ss.cssRules); } catch (e) {} }
   for (const el of root.querySelectorAll('[style]')) for (const p of el.style) if (p.startsWith('--')) defined.push(p);
+  for (const c of window.__vcUnparsed) issues.push({type: '颜色算不了', where: c.slice(0, 40), detail: '检查读不出这个颜色，对比度和背景判断会失真；换成浏览器能解析的写法，或在 verify_canvas.py 的 parseColor 里补上'});
   return {issues, hints, defined: [...new Set(defined)]};
 }
 """

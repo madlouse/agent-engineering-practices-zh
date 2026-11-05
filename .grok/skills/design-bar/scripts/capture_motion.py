@@ -27,7 +27,8 @@ liquid-glass.js 的边缘透镜。动效、透镜、「玻璃背后会变」的�
   --blob ID=PATH                把 /_blob/ID 换成本地文件（样式表、脚本都行，可写多次）
   --wait MS                     挂载完成后再等多久截图，默认 3000
   --probe SELECTOR|X,Y,W,H      把匹配的元素藏起来（或直接给一块区域），在它的矩形里按 5×3 网格隔 --probe-interval 毫秒取 --probe-frames 帧，
-                                报每个取样点亮度随时间的最大变化；< 0.04 判为「背后几乎不变」（等于平涂，改实色面），退出码 2
+                                报每个取样点亮度随时间的最大变化；< 0.04 判为「背后几乎不变」（等于平涂，改实色面），退出码 2。
+                                data-backdrop="scroll" 的表面按取样点之间的差别判（≥ 0.1 说明此刻有正文压在后面），配合「正文压在导航下」这类状态用
 
 需要 Python Playwright 和 Chromium（WebGL 用 SwiftShader 软件渲染）；量亮度需要 Pillow。
 """
@@ -108,9 +109,9 @@ def probe(pg, selector, frames, interval):
         x, y, w, h = (int(v) for v in selector.split(','))
         rect = {'x': x, 'y': y, 'w': w, 'h': h, 'el': False}
     else:
-        rect = pg.evaluate("""(sel) => { const els = [...document.querySelectorAll(sel)]; if (!els.length) return null;
+        rect = pg.evaluate("""(sel) => { const els = [...document.querySelectorAll(sel)].filter(e => e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden'); if (!els.length) return null;
       const r = els[0].getBoundingClientRect(); els.forEach(e => e.style.setProperty('visibility', 'hidden', 'important'));
-      return {x: Math.max(0, r.left), y: Math.max(0, r.top), w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top)}; }""", selector)
+      return {scroll: els[0].closest('[data-backdrop]')?.getAttribute('data-backdrop') === 'scroll', x: Math.max(0, r.left), y: Math.max(0, r.top), w: Math.min(innerWidth, r.right) - Math.max(0, r.left), h: Math.min(innerHeight, r.bottom) - Math.max(0, r.top)}; }""", selector)
     if not rect or rect['w'] < 4 or rect['h'] < 4:
         sys.exit(f'--probe {selector}：页面上没有这个元素，或它在视口外')
     series = []
@@ -124,8 +125,11 @@ def probe(pg, selector, frames, interval):
         pg.evaluate("(sel) => document.querySelectorAll(sel).forEach(e => e.style.removeProperty('visibility'))", selector)
     temporal = max(max(f[k] for f in series) - min(f[k] for f in series) for k in range(15))
     spatial = max(max(f) - min(f) for f in series)
+    # scroll 的表面在截图里不会自己动，背后会变的证据是「此刻有正文压在后面」：按取样点之间的差别判
+    changes = spatial >= 0.1 if rect.get('scroll') else temporal >= 0.04
     return {'probe': selector, 'frames': frames, 'temporal_range': round(temporal, 3), 'spatial_range': round(spatial, 3),
-            'verdict': '背后会变' if temporal >= 0.04 else '背后几乎不变'}
+            'basis': 'spatial（scroll：正文压在后面）' if rect.get('scroll') else 'temporal',
+            'verdict': '背后会变' if changes else '背后几乎不变'}
 
 
 def main():

@@ -79,7 +79,7 @@ def main():
             failures.append(f'漏报：SelftestGeometry「{st}」应该报「{typ}」')
     if any(s_ == 'case=玻璃有图' and t_ == '玻璃压在平涂底色上' for s_, t_, _ in gfound):
         failures.append('误报：SelftestGeometry「case=玻璃有图」背后有图案，不该报「玻璃压在平涂底色上」')
-    for st, typ in (('case=背景声明成立', '玻璃的背景声明不成立'), ('case=背景声明成立', '玻璃压在平涂底色上'), ('case=展开不挤', '展开挤动了版面')):
+    for st, typ in (('case=背景声明成立', '玻璃的背景声明不成立'), ('case=背景声明成立', '玻璃压在平涂底色上'), ('case=展开不挤', '展开挤动了版面'), ('case=新色彩写法', '对比度不够'), ('case=新色彩写法', '颜色算不了')):
         if any(s_ == st and t_ == typ for s_, t_, _ in gfound):
             failures.append(f'误报：SelftestGeometry「{st}」不该报「{typ}」')
     mixed = [i for i in g if 'case=混排断行' in i['states'] and i['type'] == '词中断行']
@@ -103,7 +103,7 @@ def main():
         print('selftest 不通过：\n  ' + '\n  '.join(failures))
         print(f'报告：{out}/verify-canvas.md')
         sys.exit(1)
-    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 14 类几何和排版问题（含玻璃平涂、背景声明、悬停按下样式、中英混排断行、展开挤动）都抓到了，好的状态没有误报；coverage.py 的数据字段对照也对')
+    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 14 类几何和排版问题（含玻璃平涂、背景声明、悬停按下样式、中英混排断行、展开挤动）都抓到了，oklab 和 color-mix 写的底色也算得对，好的状态没有误报；coverage.py 的数据字段对照也对')
 
 
 if __name__ == '__main__':

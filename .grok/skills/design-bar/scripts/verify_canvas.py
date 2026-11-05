@@ -15,6 +15,9 @@
   12. 可点元素被盖住：链接、按钮、输入框的中心点上面压着别的控件或浮层
   13. 首屏主操作在视口外：第一个 <section> 里的按钮和表单，底边超出视口（配合 --size 查 1280×720 这类常见高度）
   14. 深色下露出浅色底：主题只设在里层，画板比视口矮或有外边距时，外面露出浅色的 body
+  15. 按钮文字折行：按钮里的字折成两行（伪语言那一遍最容易出现）
+  16. 浮层没有出路：对话框、菜单里没有「关闭」按钮，画板逻辑也没处理 Esc
+  17. 孤字成行：两行以上的标题和段落，最后一行只剩一个汉字或一个短词
   （另）占位文字：画板上出现「示例」「待定」「即将上线」「二维码」这类占位词（--placeholders 可改）
   7. 写死的颜色：画板源码里出现 #hex、rgb()、hsl()（token 文件除外）
   8. 页面报错：控制台 error、脚本异常（字体等网络资源加载失败只记为提示）
@@ -63,7 +66,7 @@ PSEUDO_JS = r"""
 }
 """
 
-LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格', '展开层超出所在区块', '可点元素被盖住', '首屏主操作在视口外'}
+LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格', '展开层超出所在区块', '可点元素被盖住', '首屏主操作在视口外', '按钮文字折行'}
 
 CHECK_JS = r"""
 () => {
@@ -169,6 +172,40 @@ CHECK_JS = r"""
     const own = bgOf(root);
     const gap = R.top > 1 || R.left > 1 || R.bottom < Math.max(innerHeight, document.documentElement.scrollHeight) - 1;
     if (own && lum(own) < 0.2 && gap && page.a > 0 && lum(page) > 0.4) issues.push({type: '深色下露出浅色底', where: 'body', detail: '主题只设在里层，外面的 body 还是浅色；主题设到 :root，body 背景跟着主题'});
+  }
+  // 15：按钮文字折行（C4：一行放下，放不下改排法）
+  for (const el of root.querySelectorAll('.btn, button, [role="button"]')) {
+    if (!visible(el)) continue;
+    const t = (el.innerText || '').trim(); if (!t) continue;
+    const cs = getComputedStyle(el); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.3;
+    const tops = [];
+    const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    while (tw.nextNode()) { if (!tw.currentNode.textContent.trim()) continue; const rg = document.createRange(); rg.selectNodeContents(tw.currentNode); for (const r of rg.getClientRects()) if (r.width > 1) tops.push(r.top); }
+    tops.sort((a, b) => a - b);
+    const lines = new Set(); let last = -1e9; for (const tp of tops) { if (tp - last > lh * 0.5) { lines.add(tp); last = tp; } }
+    if (lines.size > 1) issues.push({type: '按钮文字折行', where: t.slice(0, 24), detail: `折成 ${lines.size} 行；按钮文字一行放下，放不下时改排法，不缩字号`});
+  }
+  // 16：浮层要有出路（U6）：展开的层、对话框、菜单里有关闭按钮，或画板逻辑处理了 Esc
+  for (const layer of root.querySelectorAll('[role="dialog"], [role="menu"], [aria-modal="true"]')) {
+    if (!visible(layer)) continue;
+    const closer = [...layer.querySelectorAll('button, a[href]')].some(b => /关闭|收起|取消|完成|Close|Cancel|Done/i.test(name(b)));
+    if (!closer && !window.__dcHandlesEscape) issues.push({type: '浮层没有出路', where: name(layer) || layer.getAttribute('role'), detail: '弹层里放一个「关闭」按钮，并处理 Esc 和点外面关闭'});
+  }
+  // 17：孤字成行（V9）：两行以上的段落，最后一行只有一个汉字或一个词
+  for (const el of root.querySelectorAll('h1, h2, h3, p, li, figcaption, .lead')) {
+    if (!visible(el) || el.closest('svg, [aria-hidden="true"]')) continue;
+    const rg = document.createRange(); rg.selectNodeContents(el);
+    const rects = [...rg.getClientRects()].filter(r => r.width > 0.5);
+    if (rects.length < 2) continue;
+    const lastTop = Math.max(...rects.map(r => r.top));
+    const firstTop = Math.min(...rects.map(r => r.top));
+    if (lastTop - firstTop < 4) continue;
+    const fs = parseFloat(getComputedStyle(el).fontSize);
+    const lastW = rects.filter(r => Math.abs(r.top - lastTop) < 3).reduce((a, r) => a + r.width, 0);
+    const text = (el.innerText || '').trim();
+    const cjk = /[一-鿿]$/.test(text.replace(/[。，、；：！？」』）)\]]+$/, ''));
+    if ((cjk && lastW < fs * 1.6) || (!cjk && lastW < fs * 3 && !/\s/.test(text.slice(-12).trim().split(/\s+/).pop() || ' ')))
+      issues.push({type: '孤字成行', where: text.slice(-16), detail: `最后一行只剩约 ${Math.round(lastW)}px；用 text-wrap: pretty 或调整断句`});
   }
   // 10：弹性布局吞掉空格
   for (const el of root.querySelectorAll('*')) {
@@ -368,6 +405,7 @@ def main():
                     pg = browser.new_page(viewport={'width': vw, 'height': vh}, reduced_motion='reduce',  # pseudo 按浅色查
                                           color_scheme='dark' if theme == 'dark' and not manual_dark else 'light')
                     pg.on('pageerror', lambda e: errors.append(str(e)[:120]))
+                    pg.add_init_script('window.__dcHandlesEscape = ' + ('true' if 'Escape' in src else 'false'))
                     pg.on('console', lambda m: (net if 'net::' in m.text or 'Failed to load resource' in m.text else errors).append(m.text[:120]) if m.type == 'error' else None)
                     try:
                         pg.goto('file://' + tmp)

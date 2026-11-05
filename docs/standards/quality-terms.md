@@ -58,15 +58,15 @@
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
 | U1 核心场景两步内完成，不常用的不超过三步；悬停不算一步 | 全站 | 按 PRD 步数预算逐条走，记点按次数（设计评审；关口四走实现） | PRD 第 4 节；[NN/g：三次点击规则没有数据支持](https://www.nngroup.com/articles/3-click-rule/) |
-| U2 首屏回答三件事：这是给谁的、能做什么、下一步点哪里；主操作和订阅在 1280×720、1440×790、390×664、320×568 下完整留在首屏里，首屏高度按视口（`100svh`）算，不写死 | 首页、三站首屏 | 视口：`verify_canvas.py --size` 按这四个尺寸各查一遍；关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
+| U2 首屏回答三件事：这是给谁的（首屏或首屏说明里有受众词，例如「上班族」「想跟上 AI 的人」）、能做什么、下一步点哪里；主操作和订阅在 1280×720、1440×790、390×664、320×568 下完整留在首屏里，首屏高度按视口（`100svh`）算，不写死 | 首页、三站首屏 | 视口：`verify_canvas.py --size` 按这四个尺寸各查一遍；关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
 | U3 一个区域只有 1 个主操作；整个首屏的主操作不超过 2 个 | 首页、三站首屏 | 数截图上的实色主按钮（设计评审） | apple.com、stripe.com、vercel.com 首屏各 2 个，linear.app 1 个；设计系统「一个区域只有一个主按钮」 |
 | U4 主导航不超过 6 项 | 全站 | 数导航（设计评审） | linear.app、stripe.com、anthropic.com 各 6 项，vercel.com 4 项；apple.com 的 11 项是零售站，不算 |
-| U5 导航标签和按钮文字说出去处或结果，不用「了解更多」「点击这里」 | 全站 | 逐个读（设计评审、内容评审） | [NN/g 信息气味](https://www.nngroup.com/articles/3-click-rule/)；[Mailchimp](https://styleguide.mailchimp.com/web-elements/) |
-| U6 每个弹层、展开和流程都能退出：看得见的关闭按钮、Esc、点外面三种都行；能撤回的操作用「撤销」，不弹「确定吗」 | 全站 | 逐个试（设计评审；关口四走实现） | [NN/g 启发式第 3 条](https://www.nngroup.com/articles/ten-usability-heuristics/)；设计系统「少一步的做法」 |
+| U5 导航标签和按钮文字说出去处或结果，不用「了解更多」「点击这里」；常驻的导航（书脊、本站操作条）在任何滚动位置、包括第一屏，标签都在视口里 | 全站 | 逐个读（设计评审、内容评审） | [NN/g 信息气味](https://www.nngroup.com/articles/3-click-rule/)；[Mailchimp](https://styleguide.mailchimp.com/web-elements/) |
+| U6 每个弹层、展开和流程都能退出：看得见的关闭按钮、Esc、点外面三种都行；能撤回的操作用「撤销」，不弹「确定吗」 | 全站 | 画板：`verify_canvas.py` 的「浮层没有出路」；逐个试（设计评审；关口四走实现） | [NN/g 启发式第 3 条](https://www.nngroup.com/articles/ten-usability-heuristics/)；设计系统「少一步的做法」 |
 | U7 看内容不要求登录；要登录时一次点击完成（One Tap、通行密钥） | 全站 | 未登录走一遍关键路径（设计评审） | PRD 第 9 节（v1 不需要登录）、设计系统「读文章不需要登录」；[Google One Tap](https://developers.google.com/identity/siwg/features) |
 | U8 快：4G 下首屏 2 秒内可交互；手机 75 分位 LCP ≤ 2.5 秒、INP ≤ 200 毫秒、CLS ≤ 0.1 | 全站 | 关口四在预览上跑 Lighthouse（模拟 4G）；上线后看真实数据（评审） | PRD 第 8 节「性能」；[Core Web Vitals](https://web.dev/articles/vitals) |
 | U9 反馈：每个可点元素有悬停、按下、焦点三种样式；操作 0.1 秒内有反馈，超过 1 秒显示状态，超过 10 秒显示进度 | 全站 | 画板看状态；关口四录屏或用 Playwright trace 量时间（设计评审） | [Nielsen 响应时间](https://www.nngroup.com/articles/response-times-3-important-limits/)；NN/g 启发式第 1 条 |
-| U10 先放主要内容，次要的原地展开（渐进披露）；同一种操作全站用同一种控件、放在同一个位置；导航、页脚、书脊每一页都是同一个组件 | 全站 | 设计评审对照截图和控件清单，逐页比对导航和页脚 | [HIG 布局](https://developer.apple.com/design/human-interface-guidelines/layout)；NN/g 启发式第 4 条 |
+| U10 先放主要内容，次要的原地展开（渐进披露）；同一种操作全站用同一种控件、放在同一个位置（触屏和悬停设备可以各用一种，同一类设备上全站一样）；导航、页脚、书脊每一页都是同一个组件 | 全站 | 设计评审对照截图和控件清单，逐页比对导航和页脚 | [HIG 布局](https://developer.apple.com/design/human-interface-guidelines/layout)；NN/g 启发式第 4 条 |
 | U11 只用键盘能做完全部操作；焦点看得见、不被挡住；超过 2000 字（自定）的文章有目录，文末有所在系列、上下篇或延伸阅读 | 全站；目录和文末导航只在文章页 | 手工 Tab 走一遍（设计评审）；数字数 | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) 2.4.7、2.4.11；PRD 第 8 节；酷壳、Fowler、Distill 的目录；酷壳的系列导航、Fowler 的 Further Reading |
 | U12 出错和失败有出路：PRD 的六种页面状态都有设计；动效、邮件、统计失败不影响阅读 | 全站 | 逐个触发状态（设计评审；关口四走实现） | PRD「关键路径与页面状态」、F22 |
 | U13 换姿态不打断：横竖屏切换、iPad 分屏、折叠屏折叠和展开之后，页面不重新加载，滚动位置、原地展开的状态和输入了一半的内容都还在 | 全站 | 在 Android 折叠屏模拟器和 iPhone Duo 模拟器上各折叠、展开一次；云端用 Playwright 在 669 ↔ 951、382 ↔ 984 之间改窗口宽度（评审；关口四） | [WebKit：iPhone Duo 用响应式设计、按功能检测，不按设备判断](https://ppc.land/safari-27-1-on-iphone-duo-runs-web-pages-from-382-to-951-pixels-wide/)；PRD 第 8 节「多端」；设计系统「折叠屏」 |
@@ -80,7 +80,7 @@
 | C1 一句只讲一件事：英文一句不超过 25 词；中文一句不超过 40 字 | 我们自己写的文字（译文按原文句意，可以拆句） | 逐句看（内容评审） | [GOV.UK 句长](https://insidegovuk.blog.gov.uk/2014/08/04/sentence-length-why-25-words-is-our-limit/)：平均 14 词时理解 90% 以上，43 词时不到 10%。40 字是自定：按一个英文词约合 1.5–2 个汉字，25 词约 40–50 字，取下限 |
 | C2 一段只讲一件事：英文一段不超过 5 句，中文一段不超过 4 句（自定） | 同上 | 逐段看（内容评审） | [GOV.UK 清楚的语言](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/writing-guidelines/clear-language/)；Fenng「一段一个主要信息点」 |
 | C3 用术语表的叫法；术语和缩写第一次出现时给一句解释；一段里新术语不超过两个 | 全站 | `npm run check:terms`；内容评审 | GOV.UK；Microsoft；`velicoach-content`「专业但好懂」；`docs/GLOSSARY.md` |
-| C4 按钮写成「动词 + 对象」，中文不超过 8 个字，英文不超过 4 个词（自定，和设计系统的「进入今天的训练」相容）；要带上具体对象（篇名、日期）时，按钮只写动作（「继续读」），对象放在按钮旁的一行字里 | 全站 | 逐个数（内容评审、设计评审） | [GOV.UK 按钮](https://design-system.service.gov.uk/components/button/)；Microsoft「几个短词」 |
+| C4 按钮写成「动词 + 对象」，中文不超过 8 个字，英文不超过 4 个词（自定，和设计系统的「进入今天的训练」相容）；要带上具体对象（篇名、日期）时，按钮只写动作（「继续读」），对象放在按钮旁的一行字里；按钮文字一行放下，放不下时改排法，不缩字号（`verify_canvas.py` 的「按钮文字折行」） | 全站 | 逐个数（内容评审、设计评审） | [GOV.UK 按钮](https://design-system.service.gov.uk/components/button/)；Microsoft「几个短词」 |
 | C5 错误提示说清哪里错了、怎么办；不怪用户，不给错误码 | 全站 | 逐个触发错误状态（设计评审） | NN/g 启发式第 9 条；[Microsoft](https://learn.microsoft.com/windows/uwp/design/style/writing-style)；Apple「写清是哪个字段、该填什么」 |
 | C6 不造词；不用空话，清单以 `velicoach-content`「少用空话」为唯一来源（赋能、抓手、闭环等 21 个），译文照原文 | 我们自己写的文字 | 内容评审 | Fenng 指南；`velicoach-content` |
 | C7 中英两版都齐；英文按英语读者重写，不逐句直译；英文页上没有中文的界面文字（作者名、原文标题等专名除外） | 全站对外文字 | 两种语言各走一遍（内容评审、设计评审） | `AGENTS.project.md` 第 3 条；PRD 第 8 节「国际化」 |
@@ -101,7 +101,7 @@
 | V6 样式只引用 token；用留白分组，对齐到间距阶梯；左右分屏的两半，眉标、标题、主按钮的起点在同一条水平线上 | 全站 | `lint_tokens.py` 为 0；`verify_canvas.py` 写死的颜色为 0 | 设计系统；`design-bar` rubric「版式与留白」 |
 | V7 动效有含义：首页的主动效「叶与网」表达三站的关系，每屏最多一个主动效；站稳和动手首屏的纸墨质感不做循环动画，只在首屏出现时变化一次，时长不超过 `duration-lean`（自定，把设计系统的「几乎静止」写成可查的规则）；看清没有动效；时长只用 `duration-*` token | 全站 | 对照设计系统「动效」（设计评审） | 设计系统「动效」；[Apple Design Awards](https://developer.apple.com/design/awards/)「high-quality animations with a distinctive and cohesive theme」 |
 | V8 元信息克制：文章页只放标题、作者、所属的线、阅读时长，日期见 T3，授权见 T5；不放阅读数、点赞数 | 看清文章页 | 看文章页（设计评审） | 酷壳、Fowler、Willison、Distill 都只有标题、作者、日期和少量标签；PRD 第 5 节「文章」字段 |
-| V9 排版细节：中西文之间留空、标点不出现在行首、标题用 `text-wrap: balance`、长段落用 `text-wrap: pretty`、避免孤字成行 | 全站 | 看截图（设计评审）；`velicoach-content` 第 6 节的检查 | `velicoach-content` 第 6 节；`design-bar` rubric「排版」 |
+| V9 排版细节：中西文之间留空、标点不出现在行首、标题用 `text-wrap: balance`、长段落用 `text-wrap: pretty`、避免孤字成行（`verify_canvas.py` 的「孤字成行」，两行以上的标题和段落最后一行不只剩一个字） | 全站 | 看截图（设计评审）；`velicoach-content` 第 6 节的检查 | `velicoach-content` 第 6 节；`design-bar` rubric「排版」 |
 | V10 没有模板味：`anti-patterns.md` 和 unslop 的信号为 0；把站名换掉，这一屏就不成立；眉标一屏最多一行，中文页上不重复英文站名 | 全站 | `verify_canvas.py` 的模板味提示；设计评审做换名测试 | `design-bar` 的 `references/anti-patterns.md`、`craft.md` §1 |
 
 ### 4.4 可信（T）
@@ -119,7 +119,7 @@
 | T7 讲到原因、代价和适用范围，并留一个能动手验证的练习（这就是「有深度」「有分量」） | 文章页 | 内容评审 | 陈皓「要了解技术就一定需要了解整个计算机的技术历史发展和进化路线」（[coolshell.org/articles/8088.html](https://coolshell.org/articles/8088.html)）、「一定要有 Best Practice 或方法论总结」；设计系统「看清的气质」 |
 | T8 健康内容只引用系统综述和大样本研究，写明研究类型、样本量和证据可信度，样本量对应的是卡片上那个结论；同一研究全站只有一份数据，各页引用它，不各写一遍；训练指导类由持证教练审核，留审核记录；页上写「威利不是医生」 | 站稳、订阅邮件里的健康内容 | 内容评审；审核记录贴在票上（产品负责人安排） | PRD 第 6 节「质量标准」第 2 条 |
 | T9 不操纵：不倒计时、不用羞辱式的拒绝按钮、同意项不预先勾选、关掉任何东西只要一步；讲力量不讲身材，不制造焦虑（不写「再不练就晚了」） | 全站 | 逐个看表单、弹层和文案（设计评审、内容评审） | PRD「行为设计」的「不用操纵手段」；`velicoach-content`「讲力量，不讲身材；不制造焦虑」 |
-| T10 对外只放正式版：没有占位符、「示例」「待定」「即将上线」、过程说明和转写错误；还没上线的功能不在对外页面出现 | 全站对外文字和画板 | 画板：`verify_canvas.py` 的占位文字检查；页面和内容：内容评审 | `AGENTS.project.md` 第 1 条；设计系统「内容与语气」；PRD 第 6 节「质量标准」第 3 条 |
+| T10 对外只放正式版：没有占位符、「示例」「待定」「即将上线」、过程说明和转写错误；还没上线的功能不在对外页面出现（动手一站公开记录在做的项目不算预告：写明「开发中」并链到开发日志，不写上线时间，不当成可以用的功能） | 全站对外文字和画板 | 画板：`verify_canvas.py` 的占位文字检查；页面和内容：内容评审 | `AGENTS.project.md` 第 1 条；设计系统「内容与语气」；PRD 第 6 节「质量标准」第 3 条 |
 
 ### 4.5 舒适（A）
 

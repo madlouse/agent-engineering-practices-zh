@@ -187,17 +187,25 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 
 /* 交互状态（设计系统「状态」）：悬停叠一层 state-hover，按下叠 state-press 并缩到 0.98，焦点是 2px 焦点色外圈。
    .is-hover / .is-press / .is-focus 只给画板上静态展示状态用，实现里用伪类。 */
-.navlink:hover, .navlink.is-hover, .icon-btn:hover, .icon-btn.is-hover, .seg :not([aria-current="true"]):not([aria-pressed="true"]):hover, .seg .is-hover { background-color: var(--vc-state-hover); }
-.navlink[aria-current="page"]:hover, .navlink[aria-current="page"].is-hover, .navlink:active, .navlink.is-press, .icon-btn:active, .icon-btn.is-press, .seg a:active, .seg button:active, .seg .is-press { background-color: var(--vc-state-press); }
-.btn:hover, .btn.is-hover, .spine:hover, .spine.is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
+.navlink:hover, .navlink.is-hover, .seg :not([aria-current="true"]):not([aria-pressed="true"]):hover, .seg .is-hover { background-color: var(--vc-state-hover); }
+.navlink[aria-current="page"]:hover, .navlink[aria-current="page"].is-hover, .navlink:active, .navlink.is-press, .seg a:active, .seg button:active, .seg .is-press { background-color: var(--vc-state-press); }
+.btn:hover, .btn.is-hover, .spine:hover, .spine.is-hover, .icon-btn:hover, .icon-btn.is-hover, .switch:hover .switch-track, .switch.is-hover .switch-track { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
 .btn:active, .btn.is-press { transform: scale(.98); background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
+.icon-btn:active, .icon-btn.is-press { background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
+.switch:active .switch-thumb, .switch.is-press .switch-thumb { width: 33px; }
+.switch[aria-checked="true"]:active .switch-thumb, .switch[aria-checked="true"].is-press .switch-thumb { transform: translateX(14px); }
 .opt:hover, .opt.is-hover { background-color: var(--vc-action); color: var(--vc-on-action); }
 .opt:active, .opt.is-press { transform: scale(.98); background-color: var(--vc-action); background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); color: var(--vc-on-action); }
 .quick:hover, .quick.is-hover, .row-link:hover .row-title, .row-link.is-hover .row-title { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-cinnabar-deep); }
 .quick:active, .quick.is-press { opacity: .72; }
 :focus-visible, .is-focus { outline: 2px solid var(--vc-focus); outline-offset: 2px; }
 .field:focus-visible, .field.is-focus { outline-offset: 0; border-color: var(--vc-focus); }
+/* 出错的输入框获得焦点：错误描边留在里面，焦点外圈向外偏 2px，两个都看得见 */
+.field[aria-invalid="true"]:focus-visible, .field[aria-invalid="true"].is-focus { border-color: var(--vc-error); outline-offset: 2px; }
 :disabled, [aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; transform: none; background-image: none; }
+/* 「动手」圆：放大缩小加一层状态色（尺寸各页自己定） */
+.orb:hover,.orb.is-hover{transform:scale(1.04);background-image:linear-gradient(var(--vc-state-hover),var(--vc-state-hover))}
+.orb:active,.orb.is-press{transform:scale(.97);background-image:linear-gradient(var(--vc-state-press),var(--vc-state-press))}
 /* 深色底上（墨色一半、苔绿、书脊）焦点色换成浅的一档，浅色主题下也保证 ≥ 3:1 */
 .on-dark, .spine-mind, .glass-ink, .glass-moss { --vc-focus: var(--vc-focus-on-dark); --vc-error: var(--vc-cinnabar); }
 .on-dark .quick:hover, .on-dark .quick.is-hover, .on-dark .row-link:hover .row-title, .on-dark .row-link.is-hover .row-title { text-decoration-color: var(--vc-cinnabar); }

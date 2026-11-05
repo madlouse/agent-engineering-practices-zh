@@ -16,7 +16,7 @@
 | 深度只给能点的、重要的东西 | 静态内容不加影子，卡片只有很淡的一档 | Polaris depth |
 | 加载用骨架，不用转圈；骨架行数和真实内容一致 | 设计系统「状态」：灰块不闪 | Polaris Skeleton |
 | 错误信息：说清哪里错、怎么改，放在出错位置旁边，不写「无效」，不过度道歉 | 订阅失败：「邮箱不完整，看看 @ 后面少了什么。」 | Polaris error messages |
-| Liquid Glass 只用于浮在内容上的控件层；主按钮用有色面，不给多个控件都上色 | 液态玻璃只给压在动效、视频上的浮动控件；主按钮实色 | HIG Materials、Buttons |
+| Liquid Glass 只用于浮在内容上的控件层；主按钮用有色面，不给多个控件都上色 | 液态玻璃只给背后会变的浮动控件；主按钮实色。完整做法在 `design-bar/references/liquid-glass.md` | HIG Materials、Buttons |
 
 ## 没借的
 

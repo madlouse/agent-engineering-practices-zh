@@ -11,17 +11,15 @@
 @property --lg-ink-2 { syntax: '<color>'; inherits: true; initial-value: rgb(60 60 67 / 0.7); }
 
 :root {
-  --lg-tint-scale-light: 1;  /* 用户设置：浅色主题的浓度 0–1.5 */
-  --lg-tint-scale-dark: 1;   /* 用户设置：深色主题的浓度 0–1.5 */
+  --lg-tint-scale-light: 1;  /* 设计内部的总旋钮：浅色主题整体浓度，默认 1；不做用户设置 */
+  --lg-tint-scale-dark: 1;   /* 设计内部的总旋钮：深色主题整体浓度，默认 1 */
   --lg-blur: 2px;
-  --lg-radius: 20px;
 }
 
 .lg {
   --lg-tint-scale: var(--lg-tint-scale-light);
   position: relative;
-  isolation: isolate;
-  border-radius: var(--lg-radius);
+  isolation: isolate;  /* 圆角、间距、字体沿用表面自己的，不改 */
   /* 四个声明：底色、背景滤镜（透镜由 JS 追加在最后）、边缘、墨色 */
   background: var(--lg-tint);
   -webkit-backdrop-filter: var(--lg-filter);
@@ -54,8 +52,9 @@
   --lg-blend: plus-lighter;
 }
 
-/* 深色模式：压暗像正片叠底，边缘和内光约三分之一 */
-.lg-dark {
+/* 深色模式：压暗像正片叠底，边缘和内光约三分之一。
+   页面用 data-theme="dark" 切深色时自动生效（.lg-on-dark 除外）；别的切换方式在接入时把选择器补进这里。 */
+:is(.lg-dark, [data-theme="dark"] .lg:not(.lg-on-dark)) {
   --lg-tint-scale: var(--lg-tint-scale-dark);
   --lg-tint: rgb(20 20 24 / calc((0.16 + 0.22 * var(--lg-density)) * var(--lg-tint-scale)));
   --lg-filter: blur(var(--lg-blur)) saturate(calc(160% * var(--lg-sat))) brightness(calc(1 - 0.2 * min(var(--lg-tint-scale), 1)));
@@ -87,8 +86,8 @@
 /* 高亮行：更浅的一层玻璃，不用灰色蒙层 */
 .lg-row:hover { background: rgb(255 255 255 / 0.42); }
 .lg-row[aria-selected="true"], .lg-row[aria-current="true"] { background: rgb(255 255 255 / 0.76); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.9); }
-.lg-dark .lg-row:hover, .lg-on-dark .lg-row:hover { background: rgb(255 255 255 / 0.12); }
-.lg-dark .lg-row[aria-selected="true"], .lg-on-dark .lg-row[aria-selected="true"] { background: rgb(255 255 255 / 0.22); }
+:is(.lg-dark, [data-theme="dark"] .lg) .lg-row:hover, .lg-on-dark .lg-row:hover { background: rgb(255 255 255 / 0.12); }
+:is(.lg-dark, [data-theme="dark"] .lg) .lg-row[aria-selected="true"], .lg-on-dark .lg-row[aria-selected="true"] { background: rgb(255 255 255 / 0.22); }
 
 /* 退路：降低透明度、强制颜色、不支持背景滤镜 → 同色不透明实色面，去掉透镜和内光 */
 @media (prefers-reduced-transparency: reduce) {

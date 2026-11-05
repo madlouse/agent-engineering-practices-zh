@@ -8,7 +8,7 @@
 |---|---|---|
 | 按钮分层：主按钮每个区域最多 1 个；次按钮、文字链接拉开层次；按钮用于操作、链接用于跳转 | 主按钮实色（`btn-action` 等），次按钮描边（`btn-quiet`），快捷入口文字链接（`quick`） | Polaris Button；HIG「每个视图醒目的按钮 1–2 个」 |
 | 实色按钮的边缘光：顶边细高光、底边暗线、贴身短影，多层 `inset` 叠出来 | `shadow-bevel`；深色下高光更亮、影子更深 | Polaris shadow tokens（bevel）；Campsite 的光感边框 |
-| 按下：变暗、内容下移 1px、阴影从凸起改成内凹，不缩放 | `.btn:active` 内容下移 1px，`shadow-bevel-press` | Polaris Button 源码（`translate3d(0,1px,0)`） |
+| 按下：变暗、内容下移 1px、阴影从凸起改成内凹，不缩放 | 实色按钮：`.btn:active` 内容下移 1px，`shadow-bevel-press`，状态层 `vc-state-*`。玻璃控件不用状态层：悬停提亮底色约 14%、按下浓一档，都改玻璃自己的 token（`design-bar/references/liquid-glass.md` §1–2），不叠灰 | Polaris Button 源码（`translate3d(0,1px,0)`）；HIG Materials |
 | 加载中：按钮宽度不变，禁用，防止重复提交 | 文字换成进行时（「正在订阅」）并 `aria-disabled`；按最长文字定宽 | Polaris Button（loading）；HIG「Checkout → Checking out…」 |
 | 焦点：outline，不用阴影，免得和边缘光打架 | 2px `vc-focus`，偏 2px | Polaris |
 | 动效：时长按阶梯，交互用一种缓动，消失比出现快，只让一个元素动 | `duration-press` 100、`fast` 150、`base` 240、`exit` 160；`ease-out` 出现、`ease-in` 消失 | Polaris motion tokens（50ms 一档；Toast 进 400 出 200） |
@@ -27,10 +27,12 @@
 
 ## 液态玻璃的四个判断
 
-1. **背后会变吗？** 动效的粒子、视频画面、滚动时压过的正文会从它背后经过：可以用。背后一直是平涂底色（哪怕在动效的同一屏里）：用实色面，否则只是一块灰（V5）。
+1. **背后会变吗？** 动效的粒子、视频画面、滚动时压过的正文会从它背后经过：可以用。背后一直是平涂底色（哪怕在动效的同一屏里），或者表面跟着动效一起移动、背后的比例不变：用实色面，否则只是一块灰（V5）。`data-backdrop` 的声明要成立，`verify_canvas.py` 会核对位置，`capture_motion.py --probe` 量背后会不会变。
 2. **是不是主操作？** 是：实色，不用玻璃。
 3. **字够清楚吗？** 按最差的背景算，正文 4.5:1，悬停、按下也算；深色玻璃上是浅色字，按下要压暗、不要提亮。Safari 读不到「降低透明度」，玻璃底色本身就要够。
-4. **一屏几块？** 不超过 3–4 块；不给模糊半径做动画（性能）。
+4. **一屏几块？** 不超过 3–4 块；玻璃不叠玻璃；不给模糊半径做动画（性能）。
+5. **浓度多少？** 品牌色（`lg-moss`）底色超过约 50% 就是实色，改用实色按钮或实色面。
+6. **每个可点的玻璃控件都有悬停和按下**：真实画板上用的类要有规则，不只是控件状态表里的样品有（`verify_canvas.py`「可点元素没有悬停或按下样式」）。
 
 ## 来源
 

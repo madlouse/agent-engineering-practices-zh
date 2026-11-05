@@ -18,10 +18,19 @@
   15. 按钮文字折行：按钮里的字折成两行（伪语言那一遍最容易出现）
   16. 浮层没有出路：对话框、菜单里没有「关闭」按钮，画板逻辑也没处理 Esc
   17. 孤字成行：两行以上的标题和段落，最后一行只剩一个汉字或一个短词
-  18. 词中断行：标题、按钮、标签这类 40 字以内的短文字里，中文词被拆到两行（Intl.Segmenter 分词）；正文段落只查孤字
+  18. 词中断行：标题、按钮、标签这类 40 字以内的短文字里，中文词被拆到两行（Intl.Segmenter 分词）；
+      西文词和紧跟的中文词被拆开（「AI / 发展史」，自动折行和手写 <br> 都算）也报；正文段落只查孤字
   19. 文字冲出容器、短标签被挤成多行：文字超出所在的圆角条或卡片；一行控件里三个词以内的标签折成三行以上
   21. 玻璃压在平涂底色上：用了 backdrop-filter 的元素，背后 5×3 网格的亮度极差 < 0.04（浅色那一遍，需要 Pillow）；
       背后是静态截图画不出来的动效、视频、滚动内容时，在元素或祖先上写 data-backdrop="motion|video|scroll"，这一项跳过
+  22. 玻璃的背景声明不成立：data-backdrop="motion" 的元素要和一个 canvas（或 [data-motion] 区域）重叠；"video" 要和 video、
+      [data-video]、.video-frame 重叠或在它里面；"scroll" 要它自己或祖先是 sticky / fixed。声明只是让 21 跳过，不成立就报。
+      声明成立也只说明位置对得上，背后的内容会不会真的变，用 capture_motion.py --probe 量
+  23. 可点元素没有悬停或按下样式：链接、按钮、带 role 的控件，样式表里找不到作用到它（或它里面、只包着它的外层）的
+      :hover / .is-hover 和 :active / .is-press 规则；段落里的文字链接只要求悬停
+  24. 展开挤动了版面：某个变体比同尺寸、同语言的第一个变体多展开了一个 aria-expanded 控件时，展开层以外的标题、按钮、
+      链接、输入框位移超过 8px 就报（浅色那一遍）。展开就该把下面的列表推开的（折叠列表），在触发控件或祖先上写
+      data-expand="inline" 跳过
   20. 标点在行首：中文的逗号、句号、顿号等落到一行开头
   按下和悬停：浅色那一遍另外把所有按钮、液态玻璃控件设成按下（.is-press）、悬停（.is-hover）各算一次对比度
   （另）占位文字：画板上出现「示例」「待定」「即将上线」「二维码」这类占位词（--placeholders 可改）
@@ -229,12 +238,28 @@ CHECK_JS = r"""
     const seenW = new Set();
     for (const el of root.querySelectorAll('h1, h2, h3, h4, a, button, dt, th, .row-title, .kicker, .who')) {
       if (!visible(el) || el.closest('svg, [aria-hidden="true"]') || (el.innerText || '').trim().length > 40) continue;
+      const kids = [...el.childNodes];
+      kids.forEach((node, k) => {  // 手写的 <br> 把西文词和后面的中文词拆开
+        if (node.nodeName !== 'BR' || k === 0 || k === kids.length - 1) return;
+        const before = (kids[k - 1].textContent || '').trimEnd(), after = (kids[k + 1].textContent || '').trimStart();
+        const m = before.match(/([A-Za-z0-9][\w.+-]*)$/);
+        if (m && /^[一-鿿]/.test(after) && !seenW.has('br|' + before)) { seenW.add('br|' + before); issues.push({type: '词中断行', where: m[1] + ' ' + after.slice(0, 4), detail: `手写的换行把「${m[1]}」和后面的「${after.slice(0, 4)}」拆开了；去掉 <br>，让词组整体换行`}); }
+      });
       for (const node of el.childNodes) {
         if (node.nodeType !== 3) continue;
-        const t = node.textContent; if (t.length < 2 || !/[一-鿿]{2}/.test(t)) continue;
+        const t = node.textContent; if (t.length < 2 || !/[一-鿿A-Za-z]/.test(t)) continue;
         const tops = []; const rg = document.createRange();
         for (let i = 0; i < t.length; i++) { rg.setStart(node, i); rg.setEnd(node, i + 1); const r = rg.getClientRects()[0]; tops.push(r ? r.top : null); }
-        for (const w of seg.segment(t)) {
+        const segs = [...seg.segment(t)];
+        for (let k = 0; k < segs.length; k++) {  // 中英混排：西文词后面（隔着空格也算）紧跟中文词，两者落在两行
+          const w = segs[k]; if (!w.isWordLike || !/^[A-Za-z0-9][\w.+-]*$/.test(w.segment)) continue;
+          let n = k + 1; while (n < segs.length && /^\s+$/.test(segs[n].segment)) n++;
+          if (n >= segs.length || !/^[一-鿿]/.test(segs[n].segment)) continue;
+          const a = tops[w.index + w.segment.length - 1], b = tops[segs[n].index];
+          const key = w.segment + segs[n].segment + '|' + t.slice(0, 12);
+          if (a !== null && b !== null && Math.abs(b - a) > 4 && !seenW.has(key)) { seenW.add(key); issues.push({type: '词中断行', where: w.segment + ' ' + segs[n].segment, detail: `「${w.segment}」和后面的「${segs[n].segment}」被拆到两行：中英混排的词组要放在同一行，用不断行空格或 keep-all 的包裹`}); }
+        }
+        for (const w of segs) {
           if (!w.isWordLike || w.segment.length < 2 || !/^[一-鿿]+$/.test(w.segment)) continue;
           const a = tops[w.index], b = tops[w.index + w.segment.length - 1];
           if (a !== null && b !== null && Math.abs(b - a) > 4) {
@@ -292,6 +317,54 @@ CHECK_JS = r"""
         issues.push({type: '弹性布局吞掉了空格', where: (el.innerText || '').trim().replace(/\s+/g, '').slice(0, 24), detail: '容器是 flex/grid，文字和元素之间的空格不显示；改成 inline-block 或用 gap'});
     });
   }
+  // 22：玻璃的背景声明要成立
+  for (const el of root.querySelectorAll('[data-backdrop]')) {
+    if (!visible(el)) continue;
+    const kind = el.getAttribute('data-backdrop'), r = el.getBoundingClientRect();
+    const overlaps = sel => [...document.querySelectorAll(sel)].some(c => {
+      if (c === el || el.contains(c) || !visible(c)) return false;
+      const b = c.getBoundingClientRect(); return b.left < r.right && b.right > r.left && b.top < r.bottom && b.bottom > r.top;
+    });
+    let ok = false, why = '';
+    if (kind === 'motion') { ok = overlaps('canvas, [data-motion]'); why = '背后没有和它重叠的 canvas 或 [data-motion] 区域'; }
+    else if (kind === 'video') { ok = overlaps('video, [data-video], .video-frame') || !!el.parentElement?.closest('[data-video], .video-frame'); why = '背后没有和它重叠的视频'; }
+    else if (kind === 'scroll') { for (let e = el; e && e !== document.documentElement; e = e.parentElement) { const p = getComputedStyle(e).position; if (p === 'sticky' || p === 'fixed') { ok = true; break; } } why = '它和祖先都不是 sticky / fixed，内容不会从它后面滚过'; }
+    else why = `「${kind}」不是 motion、video、scroll 之一`;
+    if (!ok) issues.push({type: '玻璃的背景声明不成立', where: name(el) || kind, detail: `data-backdrop="${kind}"：${why}；声明不成立时背后就是平涂，改成实色面`});
+  }
+  // 23：可点元素要有悬停和按下样式（:hover / .is-hover、:active / .is-press）
+  {
+    const STATE = /:hover|:active|\.is-hover|\.is-press/;
+    const sels = [];
+    const collect = rules => { for (const r of rules || []) {
+      if (r.selectorText && STATE.test(r.selectorText)) for (const part of r.selectorText.split(/,(?![^(]*\))/)) {
+        const base = part.replace(/::?(before|after|placeholder|marker|selection)\b/g, '').replace(/:hover|:active|\.is-hover|\.is-press/g, ':where(*)').trim();
+        if (/:hover|\.is-hover/.test(part)) sels.push(['h', base]);
+        if (/:active|\.is-press/.test(part)) sels.push(['p', base]);
+      }
+      try { collect(r.cssRules); } catch (e) {}
+    } };
+    for (const ss of document.styleSheets) { try { collect(ss.cssRules); } catch (e) {} }
+    const CLICK = 'a[href], button, [role="button"], [role="switch"], [role="tab"], [role="link"], [role="menuitem"], [role="option"], summary';
+    const hits = (el, kind) => sels.some(([k, b]) => {
+      if (k !== kind) return false;
+      try {
+        if (el.matches(b) || el.querySelector(b)) return true;
+        const up = el.parentElement && el.parentElement.closest(b);  // 外层的悬停样式只算只包着这一个可点元素的外层
+        return !!up && up !== root && up.querySelectorAll(CLICK).length === 1;
+      } catch (e) { return false; }
+    });
+    const seenS = new Set();
+    for (const el of root.querySelectorAll(CLICK)) {
+      if (!visible(el) || el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('svg, [aria-hidden="true"], [inert]')) continue;
+      const prose = el.tagName === 'A' && el.closest('p, li, dd, blockquote, figcaption') && getComputedStyle(el).display === 'inline';
+      const miss = [];
+      if (!hits(el, 'h')) miss.push('悬停');
+      if (!prose && !hits(el, 'p')) miss.push('按下');
+      const key = name(el) + '|' + miss.join();
+      if (miss.length && !seenS.has(key)) { seenS.add(key); issues.push({type: '可点元素没有悬停或按下样式', where: name(el) || el.tagName.toLowerCase(), detail: `缺${miss.join('、')}：给它的类写 :hover 和 :active（或 .is-hover / .is-press）；玻璃控件按 liquid-glass.md 提亮底色，不叠灰`}); }
+    }
+  }
   // 模板味信号（提示）
   const hints = [];
   const emoji = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B50}\u{2728}]/u;
@@ -344,6 +417,45 @@ GLASS_JS = r"""
   return out;
 }
 """
+
+
+POS_JS = r"""
+() => {
+  const vis = el => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; };
+  const nm = el => ((el.getAttribute('aria-label') || el.innerText || el.placeholder || '').trim().replace(/\s+/g, ' ').slice(0, 30));
+  const open = [...document.querySelectorAll('[aria-expanded="true"]')].filter(t => vis(t) && !t.closest('[data-expand="inline"]'));
+  const layers = open.map(t => document.getElementById(t.getAttribute('aria-controls') || '')).filter(Boolean);
+  const pos = {}, seen = {};
+  for (const el of document.querySelectorAll('h1, h2, h3, .btn, button, a[href], input, textarea, select')) {
+    if (!vis(el) || layers.some(l => l.contains(el)) || el.closest('[role="dialog"], [aria-modal="true"], [role="menu"], [role="listbox"]')) continue;
+    const t = nm(el); if (!t) continue;
+    const k = el.tagName.toLowerCase() + '「' + t + '」'; seen[k] = (seen[k] || 0) + 1;
+    const r = el.getBoundingClientRect();
+    pos[k + (seen[k] > 1 ? '#' + seen[k] : '')] = [r.left + scrollX, r.top + scrollY];
+  }
+  return {open: open.map(t => nm(t) || t.getAttribute('aria-controls') || 'trigger'), pos};
+}
+"""
+
+
+def expansion_shift(base, cur):
+    """24：比默认状态多展开了一个控件，展开层以外的主要元素位移超过 8px。"""
+    added = [o for o in cur['open'] if o not in base['open']]
+    if not added:
+        return []
+    moved = []
+    for k, (x, y) in cur['pos'].items():
+        if k in base['pos']:
+            bx, by = base['pos'][k]
+            d = max(abs(x - bx), abs(y - by))
+            if d > 8:
+                moved.append((d, k))
+    if not moved:
+        return []
+    moved.sort(reverse=True)
+    names = '、'.join(f'{k} {round(d)}px' for d, k in moved[:3])
+    return [{'type': '展开挤动了版面', 'where': '、'.join(added)[:36],
+             'detail': f'展开后 {len(moved)} 个元素移动了（{names}）：展开层用覆盖层或预留空间，下方放不下时向上翻转；本来就该推开下面列表的折叠列表，在触发控件上写 data-expand="inline"'}]
 
 
 def flat_glass(pg):
@@ -491,7 +603,7 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     report, total = [], 0
     with sync_playwright() as pw:
-        browser = pw.chromium.launch()
+        browser = pw.chromium.launch(args=['--allow-file-access-from-files'])  # 本地样式表的 cssRules 才读得到（查 23、查 token）
         logic_page = browser.new_page()  # 执行画板的 renderVals()，算出模板里的值
         for f in files:
             src = open(f, encoding='utf-8').read()
@@ -525,6 +637,7 @@ def main():
             for vw, vh in extra_sizes.get(os.path.basename(f), []):
                 variants.append((f'{vw}×{vh}', first_state, {}, (vw, vh)))
                 variants += [(f'{vw}×{vh} lang={po["lang"]}', first_state, po, (vw, vh)) for po in langs]  # 窄屏最容易坏在另一种语言上
+            pos_base = {}  # (宽, 高, 语言) → 第一个变体的元素位置，查 24
             for label, state, props_override, (vw, vh) in variants:
                 for theme in a.themes.split(','):
                     if theme == 'pseudo' and 'lang' in props_override:
@@ -554,6 +667,12 @@ def main():
                                 more = pg.evaluate(STATE_JS, cls)
                                 res['issues'] += [{**i, 'type': '对比度不够（' + lbl + '）'} for i in more if i['type'] == '对比度不够']
                             res['issues'] += flat_glass(pg)
+                            pos = pg.evaluate(POS_JS)
+                            pkey = (vw, vh, props_override.get('lang'))
+                            if pkey in pos_base:
+                                res['issues'] += expansion_shift(pos_base[pkey], pos)
+                            else:
+                                pos_base[pkey] = pos
                             shown = pg.evaluate('document.body.innerText')
                             for word in a.placeholders.split(','):
                                 if word and word in shown:
@@ -567,7 +686,7 @@ def main():
                     for hnt in res.get('hints', []):
                         board_hints.setdefault((hnt['sign'], hnt['where']), set()).add(label)
                     for i in res['issues']:
-                        if is_doc and i['type'] in ('触控目标小于 44', '首屏主操作在视口外', '玻璃压在平涂底色上'):  # 说明文档类画板（组件表、旅程图）没有首屏
+                        if is_doc and i['type'] in ('触控目标小于 44', '首屏主操作在视口外', '玻璃压在平涂底色上', '展开挤动了版面'):  # 说明文档类画板（组件表、旅程图）没有首屏
                             continue
                         board_issues.append({'state': label, 'theme': theme, **i})
                     if theme == a.themes.split(',')[0]:

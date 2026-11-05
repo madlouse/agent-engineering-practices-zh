@@ -11,6 +11,12 @@
 <style>
 body{margin:0}
 a{color:inherit}
+a:not(.bare):hover{text-decoration:underline}
+a:not(.bare):active,button:active,.btn:active{opacity:.8}
+button:hover,.btn:hover{opacity:.9}
+.chip.is-hover{opacity:.9}
+.chip.is-press{opacity:.8}
+.glass{width:200px;height:60px;border-radius:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 :root{--ground:#f4f2ec;--ink:#1c1d19}
 [data-theme="dark"]{--ground:#121310;--ink:#ecebe4}
 </style>
@@ -27,13 +33,22 @@ a{color:inherit}
 <sc-if value="{{ overflowBox }}"><div style="width: 160px; height: 44px; border-radius: 22px; background: var(--ground); box-shadow: 0 0 0 1px var(--ink); display: flex; align-items: center; padding: 0 12px; overflow: visible; white-space: nowrap;"><span style="font-size: 15px;">这一条说明文字比胶囊条长很多</span></div></sc-if>
 <sc-if value="{{ glassFlat }}"><div aria-label="平涂上的玻璃" style="margin: 12px; width: 200px; height: 60px; border-radius: 20px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 0 0 1px var(--ink);"></div></sc-if>
 <sc-if value="{{ glassImg }}"><div style="position: relative; margin: 12px; height: 120px; background: repeating-linear-gradient(90deg, var(--ink) 0 10px, var(--ground) 10px 24px);"><div aria-label="图案上的玻璃" style="position: absolute; left: 20px; top: 30px; width: 200px; height: 60px; border-radius: 20px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);"></div></div></sc-if>
+<sc-if value="{{ backdropBad }}"><div class="glass" data-backdrop="motion" aria-label="没有动效的动效玻璃" style="margin: 12px;"></div><div class="glass" data-backdrop="scroll" aria-label="不吸顶的滚动玻璃" style="margin: 12px;"></div></sc-if>
+<sc-if value="{{ backdropOk }}"><div style="position: relative; margin: 12px; height: 100px;"><canvas width="300" height="100" style="position: absolute; left: 0; top: 0;"></canvas><div class="glass" data-backdrop="motion" aria-label="动效上的玻璃" style="position: absolute; left: 20px; top: 20px;"></div></div><div class="glass" data-backdrop="scroll" aria-label="吸顶的滚动玻璃" style="position: sticky; top: 0; margin: 12px;"></div></sc-if>
+<sc-if value="{{ noState }}"><a class="bare" href="#x" style="display: block; min-height: 48px; font-size: 16px;">没有状态样式的入口</a></sc-if>
+<sc-if value="{{ mixedBreak }}"><h3 style="font-size: 16px;">AI<br>发展史</h3><h3 style="width: 3.2em; font-size: 16px; line-height: 1.5; word-break: keep-all;">AI 发展史</h3></sc-if>
 <sc-if value="{{ orphan }}"><p style="width: 12em; font-size: 16px; line-height: 1.6;">这段文字排到最后一行剩一字</p></sc-if>
+<div style="padding: 0 20px;"><a class="bare chip" href="#c" style="display: inline-block; min-height: 44px; min-width: 44px; font-size: 16px;">筛选</a>
+<button class="btn" type="button" aria-expanded="{{ moreOpen }}" aria-controls="more" style="height: 48px; padding: 0 16px; border: 0; background: var(--ink); color: var(--ground); font-size: 16px;">更多做法</button>
+<sc-if value="{{ morePush }}"><div id="more" style="height: 120px;"><p>三种做法</p></div></sc-if>
+<sc-if value="{{ moreOverlay }}"><div style="position: relative; height: 0;"><div id="more" style="position: absolute; z-index: 3; left: 0; top: 4px; width: 300px; height: 120px; background: var(--ground); box-shadow: 0 0 0 1px var(--ink);"><p>三种做法</p></div></div></sc-if>
+<h2 style="font-size: 18px; margin: 12px 0;">下面的标题</h2></div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "展开层超出", "被盖住", "首屏外", "深色露底", "按钮折行", "浮层无出路", "孤字", "词中断行", "冲出容器", "玻璃平涂", "玻璃有图"], "default": "好的"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "展开层超出", "被盖住", "首屏外", "深色露底", "按钮折行", "浮层无出路", "孤字", "词中断行", "冲出容器", "玻璃平涂", "玻璃有图", "背景声明不成立", "背景声明成立", "没有状态样式", "混排断行", "展开挤动", "展开不挤"], "default": "好的"}}'>
 class Component extends DCLogic { renderVals() {
   const c = this.props.case;
-  return { rootH: 600, rootTop: c === '深色露底' ? 40 : 0, heroH: c === '首屏外' ? 560 : 400, menuH: c === '展开层超出' ? 400 : 120, subTop: c === '被盖住' ? 120 : (c === '首屏外' ? 620 : 300), wrapBtn: c === '按钮折行', dialog: c === '浮层无出路', orphan: c === '孤字', wordBreak: c === '词中断行', overflowBox: c === '冲出容器', glassFlat: c === '玻璃平涂', glassImg: c === '玻璃有图' };
+  return { rootH: 600, rootTop: c === '深色露底' ? 40 : 0, heroH: c === '首屏外' ? 560 : 400, menuH: c === '展开层超出' ? 400 : 120, subTop: c === '被盖住' ? 120 : (c === '首屏外' ? 620 : 300), wrapBtn: c === '按钮折行', dialog: c === '浮层无出路', orphan: c === '孤字', wordBreak: c === '词中断行', overflowBox: c === '冲出容器', glassFlat: c === '玻璃平涂', glassImg: c === '玻璃有图', backdropBad: c === '背景声明不成立', backdropOk: c === '背景声明成立', noState: c === '没有状态样式', mixedBreak: c === '混排断行', moreOpen: (c === '展开挤动' || c === '展开不挤') ? 'true' : 'false', morePush: c === '展开挤动', moreOverlay: c === '展开不挤' };
 } }
 </script>
 </body>

@@ -72,20 +72,38 @@ def main():
                         ('case=首屏外', '首屏主操作在视口外', None), ('case=深色露底', '深色下露出浅色底', 'dark'),
                         ('case=按钮折行', '按钮文字折行', None), ('case=浮层无出路', '浮层没有出路', None), ('case=孤字', '孤字成行', None),
                         ('case=词中断行', '词中断行', None), ('case=冲出容器', '文字冲出容器', None),
-                        ('case=玻璃平涂', '玻璃压在平涂底色上', None)):
+                        ('case=玻璃平涂', '玻璃压在平涂底色上', None), ('case=背景声明不成立', '玻璃的背景声明不成立', None),
+                        ('case=没有状态样式', '可点元素没有悬停或按下样式', None), ('case=混排断行', '词中断行', None),
+                        ('case=展开挤动', '展开挤动了版面', None)):
         if not any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in gfound):
             failures.append(f'漏报：SelftestGeometry「{st}」应该报「{typ}」')
     if any(s_ == 'case=玻璃有图' and t_ == '玻璃压在平涂底色上' for s_, t_, _ in gfound):
         failures.append('误报：SelftestGeometry「case=玻璃有图」背后有图案，不该报「玻璃压在平涂底色上」')
+    for st, typ in (('case=背景声明成立', '玻璃的背景声明不成立'), ('case=背景声明成立', '玻璃压在平涂底色上'), ('case=展开不挤', '展开挤动了版面')):
+        if any(s_ == st and t_ == typ for s_, t_, _ in gfound):
+            failures.append(f'误报：SelftestGeometry「{st}」不该报「{typ}」')
+    mixed = [i for i in g if 'case=混排断行' in i['states'] and i['type'] == '词中断行']
+    if not any(i['detail'].startswith('手写') for i in mixed) or not any(i['detail'].startswith('「AI」') for i in mixed):
+        failures.append('漏报：SelftestGeometry「case=混排断行」的手写 <br> 和自动折行都应该报「AI 发展史」被拆开')
     for s_, t_, h_ in sorted(gfound):
         if s_ == '默认' and t_ != '写死的颜色':
             failures.append(f'误报：SelftestGeometry 默认状态不该报「{t_}」')
+
+    # 数据字段 → 画板（coverage.py --data）：照抄进逻辑的字段不算画出来，模板洞里用到的算
+    cov = tempfile.mkdtemp(prefix='coverage-selftest-')
+    json.dump({'cards': [{'id': 'a', 'zh': {'metric': '−15%', 'claim': '结论'}}]}, open(os.path.join(cov, 'data.json'), 'w', encoding='utf-8'), ensure_ascii=False)
+    open(os.path.join(cov, 'Card.dc.html'), 'w', encoding='utf-8').write(
+        '<p>{{ c.claim }}</p>\n<script type="text/x-dc">const CARDS = [{"metric": "−15%", "claim": "结论"}];</script>\n')
+    r = subprocess.run([sys.executable, os.path.join(HERE, 'coverage.py'), '--canvas', cov, '--data', os.path.join(cov, 'data.json'), '--skip-fields', 'id'],
+                       capture_output=True, text=True)
+    if r.returncode != 1 or '| metric | **没有画板画出来** |' not in r.stdout or '| claim | Card.dc.html |' not in r.stdout:
+        failures.append('coverage.py --data：应该报 metric 没画出来、claim 画在 Card.dc.html 上，退出码 1')
 
     if failures:
         print('selftest 不通过：\n  ' + '\n  '.join(failures))
         print(f'报告：{out}/verify-canvas.md')
         sys.exit(1)
-    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 10 类几何和排版问题（含玻璃压在平涂底色上）都抓到了，好的状态没有误报')
+    print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 14 类几何和排版问题（含玻璃平涂、背景声明、悬停按下样式、中英混排断行、展开挤动）都抓到了，好的状态没有误报；coverage.py 的数据字段对照也对')
 
 
 if __name__ == '__main__':

@@ -204,6 +204,7 @@ CHECK_JS = r"""
     const fs = parseFloat(getComputedStyle(el).fontSize);
     const lastW = rects.filter(r => Math.abs(r.top - lastTop) < 3).reduce((a, r) => a + r.width, 0);
     const text = (el.innerText || '').trim();
+    if (/[\/.:]\S*$/.test(text.split(/\s+/).pop() || '') && /\//.test(text)) continue;  // 网址、路径折到下一行不算孤字
     const cjk = /[一-鿿]$/.test(text.replace(/[。，、；：！？」』）)\]]+$/, ''));
     if ((cjk && lastW < fs * 1.6) || (!cjk && lastW < fs * 3 && !/\s/.test(text.slice(-12).trim().split(/\s+/).pop() || ' ')))
       issues.push({type: '孤字成行', where: text.slice(-16), detail: `最后一行只剩约 ${Math.round(lastW)}px；用 text-wrap: pretty 或调整断句`});

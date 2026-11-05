@@ -219,6 +219,10 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .spine-body { background-color: var(--vc-hero-body); color: var(--vc-text); box-shadow: inset 1px 0 0 var(--vc-paper-line); }
 .spine-mind { background-color: var(--vc-ink); color: var(--vc-on-ink); box-shadow: inset 1px 0 0 var(--vc-ink-line); }
 .spine .mono { font-size: 12px; letter-spacing: 0.08em; }
+/* 书脊的站名贴着视口顶部（导航下方）走，任何滚动位置、包括第一屏都看得到（U5）；纸底页面上的站稳书脊加一档底色和纸面分开 */
+.spine { justify-content: flex-start; }
+.spine-label { position: sticky; top: calc(var(--nav-height) + 48px); display: inline-flex; align-items: center; gap: 12px; padding: 24px 0; }
+.spine-body { background-color: var(--vc-paper-line); }
 
 /* 英文正文（设计系统「阅读版式」）：18px、行高 1.45、版心 612px，每行约 68 个字符；中文 17px、行高 1.8、版心 640px，每行约 37 字 */
 .prose:lang(en) { max-width: var(--text-max-en); }

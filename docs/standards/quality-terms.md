@@ -58,7 +58,7 @@
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
 | U1 核心场景两步内完成，不常用的不超过三步；悬停不算一步 | 全站 | 按 PRD 步数预算逐条走，记点按次数（设计评审；关口四走实现） | PRD 第 4 节；[NN/g：三次点击规则没有数据支持](https://www.nngroup.com/articles/3-click-rule/) |
-| U2 首屏回答三件事：这是给谁的、能做什么、下一步点哪里 | 首页、三站首屏 | 关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
+| U2 首屏回答三件事：这是给谁的、能做什么、下一步点哪里；主操作和订阅在 1280×720、1440×790、390×664、320×568 下完整留在首屏里，首屏高度按视口（`100svh`）算，不写死 | 首页、三站首屏 | 视口：`verify_canvas.py --size` 按这四个尺寸各查一遍；关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
 | U3 一个区域只有 1 个主操作；整个首屏的主操作不超过 2 个 | 首页、三站首屏 | 数截图上的实色主按钮（设计评审） | apple.com、stripe.com、vercel.com 首屏各 2 个，linear.app 1 个；设计系统「一个区域只有一个主按钮」 |
 | U4 主导航不超过 6 项 | 全站 | 数导航（设计评审） | linear.app、stripe.com、anthropic.com 各 6 项，vercel.com 4 项；apple.com 的 11 项是零售站，不算 |
 | U5 导航标签和按钮文字说出去处或结果，不用「了解更多」「点击这里」 | 全站 | 逐个读（设计评审、内容评审） | [NN/g 信息气味](https://www.nngroup.com/articles/3-click-rule/)；[Mailchimp](https://styleguide.mailchimp.com/web-elements/) |
@@ -80,7 +80,7 @@
 | C1 一句只讲一件事：英文一句不超过 25 词；中文一句不超过 40 字 | 我们自己写的文字（译文按原文句意，可以拆句） | 逐句看（内容评审） | [GOV.UK 句长](https://insidegovuk.blog.gov.uk/2014/08/04/sentence-length-why-25-words-is-our-limit/)：平均 14 词时理解 90% 以上，43 词时不到 10%。40 字是自定：按一个英文词约合 1.5–2 个汉字，25 词约 40–50 字，取下限 |
 | C2 一段只讲一件事：英文一段不超过 5 句，中文一段不超过 4 句（自定） | 同上 | 逐段看（内容评审） | [GOV.UK 清楚的语言](https://guidance.publishing.service.gov.uk/writing-to-gov-uk-standards/writing-guidelines/clear-language/)；Fenng「一段一个主要信息点」 |
 | C3 用术语表的叫法；术语和缩写第一次出现时给一句解释；一段里新术语不超过两个 | 全站 | `npm run check:terms`；内容评审 | GOV.UK；Microsoft；`velicoach-content`「专业但好懂」；`docs/GLOSSARY.md` |
-| C4 按钮写成「动词 + 对象」，中文不超过 8 个字，英文不超过 4 个词（自定，和设计系统的「进入今天的训练」相容） | 全站 | 逐个数（内容评审、设计评审） | [GOV.UK 按钮](https://design-system.service.gov.uk/components/button/)；Microsoft「几个短词」 |
+| C4 按钮写成「动词 + 对象」，中文不超过 8 个字，英文不超过 4 个词（自定，和设计系统的「进入今天的训练」相容）；要带上具体对象（篇名、日期）时，按钮只写动作（「继续读」），对象放在按钮旁的一行字里 | 全站 | 逐个数（内容评审、设计评审） | [GOV.UK 按钮](https://design-system.service.gov.uk/components/button/)；Microsoft「几个短词」 |
 | C5 错误提示说清哪里错了、怎么办；不怪用户，不给错误码 | 全站 | 逐个触发错误状态（设计评审） | NN/g 启发式第 9 条；[Microsoft](https://learn.microsoft.com/windows/uwp/design/style/writing-style)；Apple「写清是哪个字段、该填什么」 |
 | C6 不造词；不用空话，清单以 `velicoach-content`「少用空话」为唯一来源（赋能、抓手、闭环等 21 个），译文照原文 | 我们自己写的文字 | 内容评审 | Fenng 指南；`velicoach-content` |
 | C7 中英两版都齐；英文按英语读者重写，不逐句直译；英文页上没有中文的界面文字（作者名、原文标题等专名除外） | 全站对外文字 | 两种语言各走一遍（内容评审、设计评审） | `AGENTS.project.md` 第 3 条；PRD 第 8 节「国际化」 |
@@ -93,16 +93,16 @@
 
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
-| V1 字体三种：无衬线正文、衬线标题（看清和首页的看清一侧）、等宽（代码和元信息）；不用 Ultralight、Thin、Light 三档字重 | 全站 | `check_page.py` 的字体统计；读 token（设计评审） | 设计系统「字体三种」；HIG「Minimize the number of typefaces」；Stripe、Anthropic 都只用两个文字字族 |
+| V1 字体三种：无衬线正文、衬线标题（看清和首页的看清一侧）、等宽（代码和元信息）；不用 Ultralight、Thin、Light 三档字重；衬线字体栈里中文衬线（Songti SC、Noto Serif CJK SC、Source Han Serif SC）排在西文衬线前面，中文不能落到黑体 | 全站 | `check_page.py` 的字体统计；读 token；渲染机装一份中文衬线再截图（设计评审） | 设计系统「字体三种」；HIG「Minimize the number of typefaces」；Stripe、Anthropic 都只用两个文字字族 |
 | V2 颜色按设计系统「三站，三种底色」：每站一种底色；强调色只给主操作、链接和「当前所在」；一种强调色只在自己的底上出现；不只靠颜色表达信息 | 全站 | 读 token、看截图（设计评审） | 设计系统；[HIG 颜色](https://developer.apple.com/design/human-interface-guidelines/color)：「Apply color sparingly」 |
 | V3 每个区域只放标题、一句说明和操作；标题加说明合计中文不超过 50 字、英文不超过 35 词 | 首页每一半、三站首屏 | 数截图上的字（设计评审） | 五个对标站首屏标题加副标题都在约 35 词以内；50 字是自定：按一个英文词约合 1.5 个汉字，35 词约 52 字，取整 |
-| V4 一页的分区用同一种模块格式重复，一页 5–6 个分区（自定） | 首页、三站首页 | 数分区（设计评审） | linear.app 6 个，stripe.com、vercel.com 各 5 个；apple.com 9 个推广模块同一格式（零售站，只借「同一格式」） |
-| V5 玻璃只用在浮在内容上的导航和控件，正文内容层不用；跨在两种底色上的玻璃用厚玻璃（`glass-thick`），上面的文字用正文色，按最差的那块底算对比度，≥ 4.5:1，浅色深色各查；展开的选项卡片和展开成表单的条用实色面，完整显示在所在区块里，不被裁掉、不透出下面的字；系统减少透明度时换成实色 | 全站 | 找出所有用玻璃的元素；对比度：脚本能算的看 `verify_canvas.py`、`check_page.py`，标「需人工」的由设计评审在截图上取色计算 | [HIG 材质](https://developer.apple.com/design/human-interface-guidelines/materials)：「Don't use Liquid Glass in the content layer」「Use Liquid Glass effects sparingly」。单一来源：HIG 是苹果设计语言的原文；对标站的玻璃用法待关口三 a 实测补上 |
-| V6 样式只引用 token；用留白分组，对齐到间距阶梯 | 全站 | `lint_tokens.py` 为 0；`verify_canvas.py` 写死的颜色为 0 | 设计系统；`design-bar` rubric「版式与留白」 |
+| V4 一页里同一层级的分区用同一种排法（标题、导语、内容的顺序和间距一样），不是每节都用卡片；一页 5–6 个分区（自定） | 首页、三站首页 | 数分区（设计评审） | linear.app 6 个，stripe.com、vercel.com 各 5 个；apple.com 9 个推广模块同一格式（零售站，只借「同一格式」） |
+| V5 玻璃只用在浮在内容上的导航和控件，正文内容层不用；玻璃要看得出背后的内容，看不出的就改成实色面，不用不透明的灰块；跨在两种底色上的玻璃用厚玻璃（`glass-thick`），上面的文字用正文色，按最差的那块底算对比度，≥ 4.5:1，浅色深色各查；展开的选项卡片和展开成表单的条用实色面，完整显示在所在区块里，不被裁掉、不透出下面的字；系统减少透明度时换成实色 | 全站 | 找出所有用玻璃的元素；对比度：脚本能算的看 `verify_canvas.py`、`check_page.py`，标「需人工」的由设计评审在截图上取色计算 | [HIG 材质](https://developer.apple.com/design/human-interface-guidelines/materials)：「Don't use Liquid Glass in the content layer」「Use Liquid Glass effects sparingly」。单一来源：HIG 是苹果设计语言的原文；对标站的玻璃用法待关口三 a 实测补上 |
+| V6 样式只引用 token；用留白分组，对齐到间距阶梯；左右分屏的两半，眉标、标题、主按钮的起点在同一条水平线上 | 全站 | `lint_tokens.py` 为 0；`verify_canvas.py` 写死的颜色为 0 | 设计系统；`design-bar` rubric「版式与留白」 |
 | V7 动效有含义：首页的主动效「叶与网」表达三站的关系，每屏最多一个主动效；站稳和动手首屏的纸墨质感不做循环动画，只在首屏出现时变化一次，时长不超过 `duration-lean`（自定，把设计系统的「几乎静止」写成可查的规则）；看清没有动效；时长只用 `duration-*` token | 全站 | 对照设计系统「动效」（设计评审） | 设计系统「动效」；[Apple Design Awards](https://developer.apple.com/design/awards/)「high-quality animations with a distinctive and cohesive theme」 |
 | V8 元信息克制：文章页只放标题、作者、所属的线、阅读时长，日期见 T3，授权见 T5；不放阅读数、点赞数 | 看清文章页 | 看文章页（设计评审） | 酷壳、Fowler、Willison、Distill 都只有标题、作者、日期和少量标签；PRD 第 5 节「文章」字段 |
 | V9 排版细节：中西文之间留空、标点不出现在行首、标题用 `text-wrap: balance`、长段落用 `text-wrap: pretty`、避免孤字成行 | 全站 | 看截图（设计评审）；`velicoach-content` 第 6 节的检查 | `velicoach-content` 第 6 节；`design-bar` rubric「排版」 |
-| V10 没有模板味：`anti-patterns.md` 和 unslop 的信号为 0；把站名换掉，这一屏就不成立 | 全站 | `verify_canvas.py` 的模板味提示；设计评审做换名测试 | `design-bar` 的 `references/anti-patterns.md`、`craft.md` §1 |
+| V10 没有模板味：`anti-patterns.md` 和 unslop 的信号为 0；把站名换掉，这一屏就不成立；眉标一屏最多一行，中文页上不重复英文站名 | 全站 | `verify_canvas.py` 的模板味提示；设计评审做换名测试 | `design-bar` 的 `references/anti-patterns.md`、`craft.md` §1 |
 
 ### 4.4 可信（T）
 
@@ -117,7 +117,7 @@
 | T5 写明版权、授权状态、能不能转载、怎么引用 | 文章页 | 看文末（内容评审） | Distill 的 Reuse 和 Citation；OWID 的 How to cite；PRD 第 6 节「来源」 |
 | T6 「我们的判断」写清值不值得读、适合谁、代价；没读完的不推荐 | 文章页 | 内容评审 | Willison「没读过的不推荐」；设计系统「看清的气质」 |
 | T7 讲到原因、代价和适用范围，并留一个能动手验证的练习（这就是「有深度」「有分量」） | 文章页 | 内容评审 | 陈皓「要了解技术就一定需要了解整个计算机的技术历史发展和进化路线」（[coolshell.org/articles/8088.html](https://coolshell.org/articles/8088.html)）、「一定要有 Best Practice 或方法论总结」；设计系统「看清的气质」 |
-| T8 健康内容只引用系统综述和大样本研究，写明研究类型和样本量；训练指导类由持证教练审核，留审核记录；页上写「威利不是医生」 | 站稳、订阅邮件里的健康内容 | 内容评审；审核记录贴在票上（产品负责人安排） | PRD 第 6 节「质量标准」第 2 条 |
+| T8 健康内容只引用系统综述和大样本研究，写明研究类型、样本量和证据可信度，样本量对应的是卡片上那个结论；同一研究全站只有一份数据，各页引用它，不各写一遍；训练指导类由持证教练审核，留审核记录；页上写「威利不是医生」 | 站稳、订阅邮件里的健康内容 | 内容评审；审核记录贴在票上（产品负责人安排） | PRD 第 6 节「质量标准」第 2 条 |
 | T9 不操纵：不倒计时、不用羞辱式的拒绝按钮、同意项不预先勾选、关掉任何东西只要一步；讲力量不讲身材，不制造焦虑（不写「再不练就晚了」） | 全站 | 逐个看表单、弹层和文案（设计评审、内容评审） | PRD「行为设计」的「不用操纵手段」；`velicoach-content`「讲力量，不讲身材；不制造焦虑」 |
 | T10 对外只放正式版：没有占位符、「示例」「待定」「即将上线」、过程说明和转写错误；还没上线的功能不在对外页面出现 | 全站对外文字和画板 | 画板：`verify_canvas.py` 的占位文字检查；页面和内容：内容评审 | `AGENTS.project.md` 第 1 条；设计系统「内容与语气」；PRD 第 6 节「质量标准」第 3 条 |
 

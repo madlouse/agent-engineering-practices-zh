@@ -77,12 +77,13 @@
   --duration-breath:10000ms;
   --ease-out:cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring:cubic-bezier(0.34, 1.4, 0.64, 1);
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Inter Tight", "Noto Sans SC", sans-serif;
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Inter Tight", "Noto Sans SC", sans-serif;
-  --font-serif: ui-serif, "New York", "Songti SC", "Noto Serif SC", Georgia, serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Inter Tight", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Inter Tight", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+  --font-serif: ui-serif, "New York", "Songti SC", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", Georgia, serif;
   --font-mono: ui-monospace, "SF Mono", "IBM Plex Mono", Menlo, monospace;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+/* 主题写在页面里层的 data-theme 上时，:root 也跟着换（:has），body 的背景才不会露出另一套颜色 */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not(:has([data-theme="light"])) {
   --vc-paper:#121310;
   --vc-paper-surface:#1b1c18;
   --vc-paper-line:#2f3129;
@@ -117,7 +118,7 @@
   --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
   --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 32px -18px rgba(0, 0, 0, 0.6);
 } }
-:root[data-theme="dark"], [data-theme="dark"] {
+:root[data-theme="dark"], :root:has([data-theme="dark"]), [data-theme="dark"] {
   --vc-paper:#121310;
   --vc-paper-surface:#1b1c18;
   --vc-paper-line:#2f3129;
@@ -201,7 +202,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .on-dark, .spine-mind, .glass-ink, .glass-moss { --vc-focus: var(--vc-focus-on-dark); --vc-error: var(--vc-cinnabar); }
 .on-dark .quick:hover, .on-dark .quick.is-hover, .on-dark .row-link:hover .row-title, .on-dark .row-link.is-hover .row-title { text-decoration-color: var(--vc-cinnabar); }
 .on-dark .opt:hover, .on-dark .opt.is-hover, .on-dark .opt:active, .on-dark .opt.is-press { background-color: var(--vc-on-ink); color: var(--vc-ink); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not(:has([data-theme="light"])) .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); } }
 [data-theme="dark"] .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } .btn:active, .btn.is-press, .opt:active, .opt.is-press { transform: none; } }
 

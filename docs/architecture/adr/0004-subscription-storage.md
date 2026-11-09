@@ -1,6 +1,6 @@
 # 0004 订阅的存储、发信、退订令牌和频率限制
 
-- 状态：已采纳（产品负责人 2026-11-09 确认；按关口三 b 冷审 P0-1、P1-1 修订；迁移工作流、公开仓库的限制按第二轮冷审 P1-1、P2-6–P2-9、P2-15 补）
+- 状态：已采纳（产品负责人 2026-11-09 确认；按关口三 b 冷审 P0-1、P1-1 修订；迁移工作流、公开仓库的限制按第二轮冷审 P1-1、P2-6–P2-9、P2-15 补；工作流由主会话维护、迁移约定按第三轮冷审 P1-A、P2-8 补）
 - 关联：主站 PRD v1.2 F07 和「订阅的细则」第 2–15 条（第 8 条要求在关口三 b 写 ADR 定表结构和同步方式，第 9 条要求定令牌怎么签、多久失效）；ADR-0003（`/api/site/*`）；PRD 第 3 节路由表 `/unsubscribe`；第三轮冷审 P2-4；关口三 b 冷审 `docs/delivery/reviews/2026-11-09-gate-3b.md` P0-1、P1-2、P1-3、P2-5、P2-9
 
 ## 背景
@@ -19,8 +19,10 @@
 - **两个连接串，分开用**：
   - `SITE_DB_URL`：`site_api` 经 Supabase 连接池（事务模式，用户名是 `site_api.<项目编号>`）的连接串，只放在 Vercel 的生产环境变量里，运行时只读它。
   - `SITE_DB_MIGRATE_URL`：表所有者的连接串，只放在 GitHub 的 Environment `site-db` 里（部署分支只允许 `site`、`feature/v1`，其他分支上的工作流读不到），只由站点迁移脚本在 CI 里读；不进 Vercel，运行时拿不到。
-- **迁移只走工作流 `site-db-migrate`**（`.github/workflows/site-db-migrate.yml`），构建命令里不跑迁移。GitHub 只允许手动触发默认分支 `site` 上已有的工作流，所以这个文件先由主会话的 `chore/` PR 放进 `site`（只有 `workflow_dispatch`）；上线前用 `ref=feature/v1` 手动触发，把迁移跑进生产库；上线后加 `push: site`（只看 `migrations/site/**`）。只允许这两种触发，不用 `pull_request`、`pull_request_target`。首次生产迁移后的权限核对是一张单独的票（`docs/delivery/gate-3b-split.md`）。
-- **仓库是公开的**：工作流的输入、日志和运行记录谁都看得到。所以删除订阅者、导出同意证据这类要输入邮箱的命令不做成工作流，只在产品负责人本机用 `SITE_DB_URL` 那组 `site_api` 的连接串跑（(e)）。
+- **迁移只走工作流 `site-db-migrate`**（`.github/workflows/site-db-migrate.yml`），构建命令里不跑迁移。触发只有两种：手动（`workflow_dispatch`）和 `push: site`（只看 `migrations/site/**`），不用 `pull_request`、`pull_request_target`。GitHub 只允许手动触发默认分支 `site` 上已有的工作流，而手动触发时执行的是所选分支上的那份文件，所以：主会话的 `chore/` PR 把文件一次写全放进 `site`，合并后主会话把 `site` 合并进 `feature/v1`；上线前用 `ref=feature/v1` 手动触发，把迁移跑进生产库；上线前 `site` 上没有 `migrations/site/`，`push` 不会触发。首次生产迁移后的权限核对是一张单独的票（#67）。
+- **工作流文件只由主会话维护**：`.github/workflows/` 是门槛文件，合并脚本拦住改它的票 PR，Agent 会话也没有推送工作流的权限。票只写工作流调用的脚本（`site:migrate`、`scripts/monitor/run.mjs`、`scripts/audit/run.mjs`），并用 `node --test` 断言工作流的配置。
+- **迁移约定：向后兼容，先加后删。** `push: site` 触发的迁移和 Vercel 的生产构建同时开始，新代码可能比迁移先上线，旧代码也可能在迁移后还跑一会儿。所以每个迁移都要让新旧两版代码都能跑：加列、加表、加策略可以直接合；删列、改名、改类型、收紧约束拆成两次：先合并兼容的迁移和不再依赖旧结构的代码，等迁移成功、生产部署 READY，再合并删除旧结构的迁移。做不到兼容的改动，先单独合并只含迁移的 PR，等这次运行成功再合并读写新结构的代码。
+- **仓库是公开的**：工作流的输入、日志和运行记录谁都看得到。所以删除订阅者、导出同意证据这类要输入邮箱的命令不做成工作流，只在产品负责人本机用 `SITE_DB_URL` 那组 `site_api` 的连接串跑（(e)）。这串连接串只存在 Vercel 的生产环境变量 `SITE_DB_URL` 里，不另存；要用时产品负责人用 `vercel env pull` 取到本机的临时文件，跑完删掉。
 - **不碰沙箱契约**：运行时用一个新的服务端模块连 `SITE_DB_URL`，不读预置的 `DATABASE_URL`，不改 `src/lib/db.ts` 和 `src/lib/auth/*`（本仓库 `AGENTS.md`）。加一个检查脚本：`src/` 里读 `SITE_DB_MIGRATE_URL` 的地方为 0；读 `DATABASE_URL` 的地方除沙箱预置的 `src/lib/db.ts`、`src/lib/auth/*` 以外为 0；新模块不引用 `src/lib/db.ts`。
 - **连接池的事务模式**不支持命名的预编译语句：驱动关掉它（例如 postgres.js 的 `prepare: false`），否则生产上第一次请求就报错，PGLite 上测不出来。
 - **缺连接串时不假装成功**：`VERCEL_ENV=production` 而 `SITE_DB_URL` 缺失或连不上时，订阅接口返回 503，不落到内存库。只有在非生产环境（预览、本地、测试），新模块才用它自己的内存 PGLite，并在启动时执行 `migrations/site/`；PGLite 里没有 `anon`、`authenticated`、`site_api` 时先建同名的不能登录的角色，否则迁移里的 `revoke`、`grant` 会报错；预览上的订阅不写真实名单。

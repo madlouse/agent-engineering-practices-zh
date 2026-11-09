@@ -199,7 +199,7 @@
     const key = opts.storageKey || 'lg-ink';
     const stats = els.map(e => sample(e, source)).filter(Boolean);
     let prev = null;
-    try { prev = localStorage.getItem(key); } catch (e) {}
+    try { prev = localStorage.getItem(key); } catch { /* 读不到存储（隐私模式等）就当没有缓存，重新取样 */ }
     let ink, density, sat = 1, pass = true;
     if (!stats.length) {
       ink = dark ? 'light' : (prev || 'dark'); density = 1;
@@ -219,7 +219,7 @@
       pass = contrastEstimate(worst, ink, density) >= 4.5;
       if (!pass) console.warn('[liquid-glass] 最浓的一档也不够 4.5:1：这块背景太花，换成实色面或加大模糊', els[0]);
     }
-    try { localStorage.setItem(key, ink); } catch (e) {}
+    try { localStorage.setItem(key, ink); } catch { /* 存不进去只是下次不能复用，不影响这次的结果 */ }
     for (const e of els) {
       e.classList.toggle('lg-dark', dark);
       e.classList.toggle('lg-on-dark', !dark && ink === 'light');

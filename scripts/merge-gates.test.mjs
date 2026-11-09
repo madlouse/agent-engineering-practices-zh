@@ -46,7 +46,7 @@ test("分支分类：feat/、fix/、content/ 带票号算票，其余不算", ()
     assert.deepEqual(classifyBranch(ref), { kind: "other", ticket: "" }, ref);
   }
   // 出错时拒绝：漏了票号、前缀写错的都不能当成 chore 放行
-  for (const ref of ["feat/home", "content/x", "fix/nav", "feature/12-x", "test/12-x", "chore", "main"]) {
+  for (const ref of ["feat/home", "content/x", "fix/nav", "feature/12-x", "test/12-x", "chore", "main", "chore/", "obs/", "Chore/x", "Feat/12-x"]) {
     assert.deepEqual(classifyBranch(ref), { kind: "invalid", ticket: "" }, ref);
   }
 });

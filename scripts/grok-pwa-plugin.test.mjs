@@ -21,12 +21,6 @@ import { renderInstallPage } from "./grok-pwa-plugin.mjs";
 
 const TEMPLATE_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-// 这些用例测的是模板默认行为：没传 cwd 时插件读 process.cwd() 下的
-// src/lib/og/site.json 和 public/og.jpg。本仓库有自己的分享卡（标题「看清 · Velicoach」、
-// card=custom），在仓库根目录跑会让标题和占位分享卡的断言读到主站配置。
-// 换到一个空目录，让用例不受本仓库配置影响；需要文件系统的用例自己传 cwd。
-process.chdir(mkdtempSync(join(tmpdir(), "grok-pwa-test-cwd-")));
-
 test("injects before </head>", () => {
   const out = injectGrokPwaHead("<html><head><title>x</title></head><body></body></html>");
   assert.match(out, /rel="manifest"/);

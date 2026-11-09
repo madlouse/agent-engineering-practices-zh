@@ -39,7 +39,9 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 
 ### 2.3 关口四：上线
 
-在集成分支的预览部署上，下面全部通过，产品负责人确认后，集成分支一次合并进 `site` 并上线：
+分两段：「合并前」在集成分支的预览部署上做，全部通过、产品负责人确认后，集成分支一次合并进 `site`；「切换后」只能在合并、切换根域名以后做，在切换后 60 分钟内做完，任何一项不过就按回退步骤恢复。顺序、谁做和回退写在 `docs/delivery/launch-runbook.md`，上线票 #66。
+
+**合并前（预览）**
 
 - PRD 第 6 节「上线前检查」六项：三种版式、两套主题、减弱动态效果、键盘操作；
 - PRD「关键路径与页面状态」的六条路径各有一条端到端测试，跑过且没有未说明的跳过；
@@ -49,12 +51,19 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 - 两份独立走查（`design-reviewer` 两份）P0、P1 为 0；`quality-terms.md` 里适用的规则全部通过（含只能在实现上查的 U8 速度、U9 响应时间）；
 - 五秒测试：5 个没看过的人看首页和三站首屏 5 秒，至少 4 人说得出「给谁的、能做什么、点哪里」（U2，产品负责人找人）；
 - `npm run check:terms`、`npm run check:vague` 通过；中英两版齐全；
-- 只有人能做、票里做不了的核对（关口三 b 冷审 P1-6 从票里移过来）：
-  - RSS：在 Feedly、NetNewsWire、Inoreader 里订阅全站源，读到全文和日期；
-  - 发信：用真实邮箱订阅一次，在 Gmail「显示原始邮件」里 SPF、DKIM、DMARC 三项都是 PASS，欢迎邮件页脚有通讯地址；
-  - 监控：按 ADR-0005 人为制造两次连续失败，产品负责人收到告警邮件；
-  - 跳转：根域名切换以后，在生产上逐条请求 with.velicoach.com 的跳转清单（301，落点 200）；
+- 首次生产迁移和权限核对（#67）通过；
+- 监控演练：`site-monitor` 用 `ref=feature/v1` 手动触发、目标指向必定失败的地址连跑两次，产品负责人收到告警邮件（ADR-0005）；
+- RSS：在 Feedly、NetNewsWire、Inoreader 里订阅预览部署的全站源，读到全文和日期；
 - 带 `risk:high` 的 PR 都有安全评审的通过记录。
+
+**切换后（生产）**
+
+- 核对脚本对 `velicoach.com` 跑通：路由表每一行、with.velicoach.com 跳转清单每一条（301，落点 200）；
+- 经 `velicoach.com` 打开 `/`、`/body`、`/en/body`、`/app`，页面发出的请求里 4xx、5xx 为 0，研究卡锚点在；
+- 发信：用真实邮箱订阅一次，在 Gmail「显示原始邮件」里 SPF、DKIM、DMARC 三项都是 PASS，欢迎邮件页脚有通讯地址（预览不配 `RESEND_API_KEY`，只能在生产做）；
+- 监控：定时探测已经按 `MONITOR_TARGET=https://velicoach.com` 跑过至少一次，结果全部通过；
+- 权限：#67 的查询在生产上再跑一次，结果和合并前一样；
+- 有一项不过：按 `launch-runbook.md`「回退」恢复，在 #66 记下原因。
 
 ## 3. 角色：谁做、谁查、交接物
 
@@ -83,7 +92,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 
 | # | 循环 | 触发 | 做什么 | 刹车 | 交还给人 |
 |---|---|---|---|---|---|
-| ① | **站点票推进器** | 心跳每 2 小时，拉起后连续推进 | 照 Veli `pipeline.md` §7 的 11 步：开工检查和运行锁 → 接棒 → 选票 → 领票 → `implementer` → 证据 → 预览 READY 后派 `reviewer` → 返工 → 合并脚本 → 交接 → 下一张；里程碑开着的票为 0 时做里程碑关口（`design-reviewer` 两份独立评审 + `check_page.py` 六项） | 一次最多 8 张或 6 小时；开着的 agent PR ≥ 3 不领新票；评审最多 3 次，第 3 次不过废弃重来并复盘 | 意图不清、要账号：标 `ready-for-human` + 两行决策简报 |
+| ① | **站点票推进器** | 心跳每 2 小时，拉起后连续推进 | 照 Veli `pipeline.md` §7 的 11 步：开工检查和运行锁 → 接棒 → 选票 → 领票 → `implementer` → 证据 → 预览 READY 后派 `reviewer` → 返工 → 合并脚本 → 交接 → 下一张；里程碑开着的票为 0 时做里程碑关口（只等人或外部仓库的票不算，`docs/delivery/loops/site-runner.md` 第 4 步；`design-reviewer` 两份独立评审 + `check_page.py` 六项） | 一次最多 8 张或 6 小时；开着的 agent PR ≥ 3 不领新票；评审最多 3 次，第 3 次不过废弃重来并复盘 | 意图不清、要账号：标 `ready-for-human` + 两行决策简报 |
 | ② | **内容推进器** | 心跳每天一次；运营期按 PRD 第 6 节的每周节奏 | 阶段一（定框架）：按 #3 的顺序做模块票，`content-writer` 起草选材标准、模板和样稿，`content-reviewer` 冷审，PR 打 `owner:merge` 等产品负责人确认样稿。阶段二（运营）：周一推荐 5 篇候选和 3 个训练主题，周二到周四生产，周五列疑点交定稿，周六排期，周日起草订阅邮件 | 同 ①；健康内容另要持证教练的审核记录 | 周一选题、周五定稿、周日发信由人做 |
 | ③ | **日报** | 每天早上 | 覆盖更新状态 issue 正文（§6） | 只读 | 产品负责人每天看 2–5 分钟 |
 | ④ | **观察者** | 每天日报之前；周日加深度 | `docs/standards/observer.md` | 不写票里的代码、不合并票的 PR；可以打 `agent:stop` | 每周机制评审 |
@@ -178,7 +187,7 @@ git -C /tmp/veli checkout 19170d2
 | `tmc-ux-walkthrough`、`ux-walker` 两人走查 | `design-reviewer` + `design-reviewer-b`，加 `check_page.py` 六项 |
 | `docs/delivery/milestones/M<n>.json` | 里程碑总票里写的退出条件 |
 | `risk:high`、`security-reviewer` | 照用：订阅要收邮箱（PRD F07），订阅和发信、表单、数据库和行级安全、密钥的 PR 都打 `risk:high` |
-| 数据库迁移（Supabase、集成库） | 主站用自己的数据库和 `npm run db:migrate`；改表的票写明迁移，在预览环境执行 |
+| 数据库迁移（Supabase、集成库） | 主站订阅库的迁移放在 `migrations/site/`，只由工作流 `site-db-migrate` 用 `SITE_DB_MIGRATE_URL` 执行（ADR-0004 (a)），构建命令里不跑迁移；预览和测试里由新模块对内存 PGLite 执行。沙箱预置的 `npm run db:migrate` 只用于 Grok 沙箱 |
 | 集成分支「黄」、`/api/health` | 不适用，状态只有绿和红（§6） |
 | `scripts/merge-ticket-pr.sh`、`merge-gates.mjs` | 主站的同名脚本（§8 第 0 阶段，主会话写）：认 `kind=general` 和 `kind=content` 两种结论；`content/` 和 `feat/`、`fix/` 一样算票的分支，同样不能改门槛文件、按关掉没合并的 PR 数尝试次数 |
 

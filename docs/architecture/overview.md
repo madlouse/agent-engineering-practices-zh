@@ -10,11 +10,13 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 |---|---|
 | `/`、`/mind`（看清，文章在 `/mind/<slug>`）、`/build`、`/about`、`/unsubscribe`、`/api/site/*`、`/explainers/*`、`/originals/*`、`/sitemap.xml`、`/robots.txt`（整个域名只有这一份，也覆盖 Veli 的路径）、`/en/*`（下面归 Veli 的英文路径除外），以及其余路径 | 主站（本仓库） |
 | `/body`、`/en/body` | Veli：对外落地页，同时是主站的站稳一站 |
-| `/app`、`/pricing`、`/legal/*`、`/en/legal/*`、`/data-usage`、`/en/data-usage`、`/auth/*`、`/admin/*`、`/plan-only`、`/api/*`（`/api/site/*` 除外）、`/manual/*`，以及 Veli 的 PWA 文件（清单和 service worker） | Veli |
+| `/app`、`/pricing`、`/legal/*`、`/en/legal/*`、`/data-usage`、`/en/data-usage`、`/auth/*`、`/admin/*`、`/plan-only`、`/api/*`（`/api/site/*` 除外） | Veli |
+| Veli 的静态资源：`/_next/*`（脚本、样式、字体、`/_next/image`）；Veli 根目录的静态文件 `/manual/*`、`/sw.js`、`/manifest.webmanifest`、`/favicon.ico`、`/icons/*` | Veli（ADR-0003 (c)；主站的资源在 `/assets/*`、`/favicon.svg`，不重名） |
 
 - 主站上线前，`/` 临时 307 跳到 `/body`。主站上线时 `velicoach.com` 挂到主站的 Vercel 项目，主站用 rewrites 把归 Veli 的路径反向代理到 Veli 的生产部署（ADR-0003 (c)），并把 `/` 改为主站首页。
 - 分流规则按「具体的前缀先匹配」排：`/api/site/*` 写在 `/api/*` 前面，`/en/body`、`/en/legal/*`、`/en/data-usage` 写在 `/en/*` 前面。
-- 新增顶层路径前先查这张表，两个仓库一起改。
+- 新增顶层路径或根目录的静态文件前先查这张表，两个仓库一起改（Veli 侧见 thin-muscle-coach#213）。
+- 切换根域名的顺序、谁做和回退见 `docs/delivery/launch-runbook.md`。
 - 主站的服务端接口都在 `/api/site/*`，`/body` 上的主站外壳由主站打包给 Veli 引入（ADR-0003）。
 
 ## 账号
@@ -50,4 +52,4 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 | [0002](adr/0002-webgpu-motion.md) | 首页动效用 three.js WebGPURenderer + TSL，自动回退 WebGL2 |
 | [0003](adr/0003-body-shell-and-site-api.md) | /body 上的主站外壳、主站服务端接口路径、按路径分流的方式（已采纳，2026-11-09） |
 | [0004](adr/0004-subscription-storage.md) | 订阅的存储（主站自己的 Supabase 项目）、发信、退订令牌和频率限制（已采纳，2026-11-09） |
-| [0005](adr/0005-monitoring-and-alerts.md) | 外部监控用 GitHub Actions 定时探测，线上错误 Pro 前进日报、Pro 后用 Vercel 告警（已采纳，2026-11-09） |
+| [0005](adr/0005-monitoring-and-alerts.md) | 外部监控用 GitHub Actions 定时探测，线上错误进每日日报，Pro 之后加开 Vercel 内置异常告警作补充（已采纳，2026-11-09；第二轮冷审 P1-4 修订） |

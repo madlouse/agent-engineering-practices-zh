@@ -1,6 +1,6 @@
 # 0003 /body 上的主站外壳和主站服务端接口路径
 
-- 状态：已采纳（产品负责人 2026-11-09 确认；(c) 分流按关口三 b 冷审 P1-5 补）
+- 状态：已采纳（产品负责人 2026-11-09 确认；(c) 分流按关口三 b 冷审 P1-5 补；研究卡随外壳包发、(c) 补 Veli 的静态资源和切换票，按关口三 b 第二轮冷审 P1-2、P1-3 改）
 - 关联：ADR-0001（同域名、按路径分流）、Veli 仓库 ADR-0032（路由表）、主站 PRD v1.2（冷审第二轮 P1-2、P1-4，第三轮 P1-1、P1-2、P2-4、P2-6）、`quality-terms` U10
 
 ## 背景
@@ -33,14 +33,16 @@ Veli 的 `/api/*` 规则排除这个前缀。Vercel rewrites 按顺序匹配，�
 - 外壳包发布前，/body 先用 Veli 自己的导航，站标链回 `/`。外壳包的导航可以先不带 ⌘K：搜索按钮链到 `/?q=<词>`，打开主站首页并展开搜索浮层（PRD F26），不新增 `/search` 路径。
 - 两边共用同一个源（同一个域名），外观和语言的选择存在 localStorage 的 `vc-theme`、`vc-lang` 两个键里，主站和 /body 读写同一份；外壳包导出这两个键名常量，Veli 不自己写字符串。
 - 订阅条在 /body 上也提交到 `/api/site/subscribe`，同一个域名，不跨域。
+- **研究卡数据跟外壳包一起发。** 主站构建研究卡源数据时，把同一份 JSON（带 `schemaVersion`，不含审核记录）写进外壳包（`packages/site-shell/data/research.json`），随外壳包的版本发；Veli 从固定版本的 git 依赖读它，不在构建时请求网络地址。这样主站上线前 /body 就有研究卡数据，而且和外壳走同一条升级路径。主站自己的 `/data/research.json` 是同一份文件的公开副本，Veli 不读它。研究卡改了，主站发一个外壳包的补丁版本，Veli 升版本号。
 
 **(c) 分流：主站的 Vercel 项目接管根域名，用 rewrites 把 Veli 的路径反向代理到 Veli 的生产部署。**
 
 - `velicoach.com` 挂在主站的 Vercel 项目上。分流规则写在主站仓库的 Vercel 配置里（rewrites），不用 microfrontends：一个项目、一份规则、一个仓库里能评审和测试。
-- 归 Veli 的路径（`docs/architecture/overview.md` 路由表 Veli 一行，含 `/en/body`、`/en/legal/*`、`/en/data-usage`、`/auth/*`、`/api/*`（`/api/site/*` 除外）和 Veli 的 PWA 文件）rewrite 到 Veli 生产部署的固定地址；其余由主站处理。具体的前缀先写。
+- 归 Veli 的路径（`docs/architecture/overview.md` 路由表 Veli 两行，含 `/en/body`、`/en/legal/*`、`/en/data-usage`、`/auth/*`、`/api/*`（`/api/site/*` 除外））rewrite 到 Veli 生产部署的固定地址；其余由主站处理。具体的前缀先写。
+- **Veli 的静态资源也要转给 Veli**：Veli 是 Next.js，没有设 `assetPrefix`，页面的脚本、样式、字体和图片都从同一个域名的 `/_next/*`（含 `/_next/static/*`、`/_next/image`）取。Veli 根目录的静态文件逐个列出：`/manual/*`（Veli `public/` 现在唯一的目录），以及 Veli F106（主屏幕 Web App，Serwist）要加的 `/sw.js`、`/manifest.webmanifest`、`/favicon.ico`、`/icons/*`。主站的资源在 `/assets/*` 和自己的 `/favicon.svg`，和这些不重名。Veli 新加根目录文件前先改两边的路由表（thin-muscle-coach#213）。
 - 同一个域名，Cookie 和登录状态照旧共享（ADR-0001）。Veli 项目不再直接挂 `velicoach.com`，它的生产地址只给主站的 rewrites 用。
 - 先在主站的预览域名上配好、逐条验证（每个 Veli 路径都能从主站预览打开），再切根域名：切换是上线时的最后一步。两步各一张票（`docs/delivery/gate-3b-split.md`）。
-- Veli 仓库要配合的事（ADR-0032 的路由表改成「由主站代理」、Veli 自己的 `/` 临时跳转在切换时去掉、Veli 不再出自己的 robots.txt）记在 thin-muscle-coach#185。
+- Veli 仓库要配合的事分两张票：切换前要做完的（/body、法务页、研究卡从外壳包读、接入外壳包）在 thin-muscle-coach#185；只能在切换那一刻做的（去掉 Veli 自己 `/` 的临时跳转、不再出 robots.txt、ADR-0032 的路由表改成「由主站代理」、Service Worker 作用范围限定在 `/app`）在 thin-muscle-coach#213。切换的顺序、谁做和回退见 `docs/delivery/launch-runbook.md`。
 
 ## 考虑过的其他做法
 
@@ -56,4 +58,5 @@ Veli 的 `/api/*` 规则排除这个前缀。Vercel rewrites 按顺序匹配，�
 - 主站多维护一个包，改外壳要发版本；Veli 的外壳最多落后一个版本。
 - 外壳组件不能读登录状态（主站 v1 不读，ADR-0001 修订）；v2 加账号菜单时，再定由谁提供会话。
 - 新增主站接口一律放在 `/api/site/` 下；新增顶层路径前照旧查 `docs/architecture/overview.md` 的路由表。
-- Veli 侧要做的事记在 thin-muscle-coach#185。
+- Veli 侧要做的事记在 thin-muscle-coach#185（切换前）和 #213（切换时）。
+- 研究卡改了要发外壳包的补丁版本，Veli 升版本号才看得到；外壳包的落后版本检查同样管住它。

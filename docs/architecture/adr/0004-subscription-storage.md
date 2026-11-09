@@ -1,6 +1,6 @@
 # 0004 订阅的存储、发信、退订令牌和频率限制
 
-- 状态：已采纳（产品负责人 2026-11-09 确认；按关口三 b 冷审 P0-1、P1-1 修订）
+- 状态：已采纳（产品负责人 2026-11-09 确认；按关口三 b 冷审 P0-1、P1-1 修订；迁移工作流、公开仓库的限制按第二轮冷审 P1-1、P2-6–P2-9、P2-15 补）
 - 关联：主站 PRD v1.2 F07 和「订阅的细则」第 2–15 条（第 8 条要求在关口三 b 写 ADR 定表结构和同步方式，第 9 条要求定令牌怎么签、多久失效）；ADR-0003（`/api/site/*`）；PRD 第 3 节路由表 `/unsubscribe`；第三轮冷审 P2-4；关口三 b 冷审 `docs/delivery/reviews/2026-11-09-gate-3b.md` P0-1、P1-2、P1-3、P2-5、P2-9
 
 ## 背景
@@ -18,9 +18,12 @@
 - **两张表都开行级安全，按表写策略，只给 `site_api` 它需要的操作**：`subscribers` 给 select、insert、update、delete；`consent_records` 给 select、insert、delete（同意证据只增不改）。策略写成 `to site_api`，其他角色没有策略，一行也读不到。
 - **两个连接串，分开用**：
   - `SITE_DB_URL`：`site_api` 经 Supabase 连接池（事务模式，用户名是 `site_api.<项目编号>`）的连接串，只放在 Vercel 的生产环境变量里，运行时只读它。
-  - `SITE_DB_MIGRATE_URL`：表所有者的连接串，只放在 GitHub Actions 的仓库密钥里，只由站点迁移脚本在 CI 里读；不进 Vercel，运行时拿不到。迁移文件放在 `migrations/site/`，由 GitHub Actions 在生产分支合并后（或手动触发）执行。
-- **不碰沙箱契约**：运行时用一个新的服务端模块连 `SITE_DB_URL`，不读预置的 `DATABASE_URL`，不改 `src/lib/db.ts` 和 `src/lib/auth/*`（本仓库 `AGENTS.md`）。加一个检查脚本：运行时代码里读 `SITE_DB_MIGRATE_URL` 或 `DATABASE_URL` 的地方为 0。
-- **缺连接串时不假装成功**：`VERCEL_ENV=production` 而 `SITE_DB_URL` 缺失或连不上时，订阅接口返回 503，不落到内存库。只有在非生产环境（预览、本地、测试），新模块才用它自己的内存 PGLite，并在启动时执行 `migrations/site/`；预览上的订阅不写真实名单。
+  - `SITE_DB_MIGRATE_URL`：表所有者的连接串，只放在 GitHub 的 Environment `site-db` 里（部署分支只允许 `site`、`feature/v1`，其他分支上的工作流读不到），只由站点迁移脚本在 CI 里读；不进 Vercel，运行时拿不到。
+- **迁移只走工作流 `site-db-migrate`**（`.github/workflows/site-db-migrate.yml`），构建命令里不跑迁移。GitHub 只允许手动触发默认分支 `site` 上已有的工作流，所以这个文件先由主会话的 `chore/` PR 放进 `site`（只有 `workflow_dispatch`）；上线前用 `ref=feature/v1` 手动触发，把迁移跑进生产库；上线后加 `push: site`（只看 `migrations/site/**`）。只允许这两种触发，不用 `pull_request`、`pull_request_target`。首次生产迁移后的权限核对是一张单独的票（`docs/delivery/gate-3b-split.md`）。
+- **仓库是公开的**：工作流的输入、日志和运行记录谁都看得到。所以删除订阅者、导出同意证据这类要输入邮箱的命令不做成工作流，只在产品负责人本机用 `SITE_DB_URL` 那组 `site_api` 的连接串跑（(e)）。
+- **不碰沙箱契约**：运行时用一个新的服务端模块连 `SITE_DB_URL`，不读预置的 `DATABASE_URL`，不改 `src/lib/db.ts` 和 `src/lib/auth/*`（本仓库 `AGENTS.md`）。加一个检查脚本：`src/` 里读 `SITE_DB_MIGRATE_URL` 的地方为 0；读 `DATABASE_URL` 的地方除沙箱预置的 `src/lib/db.ts`、`src/lib/auth/*` 以外为 0；新模块不引用 `src/lib/db.ts`。
+- **连接池的事务模式**不支持命名的预编译语句：驱动关掉它（例如 postgres.js 的 `prepare: false`），否则生产上第一次请求就报错，PGLite 上测不出来。
+- **缺连接串时不假装成功**：`VERCEL_ENV=production` 而 `SITE_DB_URL` 缺失或连不上时，订阅接口返回 503，不落到内存库。只有在非生产环境（预览、本地、测试），新模块才用它自己的内存 PGLite，并在启动时执行 `migrations/site/`；PGLite 里没有 `anon`、`authenticated`、`site_api` 时先建同名的不能登录的角色，否则迁移里的 `revoke`、`grant` 会报错；预览上的订阅不写真实名单。
 - **预览的多实例**：内存 PGLite 每个函数实例各一份，跨请求的状态（先订阅再退订、重复提交）在 `node --test` 加 PGLite 里测；预览部署上只测界面和单个请求。
 
 | 表 | 字段 |
@@ -57,7 +60,7 @@
 
 **(e) 删除：一条命令，30 天内做完。**
 
-按邮箱删 `site.subscribers`（级联删同意证据），再调用 Resend 的接口删能删的。Resend 不存名单（(b)），留下的只有发送日志：删除那张票查明所用 Resend 套餐的日志保留期并写进运行手册和隐私评审清单；保留期超过 30 天，就和 PRD 第 8 节「隐私」「删除订阅记录后 Resend 里查不到这个邮箱」不一致，算需求偏差，交产品负责人和律师。运行手册另写一条查询命令：按邮箱拿出这个订阅者全部的同意证据。
+按邮箱删 `site.subscribers`（级联删同意证据），再调用 Resend 的接口删能删的。命令在产品负责人本机用 `site_api` 的连接串跑（`site_api` 有两张表的 delete 授权和策略），不用所有者连接串，也不做成 GitHub Actions 的工作流：仓库是公开的，运行的输入和日志会泄露邮箱。Resend 不存名单（(b)），留下的只有发送日志：删除那张票查明所用 Resend 套餐的日志保留期并写进运行手册和隐私评审清单；保留期超过 30 天，就和 PRD 第 8 节「隐私」「删除订阅记录后 Resend 里查不到这个邮箱」不一致，算需求偏差，交产品负责人和律师。运行手册另写一条查询命令：按邮箱拿出这个订阅者全部的同意证据。
 
 ## 考虑过的其他做法
 
@@ -73,7 +76,7 @@
 ## 后果
 
 - 新增密钥：Vercel 生产环境里的 `SITE_DB_URL`、`RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`SUBSCRIBE_TOKEN_SECRET_<编号>`、`CRON_SECRET`、首页本周文章的部署钩子地址；GitHub Actions 里的 `SITE_DB_MIGRATE_URL`。预览环境的 `SUBSCRIBE_TOKEN_SECRET_1`、`CRON_SECRET` 用另一组值。值不进代码、文档和提交信息；谁配见 `docs/delivery/gate-3b-split.md` §5。
-- Supabase 免费项目闲置会被暂停：上线后每 10 分钟的健康检查（ADR-0005）会访问数据库；上线前生产库没有访问，开工前按 Supabase 当前的规则核实。
+- Supabase 免费项目闲置会被暂停：上线后每 10 分钟的健康检查（ADR-0005）会访问数据库；上线前生产库没有访问，开工前按 Supabase 当前的规则核实，上线步骤里核对项目没有被暂停（`docs/delivery/launch-runbook.md`）。
 - 第三方仍是 PRD 列的那几家（Vercel、Supabase、Resend、Cloudflare），隐私政策不用多写一家。
 - IP 限流是每个实例各算，挡不住分布很广的滥用；靠一键退订、退信停发兜底。观察者上线两周后按 Resend 的退信和投诉数复核。
 - 实现落在关口三 b 拆出的订阅票里（见 `docs/delivery/gate-3b-split.md`），每张都打 `risk:high`，过安全评审。

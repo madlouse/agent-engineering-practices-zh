@@ -38,6 +38,7 @@ button:hover,.btn:hover{opacity:.9}
 <sc-if value="{{ noState }}"><a class="bare" href="#x" style="display: block; min-height: 48px; font-size: 16px;">没有状态样式的入口</a></sc-if>
 <sc-if value="{{ tooMuch }}"><div data-first-screen><p style="font-size: 12px;">这是一段很长的说明文字，用来模拟首屏里堆了太多要读的话。这是一段很长的说明文字，用来模拟首屏里堆了太多要读的话。这是一段很长的说明文字，用来模拟首屏里堆了太多要读的话。这是一段很长的说明文字，用来模拟首屏里堆了太多要读的话。这是一段很长的说明文字，用来模拟首屏里堆了太多要读的话。</p></div></sc-if>
 <sc-if value="{{ badBrand }}"><header><a class="brand" href="#top" style="display: inline-block; min-width: 44px; min-height: 44px;">Velicoach</a></header></sc-if>
+<sc-if value="{{ vagueProgress }}"><p>加载中…</p></sc-if>
 <sc-if value="{{ modernColor }}"><p style="padding: 12px; background: color-mix(in oklab, rgb(26 58 42) 86%, white); color: rgb(255 255 255);">深底白字，底色用 color-mix 写</p><p style="padding: 12px; background: oklab(0.32 -0.05 0.02); color: rgb(255 255 255);">深底白字，底色用 oklab 写</p></sc-if>
 <sc-if value="{{ mixedBreak }}"><h3 style="font-size: 16px;">AI<br>发展史</h3><h3 style="width: 3.2em; font-size: 16px; line-height: 1.5; word-break: keep-all;">AI 发展史</h3></sc-if>
 <sc-if value="{{ orphan }}"><p style="width: 12em; font-size: 16px; line-height: 1.6;">这段文字排到最后一行剩一字</p></sc-if>
@@ -48,10 +49,10 @@ button:hover,.btn:hover{opacity:.9}
 <h2 style="font-size: 18px; margin: 12px 0;">下面的标题</h2></div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "展开层超出", "被盖住", "首屏外", "深色露底", "按钮折行", "浮层无出路", "孤字", "词中断行", "冲出容器", "玻璃平涂", "玻璃有图", "背景声明不成立", "背景声明成立", "没有状态样式", "混排断行", "展开挤动", "展开不挤", "新色彩写法", "写死宽度", "字太多", "站标不回首页"], "default": "好的"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "展开层超出", "被盖住", "首屏外", "深色露底", "按钮折行", "浮层无出路", "孤字", "词中断行", "冲出容器", "玻璃平涂", "玻璃有图", "背景声明不成立", "背景声明成立", "没有状态样式", "混排断行", "展开挤动", "展开不挤", "新色彩写法", "写死宽度", "字太多", "站标不回首页", "笼统进度"], "default": "好的"}}'>
 class Component extends DCLogic { renderVals() {
   const c = this.props.case;
-  return { rootW: c === '写死宽度' ? 900 : 390, rootH: 600, rootTop: c === '深色露底' ? 40 : 0, heroH: c === '首屏外' ? 560 : 400, menuH: c === '展开层超出' ? 400 : 120, subTop: c === '被盖住' ? 120 : (c === '首屏外' ? 620 : 300), wrapBtn: c === '按钮折行', dialog: c === '浮层无出路', orphan: c === '孤字', wordBreak: c === '词中断行', overflowBox: c === '冲出容器', glassFlat: c === '玻璃平涂', glassImg: c === '玻璃有图', backdropBad: c === '背景声明不成立', backdropOk: c === '背景声明成立', noState: c === '没有状态样式', mixedBreak: c === '混排断行', moreOpen: (c === '展开挤动' || c === '展开不挤') ? 'true' : 'false', morePush: c === '展开挤动', moreOverlay: c === '展开不挤', modernColor: c === '新色彩写法', tooMuch: c === '字太多', badBrand: c === '站标不回首页' };
+  return { rootW: c === '写死宽度' ? 900 : 390, rootH: 600, rootTop: c === '深色露底' ? 40 : 0, heroH: c === '首屏外' ? 560 : 400, menuH: c === '展开层超出' ? 400 : 120, subTop: c === '被盖住' ? 120 : (c === '首屏外' ? 620 : 300), wrapBtn: c === '按钮折行', dialog: c === '浮层无出路', orphan: c === '孤字', wordBreak: c === '词中断行', overflowBox: c === '冲出容器', glassFlat: c === '玻璃平涂', glassImg: c === '玻璃有图', backdropBad: c === '背景声明不成立', backdropOk: c === '背景声明成立', noState: c === '没有状态样式', mixedBreak: c === '混排断行', moreOpen: (c === '展开挤动' || c === '展开不挤') ? 'true' : 'false', morePush: c === '展开挤动', moreOverlay: c === '展开不挤', modernColor: c === '新色彩写法', tooMuch: c === '字太多', badBrand: c === '站标不回首页', vagueProgress: c === '笼统进度' };
 } }
 </script>
 </body>

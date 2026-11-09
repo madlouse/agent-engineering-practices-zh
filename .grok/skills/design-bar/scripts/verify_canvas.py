@@ -35,6 +35,7 @@
   25. 画板比视口宽：根节点写死的宽度超出视口（超出画板也按视口量）
   26. 首屏要读的字太多（C10「不用读就会用」）：标了 data-first-screen 的首屏区域里，标题、按钮、链接、导航、图（figure）、
       浮层以外要读的说明超过中文 80 字或英文 50 词（自定：约 5 秒扫完）
+  28. 笼统的进度文字：看得见的文字只有「加载中」「处理中」「Loading…」这类词，没说在做什么
   27. 站标不回首页：导航里的站标（.brand、.home、aria-label 写着首页 / home 的链接）链到别处；回本页顶部另放控件
   （另）颜色算不了：oklab()、color-mix() 这类写法画到画布上也取不到像素时报出来，不拿外层背景顶替
   按下和悬停：浅色那一遍另外把所有按钮、液态玻璃控件设成按下（.is-press）、悬停（.is-hover）各算一次对比度
@@ -433,6 +434,12 @@ CHECK_JS = r"""
       const h = a.getAttribute('href') || '';
       if (!/^(\/|#home|https?:\/\/[^/]+\/?$|\/index|Main\.dc\.html)/.test(h)) issues.push({type: '站标不回首页', where: lbl.slice(0, 20) || h, detail: `站标链到「${h}」：照通行约定，左上角的站标回首页；回到本页顶部用另一个控件`});
     }
+  }
+  // 笼统的进度文字（ux-canon 原则 4）：超过 1 秒的状态写「动词 + 对象」，不写「加载中」
+  for (const el of root.querySelectorAll('*')) {
+    if (el.children.length || !visible(el)) continue;
+    const tx = (el.textContent || '').trim();
+    if (/^(加载中|处理中|请稍候|请稍等|Loading|Processing|Please wait)[.…。]*$/i.test(tx)) issues.push({type: '笼统的进度文字', where: tx, detail: '进度写成「动词 + 对象」：「正在订阅」「在挑今天的动作」「Loading milestones」；骨架屏可以不写字'});
   }
   for (const c of window.__vcUnparsed) issues.push({type: '颜色算不了', where: c.slice(0, 40), detail: '检查读不出这个颜色，对比度和背景判断会失真；换成浏览器能解析的写法，或在 verify_canvas.py 的 parseColor 里补上'});
   return {issues, hints, defined: [...new Set(defined)]};

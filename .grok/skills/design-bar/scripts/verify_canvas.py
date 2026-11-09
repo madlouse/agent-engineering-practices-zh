@@ -429,8 +429,8 @@ CHECK_JS = r"""
     if (zh > ZH_MAX || en > EN_MAX) issues.push({type: '首屏要读的字太多', where: `中文 ${zh} 字、英文 ${en} 词`, detail: `首屏里标题、按钮、导航、图以外要读的说明不超过中文 ${ZH_MAX} 字、英文 ${EN_MAX} 词（C10）：能用图标和位置说清的删掉说明，必须写的一处一句`});
     for (const a of root.querySelectorAll('nav a, header a, .brand, .home, [aria-label*="首页"], [aria-label*="home" i]')) {
       const lbl = ((a.getAttribute('aria-label') || '') + ' ' + (a.innerText || '')).trim();
-      const isBrand = a.matches('.brand, .home') || /^(Velicoach|首页|Home)\b/i.test(lbl);
-      if (!isBrand || !visible(a)) continue;
+      const isBrand = a.matches('.brand, .home') || /(首页|home ?page|^home\b|主页)/i.test(lbl);
+      if (!isBrand || a.tagName !== 'A' || !visible(a)) continue;  // 只看链接：「暂停首页动画」这类按钮不是站标
       const h = a.getAttribute('href') || '';
       if (!/^(\/|#home|https?:\/\/[^/]+\/?$|\/index|Main\.dc\.html)/.test(h)) issues.push({type: '站标不回首页', where: lbl.slice(0, 20) || h, detail: `站标链到「${h}」：照通行约定，左上角的站标回首页；回到本页顶部用另一个控件`});
     }

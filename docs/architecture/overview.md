@@ -8,19 +8,20 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 
 | 路径 | 归谁 |
 |---|---|
-| `/`、`/mind`（看清，文章在 `/mind/<slug>`）、`/build`、`/about`、`/en/*`，以及其余路径 | 主站（本仓库） |
+| `/`、`/mind`（看清，文章在 `/mind/<slug>`）、`/build`、`/about`、`/api/site/*`、`/en/*`，以及其余路径 | 主站（本仓库） |
 | `/body` | Veli：对外落地页，同时是主站的站稳一站 |
-| `/app`、`/pricing`、`/legal/*`、`/data-usage`、`/auth/*`、`/api/*`、`/manual/*` | Veli |
+| `/app`、`/pricing`、`/legal/*`、`/data-usage`、`/auth/*`、`/api/*`（`/api/site/*` 除外）、`/manual/*` | Veli |
 
 - 主站上线前，`/` 临时 307 跳到 `/body`。主站上线时在 Vercel 上按路径分流（microfrontends 或 rewrites，实现时选定），并把 `/` 改为主站首页。
 - 新增顶层路径前先查这张表，两个仓库一起改。
+- 主站的服务端接口都在 `/api/site/*`，`/body` 上的主站外壳由主站打包给 Veli 引入（ADR-0003）。
 
 ## 账号
 
 - 两站共用一个账号（Supabase Auth，项目在 Veli 仓库）；同一个域名，登录状态天然共享。
-- 主站只读名字和邮箱，不读健康数据；「进入今天的训练」只是入口，训练内容在 Veli 里读。
-- 登录方式和 Veli 一致：Google、Apple，邮箱验证码备用；登录在当前页面原地弹出（两步原则）。
-- 页面先按未登录渲染（静态、可缓存），客户端读到登录状态后原地换成「继续」类入口，位置预先留好，不影响 CLS。
+- **主站 v1 不读会话**（需求第 80 条，ADR-0001 修订）：页面全部按未登录渲染（静态、可缓存）；登录在 Veli 里完成，「开始训练」直接去 Veli，已登录的人由 Veli 带到今天的安排。
+- 主站不读健康数据；「进入今天的训练」只是入口，训练内容在 Veli 里读。
+- v2 再读会话：只读名字和邮箱；登录在当前页面原地弹出，读到登录状态后原地换成「继续」类入口，位置预先留好，不影响 CLS。
 
 ## 页面与内容
 
@@ -46,3 +47,4 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 |---|---|
 | [0001](adr/0001-shared-domain-and-account.md) | 与 Veli 共用域名和账号，按路径分流 |
 | [0002](adr/0002-webgpu-motion.md) | 首页动效用 three.js WebGPURenderer + TSL，自动回退 WebGL2 |
+| [0003](adr/0003-body-shell-and-site-api.md) | /body 上的主站外壳和主站服务端接口路径（提议） |

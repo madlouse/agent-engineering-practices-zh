@@ -1,6 +1,6 @@
 # 术语表
 
-中英文案、代码命名、文档都按这张表用词。PRD 第 12 节是同一张表的在线版本，两边一起改。
+中英文案、代码命名、文档都按这张表用词。仓库术语表是唯一来源，PRD 第 12 节引用它。
 
 **原则**
 
@@ -21,6 +21,7 @@
 | builder | builder | 和智能体一起，把想法做成能用的东西的人；不一定会写代码。动手一站的读者。第一次出现时带一句说明 |
 | AI 发展史 | History of AI | 看清的第一条线：以里程碑为主线，像科技史一样讲路线怎么转折 |
 | 里程碑 | Milestone | AI 发展史上改变路线的一件事：年份、事件、为什么是转折、原始论文或文章 |
+| 时代 | Era | AI 发展史的分组，共五个，按顺序：起源（Origins）、机器学习（Machine Learning）、深度学习（Deep Learning）、大语言模型（Large Language Models）、智能体（Agents）。起止年份由内容票 #5 定 |
 | 学习路径 | Learning path | 挂在里程碑上的课程和代码，按顺序排成一页：为什么学、学到什么程度、怎么检验、要花多久 |
 | 人机协作 | Human–AI collaboration | 看清的第二条线：人和 AI 一起工作的实践，分工程、团队与组织、个人三类 |
 | 工程实践 | Engineering practice | 人机协作里的工程部分：提示词工程 → 上下文工程 → Harness 工程 → Loop 工程 → Graph 工程 |
@@ -81,7 +82,7 @@
 | 词元 | Token | 词元（token） | 模型处理文本的最小单位 |
 | 向量嵌入 | Embedding | 向量嵌入 | 把文字变成能比较远近的一串数字 |
 | 注意力机制 | Attention | 注意力机制 | 让模型决定该看哪些内容 |
-| Transformer | Transformer | Transformer，不译 | 2017 年提出、今天大模型的基础架构 |
+| Transformer | Transformer | Transformer，不译 | 2017 年提出、今天大语言模型的基础架构 |
 | 深度学习 | Deep learning | 深度学习 | 用多层神经网络从数据里学 |
 | 符号主义 | Symbolic AI | 符号主义 | 用规则和逻辑表示知识的路线 |
 | 连接主义 | Connectionism | 连接主义 | 用神经网络从数据里学的路线 |
@@ -102,6 +103,7 @@
 | 每周邮件、周信、Weekly email | 订阅、Newsletter | 用常见说法；「周信」是自造词 |
 | build 日志、Build log | 开发日志、Devlog | 用常见说法 |
 | 大事记、时间线节点 | 里程碑 | 产品负责人的说法，也是业界通用的说法 |
+| 大模型（作时代名） | 大语言模型（Large Language Models） | 和 AI 术语表的「大语言模型」用同一个词；五个时代的名字见「时代」 |
 | 专业进阶、路径步骤 | 学习路径、学习路径步骤 | 用常见说法 |
 | 看清的三条内容线 | 两条线：AI 发展史、人机协作 | 学习路径挂在里程碑上，工程实践归入人机协作 |
 | prompt → context → loop → graph | 提示词工程 → 上下文工程 → Harness 工程 → Loop 工程 → Graph 工程 | 用行业通用的名字，补上漏掉的 Harness 工程 |
@@ -129,6 +131,8 @@ build 日志
 Build log
 大事记
 时间线节点
+深度学习、大模型
+大模型时代
 专业进阶
 路径步骤
 三条内容线

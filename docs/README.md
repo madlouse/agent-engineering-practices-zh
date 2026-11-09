@@ -8,7 +8,7 @@
 
 | 文档 | 在线地址 | 仓库快照 |
 |---|---|---|
-| Velicoach 主站 PRD v1.0 | https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R | [prd/velicoach.md](prd/velicoach.md) |
+| Velicoach 主站 PRD v1.1 | https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R | [prd/velicoach.md](prd/velicoach.md) |
 | Velicoach 总体方案（金字塔梳理） | https://claude.ai/artifact/R5P7pEGDRaoym7mEBtLMu4 | [prd/velicoach-strategy.md](prd/velicoach-strategy.md) |
 | Velicoach 设计系统 | https://claude.ai/artifact/6JqC3pUJ5GjDvXD2sEMZ5w | [uiue/system/](uiue/system/) |
 | 动效原型（A / B / C 三个方向，选定 C） | https://claude.ai/artifact/PGihowSLLCHsh3xDx14Dtd | [uiue/prototypes/velicoach-motion.html](uiue/prototypes/velicoach-motion.html) |

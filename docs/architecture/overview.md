@@ -48,6 +48,6 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 |---|---|
 | [0001](adr/0001-shared-domain-and-account.md) | 与 Veli 共用域名和账号，按路径分流 |
 | [0002](adr/0002-webgpu-motion.md) | 首页动效用 three.js WebGPURenderer + TSL，自动回退 WebGL2 |
-| [0003](adr/0003-body-shell-and-site-api.md) | /body 上的主站外壳、主站服务端接口路径、按路径分流的方式（待产品负责人确认） |
-| [0004](adr/0004-subscription-storage.md) | 订阅的存储（主站自己的 Supabase 项目）、发信、退订令牌和频率限制（待产品负责人确认） |
-| [0005](adr/0005-monitoring-and-alerts.md) | 外部监控用 GitHub Actions 定时探测，线上错误 Pro 前进日报、Pro 后用 Vercel 告警（待产品负责人确认） |
+| [0003](adr/0003-body-shell-and-site-api.md) | /body 上的主站外壳、主站服务端接口路径、按路径分流的方式（已采纳，2026-11-09） |
+| [0004](adr/0004-subscription-storage.md) | 订阅的存储（主站自己的 Supabase 项目）、发信、退订令牌和频率限制（已采纳，2026-11-09） |
+| [0005](adr/0005-monitoring-and-alerts.md) | 外部监控用 GitHub Actions 定时探测，线上错误 Pro 前进日报、Pro 后用 Vercel 告警（已采纳，2026-11-09） |

@@ -1,6 +1,6 @@
 # 关口三 b：PRD v1.2 拆成规格和票
 
-> 2026-11-09，主会话派的拆票 Agent 写；同日按关口三 b 冷审（`docs/delivery/reviews/2026-11-09-gate-3b.md`，就绪：否，P0 1、P1 8、P2 24）和主会话的决定改了第二轮；再按第二轮冷审（`docs/delivery/reviews/2026-11-09-gate-3b-r2.md`，就绪：否，新 P1 4、P2 16）改了第三轮。依据：PRD v1.2（在线第 269 版，快照 `docs/prd/velicoach.md`）、`docs/delivery/roadmap.md`（M1–M4）、`docs/uiue/coverage.md`、ADR-0001–0005、`docs/uiue/reviews/2026-11-04-ui-v1/closing.md` 的遗留项、`docs/prd/reviews/2026-11-09-pre-3b-r3.md` 留给票的 P2。做法照 `to-spec`、`to-tickets` 和 Veli `spec-quality.md` §2–§3，主站不同处见 `docs/standards/pipeline.md` §2.2。
+> 2026-11-09，主会话派的拆票 Agent 写；同日按关口三 b 冷审（`docs/delivery/reviews/2026-11-09-gate-3b.md`，就绪：否，P0 1、P1 8、P2 24）和主会话的决定改了第二轮；再按第二轮冷审（`docs/delivery/reviews/2026-11-09-gate-3b-r2.md`，就绪：否，新 P1 4、P2 16）改了第三轮。依据：PRD v1.2（在线第 275 版，快照 `docs/prd/velicoach.md`）、`docs/delivery/roadmap.md`（M1–M4）、`docs/uiue/coverage.md`、ADR-0001–0005、`docs/uiue/reviews/2026-11-04-ui-v1/closing.md` 的遗留项、`docs/prd/reviews/2026-11-09-pre-3b-r3.md` 留给票的 P2。做法照 `to-spec`、`to-tickets` 和 Veli `spec-quality.md` §2–§3，主站不同处见 `docs/standards/pipeline.md` §2.2。
 > 本页记「拆成了什么、为什么这样拆」。票的正文以 GitHub 为准；关口三 b 是否通过由主会话在冷审后判，写在 #13。
 
 ## 1. 结论
@@ -369,7 +369,7 @@ flowchart LR
 
 **没有砍范围，没有改优先级；前提是上线前升级 Vercel Pro。** PRD 的 v1 P0、P1 都在票里（§7），P2（F12、F17、F20）不开票。下面四条产品负责人都已知道或已定：
 
-1. **IP 频率限制按实例计数，改了细则第 6 条的验收；产品负责人 2026-11-09 已同意，PRD 细则第 6 条已写明（在线第 269 版）。** ADR-0004 (d) 只用内存计数（不加新服务商），Vercel 同时起多个实例时，同一 IP 实际能提交的次数会多于 5 次；同一邮箱每小时 3 次照样准确。Pro 生效后可以在 Vercel 防火墙加同样的规则作为第二道；上线两周后观察者按 Resend 的退信和投诉数复核。
+1. **IP 频率限制按实例计数，改了细则第 6 条的验收；产品负责人 2026-11-09 已同意，PRD 细则第 6 条已写明（在线第 275 版）。** ADR-0004 (d) 只用内存计数（不加新服务商），Vercel 同时起多个实例时，同一 IP 实际能提交的次数会多于 5 次；同一邮箱每小时 3 次照样准确。Pro 生效后可以在 Vercel 防火墙加同样的规则作为第二道；上线两周后观察者按 Resend 的退信和投诉数复核。
 2. **Vercel Pro：产品负责人 2026-11-09 确认上线前升级，#65 只剩升级这一步。** PRD 第 8 节「成本」已写上线前升级 Pro；#65 负责这件事，原生依赖卡住 #58（F29 的自定事件，P0）和上线切换 #66。不升级时，F29 的事件要按 PRD 第 10 节的替代（主站自己的接口收事件）先改 PRD。
 3. **两个定时的准点也依赖 Pro。** Hobby 的定时任务精度是一小时内：#49 周日 08:00 发信、#37 北京时间周六 00:00 换本周文章（加上构建时间），在 Hobby 上会晚到最多约一小时。两张票都写明了；上线后第一周由观察者核对实际时刻。
 4. **错误告警不加 Observability Plus（第二轮冷审 P1-4，主会话选 (a)）。** Vercel 按次数设阈值的告警要另付这一项；线上错误照旧进每日日报，Pro 之后开 Vercel 内置的异常检测告警作补充，整站挂了由外部探测约 20 分钟告警（ADR-0005）。PRD「可观测性」一行要跟着改，改法交主会话（§9）。

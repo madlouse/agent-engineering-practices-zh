@@ -1,4 +1,4 @@
-> 快照：本文件是 Claude Docs《Velicoach 主站 PRD v1.0》第 159 版的 Markdown 导出，供 agent 离线读取。唯一来源是 https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R；改需求先改在线文档，再重新导出覆盖本文件，不直接改这里。
+> 快照：本文件是 Claude Docs《Velicoach 主站 PRD v1.1》第 174 版的 Markdown 导出，供 agent 离线读取。唯一来源是 https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R；改需求先改在线文档，再重新导出覆盖本文件，不直接改这里。
 
 # Velicoach 主站 PRD v1.1
 
@@ -116,7 +116,7 @@ v1 不预设目标值，先把监测建起来，具体做法见第 6 节「监�
 | F18 | 动手 | builder 的一周 | 挑事、写清目标、交给智能体、公开记录四步 | P1 | 每一步都配一条真实的开发日志 | 主站 · 站点；文案在内容车道 | 内容 #10；F19 | Build · 默认（「一个 builder 的一周」） | M3 |
 | F19 | 动手 | 在做的项目与开发日志 | 动手首页的开发日志列表，加至少一个项目页；单条日志一页 | P0 | 日志字段按第 5 节「开发日志」一行全部显示，按日期倒序；项目字段按第 5 节「项目」一行全部显示，状态写「开发中」，不写上线时间（quality-terms T10）；「动手」圆 1 步到日志列表；每条日志链到自己的一页 | 主站 · 站点 | 内容 #10 | Project · devlog=有日志/还没有日志；Build · 默认（「开发日志」「我们正在造的」） | M3 |
 | F20 | 动手 | 投稿 | 提交一件和智能体一起做成的事 | P2 | 收录的内容署投稿人的名字；公开前有一个意图步 | — | v2 的登录 | 没画 | — |
-| F21 | 全局 | 页脚与法务页 | 页脚链到隐私政策、服务条款、版权与转载说明、健康免责、健康数据政策和联系方式；法务正文由 Veli 提供 | P0 | 每个页面的页脚都有这六个链接；中文页链中文版，英文页链英文版；健康数据政策在首页页脚单独一个链接（美国华盛顿州的要求）；法务正文在 Veli 的 /legal/*、/data-usage，与 Veli 共用同一套文本，主站不存第二份 | 主站 · 站点（页脚）；Veli 仓库（法务正文，外部依赖） | Veli 法务页；律师；联系邮箱 | Main、Body、Build、Project、Mind、Article、States 的页脚（部分：手机和平板的页脚没画） | M1 |
+| F21 | 全局 | 页脚与法务页 | 页脚链到隐私政策、服务条款、版权与转载说明、健康免责、健康数据政策和联系方式；法务正文由 Veli 提供 | P0 | 每个页面的页脚都有这六个链接；中文页链中文版，英文页链英文版；健康数据政策在首页页脚单独一个链接（美国华盛顿州的要求）；法务正文在 Veli 的 /legal/\*、/data-usage，与 Veli 共用同一套文本，主站不存第二份 | 主站 · 站点（页脚）；Veli 仓库（法务正文，外部依赖） | Veli 法务页；律师；联系邮箱 | Main、Body、Build、Project、Mind、Article、States 的页脚（部分：手机和平板的页脚没画） | M1 |
 | F22 | 全局 | 空状态与错误页 | 页面不存在、内容加载失败、视频无法播放、文章暂无英文版等情况，逐个见「页面状态」 | P0 | 「页面状态」表里每种状态都说明发生了什么、接下来能做什么，不出现系统报错（quality-terms U12） | 主站 · 站点 | — | States · page=页面不存在/内容加载失败/网络断开/加载中；Article · media=视频无法播放、english=暂无英文版、load=加载中/加载失败；Main · subscribe=订阅失败、network=离线 | M3 |
 | F23 | 全局 | 关于与联系 | 我们是谁、为什么做这件事、联系邮箱和合作方式 | P1 | 中英两版；往联系邮箱发一封测试信能收到 | 主站 · 站点 | 联系邮箱 | 没画 | M3 |
 | F24 | 全局 | 浅色与深色 | 默认跟随系统，可以手动选自动、浅色、深色 | P0 | 系统切换主题时页面立刻跟着变；读不到系统偏好时用浅色；页脚和搜索里都能切换，选择按设备记住；页面第一次绘制时的主题就等于保存的选择，加载后不再改主题；每个页面两套主题都达到 WCAG 2.2 AA | 主站 · 站点 | — | Main · theme=自动/浅色/深色；其余画板 · theme；各页脚「自动 / 浅色 / 深色」；Controls · theme=浅色/深色（部分：搜索里切换没画） | M1 |
@@ -362,13 +362,13 @@ F07 的验收按下面每一条逐条判。标「自定」的数由本次修订�
 | `language_switch` | 切换语言 | `from`、`to` |
 | `start_training` | 点「开始训练」或展开里的一个选项 | `option`（app / google / apple / qr）、`lang`、`utm_source` |
 | `subscribe` | 订阅提交成功（服务端记） | `lang`、`page`（页面路径，不带查询参数）、`utm_source` |
-| `subscribe_error` | 订阅失败 | `reason`（format / rate_limit / server）、`lang` |
+| `subscribe_error` | 订阅失败 | `reason`（format / rate\_limit / server）、`lang` |
 | `article_complete` | 正文最后一段进入视口 | `slug`、`lang` |
 | `video_complete` | 3 分钟视频播到 90% | `slug`、`lang` |
 | `search_result_open` | 点开一条搜索结果 | `type`（article / milestone / step / action）、`lang` |
 | `search_empty` | 搜索没有结果 | `lang` |
 | `path_complete` | 走完一条关键路径 | `path`（P1–P6）、`steps`、`lang` |
-| `page_state` | 显示一种错误或空状态 | `state`（not_found / load_failed / video_failed / no_english / offline）、`page` |
+| `page_state` | 显示一种错误或空状态 | `state`（not\_found / load\_failed / video\_failed / no\_english / offline）、`page` |
 
 ## 7. 交给 agent 跟进的内容任务
 
@@ -480,7 +480,7 @@ F07 的验收按下面每一条逐条判。标「自定」的数由本次修订�
 | --- | --- | --- |
 | v1 读不读登录状态 | 不读。「继续」入口、账号菜单、订阅开关、「继续读」、通行密钥移到 v2；导航去掉「登录」；「开始训练」直达 Veli，登录过的人由 Veli 带到今天 | 最小必要；登录状态牵动数据模型、安全评审范围和两个里程碑，v1 用不到 |
 | 只做 P0 撑不撑得起首屏 | 首屏落点的最小版升成 P0：F03 只要本周文章；F19 一个项目页加开发日志列表；F22 错误和空状态页；F25 RSS | 首屏的主操作都要有落点；没上线的功能不在对外页面出现（quality-terms T10） |
-| 站稳页和法务页谁实现 | Veli 仓库实现 /body、/legal/*、/data-usage；主站只留首页入口、研究卡和页脚链接 | 一张票只落在一条车道；/body 本来就是 Veli 的对外介绍页 |
+| 站稳页和法务页谁实现 | Veli 仓库实现 /body、/legal/\*、/data-usage；主站只留首页入口、研究卡和页脚链接 | 一张票只落在一条车道；/body 本来就是 Veli 的对外介绍页 |
 | 订阅怎么同意 | 提交即订阅；表单旁写清发什么、可一键退订、链到隐私政策；存同意证据；上线前请律师确认欧盟和个人信息出境 | 默认授权；订阅可以一键退订，不是撤不回的动作 |
 | 研究卡数据放在哪 | 主站仓库，内容车道 #9 维护；构建时生成 `/data/research.json`，Veli 的 /body 读它 | 研究卡归内容技能管；首页和 /body 用同一份数据（quality-terms T8） |
 | 搜索和迁移 | 新增 F26 搜索、F27 迁移与跳转，都是 P0 | 导航里有搜索，旧链接不能断，两件事都要有验收 |
@@ -509,7 +509,7 @@ F07 的验收按下面每一条逐条判。标「自定」的数由本次修订�
 | --- | --- | --- | --- |
 | Veli 路由 | 对外落地页（F146）从根路径改到 /body，网页版留在 /app；Veli 仓库 PR #84 已合并，ADR-0032 记录路由表 | 已完成 | 全部 |
 | Veli 站稳页 | /body 按两步原则改：原地登录、登录后直达今天、年龄确认并入同意页（Veli issue #101）；研究卡读主站的 `/data/research.json`；v1 不放应用商店入口 | Veli 仓库 | F09、F10、F11；F01 的「开始训练」 |
-| Veli 法务页 | /legal/*、/data-usage 中英两版；加版权与转载说明；隐私政策写明主站订阅收什么、存在哪、怎么退订和删除 | Veli 仓库，律师审阅 | F21、F07 |
+| Veli 法务页 | /legal/\*、/data-usage 中英两版；加版权与转载说明；隐私政策写明主站订阅收什么、存在哪、怎么退订和删除 | Veli 仓库，律师审阅 | F21、F07 |
 | Veli 注册事件 | 来源参数只按来源汇总进注册事件，不存进账号 | Veli 仓库 | 第 6 节「监测」 |
 | Vercel | velicoach.com 按路径分流：/body、/app 等交给 Veli，其余交给主站 | agent 配置 | 全部 |
 | Resend 与 Cloudflare | 添加发信域名和 DNS 记录（SPF、DKIM、DMARC，Veli 上线待办第 3 项）；关掉打开追踪和点击追踪；with.velicoach.com 的 DNS 指到主站 | 产品负责人注册，agent 配置 | F07、F27 |

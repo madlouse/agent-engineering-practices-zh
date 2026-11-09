@@ -1,4 +1,4 @@
-> 快照：本文件是 Claude Docs《Velicoach 主站 PRD v1.2》第 231 版的 Markdown 导出，供 agent 离线读取。唯一来源是 https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R；改需求先改在线文档，再重新导出覆盖本文件，不直接改这里。
+> 快照：本文件是 Claude Docs《Velicoach 主站 PRD v1.2》第 232 版的 Markdown 导出，供 agent 离线读取。唯一来源是 https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R；改需求先改在线文档，再重新导出覆盖本文件，不直接改这里。
 
 # Velicoach 主站 PRD v1.2
 
@@ -94,7 +94,7 @@ v1 不预设目标值，先把监测建起来，具体做法见第 6 节「监�
 
 **v1 共 29 个功能点，其中 P0 有 22 个，是上线的最低要求。** P0 里的 F09、F10，以及 F21 的法务正文，由 Veli 仓库实现，主站记为外部依赖。P1 上线前做完，排在 P0 之后，不挡 M1；上线后再做的是 P2，进入 v2 评估。
 
-各列的意思：「仓库 · 车道」写在哪个仓库、哪条车道实现；「依赖」写先要做完的功能或外部事项（外部事项见第 11 节）；「画板 · 状态」按 `docs/uiue/coverage.md` 的映射，写画布「Velicoach 主站 · UI v1.0」（v42）里的画板和状态；「里程碑」是 `docs/delivery/roadmap.md` 的站点车道里程碑。
+各列的意思：「仓库 · 车道」写在哪个仓库、哪条车道实现；「依赖」写先要做完的功能或外部事项（外部事项见第 11 节）；「画板 · 状态」按 `docs/uiue/coverage.md` 的映射，写画布「Velicoach 主站 · UI v1.0」（v44）里的画板和状态；「里程碑」是 `docs/delivery/roadmap.md` 的站点车道里程碑。
 
 | 编号 | 模块 | 功能 | 说明 | 优先级 | 验收标准 | 仓库 · 车道 | 依赖 | 画板 · 状态 | 里程碑 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

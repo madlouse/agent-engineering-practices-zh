@@ -26,10 +26,15 @@ export const PROTECTED_ISSUES = new Set(["13"]);
 // 票的分支：content/ 和 feat/、fix/ 一样算票
 export const TICKET_BRANCH = /^(?:feat|fix|content)\/(\d+)-/;
 
-/** 分支名 → { kind: 'ticket' | 'other', ticket: 票号或 '' } */
+// 不是票的分支只认这两种前缀；其余一律拒绝（出错时拒绝，不放行）
+export const OTHER_BRANCH = /^(?:chore|obs)\/[^/]/;
+
+/** 分支名 → { kind: 'ticket' | 'other' | 'invalid', ticket: 票号或 '' } */
 export function classifyBranch(ref) {
   const m = TICKET_BRANCH.exec(ref);
-  return m ? { kind: "ticket", ticket: m[1] } : { kind: "other", ticket: "" };
+  if (m) return { kind: "ticket", ticket: m[1] };
+  if (OTHER_BRANCH.test(ref)) return { kind: "other", ticket: "" };
+  return { kind: "invalid", ticket: "" };
 }
 
 export function checkGates({ base, head, kind, ticket = "", text = "", git }) {
@@ -89,6 +94,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(2);
   }
   const { kind, ticket } = classifyBranch(ref);
+  if (kind === "invalid") {
+    console.log(`- 分支名不合规：${ref}。票用 feat/、fix/、content/ 加「<票号>-」开头，其余只能是 chore/ 或 obs/（docs/standards/pipeline.md §5）`);
+    process.exit(1);
+  }
   const git = (...a) => execFileSync("git", a, { encoding: "utf8", maxBuffer: 64 << 20 });
   const text = bodyFile ? readFileSync(bodyFile, "utf8") : "";
   const problems = checkGates({ base, head, kind, ticket, text, git });

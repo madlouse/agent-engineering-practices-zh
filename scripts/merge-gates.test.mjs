@@ -42,8 +42,12 @@ test("分支分类：feat/、fix/、content/ 带票号算票，其余不算", ()
   assert.deepEqual(classifyBranch("feat/12-home"), { kind: "ticket", ticket: "12" });
   assert.deepEqual(classifyBranch("fix/3-nav"), { kind: "ticket", ticket: "3" });
   assert.deepEqual(classifyBranch("content/21-agent-loop"), { kind: "ticket", ticket: "21" });
-  for (const ref of ["chore/pipeline-prep", "obs/2026-11-09-x", "feat/home", "test/1-x"]) {
+  for (const ref of ["chore/pipeline-prep", "obs/2026-11-09-x"]) {
     assert.deepEqual(classifyBranch(ref), { kind: "other", ticket: "" }, ref);
+  }
+  // 出错时拒绝：漏了票号、前缀写错的都不能当成 chore 放行
+  for (const ref of ["feat/home", "content/x", "fix/nav", "feature/12-x", "test/12-x", "chore", "main"]) {
+    assert.deepEqual(classifyBranch(ref), { kind: "invalid", ticket: "" }, ref);
   }
 });
 
@@ -142,5 +146,19 @@ test("票的 PR 不能削弱测试：删测试文件、新增 .only / .skip / es
     assert.match(r.run(r.commit("dis"), "content/3-dis").stdout, /关掉 lint/);
     r.branch("feat/4-env"); r.write("scripts/a.test.mjs", "test('a', { skip: !process.env.E2E }, () => {});\n");
     assert.equal(r.run(r.commit("env"), "feat/4-env").status, 0);
+  } finally { r.cleanup(); }
+});
+
+test("分支名不合规：改门槛文件、削弱测试的同一组改动，换个分支名也绕不过去", () => {
+  const r = repo();
+  try {
+    r.branch("feat/landing"); r.write("scripts/merge-ticket-pr.sh", "#!/bin/sh\nexit 0\n");
+    const head = r.commit("weaken gate");
+    for (const ref of ["feat/landing", "feature/12-x", "test/12-x"]) {
+      const res = r.run(head, ref);
+      assert.equal(res.status, 1, ref);
+      assert.match(res.stdout, /分支名不合规/, ref);
+    }
+    assert.equal(r.run(head, "feat/12-ok").status, 1, "按票处理时照样拦住改门槛文件");
   } finally { r.cleanup(); }
 });

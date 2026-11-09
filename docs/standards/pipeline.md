@@ -116,7 +116,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 
 ## 5. 分支、标签、锁
 
-- **分支**：生产分支 `site`（默认分支）。命名照 Veli `agent-gitflow.md` §3.1：`feat/<票号>-<短名>`、`fix/…`、`content/<票号>-<短名>`（内容车道，和 `feat/` 一样算票的分支）、`obs/<日期>-<短名>`（观察者）、`chore/<短名>`（主会话）。
+- **分支**：生产分支 `site`（默认分支）。命名照 Veli `agent-gitflow.md` §3.1：`feat/<票号>-<短名>`、`fix/…`、`content/<票号>-<短名>`（内容车道，和 `feat/` 一样算票的分支）、`obs/<日期>-<短名>`（观察者）、`chore/<短名>`（主会话）。只有这五种前缀；合并脚本对其他分支名一律拒绝（`merge-gates.mjs` 的 `classifyBranch`，出错时拒绝，不放行）。
   - **上线前**：集成分支 `feature/v1` 从 `site` 开，两条车道的 PR 都合并回 `feature/v1`；关口四通过后，产品负责人确认一次合并进 `site`。
   - **上线后**：`feature/v1` 删掉，两条车道的 PR 直接以 `site` 为 base，门不变（冷评审通过、预览 READY、合并脚本）。内容的周六上线就是把定稿的 PR 合并进 `site`。
 - **标签**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 用 `agent:pass`、`agent:rework`、`agent:hold`、`owner:merge`、`risk:high`、`security:pass`、`security:rework`，含义照 Veli `pipeline.md` §3，只有 `owner:merge` 在主站多一种用法：**等产品负责人本人合并**的 PR，除了删掉或放宽要求的机制改动，还有要人定稿的内容（模块样稿、每周的文章）。产品负责人合并就是定稿。

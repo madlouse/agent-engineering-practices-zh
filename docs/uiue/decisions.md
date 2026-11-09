@@ -17,7 +17,7 @@
 - **改了哪里**：
   - `design-bar/references/ux-canon.md`（新），`liquid-glass.md` §0；
   - `quality-terms.md` 58 条，`bar-sheet.md`、`velicoach-layout` §3；
-  - PRD 第 155 版；
+  - PRD 第 156 版；
   - `verify_canvas.py` 加「笼统的进度文字」，画板全部检查 0 个问题（画板本身没有要改的地方：现有的玻璃都压在会变的背景上，透镜每屏不超过两处）。
 
 ## 2026-11-05 · 一站、一键、一秒，不用读就会用

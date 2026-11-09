@@ -3,7 +3,7 @@
 > 建立：2026-11-04 · 产品负责人：「所有的点，包括需求点、原因和逻辑，都要做系统性的、批判性对抗的评审，用金字塔原理，确保不重不漏。不清晰的标准也必须有清晰的规则。比如『体验友好』：不是网上找找就行，要看有没有对标的产品，再基于对标产品的特征来定义。你说体验友好，就必须有几个特性、几条规则能把它评审清楚、定义清楚，不管是名词还是动词。」
 > 以谁为准：质量词的意思以本页为准；本页和 PRD、设计系统冲突时以它们为准，并回来改本页。
 > 依据：三组对标研究（2026-11-04 查询，出处写在每条规则后面）；PRD；设计系统；`design-bar` 的 `references/rubric.md`。查不到的写「未查到」；自己定的数写「自定」和理由，观察者两周后按实际数据复核。
-> 版本：第 2 版（2026-11-04），按一次对抗评审的 8 类发现重写：维度之间的分界写明、看清的规则并回各维度、补上漏掉的要求、每条规则写适用范围和谁来查、检查脚本核对规则编号。
+> 版本：第 3 版（2026-11-08）：按体验原则复核（`docs/uiue/research/2026-11-06-ux-canon/`）改 U1、U6、U8、U9、V5、V7，新增 T11 和 Agent 可用（X1–X6）。第 2 版（2026-11-04），按一次对抗评审的 8 类发现重写：维度之间的分界写明、看清的规则并回各维度、补上漏掉的要求、每条规则写适用范围和谁来查、检查脚本核对规则编号。
 
 ## 1. 结论
 
@@ -33,7 +33,7 @@
 
 ### 2.2 组合词
 
-- **体验友好**：五个维度里，适用于这一页的规则全部通过。
+- **体验友好**：六个维度里，适用于这一页的规则全部通过（X 组只在关口四查，之前的关口不算它）。
 - **专业又通俗易懂**：可信（T）和好懂（C）同时通过。
 - **拿奖级**：体验友好，再按 Awwwards 的权重评分：设计 40%、可用性 30%、创意 20%、内容 10%（[Awwwards 评审说明](https://www.awwwards.com/about-evaluation/)）。两份独立设计评审各打 1–10 分，加权平均都 ≥ 7.0、单项都 ≥ 6.5。6.5 是 Awwwards 荣誉提名的分数线（[FAQ](https://awwwards.com/faqs)）；7.0 是自定，留出余量；Awwwards 没有公布每日最佳的分数线（未查到）。四项对应标杆卡的原则：设计 → P2、P5；可用性 → P1；创意 → P4；内容 → P3（`docs/uiue/bar-sheet.md`）。
 - **极致**：拿奖级。
@@ -48,7 +48,7 @@
 5. **对抗**：找反例，即满足了全部规则、用户仍然觉得不好的情况。找到就说明规则不完整，补一条。
 6. **不重不漏**：一个词只归一个维度；同义词并进同一个条目；同一条规则只写在一个地方，别处引用编号。
 
-## 4. 五个维度的规则
+## 4. 六个维度的规则
 
 每张表的列：规则 · 适用 · 怎么查（谁）· 出处。「谁」的写法：设计评审 = `design-reviewer` 两份；内容评审 = `content-reviewer`；评审 = `reviewer`；脚本写脚本名。
 
@@ -58,15 +58,15 @@
 
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
-| U1 一键：从首页出发，核心旅程两步内完成，不常用的不超过三步；悬停不算一步。步数表里每一步标「意图步」或「可删步」：意图步（同意、付款、不可逆、对外发送）不计入预算，也不许为省步数去掉；超预算只删可删步 | 全站 | 按 PRD 步数预算逐条走，记点按次数（设计评审；关口四走实现） | PRD 第 4 节；[NN/g：三次点击规则没有数据支持](https://www.nngroup.com/articles/3-click-rule/) |
+| U1 一键：从首页出发，核心旅程两步内完成，不常用的不超过三步；悬停不算一步。步数表里每一步标「意图步」或「可删步」（定义见术语表）：每个撤不回的动作最多一个意图步，不计入预算，也不许为省步数去掉；超预算只删可删步；一个场景里意图步超过一个要在 `decisions.md` 写理由 | 全站 | 按 PRD 步数预算逐条走，记点按次数（设计评审；关口四走实现） | PRD 第 4 节；[NN/g：三次点击规则没有数据支持](https://www.nngroup.com/articles/3-click-rule/) |
 | U2 首屏回答三件事：这是给谁的（首屏里有受众词，例如「上班族」「想跟上 AI 的人」，矮屏收起说明时也留着）、能做什么、下一步点哪里；主操作和订阅在 1280×720、1440×790、390×664、320×568 下完整留在首屏里，首屏高度按视口（`100svh`）算，不写死 | 首页、三站首屏 | 视口：`verify_canvas.py --size` 按这四个尺寸各查一遍；关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
 | U3 一个区域只有 1 个主操作；整个首屏的主操作不超过 2 个 | 首页、三站首屏 | 数截图上的实色主按钮（设计评审） | apple.com、stripe.com、vercel.com 首屏各 2 个，linear.app 1 个；设计系统「一个区域只有一个主按钮」 |
 | U4 主导航不超过 6 项 | 全站 | 数导航（设计评审） | linear.app、stripe.com、anthropic.com 各 6 项，vercel.com 4 项；apple.com 的 11 项是零售站，不算 |
 | U5 导航标签和按钮文字说出去处或结果，不用「了解更多」「点击这里」；常驻的导航（书脊、本站操作条）在任何滚动位置、包括第一屏，标签都在视口里 | 全站 | 逐个读（设计评审、内容评审） | [NN/g 信息气味](https://www.nngroup.com/articles/3-click-rule/)；[Mailchimp](https://styleguide.mailchimp.com/web-elements/) |
-| U6 每个弹层、展开和流程都能退出：看得见的关闭按钮、Esc、点外面三种都行；能撤回的操作用「撤销」，不弹「确定吗」；撤不回的（对外发送、付款、删除别人也看得到的内容、删除账号）要一个确认意图的动作，确认处写清后果 | 全站 | 画板：`verify_canvas.py` 的「浮层没有出路」；逐个试（设计评审；关口四走实现） | [NN/g 启发式第 3 条](https://www.nngroup.com/articles/ten-usability-heuristics/)；设计系统「少一步的做法」 |
+| U6 每个弹层、展开和流程都能退出：看得见的关闭按钮、Esc、点外面三种都行；能撤回的操作用「撤销」，不弹「确定吗」；撤不回的动作（定义见术语表：按效果有没有外泄判，不按界面上有没有撤销按钮判）有一个意图步，写清后果；对外发送也可以用「延迟 + 撤销」代替确认；撤销窗口至少 10 秒（自定）；乐观更新只用在可撤销的动作上 | 全站 | 画板：`verify_canvas.py` 的「浮层没有出路」；逐个试（设计评审；关口四走实现） | [NN/g 启发式第 3 条](https://www.nngroup.com/articles/ten-usability-heuristics/)；设计系统「少一步的做法」 |
 | U7 一站：用户不用离开、不用再登录一次就能完成旅程：看内容不要求登录；要登录时一次点击完成（One Tap、通行密钥）；主站和 Veli 同一个域名、共用一个账号，从主站进 Veli 不再登录；订阅、搜索、切换语言都在当前页完成，原文链接是补充、不是必经之路 | 全站 | 未登录走一遍关键路径，数离开本站和要求登录的次数，都应是 0（原文链接除外）（设计评审；关口四走实现） | PRD 第 4 节「一站、一键、一秒」、第 9 节（v1 不需要登录）、设计系统「读文章不需要登录」；[Google One Tap](https://developers.google.com/identity/siwg/features) |
-| U8 一秒，分两层：所有操作按下 0.1 秒内有回应；不涉及生成的操作从点按到看到结果 P95 ≤ 1 秒、服务端接口 P99 ≤ 1 秒；生成类（AI 讲解、Agent 排计划）不要求 1 秒完成，按 U9 显示在做什么；4G 下首屏 2 秒内可交互；手机 75 分位 LCP ≤ 2.5 秒、INP ≤ 200 毫秒、CLS ≤ 0.1 | 全站 | 端到端测试记录每个核心操作的耗时，算 P95；关口四在预览上跑 Lighthouse（模拟 4G）；上线后用 Vercel 日志看接口的 P95、P99，用真实数据看 Web Vitals（评审） | PRD 第 4 节「一站、一键、一秒」、第 8 节「性能」；[Core Web Vitals](https://web.dev/articles/vitals)；[NN/g：响应时间的三个界限（0.1、1、10 秒）](https://www.nngroup.com/articles/response-times-3-important-limits/) |
-| U9 反馈：每个可点元素有悬停、按下、焦点三种样式，在真实画板和页面上用的那个类上，不只是控件状态表里的样品；玻璃控件的悬停、按下改玻璃自己的底色，不叠灰色状态层；操作 0.1 秒内有反馈，超过 1 秒显示状态，超过 10 秒显示进度并允许离开；状态文字写「动词 + 对象」（「正在订阅」），不写「加载中」「处理中」；转圈延迟约 150–300ms 才出现、出现后至少显示约 300–500ms，不闪一下 | 全站 | 画板：`verify_canvas.py` 的「可点元素没有悬停或按下样式」「笼统的进度文字」；关口四录屏或用 Playwright trace 量时间（设计评审） | [Nielsen 响应时间](https://www.nngroup.com/articles/response-times-3-important-limits/)；NN/g 启发式第 1 条 |
+| U8 一秒（完成）：不涉及生成的操作从点按到看到结果 P95 ≤ 1 秒、服务端接口 P99 ≤ 1 秒；生成类（AI 讲解、Agent 排计划）不要求 1 秒完成，按 U9 显示在做什么（按下的回应见 U9）；4G 下首屏 2 秒内可交互；手机 75 分位 LCP ≤ 2.5 秒、INP ≤ 200 毫秒、CLS ≤ 0.1 | 全站 | 端到端测试记录每个核心操作的耗时，算 P95；关口四在预览上跑 Lighthouse（模拟 4G）；上线后用 Vercel 日志看接口的 P95、P99，用真实数据看 Web Vitals（评审） | PRD 第 4 节「一站、一键、一秒」、第 8 节「性能」；[Core Web Vitals](https://web.dev/articles/vitals)；[NN/g：响应时间的三个界限（0.1、1、10 秒）](https://www.nngroup.com/articles/response-times-3-important-limits/) |
+| U9 反馈：每个可点元素有悬停、按下、焦点三种样式，在真实画板和页面上用的那个类上，不只是控件状态表里的样品；玻璃控件的悬停、按下改玻璃自己的底色，不叠灰色状态层；操作 0.1 秒内有反馈，超过 1 秒显示状态，超过 10 秒显示进度并允许离开，完成后通知（受打扰预算约束）；状态文字写「动词 + 对象」（「正在订阅」），不写「加载中」「处理中」；转圈延迟约 150–300ms 才出现、出现后至少显示约 300–500ms，不闪一下 | 全站 | 画板：`verify_canvas.py` 的「可点元素没有悬停或按下样式」「笼统的进度文字」；关口四录屏或用 Playwright trace 量时间（设计评审） | [Nielsen 响应时间](https://www.nngroup.com/articles/response-times-3-important-limits/)；NN/g 启发式第 1 条 |
 | U10 先放主要内容，次要的原地展开（渐进披露）；展开不挤动版面：展开层叠在上面或用预留的空间，触发它的控件和上方的内容不动，下方放不下时向上翻转、不压主标题（折叠列表这类本来就该推开下面的除外，标 `data-expand="inline"`）；同一种操作全站用同一种控件、放在同一个位置（触屏和悬停设备可以各用一种，同一类设备上全站一样）；导航、页脚、书脊每一页都是同一个组件 | 全站 | 设计评审对照截图和控件清单，逐页比对导航和页脚；画板：`verify_canvas.py` 的「展开挤动了版面」（展开层以外的元素移动超过 8px） | [HIG 布局](https://developer.apple.com/design/human-interface-guidelines/layout)；NN/g 启发式第 4 条 |
 | U11 只用键盘能做完全部操作；焦点看得见、不被挡住；超过 2000 字（自定）的文章有目录，文末有所在系列、上下篇或延伸阅读 | 全站；目录和文末导航只在文章页 | 手工 Tab 走一遍（设计评审）；数字数 | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) 2.4.7、2.4.11；PRD 第 8 节；酷壳、Fowler、Distill 的目录；酷壳的系列导航、Fowler 的 Further Reading |
 | U12 出错和失败有出路：PRD 的六种页面状态都有设计；动效、邮件、统计失败不影响阅读 | 全站 | 逐个触发状态（设计评审；关口四走实现） | PRD「关键路径与页面状态」、F22 |
@@ -99,7 +99,7 @@
 | V2 颜色按设计系统「三站，三种底色」：每站一种底色；强调色只给主操作、链接和「当前所在」；一种强调色只在自己的底上出现；不只靠颜色表达信息 | 全站 | 读 token、看截图（设计评审） | 设计系统；[HIG 颜色](https://developer.apple.com/design/human-interface-guidelines/color)：「Apply color sparingly」 |
 | V3 每个区域只放标题、一句说明和操作；标题加说明合计中文不超过 50 字、英文不超过 35 词 | 首页每一半、三站首屏 | 数截图上的字（设计评审） | 五个对标站首屏标题加副标题都在约 35 词以内；50 字是自定：按一个英文词约合 1.5 个汉字，35 词约 52 字，取整 |
 | V4 一页里同一层级的分区用同一种排法（标题、导语、内容的顺序和间距一样），不是每节都用卡片；一页 5–6 个分区（自定） | 首页、三站首页 | 数分区（设计评审） | linear.app 6 个，stripe.com、vercel.com 各 5 个；apple.com 9 个推广模块同一格式（零售站，只借「同一格式」） |
-| V5 实色是默认；玻璃只用在浮在内容上的导航和控件，而且要先答「透过它看到的东西对读者有没有用」，答不出就用实色，正文内容层不用；「看得出背后」是允许用玻璃的门槛，不是目标，阅读页默认用厚一档的玻璃；边缘透镜是渐进增强，一屏最多两处，中端安卓机上滚动不掉帧、INP ≤ 200ms（自定，关口四实测），做不到就只留 CSS 玻璃；声明的背景（`data-backdrop`）要真的从表面后面经过，跟着动效一起移动的表面背后比例不变，按平涂算；同一时刻只有一层玻璃，玻璃上不叠玻璃（两条吸顶条只吸一条）；品牌色玻璃的底色不透明度超过约 50% 就是实色，改实色面；跨在两种底色上的玻璃用厚玻璃（`glass-thick`），上面的文字用正文色，按最差的那块底算对比度，≥ 4.5:1，浅色深色各查；展开的选项卡片和展开成表单的条用实色面，完整显示在所在区块里，不被裁掉、不透出下面的字；系统减少透明度时换成实色 | 全站 | 找出所有用玻璃的元素；声明：`verify_canvas.py` 的「玻璃的背景声明不成立」，背后会不会变用 `capture_motion.py --probe` 量（亮度随时间的变化 ≥ 0.04）；吸顶玻璃要有正文从文字后面滚过的截图；对比度：脚本能算的看 `verify_canvas.py`、`check_page.py`，标「需人工」的由设计评审在截图上取色计算 | [HIG 材质](https://developer.apple.com/design/human-interface-guidelines/materials)：「Don't use Liquid Glass in the content layer」「Use Liquid Glass effects sparingly」。单一来源：HIG 是苹果设计语言的原文；对标站的玻璃用法待关口三 a 实测补上 |
+| V5 实色是默认；玻璃只用在浮在内容上的导航和控件，而且要先答「透过它看到的东西对读者有没有用」，答不出就用实色，正文内容层不用；「看得出背后」是允许用玻璃的门槛，不是目标，阅读页的玻璃用浓的一档（`--lg-density` ≥ 0.7，自定）；边缘透镜是渐进增强，一屏最多两处（自定：研究建议整套去掉，我们按产品负责人要的苹果设计语言保留，换成预算），性能达不到 U8 就只留 CSS 玻璃；声明的背景（`data-backdrop`）要真的从表面后面经过，跟着动效一起移动的表面背后比例不变，按平涂算；同一时刻只有一层玻璃，玻璃上不叠玻璃（两条吸顶条只吸一条）；品牌色玻璃的底色不透明度超过约 50% 就是实色，改实色面；跨在两种底色上的玻璃用浓的一档，上面的文字用正文色，按最差的那块底算对比度，≥ 4.5:1，浅色深色各查；展开的选项卡片和展开成表单的条用实色面，完整显示在所在区块里，不被裁掉、不透出下面的字；系统减少透明度时换成实色 | 全站 | 找出所有用玻璃的元素；声明：`verify_canvas.py` 的「玻璃的背景声明不成立」，背后会不会变用 `capture_motion.py --probe` 量（亮度随时间的变化 ≥ 0.04）；吸顶玻璃要有正文从文字后面滚过的截图；对比度：脚本能算的看 `verify_canvas.py`、`check_page.py`，标「需人工」的由设计评审在截图上取色计算 | [HIG 材质](https://developer.apple.com/design/human-interface-guidelines/materials)：「Don't use Liquid Glass in the content layer」「Use Liquid Glass effects sparingly」。单一来源：HIG 是苹果设计语言的原文；对标站的玻璃用法待关口三 a 实测补上 |
 | V6 样式只引用 token；用留白分组，对齐到间距阶梯；左右分屏的两半，眉标、标题、主按钮的起点在同一条水平线上；首屏的文字起点和下面正文共用栅格线（左半对齐 `content-max` 容器的左边缘，右半对齐右边缘） | 全站 | `lint_tokens.py` 为 0；`verify_canvas.py` 写死的颜色为 0；在截图上量首屏标题和第一节正文的左边缘（设计评审） | 设计系统；`design-bar` rubric「版式与留白」 |
 | V7 动效有含义、可打断：先过必要性检查（说清因果，或一处刻意的签名）；动画进行中输入立刻生效；首页的主动效「叶与网」表达三站的关系，每屏最多一个主动效；站稳和动手首屏的纸墨质感不做循环动画，只在首屏出现时变化一次，时长不超过 `duration-lean`（自定，把设计系统的「几乎静止」写成可查的规则）；看清没有动效；时长只用 `duration-*` token；首页倾斜时只有导航、「动手」圆、订阅条跟着接缝走（同一时长和缓动），两半里的文字和按钮贴着自己的栅格线不平移，收起的一侧整列贴底 | 全站 | 对照设计系统「动效」（设计评审） | 设计系统「动效」；[Apple Design Awards](https://developer.apple.com/design/awards/)「high-quality animations with a distinctive and cohesive theme」 |
 | V8 元信息克制：文章页只放标题、作者、所属的线、阅读时长，日期见 T3，授权见 T5；不放阅读数、点赞数 | 看清文章页 | 看文章页（设计评审） | 酷壳、Fowler、Willison、Distill 都只有标题、作者、日期和少量标签；PRD 第 5 节「文章」字段 |
@@ -122,7 +122,7 @@
 | T8 健康内容只引用系统综述和大样本研究，写明研究类型、样本量和证据可信度，样本量对应的是卡片上那个结论；同一研究全站只有一份数据，各页引用它，不各写一遍；数据里的字段都要画出来，研究卡按「数字开头的结论 → 出处 → 研究类型、样本量、可信度」的顺序读：数字写在结论句开头，等宽加粗、和正文同号，不做大号数字（先给数字是 Stripe、OWID 的惯例；不放大是本站 2026-11-04 的决定）；训练指导类由持证教练审核，留审核记录；页上写「威利不是医生」 | 站稳、订阅邮件里的健康内容 | 内容评审；画板：`coverage.py --data <研究卡数据>` 没有漏画的字段；审核记录贴在票上（产品负责人安排） | PRD 第 6 节「质量标准」第 2 条 |
 | T9 不操纵：不倒计时、不用羞辱式的拒绝按钮、同意项不预先勾选、关掉任何东西只要一步；讲力量不讲身材，不制造焦虑（不写「再不练就晚了」） | 全站 | 逐个看表单、弹层和文案（设计评审、内容评审） | PRD「行为设计」的「不用操纵手段」；`velicoach-content`「讲力量，不讲身材；不制造焦虑」 |
 | T10 对外只放正式版：没有占位符、「示例」「待定」「即将上线」、过程说明和转写错误；还没上线的功能不在对外页面出现（动手一站公开记录在做的项目不算预告：写明「开发中」并链到开发日志，不写上线时间，不当成可以用的功能） | 全站对外文字和画板 | 画板：`verify_canvas.py` 的占位文字检查；页面和内容：内容评审 | `AGENTS.project.md` 第 1 条；设计系统「内容与语气」；PRD 第 6 节「质量标准」第 3 条 |
-| T11 AI 生成或合成的内容标明：合成声音的旁白、AI 写的摘要或译文、Agent 排出的计划，旁边有看得见的标识（一行说明或图标加文字）；数字和安全相关的判断由代码给出，不由模型给出 | 全站和 Veli | 设计评审；有 AI 内容的组件带 `data-origin="ai"`，组件测试查标识 | [Apple HIG：Generative AI](https://developer.apple.com/design/human-interface-guidelines/generative-ai.md)；[微软 Human-AI Interaction 第 1、2 条](https://www.microsoft.com/research/blog/guidelines-for-human-ai-interaction-design/)；`design-bar/references/ux-canon.md` 原则 6 |
+| T11 AI 生成或合成的内容标明：合成声音的旁白、AI 写的摘要或译文、Agent 排出的计划，旁边有看得见的标识（一行说明或图标加文字） | 主站（Veli 以自己的规范为准） | 设计评审；有 AI 内容的组件带 `data-origin="ai"`，组件测试查标识 | [Apple HIG：Generative AI](https://developer.apple.com/design/human-interface-guidelines/generative-ai.md)；[微软 Human-AI Interaction 第 1、2 条](https://www.microsoft.com/research/blog/guidelines-for-human-ai-interaction-design/)；`design-bar/references/ux-canon.md` 原则 6 |
 
 ### 4.5 舒适（A）
 
@@ -141,15 +141,15 @@
 
 ### 4.6 Agent 可用（X）
 
-**对标**：浏览器 Agent（Claude、ChatGPT agent）的公开说明：先读无障碍树，看不清才截图；web.dev 和 Google 的 AI 搜索指南；W3C Cool URIs。选它们，是因为它们说明了 Agent 实际怎么读页面。对人无障碍，对 Agent 就可用，所以这一组只放无障碍规则（A 组）没管到的部分；和 A 组重叠的写「见 A7」。新协议（llms.txt、WebMCP）还在提案阶段，不进规则（`design-bar/references/ux-canon.md` §4）。
+**对标**：浏览器 Agent（Claude、ChatGPT agent）的公开说明：先读无障碍树，看不清才截图；web.dev 和 Google 的 AI 搜索指南；W3C Cool URIs。选它们，是因为它们说明了 Agent 实际怎么读页面。主流浏览器 Agent 读无障碍树、DOM 或截图中的一种或几种；无障碍是 Agent 可用的前提，不是全部，所以这一组只放无障碍规则（A 组）没管到的部分，和 A 组重叠的写「见 A7」。新协议（llms.txt、WebMCP）还在提案阶段，不进规则（`design-bar/references/ux-canon.md` §4）。
 
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
-| X1 主要状态都在地址里：语言（`/en/`）、站、内容线、筛选、搜索词；把当前地址在新的浏览器打开，看到同一状态；`<html lang>` 等于页面语言 | 全站 | Playwright 往返测试：改状态后记地址，新上下文打开比较（评审；关口四） | [W3C Cool URIs](https://w3.org/Provider/Style/URI)；PRD F06 |
-| X2 可点元素都是原生控件（`button`、`a[href]`、`input`、`summary`）并有可读名称；不在 `div` 上挂点击 | 全站 | axe 的 `button-name`、`link-name`；eslint `jsx-a11y/no-static-element-interactions`（评审）；见 A7 | [web.dev：给 AI Agent 用的网站体验](https://web.dev/articles/ai-agent-site-ux)；[Claude 浏览器工具文档](https://platform.claude.com/docs/en/agents-and-tools/tool-use/browser-use-tool.md) |
+| X1 主要状态都在地址里：语言（`/en/`）、站、内容线、筛选、搜索词；把当前地址在新的浏览器打开，看到同一状态；`<html lang>` 等于页面语言；涉及健康和个人数据的状态不进地址、不进统计；公开地址只增不删，改了一律 301 | 全站 | Playwright 往返测试：改状态后记地址，新上下文打开比较；旧地址清单逐条请求，状态 301、落点 200（评审；关口四。待做：关口三 b 开票） | [Vercel Web Interface Guidelines「URL as state」](https://github.com/vercel-labs/web-interface-guidelines)；[W3C Cool URIs](https://w3.org/Provider/Style/URI)（地址不变）；PRD F06 |
+| X2 可点元素都是原生控件（`button`、`a[href]`、`input`、`summary`）并有可读名称；不在 `div` 上挂点击；没有透明层盖住可点元素 | 全站 | axe 的 `button-name`、`link-name`；画板：`verify_canvas.py` 的「可点元素被盖住」；eslint `jsx-a11y/no-static-element-interactions`（待做：关口三 b 开票）；见 A7 | [web.dev：给 AI Agent 用的网站体验](https://web.dev/articles/ai-agent-site-ux)；[Claude 浏览器工具文档](https://platform.claude.com/docs/en/agents-and-tools/tool-use/browser-use-tool.md) |
 | X3 原地展开的选项始终在 DOM 里，每个是真链接，不悬停、只点击或回车也能到达；装饰性的 canvas 带 `aria-hidden`，它表达的入口另有真链接 | 全站 | Playwright 不悬停读无障碍树，所有去处都能找到（评审）；画板：设计评审 | 同上 |
-| X4 不执行脚本也读得到正文（标题、作者、日期、全文）；结构化数据、站点地图、RSS、`llms.txt` 都由内容数据生成，不手写第二份 | 文章页、三站页面 | `curl` 取页面查正文首尾句；脚本比对 JSON-LD 和内容数据（评审） | [Google：AI 搜索优化指南](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide)；[llmstxt.org](https://llmstxt.org/) |
-| X5 读内容、订阅、搜索不用验证码；防滥用靠频率限制和邮件二次确认；后果大的动作在站点一侧要人确认，不靠 Agent 自觉 | 全站 | 无头浏览器走一遍订阅；读防火墙配置（评审） | [IETF Web Bot Auth 草案](https://datatracker.ietf.org/doc/html/draft-ietf-webbotauth-httpsig-protocol)；[Vercel：已验证的机器人](https://vercel.com/docs/botid/verified-bots)；PRD 第 8 节「安全」 |
+| X4 不执行脚本也读得到正文（标题、作者、日期、全文）；结构化数据、站点地图、RSS 都由内容数据生成，不手写第二份（`llms.txt` 不是规则；做了的话也由内容数据生成） | 文章页、三站页面 | `curl` 取页面查正文首尾句；脚本比对 JSON-LD 和内容数据（评审） | [Google：AI 搜索优化指南](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide)；[llmstxt.org](https://llmstxt.org/) |
+| X5 读内容、订阅、搜索不用验证码；防滥用靠频率限制和邮件二次确认；撤不回的动作（术语表）在站点一侧有意图步，不靠 Agent 自觉 | 全站 | 无头浏览器走一遍订阅；读防火墙配置（评审） | [IETF Web Bot Auth 草案](https://datatracker.ietf.org/doc/html/draft-ietf-webbotauth-httpsig-protocol)；[Vercel：已验证的机器人](https://vercel.com/docs/botid/verified-bots)；PRD 第 8 节「安全」 |
 | X6 统计把已验证的机器人和人分开：订阅数、点击率只算人 | 监测 | 查统计配置，用机器人请求打一次确认不进人的指标（评审） | PRD 第 6 节「监测」 |
 
 ### 4.7 用这些规则对照现有设计，发现的冲突
@@ -230,6 +230,9 @@ TBD
 
 ```vague-terms
 体验友好
+对 Agent 友好
+Agent 友好
+机器可读
 友好
 好用
 易用

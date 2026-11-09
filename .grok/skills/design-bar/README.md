@@ -92,6 +92,8 @@ python scripts/lint_tokens.py src --tokens src/app/tokens.css
 | `references/anti-patterns.md` | 具名反面模式 |
 | `references/rubric.md` | 评分维度与底线 |
 | `references/app.md` | App 交互的额外流程 |
+| `references/ux-canon.md` | 体验原则总纲（GUI、人和 Agent、Agent 来用的网站） |
+| `references/liquid-glass.md` | 液态玻璃的做法、数值和退路 |
 | `scripts/` | 接入、同步、检查脚本 |
 | `assets/` | 项目设计目录模板与 AGENTS.md 规则块 |
 

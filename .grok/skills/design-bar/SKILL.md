@@ -190,6 +190,7 @@ App 或移动端交互，另读 `references/app.md`。
 | `references/anti-patterns.md` | 具名反面模式 |
 | `references/rubric.md` | 评分锚点、维度、底线 |
 | `references/app.md` | App 交互的额外流程与指标 |
+| `references/ux-canon.md` | 体验原则总纲：两个术语（撤不回的动作、意图步）、九条原则、冲突时的先后、人和 Agent 一起做事的规则、给 Agent 写设计说明的做法、被推翻的说法、怎么复核 |
 | `references/craft.md` | 做稿与打磨的手艺：方向五行、假设先行与选项、九遍打磨、写法规范、中日韩混排、只读验证者、贴在稿子上的评审（吸收 unslop 与 baoyu-design） |
 | `scripts/init_project.py` | 接入项目 |
 | `scripts/sync_tokens.py` | 设计系统 tokens.json → 代码 tokens.css |

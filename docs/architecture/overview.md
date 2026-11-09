@@ -8,11 +8,12 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 
 | 路径 | 归谁 |
 |---|---|
-| `/`、`/mind`（看清，文章在 `/mind/<slug>`）、`/build`、`/about`、`/api/site/*`、`/en/*`，以及其余路径 | 主站（本仓库） |
-| `/body` | Veli：对外落地页，同时是主站的站稳一站 |
-| `/app`、`/pricing`、`/legal/*`、`/data-usage`、`/auth/*`、`/api/*`（`/api/site/*` 除外）、`/manual/*` | Veli |
+| `/`、`/mind`（看清，文章在 `/mind/<slug>`）、`/build`、`/about`、`/unsubscribe`、`/api/site/*`、`/explainers/*`、`/originals/*`、`/sitemap.xml`、`/robots.txt`（整个域名只有这一份，也覆盖 Veli 的路径）、`/en/*`（下面归 Veli 的英文路径除外），以及其余路径 | 主站（本仓库） |
+| `/body`、`/en/body` | Veli：对外落地页，同时是主站的站稳一站 |
+| `/app`、`/pricing`、`/legal/*`、`/en/legal/*`、`/data-usage`、`/en/data-usage`、`/auth/*`、`/admin/*`、`/plan-only`、`/api/*`（`/api/site/*` 除外）、`/manual/*`，以及 Veli 的 PWA 文件（清单和 service worker） | Veli |
 
 - 主站上线前，`/` 临时 307 跳到 `/body`。主站上线时在 Vercel 上按路径分流（microfrontends 或 rewrites，实现时选定），并把 `/` 改为主站首页。
+- 分流规则按「具体的前缀先匹配」排：`/api/site/*` 写在 `/api/*` 前面，`/en/body`、`/en/legal/*`、`/en/data-usage` 写在 `/en/*` 前面。
 - 新增顶层路径前先查这张表，两个仓库一起改。
 - 主站的服务端接口都在 `/api/site/*`，`/body` 上的主站外壳由主站打包给 Veli 引入（ADR-0003）。
 
@@ -39,7 +40,7 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 
 框架沿用本仓库已有的 TanStack Start（Vite、React），不换。原来计划的 `with.velicoach.com` 改为永久跳转到 `velicoach.com/mind`（PRD 决定记录）。本仓库 `AGENTS.md` 是 Grok 构建沙箱的契约，它的 `auth`、`neon` 技能只用于沙箱预览；正式站的账号用 Veli 的 Supabase Auth（ADR-0001）。
 
-其余沿用 Veli 的选择：Vercel 跑应用，Cloudflare 管域名和 DNS，Supabase 管数据和登录，Resend 发订阅邮件（与 Veli 同一个发信域名）。
+其余沿用 Veli 的选择：Vercel 跑应用，Cloudflare 管域名和 DNS，Supabase 管数据和登录，Resend 发订阅邮件（订阅用子域名 news.velicoach.com，Veli 的登录验证码继续用主域名）。
 
 ## ADR
 
@@ -47,4 +48,4 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 |---|---|
 | [0001](adr/0001-shared-domain-and-account.md) | 与 Veli 共用域名和账号，按路径分流 |
 | [0002](adr/0002-webgpu-motion.md) | 首页动效用 three.js WebGPURenderer + TSL，自动回退 WebGL2 |
-| [0003](adr/0003-body-shell-and-site-api.md) | /body 上的主站外壳和主站服务端接口路径（提议） |
+| [0003](adr/0003-body-shell-and-site-api.md) | /body 上的主站外壳和主站服务端接口路径（提议，待产品负责人知悉） |

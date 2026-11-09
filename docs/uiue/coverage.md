@@ -1,6 +1,6 @@
 # 需求 → 画板覆盖表
 
-主站 PRD（`docs/prd/velicoach.md` 第 4 节）的 25 个功能，每个在 UI v1.0 画板里落在哪。核对日期：2026-11-09（按 11-09 的决定：主站 v1 不读登录状态；开发日志最小版升成 P0）。
+主站 PRD（`docs/prd/velicoach.md` 第 4 节）的 27 个功能，每个在 UI v1.0 画板里落在哪。核对日期：2026-11-09（按 11-09 的决定：主站 v1 不读登录状态；开发日志最小版升成 P0）。
 
 - 画板：Claude Design 画布「Velicoach 主站 · UI v1.0」的 11 块画板：Main、Tablet、Mobile、Fold、Mind、Article、States、Body、Build、Project、Controls。状态写在各画板的 `data-props` 里，下面写成「画板 · 属性=值」。
 - 检查命令（`design-bar` 技能）：
@@ -10,7 +10,7 @@ python3 .grok/skills/design-bar/scripts/coverage.py --prd docs/prd/velicoach.md 
 ```
 
 - 判法：「已画」行写画板和状态；只画了一部分的，备注以「部分：」开头，写清缺什么。「无界面」行第二列写 `—`。「没画」的功能不进映射表，单列在后面，检查命令会把它们报成「没有着落」，这是有意的。
-- 统计：已画 14，部分画 7，无界面 1，没画 3。
+- 统计：已画 14，部分画 8，无界面 2，没画 3。
 - v2：主站 v1 不读登录状态（`docs/requirements/timeline.md` 第 80 条）。导航里的「登录」和头像、账号菜单、首屏的「继续」类入口（「进入今天的训练」「继续读」）、订阅开关都移到 v2，画板上已经删掉；PRD 验收里写到它们的部分在下表备注里标「v2」，不算缺口。P1 缺口（核心旅程走不通）：无。
 
 ## 映射
@@ -39,6 +39,8 @@ python3 .grok/skills/design-bar/scripts/coverage.py --prd docs/prd/velicoach.md 
 | F22 | States · page=页面不存在/内容加载失败/网络断开/加载中；Article · media=视频无法播放、english=暂无英文版、load=加载中/加载失败；Main · subscribe=订阅失败、network=离线 | PRD「页面状态」表的六种都画了，每种都写了发生了什么、接下来能做什么 |
 | F24 | Main · theme=自动/浅色/深色；其余画板 · theme；各页脚「自动 / 浅色 / 深色」；Controls · theme=浅色/深色 | 部分：页脚能切换；v2：账号菜单里的外观切换随账号菜单移到 v2；「在搜索里输入『深色』」这一入口没有画（Main · overlay=搜索 只画了查「训练」）；两套主题是否都达到 WCAG 2.2 AA 要另跑对比度检查 |
 | F25 | Mind · tab=AI 发展史/人机协作（「用 RSS 订阅这条线」）；各页脚「RSS」 | 全站一个源（/feed.xml、/en/feed.xml），两条线各一个源，中英分开；源里的全文和日期属于后台 |
+| F26 | Main · overlay=搜索 | 部分：放大镜和 ⌘K 的浮层画了，只画了查「训练」的结果；按文章、里程碑、学习路径、操作分组的结果和「没有结果」（写出搜的词、给三站入口）没有画；在搜索里切换外观的入口也没画（见 F24） |
+| F27 | — | 无界面：旧地址逐条 301 跳转在服务端完成，验收用跳转清单测试 |
 
 ## 没画
 

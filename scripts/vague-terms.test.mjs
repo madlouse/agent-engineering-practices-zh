@@ -62,6 +62,11 @@ test("acceptance-like columns are checked, other columns are not, and escaped pi
   ]);
 });
 
+test("a column titled exactly 「要求」 is checked like acceptance, a longer title with 要求 is not", () => {
+  const table = "| 类别 | 要求 | 怎么验收 | 用户要求的背景 |\n|---|---|---|---|\n| 设计一致 | 苹果味的高级感 | 设计评审 | 好看 |";
+  assert.deepEqual(findViolations(table, terms), [{ line: 3, word: "高级感", kind: "vague" }]);
+});
+
 test("lists under an acceptance heading are checked, including its sub-headings, until a heading at the same level", () => {
   const md = "## 验收\n\n- 好看\n### 手机\n1. 适当留白\n\n## 背景\n\n- 好看";
   assert.deepEqual(findViolations(md, terms), [

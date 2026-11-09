@@ -28,6 +28,8 @@ export function parseDimensions(markdown) {
 }
 
 const ACCEPTANCE = /验收|出口|退出条件|判定|怎么判|到位|通过标准|完成的?标准|交付物|怎么查|门槛|acceptance|criteria|definition of done/i;
+// A table column titled exactly 「要求」 is also acceptance: in the PRD's non-functional table it is what gets checked.
+const ACCEPTANCE_COLUMN = new RegExp(`${ACCEPTANCE.source}|^\\s*要求\\s*$`, "i");
 const RULE_REF = /quality-terms(?:\.md)?`?\s*(?:#|§)?\s*([A-Z]\d+)/g;
 const COMBO_REF = /quality-terms(?:\.md)?`?\s*§\s*2\.2/;
 
@@ -55,7 +57,7 @@ export function findViolations(text, { vague, filler, allowed = [], ruleIds = ne
     const isRow = /^\s*\|/.test(line);
     if (!isRow) header = null;
     else if (/^\s*\|\s*:?-{3,}/.test(line)) {
-      header = cells(lines[i - 1] ?? "").map((h) => ACCEPTANCE.test(h));
+      header = cells(lines[i - 1] ?? "").map((h) => ACCEPTANCE_COLUMN.test(h));
       return;
     }
     let checked = [];

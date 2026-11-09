@@ -12,7 +12,7 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 | `/body`、`/en/body` | Veli：对外落地页，同时是主站的站稳一站 |
 | `/app`、`/pricing`、`/legal/*`、`/en/legal/*`、`/data-usage`、`/en/data-usage`、`/auth/*`、`/admin/*`、`/plan-only`、`/api/*`（`/api/site/*` 除外）、`/manual/*`，以及 Veli 的 PWA 文件（清单和 service worker） | Veli |
 
-- 主站上线前，`/` 临时 307 跳到 `/body`。主站上线时在 Vercel 上按路径分流（microfrontends 或 rewrites，实现时选定），并把 `/` 改为主站首页。
+- 主站上线前，`/` 临时 307 跳到 `/body`。主站上线时 `velicoach.com` 挂到主站的 Vercel 项目，主站用 rewrites 把归 Veli 的路径反向代理到 Veli 的生产部署（ADR-0003 (c)），并把 `/` 改为主站首页。
 - 分流规则按「具体的前缀先匹配」排：`/api/site/*` 写在 `/api/*` 前面，`/en/body`、`/en/legal/*`、`/en/data-usage` 写在 `/en/*` 前面。
 - 新增顶层路径前先查这张表，两个仓库一起改。
 - 主站的服务端接口都在 `/api/site/*`，`/body` 上的主站外壳由主站打包给 Veli 引入（ADR-0003）。
@@ -48,5 +48,6 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 |---|---|
 | [0001](adr/0001-shared-domain-and-account.md) | 与 Veli 共用域名和账号，按路径分流 |
 | [0002](adr/0002-webgpu-motion.md) | 首页动效用 three.js WebGPURenderer + TSL，自动回退 WebGL2 |
-| [0003](adr/0003-body-shell-and-site-api.md) | /body 上的主站外壳和主站服务端接口路径（提议，待产品负责人知悉） |
-| [0004](adr/0004-subscription-storage.md) | 订阅的存储（主站自己的 Supabase 项目）、发信、退订令牌和频率限制（已采纳，待事后确认） |
+| [0003](adr/0003-body-shell-and-site-api.md) | /body 上的主站外壳、主站服务端接口路径、按路径分流的方式（待产品负责人确认） |
+| [0004](adr/0004-subscription-storage.md) | 订阅的存储（主站自己的 Supabase 项目）、发信、退订令牌和频率限制（待产品负责人确认） |
+| [0005](adr/0005-monitoring-and-alerts.md) | 外部监控用 GitHub Actions 定时探测，线上错误 Pro 前进日报、Pro 后用 Vercel 告警（待产品负责人确认） |

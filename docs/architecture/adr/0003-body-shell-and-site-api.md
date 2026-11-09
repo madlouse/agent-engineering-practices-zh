@@ -1,6 +1,6 @@
 # 0003 /body 上的主站外壳和主站服务端接口路径
 
-- 状态：提议，待产品负责人知悉（2026-11-09）
+- 状态：待产品负责人确认（2026-11-09；(c) 分流按关口三 b 冷审 P1-5 补）
 - 关联：ADR-0001（同域名、按路径分流）、Veli 仓库 ADR-0032（路由表）、主站 PRD v1.2（冷审第二轮 P1-2、P1-4，第三轮 P1-1、P1-2、P2-4、P2-6）、`quality-terms` U10
 
 ## 背景
@@ -34,11 +34,21 @@ Veli 的 `/api/*` 规则排除这个前缀。Vercel rewrites 按顺序匹配，�
 - 两边共用同一个源（同一个域名），外观和语言的选择存在 localStorage 的 `vc-theme`、`vc-lang` 两个键里，主站和 /body 读写同一份；外壳包导出这两个键名常量，Veli 不自己写字符串。
 - 订阅条在 /body 上也提交到 `/api/site/subscribe`，同一个域名，不跨域。
 
+**(c) 分流：主站的 Vercel 项目接管根域名，用 rewrites 把 Veli 的路径反向代理到 Veli 的生产部署。**
+
+- `velicoach.com` 挂在主站的 Vercel 项目上。分流规则写在主站仓库的 Vercel 配置里（rewrites），不用 microfrontends：一个项目、一份规则、一个仓库里能评审和测试。
+- 归 Veli 的路径（`docs/architecture/overview.md` 路由表 Veli 一行，含 `/en/body`、`/en/legal/*`、`/en/data-usage`、`/auth/*`、`/api/*`（`/api/site/*` 除外）和 Veli 的 PWA 文件）rewrite 到 Veli 生产部署的固定地址；其余由主站处理。具体的前缀先写。
+- 同一个域名，Cookie 和登录状态照旧共享（ADR-0001）。Veli 项目不再直接挂 `velicoach.com`，它的生产地址只给主站的 rewrites 用。
+- 先在主站的预览域名上配好、逐条验证（每个 Veli 路径都能从主站预览打开），再切根域名：切换是上线时的最后一步。两步各一张票（`docs/delivery/gate-3b-split.md`）。
+- Veli 仓库要配合的事（ADR-0032 的路由表改成「由主站代理」、Veli 自己的 `/` 临时跳转在切换时去掉、Veli 不再出自己的 robots.txt）记在 thin-muscle-coach#185。
+
 ## 考虑过的其他做法
 
 | 做法 | 为什么不选 |
 |---|---|
 | 两边各自复制一份外壳 | 复制以后各改各的，会走样，违反 U10（导航、页脚、书脊每页都是同一个组件） |
+| 用 Vercel microfrontends 分流 | 规则和两个项目的关系分在 Vercel 的团队配置里，评审和测试都不在仓库里；v1 只有两个应用，rewrites 够用 |
+| 规则放在 Veli 仓库 | 主站的上线要改另一个仓库，上线票的 PR 落在哪个仓库说不清；主站拥有根路径和大部分路径，规则跟着主站走 |
 | /body 不带主站外壳 | 站稳一站看起来像另一个网站；用户从首页点进站稳，导航、页脚全变，不知道自己还在不在 Velicoach |
 
 ## 后果

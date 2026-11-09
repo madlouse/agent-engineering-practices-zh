@@ -16,7 +16,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 |---|---|---|---|---|
 | 一 | PRD → 设计语言 | PRD 对抗评审（PRD 附录） | 主会话写；独立评审 | 已过（PRD v1.0） |
 | 二 | 设计语言 → UI/UE | 设计系统确认、动效选定 C | 主会话；产品负责人 | 已过 |
-| 三 | UI/UE → 代码 | **3a UI/UE 对抗评审**（§2.1）；**3b 拆成就绪的规格和票**（§2.2），也就是把循环拆出来 | 3a：`design-reviewer` + `design-reviewer-b` 独立评审，`verify_canvas.py` 只读验证；3b：主会话 `to-spec`、`to-tickets`，`spec-reviewer` 冷审；主会话判定通过，拆分里涉及需求取舍的地方向产品负责人说清 | **下一步：3a（#14）** |
+| 三 | UI/UE → 代码 | **3a UI/UE 对抗评审**（§2.1）；**3b 拆成就绪的规格和票**（§2.2），也就是把循环拆出来 | 3a：`design-reviewer` + `design-reviewer-b` 独立评审，`verify_canvas.py` 只读验证；3b：主会话 `to-spec`、`to-tickets`，`spec-reviewer` 冷审；主会话判定通过，拆分里涉及需求取舍的地方向产品负责人说清 | 3a 已过（#14）；3b 已拆（规格 #17–#20），冷审后修改中（`docs/delivery/gate-3b-split.md`） |
 | 四 | 代码 → 上线 | 上线检查（§2.3） | 两条车道的循环（§4）；`design-reviewer` 两份走查；产品负责人确认上线 | 关口三之后 |
 
 ### 2.1 关口三 a：UI/UE 对抗评审
@@ -49,6 +49,11 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 - 两份独立走查（`design-reviewer` 两份）P0、P1 为 0；`quality-terms.md` 里适用的规则全部通过（含只能在实现上查的 U8 速度、U9 响应时间）；
 - 五秒测试：5 个没看过的人看首页和三站首屏 5 秒，至少 4 人说得出「给谁的、能做什么、点哪里」（U2，产品负责人找人）；
 - `npm run check:terms`、`npm run check:vague` 通过；中英两版齐全；
+- 只有人能做、票里做不了的核对（关口三 b 冷审 P1-6 从票里移过来）：
+  - RSS：在 Feedly、NetNewsWire、Inoreader 里订阅全站源，读到全文和日期；
+  - 发信：用真实邮箱订阅一次，在 Gmail「显示原始邮件」里 SPF、DKIM、DMARC 三项都是 PASS，欢迎邮件页脚有通讯地址；
+  - 监控：按 ADR-0005 人为制造两次连续失败，产品负责人收到告警邮件；
+  - 跳转：根域名切换以后，在生产上逐条请求 with.velicoach.com 的跳转清单（301，落点 200）；
 - 带 `risk:high` 的 PR 都有安全评审的通过记录。
 
 ## 3. 角色：谁做、谁查、交接物
@@ -93,6 +98,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 |---|---|---|
 | 页面、组件、路由、样式、token、脚本、配置、`src/content/types.ts`（块类型） | 改 | 不改 |
 | 一篇文章的文件 `src/content/<slug>.ts`、`public/originals/`、`public/explainers/`、`docs/content/` | 不改 | 改 |
+| 其他内容数据文件：里程碑、学习路径步骤、范式、工具与技能卡片、项目、开发日志、研究卡源数据、本周文章排期表、订阅邮件每一期（关口三 b 冷审 P1-8） | 定数据结构、校验、读取和生成代码；新类型第一次出现时建文件，放测试数据 | 改数据行；等定格式的站点票合并以后才开工（原生依赖连好） |
 | `src/content/index.ts`（文章注册表） | 改结构 | 只加或删一行注册 |
 | `src/content/explainers.ts`、界面文案的翻译文件 | 加新的键和字段（带初稿） | 只改已有条目的文字 |
 | PRD、技能、术语表、设计系统、画板、`docs/requirements/` | 不改，在 PR 说明里列出要写回什么 | 同左 |

@@ -149,7 +149,7 @@
 | X2 可点元素都是原生控件（`button`、`a[href]`、`input`、`summary`）并有可读名称；不在 `div` 上挂点击；没有透明层盖住可点元素 | 全站 | axe 的 `button-name`、`link-name`；画板：`verify_canvas.py` 的「可点元素被盖住」；eslint `jsx-a11y/no-static-element-interactions`（待做：关口三 b 开票）；见 A7 | [web.dev：给 AI Agent 用的网站体验](https://web.dev/articles/ai-agent-site-ux)；[Claude 浏览器工具文档](https://platform.claude.com/docs/en/agents-and-tools/tool-use/browser-use-tool.md) |
 | X3 原地展开的选项始终在 DOM 里，每个是真链接，不悬停、只点击或回车也能到达；装饰性的 canvas 带 `aria-hidden`，它表达的入口另有真链接 | 全站 | Playwright 不悬停读无障碍树，所有去处都能找到（评审）；画板：设计评审 | 同上 |
 | X4 不执行脚本也读得到正文（标题、作者、日期、全文）；结构化数据、站点地图、RSS 都由内容数据生成，不手写第二份（`llms.txt` 不是规则；做了的话也由内容数据生成） | 文章页、三站页面 | `curl` 取页面查正文首尾句；脚本比对 JSON-LD 和内容数据（评审） | [Google：AI 搜索优化指南](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide)；[llmstxt.org](https://llmstxt.org/) |
-| X5 读内容、订阅、搜索不用验证码；防滥用靠频率限制和邮件二次确认；撤不回的动作（术语表）在站点一侧有意图步，不靠 Agent 自觉 | 全站 | 无头浏览器走一遍订阅；读防火墙配置（评审） | [IETF Web Bot Auth 草案](https://datatracker.ietf.org/doc/html/draft-ietf-webbotauth-httpsig-protocol)；[Vercel：已验证的机器人](https://vercel.com/docs/botid/verified-bots)；PRD 第 8 节「安全」 |
+| X5 读内容、订阅、搜索不用验证码；防滥用靠频率限制、退信处理和每封邮件的一键退订（订阅提交即生效，不做邮件二次确认，11-08 产品负责人）；撤不回的动作（术语表）在站点一侧有意图步，不靠 Agent 自觉 | 全站 | 无头浏览器走一遍订阅；读防火墙配置（评审） | [IETF Web Bot Auth 草案](https://datatracker.ietf.org/doc/html/draft-ietf-webbotauth-httpsig-protocol)；[Vercel：已验证的机器人](https://vercel.com/docs/botid/verified-bots)；PRD 第 8 节「安全」 |
 | X6 统计把已验证的机器人和人分开：订阅数、点击率只算人 | 监测 | 查统计配置，用机器人请求打一次确认不进人的指标（评审） | PRD 第 6 节「监测」 |
 
 ### 4.7 用这些规则对照现有设计，发现的冲突

@@ -1,13 +1,30 @@
 # 关口三 b：PRD v1.2 拆成规格和票
 
-> 2026-11-09，主会话派的拆票 Agent 写；同日按关口三 b 冷审（`docs/delivery/reviews/2026-11-09-gate-3b.md`，就绪：否，P0 1、P1 8、P2 24）和主会话的决定改了第二轮；再按第二轮冷审（`docs/delivery/reviews/2026-11-09-gate-3b-r2.md`，就绪：否，新 P1 4、P2 16）改了第三轮。依据：PRD v1.2（在线第 275 版，快照 `docs/prd/velicoach.md`）、`docs/delivery/roadmap.md`（M1–M4）、`docs/uiue/coverage.md`、ADR-0001–0005、`docs/uiue/reviews/2026-11-04-ui-v1/closing.md` 的遗留项、`docs/prd/reviews/2026-11-09-pre-3b-r3.md` 留给票的 P2。做法照 `to-spec`、`to-tickets` 和 Veli `spec-quality.md` §2–§3，主站不同处见 `docs/standards/pipeline.md` §2.2。
+> 2026-11-09，主会话派的拆票 Agent 写；同日按关口三 b 冷审（`docs/delivery/reviews/2026-11-09-gate-3b.md`，就绪：否，P0 1、P1 8、P2 24）和主会话的决定改了第二轮；再按第二轮冷审（`docs/delivery/reviews/2026-11-09-gate-3b-r2.md`，就绪：否，新 P1 4、P2 16）改了第三轮；按第三轮冷审（`docs/delivery/reviews/2026-11-09-gate-3b-r3.md`，就绪：否，P1 3、P2 9）改了第四轮。依据：PRD v1.2（在线第 275 版，快照 `docs/prd/velicoach.md`）、`docs/delivery/roadmap.md`（M1–M4）、`docs/uiue/coverage.md`、ADR-0001–0005、`docs/uiue/reviews/2026-11-04-ui-v1/closing.md` 的遗留项、`docs/prd/reviews/2026-11-09-pre-3b-r3.md` 留给票的 P2。做法照 `to-spec`、`to-tickets` 和 Veli `spec-quality.md` §2–§3，主站不同处见 `docs/standards/pipeline.md` §2.2。
 > 本页记「拆成了什么、为什么这样拆」。票的正文以 GitHub 为准；关口三 b 是否通过由主会话在冷审后判，写在 #13。
 
 ## 1. 结论
 
-**站点车道 4 份规格（#17–#20，每个里程碑一份）、47 张票（#21–#67）：36 张 `ready-for-agent`，11 张 `ready-for-human`（7 张等产品负责人，2 张由主会话做：配密钥 #63、首次生产迁移后核对权限 #67，1 张主会话和产品负责人一起做：上线 #66，1 张等 #65 升级 Pro 的自定事件 #58）；其中 10 张 `risk:high`。内容车道 #4–#12 补齐验收、按 PRD v1.2 核对正文，9 张都标 `ready-for-agent`；#5、#6、#7、#9、#10 用原生依赖等定数据格式的站点票。** 每张票都挂在所属规格下，卡点用 GitHub 原生的「被谁卡住」连好，包括跨仓库的 thin-muscle-coach#185、#101；切换那一刻 Veli 要做的事在 thin-muscle-coach#213（不用原生依赖连，由上线步骤引用）。PRD 的 v1 功能（P0、P1）每个都落到了票上，没有砍范围、没有改优先级；**这以升级 Vercel Pro 为前提**（#65，产品负责人已确认）；细则第 6 条的 IP 限流按实例计数，产品负责人已同意，PRD 第 269 版已写明（§6）。
+**站点车道 4 份规格（#17–#20，每个里程碑一份）、47 张票（#21–#67）：36 张 `ready-for-agent`，11 张 `ready-for-human`（7 张等产品负责人，2 张由主会话做：配密钥 #63、首次生产迁移后核对权限 #67，1 张主会话和产品负责人一起做：上线 #66，1 张等 #65 升级 Pro 的自定事件 #58）；其中 10 张 `risk:high`。内容车道 #4–#12 补齐验收、按 PRD v1.2 核对正文，9 张都标 `ready-for-agent`；#5、#6、#7、#9、#10 用原生依赖等定数据格式的站点票。** 每张票都挂在所属规格下，卡点用 GitHub 原生的「被谁卡住」连好，包括跨仓库的 thin-muscle-coach#185、#101；切换那一刻 Veli 要做的事在 thin-muscle-coach#213（不用原生依赖连，由上线步骤引用）。PRD 的 v1 功能（P0、P1）每个都落到了票上，没有砍范围、没有改优先级；**这以升级 Vercel Pro 为前提**（#65，产品负责人已确认）；细则第 6 条的 IP 限流按实例计数，产品负责人已同意，PRD 已写明（§6）。**主站上线不早于 Veli B1 上线（thin-muscle-coach#72）**（§5）。
 
 本关口写了三份 ADR，产品负责人 2026-11-09 已确认，状态都是「已采纳」：ADR-0003 补 (c) 分流方式；ADR-0004 订阅的存储、发信、退订令牌和频率限制（按冷审 P0-1 改了权限模型）；ADR-0005 外部监控和告警（不加新服务商）。第三轮按第二轮冷审改了 ADR-0003 (b)(c)、ADR-0004 (a)(e)、ADR-0005 (a)(b)(c)。
+
+### 第四轮改了什么（第三轮冷审之后）
+
+| 第三轮冷审 | 改法 | 票和文件 |
+|---|---|---|
+| P1-A 工作流文件 Agent 推不上去、`feature/v1` 上没有 | 三个工作流（迁移、监控、每周依赖检查）由主会话一次写全：迁移加 `push: site`（只看 `migrations/site/**`），新加 `site-audit`；文件放进 `site` 后主会话把 `site` 合并进 `feature/v1`。**工作流文件只由主会话维护，票的 PR 不改 `.github/workflows/`**（合并脚本把它当门槛文件拦）。#45 改成断言工作流配置、只写 `site:migrate`；#59、#61 只写脚本 | ADR-0004、0005、`team-setup.md` §2 第 3 步、runbook 第 0 步、#19、#45、#59、#61、#67 |
+| P1-B Vercel 内置异常告警也要 Observability Plus | 删掉「Pro 之后开 Vercel 内置异常告警」：错误告警就是每日日报，同一类一天超过 10 次进「等你决定」 | ADR-0005 (b)、`observer.md`、#20、#59、#65、本页 §6 |
+| P1-C Veli 生产在 `main` | #54、#66 加原生依赖 thin-muscle-coach#72；runbook 写明主站上线不早于 #72，第 4、10 步和回退补 Veli `main`、由产品负责人合并；#213 写明 base 是 `main`、产品负责人合并 | ADR-0003 (c)、runbook、#20、#54、#66、thin-muscle-coach#185、#213 |
+| P2-1 版本号 | 全部正文改成「在线第 275 版」；§9 的 PRD 待办按第 275 版重列 | 全部票、本页 |
+| P2-2 代理目标 | 写明是 Veli 项目的生产域名（`*.vercel.app`），不是某次部署的生成地址；runbook 的主站目标同理 | ADR-0003 (c)、`overview.md`、`deploy.md`、#54、#59、#62、#66 |
+| P2-3 #67 失败 | 开 `fix/` 票，原生依赖卡住 #67 | #67 |
+| P2-4 验收条数 | #45、#50、#62 各 8 条（合并相邻条，挪进备注） | #45、#50、#62 |
+| P2-5 `/manual`、`/v2` | 路由表加 `/manual` 和 `/v2`（临时路由） | ADR-0003 (c)、`overview.md`、#62、thin-muscle-coach#185、#213 |
+| P2-6 #185、#213 的负责人 | 写明负责人是 Veli 的主会话（拆成 Veli 的 `ready-for-agent` 票或自己做 PR），和 `ready-for-human` 一致 | thin-muscle-coach#185、#213 |
+| P2-7 Service Worker | 第一次发布就用 `/app`；用过 `/` 时切换 PR 注销那份注册 | thin-muscle-coach#185 第 7 节、#213 |
+| P2-8 迁移和部署的先后 | 迁移向后兼容（先加后删），不兼容的先单独合并迁移 | ADR-0004「迁移约定」、`deploy.md`、工作流注释、#45 |
+| P2-9 `site_api` 连接串放在哪 | 只在 Vercel 生产环境变量 `SITE_DB_URL` 里；要用时 `vercel env pull` 取到临时文件，跑完删掉 | ADR-0004、#40、#50 |
 
 ### 第三轮改了什么（第二轮冷审之后）
 
@@ -16,7 +33,7 @@
 | P1-1 工作流上线前跑不起来 | 迁移 `site-db-migrate`、监控 `site-monitor` 两个工作流文件由主会话的 `chore/` PR 先放进默认分支 `site`（迁移只能手动触发；监控的定时也写上，在 `site` 上才生效），票在 `feature/v1` 上补脚本，用 `ref=feature/v1` 手动触发；#40 删掉「首次迁移后安全顾问 0 问题」，新开 #67（`ready-for-human`，主会话）做首次生产迁移后的权限核对，被 #45 卡、卡 #66；#59 会话里触发不了的演练交主会话，告警邮件进关口四「合并前」；监控写的评论首行 `<!-- vc-bot role=监控 -->`；仓库公开，删除和导出不做成工作流（ADR-0004） | `.github/workflows/`、ADR-0004、ADR-0005、#40、#45、#59、#67 |
 | P1-2 漏了 Veli 的静态资源 | 路由表 Veli 加一行：`/_next/*` 和 Veli 根目录的 `/manual/*`、`/sw.js`、`/manifest.webmanifest`、`/favicon.ico`、`/icons/*`（Veli `public/` 现在只有 `manual/`，其余是 F106 要加的）；#62 加 Playwright 网络检查（/body、/en/body、/app 的 4xx、5xx 为 0） | ADR-0003 (c)、`overview.md`、#62、thin-muscle-coach#185、#213 |
 | P1-3 上线链没接上 | 写 `docs/delivery/launch-runbook.md`；`pipeline.md` §2.3 拆成「合并前」「切换后」；#66 改成 `ready-for-human`（主会话 + 产品负责人），正文按 runbook，去掉 `risk:high`；研究卡随外壳包发（包里带 `research.json`，Veli 从 git 依赖读），上线前 /body 就有数据；#185 按 ADR-0003 (c) 改写，切换时的事拆到新票 thin-muscle-coach#213；#54 改成在预览上验完就关，生产核对进 runbook | ADR-0003 (b)(c)、`deploy.md`、`pipeline.md` §2.3、#52、#54、#64、#66、#9、#42 |
-| P1-4 告警 | 选 (a)：不加 Observability Plus；ADR-0005 (b) 改成错误照旧进每日日报，Pro 之后开 Vercel 内置异常检测告警作补充，不设次数阈值；#65 第 3 条改写；PRD「可观测性」一行的改法交主会话（PRD 不在本仓库改） | ADR-0005、#65、#59 |
+| P1-4 告警 | 选 (a)：不加 Observability Plus；ADR-0005 (b) 改成错误照旧进每日日报（第四轮删掉了「Pro 之后开 Vercel 内置异常告警」，见上表）；#65 第 3 条改写；PRD「可观测性」一行的改法交主会话（PRD 不在本仓库改） | ADR-0005、#65、#59 |
 | P2-1 占位符 | 规格 #17–#20 和 #45 的 24 处 `#{…}` 换成真实票号 | #17–#20、#45 |
 | P2-2 过时的句子 | 「待产品负责人确认」「在线第 259 版」全部更新（ADR 已采纳、Pro 和 IP 限流已确认、第 269 版）；§1、§6、§9 改写 | 全部票、本页 |
 | P2-3 #4 隐性等 M3 | 首屏数字先链原始出处，#9 合并后由 #64 改链到研究卡 | #4、#64 |
@@ -27,7 +44,7 @@
 | P2-8 删除命令在哪跑 | 产品负责人本机、`site_api` 的连接串，不做成工作流 | ADR-0004 (e)、#50 |
 | P2-9 公开仓库的迁移工作流 | 只允许 `workflow_dispatch` 和 `push: site`；`SITE_DB_MIGRATE_URL` 放进部署分支只允许 `site`、`feature/v1` 的 Environment `site-db` | ADR-0004、#40、#45 |
 | P2-10 监控的机器人标记和固定 issue | 首行 `<!-- vc-bot role=监控 -->`；可用率写进 issue「主站可用率」（号码存仓库变量），不用 #13 | ADR-0005、#59 |
-| P2-11 健康检查和探测目标 | 结果缓存 30 秒；`MONITOR_TARGET` 合并后是生产部署的固定地址、切换后是 `velicoach.com` | ADR-0005 (c)、#59、runbook |
+| P2-11 健康检查和探测目标 | 结果缓存 30 秒；`MONITOR_TARGET` 合并后是主站项目的生产域名、切换后是 `velicoach.com` | ADR-0005 (c)、#59、runbook |
 | P2-12 预览上测不了 Host 头 | 改成 `node --test` 对本地服务端发带 Host 头的请求 | #18、#32 |
 | P2-13 #62 补三点 | `Location` 和登录回调不带 Veli 主机名；Veli 地址不在部署保护后面；Service Worker 作用范围限定 `/app`（#213） | #62、thin-muscle-coach#213 |
 | P2-14 「连续 10 分钟」 | 规格 #20 用户故事 4 改成约 20 分钟 | #20 |
@@ -114,7 +131,7 @@
 | #52 | 研究卡数据：源数据格式、校验和 /data/research.json | F02、F09 的数据 | #23 | 站点 | `ready-for-agent` `lane:site` |
 | #64 | 首页「为什么是现在」：三个动作和四条研究（F02） | F02 | #9、#42、#27、#52 | 站点 | `ready-for-agent` `lane:site` |
 | #53 | 首页入口的落点接通：主站的入口（F01 第二张票） | F01 | #37、#33、#34、#31、#43、#51、#39 | 站点 | `ready-for-agent` `lane:site` |
-| #54 | 首页入口的落点接通：站稳的入口（等 Veli） | F01 | #53、thin-muscle-coach#185、thin-muscle-coach#101、#62 | 站点 | `ready-for-agent` `lane:site` |
+| #54 | 首页入口的落点接通：站稳的入口（等 Veli） | F01 | #53、thin-muscle-coach#185、thin-muscle-coach#101、thin-muscle-coach#72、#62 | 站点 | `ready-for-agent` `lane:site` |
 | #62 | 分流配置：主站用 rewrites 代理 Veli 的路径，在预览域名上验证 | PRD 第 3 节路由表 | #15、#23 | 站点 | `ready-for-agent` `lane:site` `risk:high` |
 | #67 | 主会话：首次生产迁移后核对权限（site_api、公开角色、安全顾问） | F07 | #45 | 站点 | `ready-for-human` `lane:site` |
 
@@ -130,7 +147,7 @@
 | #59 | 外部监控和告警：健康检查接口和 GitHub Actions 定时探测（ADR-0005） | F29 | #45、#48 | 站点 | `ready-for-agent` `lane:site` `risk:high` |
 | #60 | 六条关键路径端到端、步数和 1 秒的量法、axe、Lighthouse | PRD「关键路径与页面状态」P1–P6、「步数预算」「怎么验收」 | #54、#56、#57、#62 | 站点 | `ready-for-agent` `lane:site` |
 | #61 | 上线前隐私评审清单和依赖漏洞每周检查 | PRD 第 8 节「隐私」「安全」 | #57、#59、#50 | 站点 | `ready-for-agent` `lane:site` |
-| #66 | 上线：按上线步骤合并、切换 velicoach.com（主会话 + 产品负责人） | PRD 第 3 节路由表 | #60、#61、#55、#65、thin-muscle-coach#185、#62、#28、#32、#38、#39、#47、#49、#64、#58、#67、#5、#6、#7、#9 | 站点 | `ready-for-human` `lane:site` |
+| #66 | 上线：按上线步骤合并、切换 velicoach.com（主会话 + 产品负责人） | PRD 第 3 节路由表 | #60、#61、#55、#65、thin-muscle-coach#185、thin-muscle-coach#72、#62、#28、#32、#38、#39、#47、#49、#64、#58、#67、#5、#6、#7、#9 | 站点 | `ready-for-human` `lane:site` |
 
 
 ### 内容车道（总票 #3）
@@ -277,6 +294,8 @@ flowchart LR
   T53 --> T54
   V185 --> T54
   V101 --> T54
+  V72 --> T54
+  V72 --> T66
   T62 --> T54
   C12 --> T56
   T35 --> T56
@@ -325,6 +344,7 @@ flowchart LR
   C9(["#9"])
   V185(["Veli #185"])
   V101(["Veli #101"])
+  V72(["Veli #72"])
   C12(["#12"])
   C5(["#5"])
   C6(["#6"])
@@ -350,9 +370,10 @@ flowchart LR
 |---|---|---|---|
 | 流水线开跑前的准备（Vercel 项目、预览绕过头、基线变绿、合并脚本） | 产品负责人 + 主会话 | #15 | #22（站点车道第一张）、#29、#62、#63 |
 | ADR-0003、ADR-0004、ADR-0005 已确认（2026-11-09）| 产品负责人 | 已解除 | #26、#40 可以开工；#59 依据 ADR-0005 |
-| 两个工作流文件放进默认分支 `site`（迁移只能手动触发，监控带定时） | 主会话（`chore/` PR，产品负责人合并） | 无票 | #45、#59 的手动触发，#67 |
-| Veli：/body、/en/body、法务页、研究卡从外壳包读、接入外壳包、路由表同步 | Veli 仓库 | thin-muscle-coach#185 | #54、#66；#25 的法务链接落点（不挡关票） |
-| Veli：切换那一刻的事（去掉 `/` 的临时跳转、不出 robots.txt、ADR-0032 改成由主站代理、Service Worker 作用范围） | Veli 仓库 + 主会话 | thin-muscle-coach#213 | 不用原生依赖连；在 #66 的「切换」一步合并 |
+| 三个工作流文件放进默认分支 `site`，再把 `site` 合并进 `feature/v1` | 主会话（`chore/` PR，产品负责人合并） | 无票 | #45、#59 的手动触发，#67 |
+| Veli B1 上线（`feature/b1` 合并进 Veli 生产分支 `main`）：主站上线不早于它，除非产品负责人同意把 #185、#101 当紧急修复单独进 `main` | 产品负责人 | thin-muscle-coach#72 | #54、#66（也经 #60） |
+| Veli：/body、/en/body、法务页、研究卡从外壳包读、接入外壳包、路由表同步、Service Worker 限定 `/app` | Veli 主会话 | thin-muscle-coach#185 | #54、#66；#25 的法务链接落点（不挡关票） |
+| Veli：切换那一刻的事（去掉 `/` 的临时跳转、不出 robots.txt、ADR-0032 改成由主站代理） | Veli 主会话做 PR（base `main`），产品负责人合并 | thin-muscle-coach#213 | 不用原生依赖连；在 #66 的「切换」一步合并 |
 | 首次生产迁移后核对权限 | 主会话 | #67 | #66 |
 | Veli：/body 按两步原则改 | Veli 仓库 | thin-muscle-coach#101 | #54 |
 | 联系邮箱 | 产品负责人 | #21 | #25 |
@@ -372,7 +393,7 @@ flowchart LR
 1. **IP 频率限制按实例计数，改了细则第 6 条的验收；产品负责人 2026-11-09 已同意，PRD 细则第 6 条已写明（在线第 275 版）。** ADR-0004 (d) 只用内存计数（不加新服务商），Vercel 同时起多个实例时，同一 IP 实际能提交的次数会多于 5 次；同一邮箱每小时 3 次照样准确。Pro 生效后可以在 Vercel 防火墙加同样的规则作为第二道；上线两周后观察者按 Resend 的退信和投诉数复核。
 2. **Vercel Pro：产品负责人 2026-11-09 确认上线前升级，#65 只剩升级这一步。** PRD 第 8 节「成本」已写上线前升级 Pro；#65 负责这件事，原生依赖卡住 #58（F29 的自定事件，P0）和上线切换 #66。不升级时，F29 的事件要按 PRD 第 10 节的替代（主站自己的接口收事件）先改 PRD。
 3. **两个定时的准点也依赖 Pro。** Hobby 的定时任务精度是一小时内：#49 周日 08:00 发信、#37 北京时间周六 00:00 换本周文章（加上构建时间），在 Hobby 上会晚到最多约一小时。两张票都写明了；上线后第一周由观察者核对实际时刻。
-4. **错误告警不加 Observability Plus（第二轮冷审 P1-4，主会话选 (a)）。** Vercel 按次数设阈值的告警要另付这一项；线上错误照旧进每日日报，Pro 之后开 Vercel 内置的异常检测告警作补充，整站挂了由外部探测约 20 分钟告警（ADR-0005）。PRD「可观测性」一行要跟着改，改法交主会话（§9）。
+4. **错误告警不加 Observability Plus（第二轮冷审 P1-4 选 (a)；第三轮冷审 P1-B 删掉了 Vercel 内置告警的补充）。** Vercel 的告警（包括内置的异常告警）都要另付 Observability Plus，不开；线上错误就是每日日报，同一类一天超过 10 次进「等你决定」；整站挂了由外部探测约 20 分钟告警（ADR-0005）。
 
 下面几处是体验类决定（主会话直接定，产品负责人有意见再改），记在 `docs/uiue/decisions.md`：主站的 `/mind`、`/build` 不放本站操作条；手机上不显示书脊；没画的界面套用已有画板。
 
@@ -465,20 +486,20 @@ flowchart LR
 
 ## 9. 给主会话的
 
-- 开一个 `chore/` PR 把 `.github/workflows/site-db-migrate.yml`、`site-monitor.yml` 放进 `site`（拆票会话写好了文件，但推送工作流要 `workflows` 权限，没有提交在本分支；由主会话或产品负责人提交）；合并以后 #45、#59、#67 才能用 `ref=feature/v1` 手动触发。
-- #63 由主会话做：#15 建好 Vercel 项目以后，用 Vercel 的环境变量接口生成并写入，不打印值。#67 由主会话做：#45 合并后触发迁移并核对。
-- #66 按 `docs/delivery/launch-runbook.md` 做；Veli 侧切换时的事在 thin-muscle-coach#213。
-- #13 正文由日报覆盖，主会话下次更新时把关口三 b 第三轮的结果写进去。
-- 要改在线 PRD 的地方（本仓库不改 PRD；第 269 版已经改了监控频率、IP 按实例计数、分流写法、Pro 的理由）：
-  1. 第 8 节「可观测性」验收：Pro 之后的告警改成「错误照旧进每日日报，Pro 之后加开 Vercel 内置异常告警作补充，不设次数阈值」（ADR-0005 (b)）。
-  2. 第 5 节之后的决定记录「研究卡数据放在哪」和第 11 节「Veli 站稳页」一行：Veli 从外壳包读 `research.json`，不再构建时请求 `/data/research.json`、读不到用快照（ADR-0003 (b)）。
+- **工作流由主会话维护**：三个文件 `site-db-migrate.yml`、`site-monitor.yml`、`site-audit.yml` 一次写全，由主会话的 `chore/` PR 放进 `site`，合并后把 `site` 合并进 `feature/v1`。Agent 的 PR 不能改 `.github/workflows/`（合并脚本 `merge-gates.mjs` 把它当门槛文件拦，Agent 会话也没有推送工作流的权限）；票只写工作流调用的脚本。要改工作流时，票在 PR 里写明要改什么，由主会话另开 `chore/` PR。
+- #63 由主会话做：#15 建好 Vercel 项目以后，用 Vercel 的环境变量接口生成并写入，不打印值。#67 由主会话做：#45 合并后触发迁移并核对；不过就开 `fix/` 票。
+- #66 按 `docs/delivery/launch-runbook.md` 做；主站上线不早于 thin-muscle-coach#72，例外要产品负责人同意；Veli 侧切换时的事在 thin-muscle-coach#213。
+- #13 正文由日报覆盖，主会话下次更新时把关口三 b 第四轮的结果写进去。
+- 要改在线 PRD 的地方（本仓库不改 PRD；第 275 版已经改了错误告警进日报、研究卡随外壳包发、Veli 静态资源分流）：
+  1. 第 8 节「可观测性」验收：删掉「升级 Pro 之后加开 Vercel 内置的错误异常告警作补充，不设次数阈值」（ADR-0005 (b)，第三轮冷审 P1-B）。
+  2. 第 3 节路由表 Veli 那一行：加 `/manual`（Veli 跳到 `/manual/index.html`）和 `/v2`（Veli 新应用壳的临时路由，改名后删掉）。
   3. 细则第 10 条和第 8 节「隐私」第二行：Resend 发送日志的保留期如果超过 30 天，要写明例外（等 #50 查明）。
-  4. 第 8 节「隐私」验收的第三方清单：加 GitHub（监控，只收探测结果）。
-  5. 第 6 节「上线前检查」或第 9 节：引用 `docs/standards/pipeline.md` §2.3 关口四的「合并前」「切换后」两段和 `docs/delivery/launch-runbook.md`。
+  4. 第 8 节「隐私」验收的第三方清单：加 GitHub（监控和依赖检查，只收探测结果）。
+  5. 第 6 节「上线前检查」或第 9 节：引用 `docs/standards/pipeline.md` §2.3 关口四的「合并前」「切换后」两段和 `docs/delivery/launch-runbook.md`；写明主站上线不早于 Veli B1 上线。
 - `/unsubscribe`、`/en/unsubscribe` 两条在 PRD 路由表里已经都有，不用改。
 
 ## 10. 检查
 
-- 4 份规格、47 张票、9 张内容票的正文，发出前都先存成文件跑 `node scripts/check-vague.mjs <文件>`，全部通过（拆票脚本逐份跑，不过就不发）。第二轮、第三轮同样逐份重跑；第三轮还跑了 #15 和 thin-muscle-coach#185、#213 的正文。
+- 4 份规格、47 张票、9 张内容票的正文，发出前都先存成文件跑 `node scripts/check-vague.mjs <文件>`，全部通过（拆票脚本逐份跑，不过就不发）。第二、三、四轮同样逐份重跑；第三、四轮还跑了 thin-muscle-coach#185、#213 的正文（第三轮另有 #15）。
 - 第三轮：原生依赖（#3–#67）建图没有环；以父规格定里程碑，倒挂 0 处；#21–#67 都挂在规格下。
 - 仓库里 `npm run check:vague`、`npm run check:terms` 在提交前跑过，结果见提交说明。

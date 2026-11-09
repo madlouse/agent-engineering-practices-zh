@@ -17,9 +17,10 @@
 
 1. Vercel 项目：每个分支出预览部署；构建里有类型检查和 lint；打开自动化访问绕过，绕过头只配进云端环境。
 2. 集成分支 `feature/v1`：已建（11-04）。PR #2、#16 合并进 `site` 后，主会话把 `site` 合并进 `feature/v1`。
-3. 基线变绿：`npm test` 全过。
-4. 合并脚本：主会话从 Veli 复用改写，`chore/` 分支，冷评审后由产品负责人合并。
-5. 放行合并脚本：权限设置里只放行 `scripts/merge-ticket-pr.sh`。权限改动 Agent 只出草稿。
+3. 工作流：主会话的 `chore/` PR 把 `site-db-migrate`、`site-monitor`、`site-audit` 三个工作流文件放进 `site`；合并后主会话再把 `site` 合并进 `feature/v1`（手动触发执行的是所选分支上的那份文件）。工作流文件只由主会话维护，票的 PR 不改 `.github/workflows/`。
+4. 基线变绿：`npm test` 全过。
+5. 合并脚本：主会话从 Veli 复用改写，`chore/` 分支，冷评审后由产品负责人合并。
+6. 放行合并脚本：权限设置里只放行 `scripts/merge-ticket-pr.sh`。权限改动 Agent 只出草稿。
 
 ## 3. 建定时任务
 

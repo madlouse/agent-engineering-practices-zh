@@ -13,7 +13,7 @@
 
 | 第三轮冷审 | 改法 | 票和文件 |
 |---|---|---|
-| P1-A 工作流文件 Agent 推不上去、`feature/v1` 上没有 | 三个工作流（迁移、监控、每周依赖检查）由主会话一次写全：迁移加 `push: site`（只看 `migrations/site/**`），新加 `site-audit`；文件放进 `site` 后主会话把 `site` 合并进 `feature/v1`。**工作流文件只由主会话维护，票的 PR 不改 `.github/workflows/`**（合并脚本把它当门槛文件拦）。#45 改成断言工作流配置、只写 `site:migrate`；#59、#61 只写脚本 | ADR-0004、0005、`team-setup.md` §2 第 3 步、runbook 第 0 步、#19、#45、#59、#61、#67 |
+| P1-A 工作流文件 Agent 推不上去、`feature/v1` 上没有 | 三个工作流（迁移、监控、每周依赖检查）由主会话一次写全：迁移加 `push: site`（只看 `migrations/site/**`），新加 `site-audit`；文件放进默认分支（11-09 起是 `feature/v1`，上线后改回 `site`，`pipeline.md` §5），在上面就能手动触发和定时运行。**工作流文件只由主会话维护，票的 PR 不改 `.github/workflows/`**（合并脚本把它当门槛文件拦）。#45 改成断言工作流配置、只写 `site:migrate`；#59、#61 只写脚本 | ADR-0004、0005、`team-setup.md` §2 第 3 步、runbook 第 0 步、#19、#45、#59、#61、#67 |
 | P1-B Vercel 内置异常告警也要 Observability Plus | 删掉「Pro 之后开 Vercel 内置异常告警」：错误告警就是每日日报，同一类一天超过 10 次进「等你决定」 | ADR-0005 (b)、`observer.md`、#20、#59、#65、本页 §6 |
 | P1-C Veli 生产在 `main` | #54、#66 加原生依赖 thin-muscle-coach#72；runbook 写明主站上线不早于 #72，第 4、10 步和回退补 Veli `main`、由产品负责人合并；#213 写明 base 是 `main`、产品负责人合并 | ADR-0003 (c)、runbook、#20、#54、#66、thin-muscle-coach#185、#213 |
 | P2-1 版本号 | 全部正文改成「在线第 278 版」；§9 的 PRD 待办按第 275 版重列 | 全部票、本页 |
@@ -30,7 +30,7 @@
 
 | 第二轮冷审 | 改法 | 票和文件 |
 |---|---|---|
-| P1-1 工作流上线前跑不起来 | 迁移 `site-db-migrate`、监控 `site-monitor` 两个工作流文件由主会话的 `chore/` PR 先放进默认分支 `site`（迁移只能手动触发；监控的定时也写上，在 `site` 上才生效），票在 `feature/v1` 上补脚本，用 `ref=feature/v1` 手动触发；#40 删掉「首次迁移后安全顾问 0 问题」，新开 #67（`ready-for-human`，主会话）做首次生产迁移后的权限核对，被 #45 卡、卡 #66；#59 会话里触发不了的演练交主会话，告警邮件进关口四「合并前」；监控写的评论首行 `<!-- vc-bot role=监控 -->`；仓库公开，删除和导出不做成工作流（ADR-0004） | `.github/workflows/`、ADR-0004、ADR-0005、#40、#45、#59、#67 |
+| P1-1 工作流上线前跑不起来 | 迁移 `site-db-migrate`、监控 `site-monitor` 两个工作流文件由主会话的 `chore/` PR 先放进默认分支（11-09 起是 `feature/v1`；迁移手动触发；监控的定时也写上，在默认分支上就生效），票在 `feature/v1` 上补脚本，用 `ref=feature/v1` 手动触发；#40 删掉「首次迁移后安全顾问 0 问题」，新开 #67（`ready-for-human`，主会话）做首次生产迁移后的权限核对，被 #45 卡、卡 #66；#59 会话里触发不了的演练交主会话，告警邮件进关口四「合并前」；监控写的评论首行 `<!-- vc-bot role=监控 -->`；仓库公开，删除和导出不做成工作流（ADR-0004） | `.github/workflows/`、ADR-0004、ADR-0005、#40、#45、#59、#67 |
 | P1-2 漏了 Veli 的静态资源 | 路由表 Veli 加一行：`/_next/*` 和 Veli 根目录的 `/manual/*`、`/sw.js`、`/manifest.webmanifest`、`/favicon.ico`、`/icons/*`（Veli `public/` 现在只有 `manual/`，其余是 F106 要加的）；#62 加 Playwright 网络检查（/body、/en/body、/app 的 4xx、5xx 为 0） | ADR-0003 (c)、`overview.md`、#62、thin-muscle-coach#185、#213 |
 | P1-3 上线链没接上 | 写 `docs/delivery/launch-runbook.md`；`pipeline.md` §2.3 拆成「合并前」「切换后」；#66 改成 `ready-for-human`（主会话 + 产品负责人），正文按 runbook，去掉 `risk:high`；研究卡随外壳包发（包里带 `research.json`，Veli 从 git 依赖读），上线前 /body 就有数据；#185 按 ADR-0003 (c) 改写，切换时的事拆到新票 thin-muscle-coach#213；#54 改成在预览上验完就关，生产核对进 runbook | ADR-0003 (b)(c)、`deploy.md`、`pipeline.md` §2.3、#52、#54、#64、#66、#9、#42 |
 | P1-4 告警 | 选 (a)：不加 Observability Plus；ADR-0005 (b) 改成错误照旧进每日日报（第四轮删掉了「Pro 之后开 Vercel 内置异常告警」，见上表）；#65 第 3 条改写；PRD「可观测性」一行的改法交主会话（PRD 不在本仓库改） | ADR-0005、#65、#59 |
@@ -43,13 +43,13 @@
 | P2-7 PGLite 上没有 `anon`、`authenticated` | 不存在就建同名的不能登录的角色 | ADR-0004、#45 |
 | P2-8 删除命令在哪跑 | 产品负责人本机、`site_api` 的连接串，不做成工作流 | ADR-0004 (e)、#50 |
 | P2-9 公开仓库的迁移工作流 | 只允许 `workflow_dispatch` 和 `push: site`；`SITE_DB_MIGRATE_URL` 放进部署分支只允许 `site`、`feature/v1` 的 Environment `site-db` | ADR-0004、#40、#45 |
-| P2-10 监控的机器人标记和固定 issue | 首行 `<!-- vc-bot role=监控 -->`；可用率写进 issue「主站可用率」（号码存仓库变量），不用 #13 | ADR-0005、#59 |
+| P2-10 监控的机器人标记和固定 issue | 首行 `<!-- vc-bot role=监控 -->`；可用率写进 issue「主站可用率」（脚本按固定标题加标签 `monitor` 查找或新建，不用仓库变量），不用 #13 | ADR-0005、#59 |
 | P2-11 健康检查和探测目标 | 结果缓存 30 秒；`MONITOR_TARGET` 合并后是主站项目的生产域名、切换后是 `velicoach.com` | ADR-0005 (c)、#59、runbook |
 | P2-12 预览上测不了 Host 头 | 改成 `node --test` 对本地服务端发带 Host 头的请求 | #18、#32 |
 | P2-13 #62 补三点 | `Location` 和登录回调不带 Veli 主机名；Veli 地址不在部署保护后面；Service Worker 作用范围限定 `/app`（#213） | #62、thin-muscle-coach#213 |
 | P2-14 「连续 10 分钟」 | 规格 #20 用户故事 4 改成约 20 分钟 | #20 |
 | P2-15 连接池的预编译语句 | 驱动关掉命名的预编译语句，加一条测试 | ADR-0004、#45 |
-| P2-16 依赖漏洞的定时工作流 | 判定脚本用固定的 `npm audit` 输出测；定时上线后才跑 | #61 |
+| P2-16 依赖漏洞的定时工作流 | 判定脚本用固定的 `npm audit` 输出测；定时在默认分支上跑（上线前是 `feature/v1`）；`audit.json` 为空、解析不了或含 `error` 字段判为失败并开票 | #61 |
 | 同类：构建里跑迁移 | #15 的 Vercel 构建命令去掉 `npm run db:migrate`，迁移只走工作流；`pipeline.md` §9 对照表、`deploy.md` 同步 | #15、`pipeline.md`、`deploy.md` |
 
 ### 第二轮改了什么（冷审之后）
@@ -481,7 +481,7 @@ flowchart LR
 
 ## 9. 给主会话的
 
-- **工作流由主会话维护**：三个文件 `site-db-migrate.yml`、`site-monitor.yml`、`site-audit.yml` 一次写全，由主会话的 `chore/` PR 放进 `site`，合并后把 `site` 合并进 `feature/v1`。Agent 的 PR 不能改 `.github/workflows/`（合并脚本 `merge-gates.mjs` 把它当门槛文件拦，Agent 会话也没有推送工作流的权限）；票只写工作流调用的脚本。要改工作流时，票在 PR 里写明要改什么，由主会话另开 `chore/` PR。
+- **工作流由主会话维护**：三个文件 `site-db-migrate.yml`、`site-monitor.yml`、`site-audit.yml` 一次写全，由主会话的 `chore/` PR 放进默认分支 `feature/v1`（上线合并把它们带进 `site`，上线后默认分支改回 `site`）。Agent 的 PR 不能改 `.github/workflows/`（合并脚本 `merge-gates.mjs` 把它当门槛文件拦，Agent 会话也没有推送工作流的权限）；票只写工作流调用的脚本。要改工作流时，票在 PR 里写明要改什么，由主会话另开 `chore/` PR。
 - #63 由主会话做：#15 建好 Vercel 项目以后，用 Vercel 的环境变量接口生成并写入，不打印值。#67 由主会话做：#45 合并后触发迁移并核对；不过就开 `fix/` 票。
 - #66 按 `docs/delivery/launch-runbook.md` 做；主站上线不早于 thin-muscle-coach#72，例外要产品负责人同意；Veli 侧切换时的事在 thin-muscle-coach#213。
 - #13 正文由日报覆盖，主会话下次更新时把关口三 b 第四轮的结果写进去。

@@ -1,6 +1,6 @@
 // 合并脚本的「改动范围」检查（scripts/merge-ticket-pr.sh 从集成分支取本文件的版本来跑，PR 改不了它）。只读 git，不改任何东西。
 // 用法：node scripts/merge-gates.mjs <base-ref> <head-sha> <head 分支名> [PR 正文和标题的文件] [--pr-base <PR 的 base> --target <目标分支>]
-// 分支名决定是不是票（TICKET_BRANCH）和票号；票的 PR 查得最严。不是票的 PR 按类别分 a、b（prCategory）。
+// 分支名决定是不是票（TICKET_BRANCH）和票号；票的 PR 查得最严。不是票的 PR 按类别分 a、b；改了权限设置的一律不合并（prCategory）。
 // 输出：通过时最后一行是 category=<ticket|a|b>、退出码 0；不通过时打印原因、退出码 1。
 // 复用 Veli scripts/merge-gates.mjs，按主站改（docs/standards/pipeline.md §5、§8 第 0 阶段、§9）。
 import { execFileSync } from "node:child_process";
@@ -20,7 +20,12 @@ export const GATE_FILES = [
   /^docs\/standards\/(pipeline|observer|quality-terms)\.md$/,
   /^docs\/delivery\/loops\//,
   /^docs\/GLOSSARY\.md$/,
+  /(?:^|\/)(?:AGENTS[^/]*|CLAUDE)\.md$/,
 ];
+// 权限设置只归产品负责人：任何 PR 改了它们，脚本都不合并（pipeline.md §5.1）
+export const OWNER_FILES = [/^\.claude\/settings[^/]*\.json$/];
+// 执行检查的脚本：不是票的 PR 改或删它们，按 b 类（新增不算）
+export const CHECK_FILES = [/^scripts\/(?:check-[^/]+|vague-terms|brand-check|[^/]+-verdict)\.mjs$/, /^eslint-suppressions\.json$/];
 // 状态 issue #13（总开关、运行锁、日报）不能被 PR 关掉
 export const PROTECTED_ISSUES = new Set(["13"]);
 // 票的分支：content/ 和 feat/、fix/ 一样算票
@@ -43,9 +48,9 @@ export function checkBase(prBase, target) {
 
 // PR 说明（正文）第一行写类别：「类别：票 / a / b / 内容定稿」（pipeline.md §5.1）
 const CATEGORY_LINE = /^类别\s*[：:]\s*(票|a|b|内容定稿)\s*$/i;
-/** 正文第一个非空行里的类别；没写或写错返回 null。 */
+/** 正文第一行里的类别；没写、写错或第一行是空行（正文为空时不拿标题顶替）返回 null。 */
 export function declaredCategory(body) {
-  const first = (body ?? "").split(/\r?\n/).map((l) => l.trim()).find(Boolean) ?? "";
+  const first = (body ?? "").split(/\r?\n/)[0].trim();
   const m = CATEGORY_LINE.exec(first);
   return m ? m[1].toLowerCase() : null;
 }
@@ -85,34 +90,45 @@ export function checkGates({ base, head, kind, ticket = "", text = "", git }) {
     else if (isTicket && ticket && n !== ticket) problems.push(`票 #${ticket} 的 PR 会关掉别的 issue #${n}（「${m[0]}」）`);
   }
 
-  // 票的 PR 不能削弱测试：删测试文件、新增 .only / .skip / .todo、新增关掉 lint 的写法
-  if (isTicket) {
-    const status = git("diff", "--no-renames", "--name-status", `${fork}..${head}`).split("\n").filter(Boolean);
-    for (const line of status) {
-      const [st, path] = line.split("\t");
-      if (st === "D" && /\.test\.(?:mjs|ts|tsx)$/.test(path)) problems.push(`删了测试文件 ${path}`);
-    }
-    const added = git("diff", "-U0", `${fork}..${head}`, "--", ".", ":(exclude)docs")
-      .split("\n")
-      .filter((l) => l.startsWith("+") && !l.startsWith("+++"));
-    const SKIP = [
-      /\b(?:test|it|describe|suite|t|context|ctx)\.(?:only|skip|todo)\s*\(/,
-      /\b(?:only|skip|todo)\s*:\s*(?:true|['"`])/, // 环境门控 { skip: needSite } 不算
-    ];
-    for (const l of added) {
-      const code = l.slice(1).trim();
-      if (SKIP.some((r) => r.test(code))) problems.push(`新增了跳过或只跑部分测试的写法：${code.slice(0, 80)}`);
-      if (/eslint-disable|\/\*\s*eslint\s/.test(code)) problems.push(`新增了关掉 lint 的写法：${code.slice(0, 80)}`);
-    }
+  // 票的 PR 不能削弱测试（不是票的 PR 削弱了就按 b 类，见 prCategory）
+  if (isTicket) problems.push(...weakenings({ fork, head, git }));
+  return problems;
+}
+
+/** 削弱测试的改动：删测试文件、新增 .only / .skip / .todo、新增关掉 lint 的写法。 */
+export function weakenings({ fork, head, git }) {
+  const problems = [];
+  const status = git("diff", "--no-renames", "--name-status", `${fork}..${head}`).split("\n").filter(Boolean);
+  for (const line of status) {
+    const [st, path] = line.split("\t");
+    if (st === "D" && /\.test\.(?:mjs|ts|tsx)$/.test(path)) problems.push(`删了测试文件 ${path}`);
+  }
+  const added = git("diff", "-U0", `${fork}..${head}`, "--", ".", ":(exclude)docs")
+    .split("\n")
+    .filter((l) => l.startsWith("+") && !l.startsWith("+++"));
+  const SKIP = [
+    /\b(?:test|it|describe|suite|t|context|ctx)\.(?:only|skip|todo)\s*\(/,
+    /\b(?:only|skip|todo)\s*:\s*(?:true|['"`])/, // 环境门控 { skip: needSite } 不算
+  ];
+  for (const l of added) {
+    const code = l.slice(1).trim();
+    if (SKIP.some((r) => r.test(code))) problems.push(`新增了跳过或只跑部分测试的写法：${code.slice(0, 80)}`);
+    if (/eslint-disable|\/\*\s*eslint\s/.test(code)) problems.push(`新增了关掉 lint 的写法：${code.slice(0, 80)}`);
   }
   return problems;
 }
 
 /**
- * PR 的类别：票 → ticket；不是票的 → a 或 b。拿不准一律按 b：没写类别、写的不是 a、
- * 改了门槛文件（GATE_FILES）、改或删了 package.json 已有的命令。返回 { category, reasons, problems }。
+ * PR 的类别：票 → ticket；不是票的 → a 或 b；改了权限设置的 → owner（任何 PR 都不合并，等产品负责人）。
+ * 不是票的拿不准一律按 b：没写类别、写的不是 a、改了门槛文件（GATE_FILES）、改或删了检查脚本（CHECK_FILES）
+ * 或 package.json 已有的命令、削弱了测试（weakenings）。返回 { category, reasons, problems }。
  */
 export function prCategory({ base, head, kind, body = "", git }) {
+  const fork = git("merge-base", base, head).trim();
+  const status = git("diff", "--no-renames", "--name-status", `${fork}..${head}`).split("\n").filter(Boolean)
+    .map((l) => { const [st, path] = l.split("\t"); return { st, path }; });
+  const owner = status.filter(({ path }) => OWNER_FILES.some((r) => r.test(path)));
+  if (owner.length) return { category: "owner", reasons: [], problems: owner.map(({ path }) => `改了权限设置 ${path}：等产品负责人合并（pipeline.md §5.1）`) };
   const declared = declaredCategory(body);
   if (kind === "ticket") {
     if (declared === "内容定稿") return { category: "ticket", reasons: [], problems: ["类别是内容定稿：等产品负责人本人合并，合并就是定稿（pipeline.md §5.1）"] };
@@ -122,13 +138,15 @@ export function prCategory({ base, head, kind, body = "", git }) {
   const reasons = [];
   if (declared === null) reasons.push("PR 说明第一行没写类别");
   else if (declared !== "a") reasons.push(`PR 说明的类别是 ${declared}`);
-  const fork = git("merge-base", base, head).trim();
-  const changed = git("diff", "--no-renames", "--name-only", `${fork}..${head}`).split("\n").filter(Boolean);
-  for (const f of changed) if (GATE_FILES.some((r) => r.test(f))) reasons.push(`改了门槛文件 ${f}`);
+  for (const { st, path } of status) {
+    if (GATE_FILES.some((r) => r.test(path))) reasons.push(`改了门槛文件 ${path}`);
+    else if (st !== "A" && CHECK_FILES.some((r) => r.test(path))) reasons.push(`改或删了检查脚本 ${path}`);
+  }
   const show = (ref) => { try { return git("show", `${ref}:package.json`); } catch { return null; } };
   const bs = JSON.parse(show(fork) ?? "{}").scripts ?? {};
   const hs = JSON.parse(show(head) ?? "{}").scripts ?? {};
   for (const k of Object.keys(bs)) if (hs[k] !== bs[k]) reasons.push(`package.json 的 scripts.${k} 被改或被删`);
+  reasons.push(...weakenings({ fork, head, git }));
   return { category: reasons.length ? "b" : "a", reasons, problems: [] };
 }
 
@@ -162,7 +180,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   ];
   if (problems.length) {
     console.log(problems.map((p) => `- ${p}`).join("\n"));
-    if (kind === "ticket") console.log("门槛文件的改动单独开 chore/ PR，按 b 类两份评审通过后合并（docs/standards/pipeline.md §5.1）。");
+    if (kind === "ticket" && cat.category !== "owner") console.log("门槛文件的改动单独开 chore/ PR，按 b 类两份评审通过后合并（docs/standards/pipeline.md §5.1）。");
     process.exit(1);
   }
   if (cat.reasons.length) console.log(`按 b 类处理：${cat.reasons.join("；")}`);

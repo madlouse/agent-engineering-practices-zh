@@ -4,7 +4,8 @@
 # - 目标分支：GitHub 上有 feature/v1 时只合并进 feature/v1（上线前）；feature/v1 删掉以后只合并进 site（上线后）。
 #   上线前 feature/v1 → site 那一次由产品负责人确认，本脚本不做。
 # - 只合并：base 是目标分支（base 是 site 的上线前一律拒绝）、开着、不是草稿、带 agent:pass、不带 agent:hold / agent:rework / owner:merge 的 PR；
-# - 类别（merge-gates.mjs 的 prCategory）：票；不是票的 a 类；b 类（PR 说明写 b、没写类别、改了门槛文件或已有命令）。
+# - 类别（merge-gates.mjs 的 prCategory）：票；不是票的 a 类；b 类（PR 说明写 b、没写类别、改了门槛文件、检查脚本或已有命令、削弱了测试）；
+#   改了权限设置（.claude/settings*.json）的一律不合并，等产品负责人。
 # - 评审结论针对当前头提交：content/ 分支要 kind=content；b 类要 kind=general 和 kind=general-b 两份；其余要 kind=general；
 #   risk:high 另要 kind=security 和 security:pass。
 #   结论只认对应评审角色经 Claude 应用写的、没编辑过的 vc-review 标记（scripts/review-markers.mjs）。头提交一变，旧结论自动失效。
@@ -66,7 +67,7 @@ lib_dir=$(mktemp -d)
 for f in review-markers.mjs merge-gates.mjs; do
   git show "$tgt:scripts/$f" > "$lib_dir/$f" || fail "$TARGET 上没有 scripts/$f"
 done
-# 改动范围、base 和类别：正文放前面，第一行是「类别：…」
+# 改动范围、base 和类别：正文放前面，第一行是「类别：…」；正文为空时第一行是空行，不拿标题当类别
 body_file=$(mktemp); { field 'p.body||""'; field 'p.title||""'; } > "$body_file"
 gates_out=$(node "$lib_dir/merge-gates.mjs" "$tgt" "$sha" "$head" "$body_file" --pr-base "$base" --target "$TARGET") || { echo "$gates_out"; fail "改动范围、base 或类别不合规（见上）"; }
 category=$(printf '%s\n' "$gates_out" | sed -n 's/^category=//p' | tail -1)

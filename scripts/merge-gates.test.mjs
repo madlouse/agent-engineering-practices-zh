@@ -187,11 +187,11 @@ test("base：上线前只合并进 feature/v1，base 是 site 的拒绝；上线
   } finally { r.cleanup(); }
 });
 
-test("类别行：只认正文第一个非空行", () => {
-  for (const [body, want] of [["类别：a\n说明", "a"], ["\n  类别: b  \n", "b"], ["类别：票", "票"], ["类别：内容定稿", "内容定稿"], ["类别：A", "a"]]) {
+test("类别行：只认正文第一行；正文为空时不拿后面的标题当类别", () => {
+  for (const [body, want] of [["类别：a\n说明", "a"], ["  类别: b  \n", "b"], ["类别：票", "票"], ["类别：内容定稿", "内容定稿"], ["类别：A", "a"]]) {
     assert.equal(declaredCategory(body), want, body);
   }
-  for (const body of ["", "说明\n类别：a", "类别：c", "类别：a 类", "类别：a / b"]) assert.equal(declaredCategory(body), null, body);
+  for (const body of ["", "\n类别：a", "说明\n类别：a", "类别：c", "类别：a 类", "类别：a / b"]) assert.equal(declaredCategory(body), null, body);
 });
 
 test("不是票的 PR：写 a 且不碰门槛才算 a；没写、写 b、改门槛文件或已有命令一律按 b", () => {
@@ -228,5 +228,66 @@ test("票的 PR：类别写内容定稿的不合并（等产品负责人），�
     assert.equal(r.run(head, "content/7-final", "类别：b").status, 1);
     assert.equal(category(r.run(head, "content/7-final", "类别：票")), "ticket");
     assert.equal(category(r.run(head, "content/7-final", "")), "ticket");
+  } finally { r.cleanup(); }
+});
+
+test("权限设置只归产品负责人：任何 PR 改了 .claude/settings*.json 都不合并", () => {
+  const r = repo();
+  try {
+    for (const [ref, body] of [["chore/perm", "类别：a"], ["chore/perm-b", "类别：b"], ["obs/2026-11-09-perm", "类别：b"], ["feat/3-perm", "类别：票"]]) {
+      r.branch(ref); r.write(".claude/settings.json", `{"permissions":{"allow":["Bash(*)"]}}\n`);
+      const res = r.run(r.commit(ref), ref, body);
+      assert.equal(res.status, 1, ref);
+      assert.match(res.stdout, /改了权限设置 \.claude\/settings\.json：等产品负责人合并/, ref);
+      assert.equal(category(res), undefined, ref);
+    }
+    r.branch("chore/perm-local"); r.write(".claude/settings.local.json", "{}\n");
+    assert.equal(r.run(r.commit("local"), "chore/perm-local", "类别：b").status, 1, "settings.local.json 也算");
+  } finally { r.cleanup(); }
+});
+
+test("不是票的 PR 削弱检查或改红线，说明写 a 也按 b（评审B 的三条复现）", () => {
+  const r = repo();
+  try {
+    r.write("scripts/check-auth-invariant.mjs", "process.exit(check())\n");
+    r.write("scripts/brand-check.mjs", "check()\n");
+    r.write("scripts/vague-terms.test.mjs", "test('v', () => {});\n");
+    r.write("AGENTS.project.md", "8. 密钥只放在服务端\n");
+    r.write("src/AGENTS.md", "# src\n");
+    r.write("CLAUDE.md", "@AGENTS.project.md\n");
+    r.write("eslint-suppressions.json", "{}\n");
+    r.commit("more base");
+    const cases = [
+      ["清空检查脚本", () => r.write("scripts/check-auth-invariant.mjs", ""), /改或删了检查脚本 scripts\/check-auth-invariant\.mjs/],
+      ["删检查脚本", () => r.git("rm", "-q", "scripts/brand-check.mjs"), /改或删了检查脚本 scripts\/brand-check\.mjs/],
+      ["删测试文件", () => r.git("rm", "-q", "scripts/vague-terms.test.mjs"), /删了测试文件 scripts\/vague-terms\.test\.mjs/],
+      ["加 skip", () => r.write("scripts/a.test.mjs", "test.skip('a', () => {});\n"), /跳过或只跑部分测试/],
+      ["加 eslint-disable", () => r.write("src/a.ts", "/* eslint-disable */\nexport const a = 1;\n"), /关掉 lint/],
+      ["删红线", () => r.write("AGENTS.project.md", "\n"), /改了门槛文件 AGENTS\.project\.md/],
+      ["改子目录 AGENTS.md", () => r.write("src/AGENTS.md", "# x\n"), /改了门槛文件 src\/AGENTS\.md/],
+      ["改 CLAUDE.md", () => r.write("CLAUDE.md", "\n"), /改了门槛文件 CLAUDE\.md/],
+      ["改 lint 抑制", () => r.write("eslint-suppressions.json", '{"x":1}\n'), /改或删了检查脚本 eslint-suppressions\.json/],
+    ];
+    cases.forEach(([name, change, why], i) => {
+      const ref = `chore/weaken-${i}`;
+      r.git("checkout", "-q", "-b", ref, "base"); change();
+      const res = r.run(r.commit(name), ref, "类别：a");
+      assert.equal(res.status, 0, `${name}：${res.stdout}`);
+      assert.equal(category(res), "b", name);
+      assert.match(res.stdout, why, name);
+    });
+    r.git("checkout", "-q", "-b", "chore/new-check", "base"); r.write("scripts/check-new.mjs", "check()\n");
+    assert.equal(category(r.run(r.commit("new"), "chore/new-check", "类别：a")), "a", "新增检查脚本是收紧，仍是 a");
+    r.git("checkout", "-q", "-b", "feat/4-agents", "base"); r.write("src/AGENTS.md", "# y\n");
+    assert.equal(r.run(r.commit("t"), "feat/4-agents", "类别：票").status, 1, "票的 PR 不能改 AGENTS*.md");
+  } finally { r.cleanup(); }
+});
+
+test("正文为空时标题不算类别：按 b", () => {
+  const r = repo();
+  try {
+    r.branch("chore/empty"); r.write("docs/notes.md", "y\n");
+    // 合并脚本写的文件：正文（空）一行，再是标题
+    assert.equal(category(r.run(r.commit("e"), "chore/empty", "\n类别：a\n")), "b");
   } finally { r.cleanup(); }
 });

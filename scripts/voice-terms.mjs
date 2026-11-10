@@ -90,9 +90,9 @@ export function traceGaps(timeline, trace, from = 84) {
   const lines = timeline.split("\n");
   const first = lines.findIndex((l) => l.trim() !== "");
   lines.forEach((line, i) => {
-    // 上一行是空行、标题或引用时，=== / --- 不会把它变成标题（--- 是分隔线），不报
+    // 上一行是空行、ATX 标题（# 后跟空格）或引用时，=== / --- 不会把它变成标题（--- 是分隔线），不报
     const prev = i > 0 ? lines[i - 1] : "";
-    const setext = /\S/.test(prev) && !/^[ \t]{0,3}(#|>)/.test(prev) && /^[ \t]{0,3}(=+|-+)\s*$/.test(line);
+    const setext = /\S/.test(prev) && !/^[ \t]{0,3}(#{1,6}([ \t]|$)|>)/.test(prev) && /^[ \t]{0,3}(=+|-+)\s*$/.test(line);
     if (setext) {
       const n = Number((lines[i - 1].match(/\d+/) ?? [NaN])[0]);
       gaps.push({ n, why: `timeline.md 第 ${i + 1} 行把上一行变成了标题，标题要写成「## 编号」` });

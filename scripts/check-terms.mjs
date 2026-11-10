@@ -4,8 +4,9 @@ import { execFileSync } from "node:child_process";
 import { parseFence } from "./voice-terms.mjs";
 
 const glossary = readFileSync("docs/GLOSSARY.md", "utf8");
-// Transcription errors are one list shared with check-voice (GLOSSARY 「口语和转写错误」).
+// Transcription errors and allowed phrases are lists shared with check-voice (GLOSSARY 「口语和转写错误」).
 const terms = [...parseFence(glossary, "stale-terms"), ...parseFence(glossary, "transcription-errors")];
+const allowed = parseFence(glossary, "allowed-phrases");
 
 // History files keep old wording on purpose: verbatim user input, the decision log and the glossary itself.
 const skip = [
@@ -18,8 +19,6 @@ const skip = [
 ];
 // Review reports and research notes quote the wording they found; they are records, not live copy.
 const skipDirs = ["docs/uiue/reviews/", "docs/prd/reviews/", "docs/delivery/reviews/", "docs/uiue/research/"];
-// Allowed phrasings that name the past on purpose.
-const allowed = ["搏击等对抗性运动", "学习路径步骤", "（不是阀值）"];
 
 const files = execFileSync("git", ["ls-files", "docs", "src", "AGENTS.project.md", "README.md", ".grok/skills/velicoach-content", ".grok/skills/velicoach-layout", ".grok/skills/article-pipeline", ".grok/skills/article-fidelity", ".grok/skills/article-zh-style", ".grok/skills/article-feynman", ".grok/skills/article-visual", "public/favicon.svg"], { encoding: "utf8" })
   .split("\n")

@@ -1,4 +1,4 @@
-> 快照：本文件是 Claude Docs《Velicoach 主站 PRD v1.2》第 304 版的 Markdown 导出，供 agent 离线读取。唯一来源是 https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R；改需求先改在线文档，再重新导出覆盖本文件，不直接改这里。
+> 快照：本文件是 Claude Docs《Velicoach 主站 PRD v1.2》第 306 版的 Markdown 导出，供 agent 离线读取。唯一来源是 https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R；改需求先改在线文档，再重新导出覆盖本文件，不直接改这里。
 
 # Velicoach 主站 PRD v1.2
 
@@ -288,7 +288,7 @@ F07 的验收按下面每一条逐条判。标「自定」的数由本次修订�
 | 1 基础 | 会编程，懂机器学习的基本概念 | Harvard CS50；吴恩达《Machine Learning Specialization》 |
 | 2 智能体 | 会把任务交给智能体，也能自己搭一个简单的智能体 | 吴恩达《[Agentic AI](https://www.deeplearning.ai/alpha/courses/agentic-ai)》；Anthropic《Building Effective Agents》；Anthropic Academy 的智能体课程（Claude Code、MCP、Agent Skills 三门算一项） |
 | 3 模型 | 亲手训练一个小模型，理解大语言模型怎么工作 | Karpathy《Neural Networks: Zero to Hero》系列（含 nanoGPT、nanochat，算一项）；吴恩达《Deep Learning Specialization》；Stanford CS336 |
-| 4 前沿 | 跟上研究和新方法 | Stanford CS25；Karpathy 的 autoresearch |
+| 4 前沿 | 跟上研究和新方法 | Stanford CS25；Karpathy 的 autoresearch（2026 年 3 月开源，github.com/karpathy/autoresearch） |
 
 **线二 · 人机协作。** 讲人和 AI 怎么一起把事做好，分三层：工程、团队与组织、个人。工程实践按范式的演进来组织：从提示词工程（prompt engineering），到上下文工程（context engineering）、Harness 工程（搭好智能体周围的工具、权限和验证环境）、Loop 工程（让智能体自己执行、自己检查，直到达成目标），再到 Graph 工程（把多个智能体和共享状态组织成一个系统）。每一层都把上一层包进来，要解决的始终是同一个问题：让智能体做得更好、更快。这和 AI 本身的演进规律一致：人逐渐从写每一句指令，转向设计让智能体自己运转的系统。
 
@@ -299,7 +299,7 @@ F07 的验收按下面每一条逐条判。标「自定」的数由本次修订�
 | 提示词工程 | 2022–2024 | 怎样把指令写清楚 | Anthropic [提示词工程指南](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview)；ReAct | 待收录 |
 | 上下文工程 | 2025 | 模型每一步该看到哪些信息 | Manus《上下文工程》；Anthropic Agent Skills；Matt Pocock 的 [Skills](https://claude.com/plugins/mattpocock-skills) | 待收录 |
 | Harness 工程 | 2026 年初 | 智能体周围的工具、权限和验证环境怎么搭 | Shopify《比模型更耐久的 Harness》；Claude Code 团队的代码审查 | 已收录 |
-| Loop 工程 | 2026 年 6 月起 | 让智能体自己执行、自己检查，直到达成可以验证的目标 | poteto 开源的 [pstack](https://www.theneuron.ai/explainer-articles/pstack-explained-lauren-tans-system-for-trustworthy-ai-agents/)；Addy Osmani《Loop Engineering》；《用 Manus 重建 Manus》里的闭环 | 部分已收录 |
+| Loop 工程 | 2026 年 6 月起 | 让智能体自己执行、自己检查，直到达成可以验证的目标 | poteto 开源的 [pstack](https://www.theneuron.ai/explainer-articles/pstack-explained-lauren-tans-system-for-trustworthy-ai-agents/)；Addy Osmani《Loop Engineering》（2026 年 6 月 7 日，addyosmani.com/blog/loop-engineering）；《用 Manus 重建 Manus》里的闭环 | 部分已收录 |
 | Graph 工程 | 正在出现 | 多个智能体和共享状态怎样组织成一个系统 | DeepSeek Super-agent；arXiv 综述《[Graph Engineering in the Era of LLM Agents](https://arxiv.org/pdf/2608.21156)》 | 部分已收录 |
 
 团队与组织、个人两层单独成组，并标明用到了哪一层工程：个人智能体（Dan Koe 的一天、Veli 威利），AI 原生组织（《用 Manus 重建 Manus》、Shopify CEO 的内部备忘录）；我们自己用智能体做 Veli 和这个站，过程写进开发日志，也作为案例。每种范式的开创性文章同时收进 AI 发展史的里程碑，两条线互相链接。出现新的工程方向时，在表尾追加一行，不改前面的结构。

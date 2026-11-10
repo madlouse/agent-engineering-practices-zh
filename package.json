@@ -21,6 +21,7 @@
     "lint": "eslint .",
     "check:terms": "node scripts/check-terms.mjs",
     "check:vague": "node scripts/check-vague.mjs",
+    "check:voice": "node scripts/check-voice.mjs",
     "format": "prettier --write ."
   },
   "dependencies": {

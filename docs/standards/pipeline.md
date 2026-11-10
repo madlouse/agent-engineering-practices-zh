@@ -34,7 +34,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 
 - 站点车道：按 v1 范围拆里程碑和票，竖切（数据 → 页面 → 测试），一次会话做得完。规格和票的出口标准照 Veli 的 `spec-quality.md` §2–§3，主站不同的两处：没有数据库和健康数据的条目不适用；每张界面票必须写明对应的画板和状态。
 - 内容车道：已有总票 #3 和九个模块票 #4–#12。每张票先补齐验收，标 `ready-for-agent`。
-- 验收里的质量词和虚词按 `AGENTS.project.md` 第 10 条。
+- 验收里的质量词和虚词按 `AGENTS.project.md` 第 9 条；票和规格用书面表达和标准术语，不搬原话（第 1 条）。
 - `spec-reviewer` 冷审一批票，结论「就绪：是 / 否」。两轮不过交产品负责人。冷审通过后主会话判定关口三通过，在 #13 写明拆分和理由，循环开始跑（§8）；拆分里涉及需求取舍的地方（砍范围、改优先级）先向产品负责人说清。
 
 ### 2.3 关口四：上线
@@ -50,7 +50,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 - 折叠屏：U13、A8 按 `quality-terms.md` 的「怎么查」做；
 - 两份独立走查（`design-reviewer` 两份）P0、P1 为 0；`quality-terms.md` 里适用的规则全部通过（含只能在实现上查的 U8 速度、U9 响应时间）；
 - 五秒测试：5 个没看过的人看首页和三站首屏 5 秒，至少 4 人说得出「给谁的、能做什么、点哪里」（U2，产品负责人找人）；
-- `npm run check:terms`、`npm run check:vague` 通过；中英两版齐全；
+- `npm run check:terms`、`npm run check:vague`、`npm run check:voice` 通过；中英两版齐全；
 - 首次生产迁移和权限核对（#67）通过；
 - 监控演练：`site-monitor` 用 `ref=feature/v1` 手动触发、目标填允许清单内、必定失败的地址（`launch-runbook.md` 第 2 步）连跑两次，产品负责人收到告警邮件（ADR-0005）；
 - RSS：在 Feedly、NetNewsWire、Inoreader 里订阅预览部署的全站源，读到全文和日期；
@@ -197,6 +197,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 |---|---|---|
 | 术语 | `npm run check:terms` | 两条车道的评审 |
 | 质量词 | `npm run check:vague`；票和规格的正文先存成临时文件再跑 `node scripts/check-vague.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
+| 口语和转写错误 | `npm run check:voice`（原话只在 `timeline.md`，其余正式文字不带口语标记和登记过的转写错误）；票和规格的正文同样跑 `node scripts/check-voice.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 脚本单元测试 | `npm test`（`scripts/` 下除 grok-pwa 以外的测试，加 `npm run test:pwa`：grok-pwa 插件的测试读当前目录的分享卡配置，要在空临时目录里跑；沙箱契约不许改它的测试文件。PR #68 起。后半段的 `src/lib` 测试要依赖装全，云端会话装不上依赖时那两个文件报找不到模块，以预览构建为准） | `reviewer` |
 | 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖 | `reviewer` 用 Vercel 连接器看构建日志 |
 | 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |

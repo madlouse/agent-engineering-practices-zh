@@ -15,7 +15,7 @@ export const GATE_FILES = [
   /^scripts\/merge-ticket-pr\.sh$/,
   /^scripts\/merge-gates(\.test)?\.mjs$/,
   /^scripts\/review-markers(\.test)?\.mjs$/,
-  /^scripts\/(check-terms|check-vague|vague-terms|check-owner-brief)\.mjs$/,
+  /^scripts\/(check-terms|check-vague|vague-terms|check-owner-brief|check-voice|voice-terms)\.mjs$/,
   /^eslint\.config\.mjs$/,
   /^\.github\/workflows\//,
   /^\.claude\/agents\//,
@@ -32,7 +32,7 @@ export const OWNER_FILES = [
   { re: /^docs\/standards\/observer\.md$/, why: (p) => `改了 ${p}：§4（观察者的权限）只能由产品负责人改，脚本分不清节，整页等产品负责人合并（pipeline.md §5.1）` },
 ];
 // 执行检查的脚本：不是票的 PR 改或删它们，按 b 类（新增不算）
-export const CHECK_FILES = [/^scripts\/(?:check-[^/]+|vague-terms|brand-check|[^/]+-verdict)\.mjs$/, /^eslint-suppressions\.json$/];
+export const CHECK_FILES = [/^scripts\/(?:check-[^/]+|vague-terms|voice-terms|brand-check|[^/]+-verdict)\.mjs$/, /^eslint-suppressions\.json$/];
 // 状态 issue #13（总开关、运行锁、日报）不能被 PR 关掉
 export const PROTECTED_ISSUES = new Set(["13"]);
 // 票的分支：content/ 和 feat/、fix/ 一样算票

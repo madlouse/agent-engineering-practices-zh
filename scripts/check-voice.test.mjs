@@ -90,3 +90,15 @@ test("the glossary holds the lists, and check-terms shares the transcription and
 test("the repository's own trace and timeline pass", () => {
   assert.deepEqual(traceGaps(readFileSync("docs/requirements/timeline.md", "utf8"), readFileSync("docs/requirements/trace.md", "utf8")), []);
 });
+
+test("a spoken marker quoted in the middle of a sentence is treated as naming it (accepted gap, reviewers check)", () => {
+  assert.deepEqual(findVoiceHits("这个按钮，「嗯」很快", lists), []);
+});
+
+test("timeline headings must be exactly «## N»", () => {
+  const trace = "| 84 | a | b | c | d | e | 同类位置在流水线规则和检查脚本里都已改完 |";
+  assert.deepEqual(traceGaps("## 84\n", trace), []);
+  for (const bad of ["### 85\n", "## 85 补充\n", "#85\n"]) {
+    assert.equal(traceGaps("## 84\n" + bad, trace).length, 1, bad);
+  }
+});

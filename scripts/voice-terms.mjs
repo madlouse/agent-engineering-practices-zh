@@ -85,6 +85,11 @@ export function traceGaps(timeline, trace, from = 84) {
   const wanted = new Set([...timeline.matchAll(/^## (\d+)\s*$/gm)].map((m) => Number(m[1])).filter((n) => n >= from));
   for (const n of rows.keys()) if (n >= from) wanted.add(n);
   const gaps = [];
+  // 编号标题只能写成「## N」：换级别或在编号后加字会绕过上面的匹配，直接报错
+  for (const m of timeline.matchAll(/^(#{1,6})[ \t]*(\d+)\b(.*)$/gm)) {
+    if (m[1] === "##" && m[3].trim() === "") continue;
+    gaps.push({ n: Number(m[2]), why: `timeline.md 的编号标题要写成「## ${m[2]}」，现在是「${m[0].trim()}」` });
+  }
   for (const n of [...wanted].sort((a, b) => a - b)) {
     const c = rows.get(n);
     if (!c) {

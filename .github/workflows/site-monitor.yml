@@ -1,0 +1,51 @@
+# 主站外部探测和告警（ADR-0005 (a)）。工作流文件只由主会话维护，票的 PR 不改 .github/workflows/。
+# 定时只在默认分支上生效：上线前默认分支是 feature/v1，没设 MONITOR_TARGET 时什么也不做；也能手动触发：Actions → site-monitor → Run workflow。
+# 探测和判定脚本由 #59 在 feature/v1 上加；脚本不存在时这份工作流什么也不做。
+# 工作流写的每一条 issue 正文和评论，首行都是 MONITOR_BOT_HEADER。
+name: site-monitor
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # 每 10 分钟探测一次
+    - cron: "17 1 1 * *" # 每月 1 日算上个月的可用率
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 探测的主机地址（例如 https://velicoach.com）；留空用仓库变量 MONITOR_TARGET
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+concurrency:
+  group: site-monitor
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      MONITOR_TARGET: ${{ inputs.target || vars.MONITOR_TARGET }}
+      MONITOR_BOT_HEADER: "<!-- vc-bot role=监控 -->"
+      MONITOR_EVENT_SCHEDULE: ${{ github.event.schedule }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 探测、告警、可用率
+        run: |
+          if [ ! -f scripts/monitor/run.mjs ]; then
+            echo "scripts/monitor/run.mjs 还不存在（由 #59 加），这次不执行。"
+            exit 0
+          fi
+          if [ -z "$MONITOR_TARGET" ]; then
+            echo "没有探测目标：手动触发时填 target，或设仓库变量 MONITOR_TARGET。"
+            exit 0
+          fi
+          node scripts/monitor/run.mjs

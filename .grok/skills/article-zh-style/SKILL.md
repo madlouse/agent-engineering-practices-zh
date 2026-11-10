@@ -11,7 +11,7 @@ user-invocable: false
 # 中文体例
 
 参照 [Fenng/Tech-Doc-Style-Chinese](https://github.com/Fenng/Tech-Doc-Style-Chinese)。
-不要使用 kai 排版 skill。
+不叠加别的排版技能。
 
 ## 先分流
 

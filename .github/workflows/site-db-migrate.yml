@@ -1,0 +1,52 @@
+# 主站订阅库的迁移（ADR-0004 (a)）。工作流文件只由主会话维护，票的 PR 不改 .github/workflows/。
+# 触发：
+#   - 手动：Actions → site-db-migrate → Run workflow，分支选 feature/v1（上线前）或 site。
+#     GitHub 只认默认分支（上线前 feature/v1，上线后 site）上存在的工作流文件，触发后用所选分支上的这份文件和代码执行；
+#     上线合并把这个文件一起带进 site。
+#   - 自动：push 到 site 且改了 migrations/site/**。上线前 site 上没有这个目录，不会触发。
+# 和 Vercel 生产构建的先后：push 到 site 时两者同时开始，新代码可能比迁移先上线。
+#   所以迁移必须向后兼容（先加后删，ADR-0004 (a)「迁移约定」）；不兼容的改动先单独合并只含迁移的 PR，
+#   这次运行成功后再合并读写新结构的代码。
+# 仓库是公开的：不加 pull_request / pull_request_target；删除、导出订阅者这类命令不做成工作流（ADR-0004 (e)）。
+name: site-db-migrate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [site]
+    paths:
+      - "migrations/site/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-db-migrate
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # 密钥放在这个 Environment 里，部署分支只允许 site、feature/v1（#40）。
+    environment: site-db
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: 执行 migrations/site/
+        env:
+          SITE_DB_MIGRATE_URL: ${{ secrets.SITE_DB_MIGRATE_URL }}
+        run: |
+          if [ ! -d migrations/site ]; then
+            echo "migrations/site/ 还不存在（由 #45 加），这次不执行。"
+            exit 0
+          fi
+          if [ -z "$SITE_DB_MIGRATE_URL" ]; then
+            echo "::error::没有配置 SITE_DB_MIGRATE_URL（#40）。"
+            exit 1
+          fi
+          npm run -s site:migrate

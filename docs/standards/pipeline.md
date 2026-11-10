@@ -196,7 +196,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 检查 | 命令 | 谁跑 |
 |---|---|---|
 | 术语 | `npm run check:terms` | 两条车道的评审 |
-| 评审结论评论 | 贴之前 `node scripts/review-markers.mjs check-draft <草稿文件> <种类> <PR 头 sha>`，不通过不贴（和合并脚本同一套判定） | 四种评审 |
+| 评审结论评论 | 贴之前 `node scripts/check-review-draft.mjs <草稿文件> <种类> <PR 头 sha>`，不通过不贴（和合并脚本同一套判定） | 四种评审 |
 | 质量词 | `npm run check:vague`；票和规格的正文先存成临时文件再跑 `node scripts/check-vague.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 口语和转写错误 | `npm run check:voice`（原话只在 `timeline.md`，其余正式文字不带口语标记和登记过的转写错误）；票和规格的正文同样跑 `node scripts/check-voice.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 脚本单元测试 | `npm test`（`scripts/` 下除 grok-pwa 以外的测试，加 `npm run test:pwa`：grok-pwa 插件的测试读当前目录的分享卡配置，要在空临时目录里跑；沙箱契约不许改它的测试文件。PR #68 起。后半段的 `src/lib` 测试要依赖装全。云端会话里 `registry.npmjs.org` 在 `NO_PROXY` 里、直连解析不了，`npm ci` 报 ENOTFOUND；装依赖时让它走代理：`NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 npm ci --no-audit --no-fund`） | `reviewer` |

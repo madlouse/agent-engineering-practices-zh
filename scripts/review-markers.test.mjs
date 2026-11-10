@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -167,12 +167,19 @@ test("贴前自查：命令行退出码", () => {
   try {
     const f = join(dir, "c.md");
     writeFileSync(f, review("general", "pass").body);
-    const run = () => spawnSync(process.execPath, [join(SCRIPTS, "review-markers.mjs"), "check-draft", f, "general", SHA], { encoding: "utf8" });
-    assert.equal(run().status, 0);
-    writeFileSync(f, review("general", "pass").body + "\nvc-review");
-    const r = run();
-    assert.equal(r.status, 1);
-    assert.match(r.stderr, /正好出现 1 次/);
+    // 经符号链接调用（macOS 的 /tmp、/var）也要真的检查
+    const link = join(dir, "scripts");
+    symlinkSync(SCRIPTS, link);
+    for (const cli of [join(SCRIPTS, "check-review-draft.mjs"), join(link, "check-review-draft.mjs")]) {
+      const run = (...a) => spawnSync(process.execPath, [cli, ...a], { encoding: "utf8" });
+      writeFileSync(f, review("general", "pass").body);
+      assert.equal(run(f, "general", SHA).status, 0, cli);
+      writeFileSync(f, review("general", "pass").body + "\nvc-review");
+      const r = run(f, "general", SHA);
+      assert.equal(r.status, 1, cli);
+      assert.match(r.stderr, /正好出现 1 次/);
+      assert.equal(run(f).status, 2, cli);
+    }
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

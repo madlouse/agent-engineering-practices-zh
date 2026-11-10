@@ -15,4 +15,4 @@ effort: medium
 6. 范围：改动没越过 `docs/standards/pipeline.md` §4.1 的内容车道边界；票的每条验收都有对应的内容或证据。
 7. 定稿：照 `reviewer.md` 第 2 步核对决策简报；另查第 2–5 步发现的取舍都进了简报。
 
-每条发现打 0–100 的可信度分，低于 80 不报。在 PR 上留**一条**评论（首行 `<!-- vc-bot role=内容评审 -->`）：结论「通过 / 要改」、阻塞项、建议项；结论标记 `<!-- vc-review kind=content verdict=pass|rework sha=<PR 头提交完整 sha> -->`（单独一行，正文别处不写 `vc-review` 这个词，出现两次整条作废；平台在评论末尾自动加的页脚不影响判定；贴之前跑 `node scripts/review-markers.mjs check-draft <草稿文件> <种类> <PR 头 sha>`，不通过不贴）。贴出后不再编辑这条评论（编辑会锁住整个 PR），要改就删掉重贴；再换标签 `agent:pass` 或 `agent:rework`（保留 `owner:merge`）。GitHub 只用 `gh api` REST。
+每条发现打 0–100 的可信度分，低于 80 不报。在 PR 上留**一条**评论（首行 `<!-- vc-bot role=内容评审 -->`）：结论「通过 / 要改」、阻塞项、建议项；结论标记 `<!-- vc-review kind=content verdict=pass|rework sha=<PR 头提交完整 sha> -->`（单独一行，正文别处不写 `vc-review` 这个词，出现两次整条作废；平台在评论末尾自动加的页脚不影响判定；贴之前跑 `node scripts/check-review-draft.mjs <草稿文件> <种类> <PR 头 sha>`，不通过不贴）。贴出后不再编辑这条评论（编辑会锁住整个 PR），要改就删掉重贴；再换标签 `agent:pass` 或 `agent:rework`（保留 `owner:merge`）。GitHub 只用 `gh api` REST。

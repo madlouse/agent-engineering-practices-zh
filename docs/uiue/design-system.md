@@ -11,7 +11,7 @@ Veli App 和 Veli 网页版（`/body`、`/app`）以 Veli 设计系统为准。�
 
 ## 进代码
 
-做主站页面时，把 `tokens.json` 生成为一份 CSS 变量文件（例如 `src/tokens.css`，做法沿用 Veli 仓库 design-bar 技能的 `sync_tokens.py`），在 `src/styles.css` 里引入，样式只引用 CSS 变量。同席现有的文章页先保持原样，接入主站时再换成这套 token。媒体查询里不能用变量，断点写死同值并注释来自哪个 token（`breakpoint-tablet` 744px、`breakpoint-desktop` 1180px）。
+做主站页面时，把 `tokens.json` 生成为一份 CSS 变量文件（例如 `src/tokens.css`，做法沿用 Veli 仓库 design-bar 技能的 `sync_tokens.py`），在 `src/styles.css` 里引入，样式只引用 CSS 变量。原同席博客的文章页先保持原样，接入主站时再换成这套 token。媒体查询里不能用变量，断点写死同值并注释来自哪个 token（`breakpoint-tablet` 744px、`breakpoint-desktop` 1180px）。
 
 ## 相关文件
 

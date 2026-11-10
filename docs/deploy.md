@@ -11,7 +11,7 @@
 
 1. 在 Vercel 上把本项目接到 `velicoach.com`，按路径分流：`/body`、`/app`、`/pricing`、`/legal/*`、`/data-usage`、`/auth/*`、`/api/*`、`/manual/*` 交给 Veli，其余交给本项目。用 Vercel 的 microfrontends 还是 rewrites，实现时选定，写进 ADR。
 2. 把 `/` 从临时跳转改成主站首页。
-3. 「看清」一站的文章地址是 `velicoach.com/mind/<slug>`。
+3. 看清的文章地址是 `velicoach.com/mind/<slug>`。
 
 ## 原来的 with.velicoach.com
 

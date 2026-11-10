@@ -4,7 +4,7 @@ import { LangProvider } from "@/lib/lang";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "同席";
+const APP_NAME = "看清 · Velicoach";
 
 export const Route = createRootRoute({
   head: () => ({

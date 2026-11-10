@@ -2,9 +2,9 @@
 
 AGI 路上的陪练：先站稳，再看清，然后动手。velicoach.com 主站。
 
-- **01 站稳**：力量训练。产品是 Veli，在 [madlouse/thin-muscle-coach](https://github.com/madlouse/thin-muscle-coach)，路径 `/body`、`/app`。
-- **02 看清**：AI 与 agent。刊名「同席」（With），文章在本仓库，地址 `/mind`。
-- **03 动手**：和 agent 一起做出能用的东西。以后的新产品各开仓库，从这里链接过去。
+- **01 站稳**（Body）：力量训练。产品是 Veli，在 [madlouse/thin-muscle-coach](https://github.com/madlouse/thin-muscle-coach)，路径 `/body`、`/app`。
+- **02 看清**（Mind）：AI 发展史（改变路线的里程碑）和人机协作的实践。文章在本仓库，地址 `/mind`。
+- **03 动手**（Build）：和智能体一起做出能用的东西，附开发日志。以后的新产品各开仓库，从这里链接过去。
 
 ## 从哪里开始
 

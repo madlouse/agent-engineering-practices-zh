@@ -1,7 +1,7 @@
 ---
 name: article-zh-style
 description: >
-  Write or revise Chinese for 落地实践 in the Fenng technical-doc style.
+  Write or revise Chinese for 同席 (Velicoach Mind) in the Fenng technical-doc style.
   Triggers on "翻译", "信达雅", "中文技术文档", "Fenng", "体例", "排版".
 metadata:
   short-description: "中文体例：信达雅，官方中文不改口"

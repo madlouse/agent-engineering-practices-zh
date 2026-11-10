@@ -8,8 +8,8 @@ export function Masthead({ progress }: { compact?: boolean; progress?: number })
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
         <Link to="/" className="group flex min-h-11 items-center gap-3">
           <span className="size-2 shrink-0 rounded-full bg-cinnabar" />
-          <span className="font-serif text-xl font-semibold tracking-tight text-ink">同席</span>
-          <span className="hidden text-sm text-muted sm:inline">{lang === "en" ? "people and agents" : "人和 agent"}</span>
+          <span className="font-serif text-xl font-semibold tracking-tight text-ink">{lang === "en" ? "Mind" : "看清"}</span>
+          <span className="hidden text-sm text-muted sm:inline">Velicoach</span>
         </Link>
         <div className="flex items-center gap-1 sm:gap-2">
           <nav className="flex items-center text-sm text-muted">

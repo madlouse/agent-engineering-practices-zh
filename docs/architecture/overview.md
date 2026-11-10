@@ -1,6 +1,6 @@
 # 技术方案
 
-本仓库是 velicoach.com 主站：首页、三站页面和「看清」一站的文章（同席）都在这里。文章部分已经有代码（TanStack Start + Vite + React，见 `src/`）；首页和三站页面还没写。这里记已经定下的技术决定和它们的出处；选型变化先写 ADR。
+本仓库是 velicoach.com 主站：首页、三站页面和 看清的文章都在这里。文章部分已经有代码（TanStack Start + Vite + React，见 `src/`）；首页和三站页面还没写。这里记已经定下的技术决定和它们的出处；选型变化先写 ADR。
 
 ## 域名与路由
 
@@ -8,8 +8,8 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 
 | 路径 | 归谁 |
 |---|---|
-| `/`、`/mind`（看清，同席的文章在 `/mind/<slug>`）、`/build`、`/about`、`/en/*`，以及其余路径 | 主站（本仓库） |
-| `/body` | Veli：对外落地页，同时是主站的「站稳」一站 |
+| `/`、`/mind`（看清，文章在 `/mind/<slug>`）、`/build`、`/about`、`/en/*`，以及其余路径 | 主站（本仓库） |
+| `/body` | Veli：对外落地页，同时是主站的站稳一站 |
 | `/app`、`/pricing`、`/legal/*`、`/data-usage`、`/auth/*`、`/api/*`、`/manual/*` | Veli |
 
 - 主站上线前，`/` 临时 307 跳到 `/body`。主站上线时在 Vercel 上按路径分流（microfrontends 或 rewrites，实现时选定），并把 `/` 改为主站首页。
@@ -38,7 +38,7 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 
 框架沿用本仓库已有的 TanStack Start（Vite、React），不换。原来计划的 `with.velicoach.com` 改为永久跳转到 `velicoach.com/mind`（PRD 决定记录）。本仓库 `AGENTS.md` 是 Grok 构建沙箱的契约，它的 `auth`、`neon` 技能只用于沙箱预览；正式站的账号用 Veli 的 Supabase Auth（ADR-0001）。
 
-其余沿用 Veli 的选择：Vercel 跑应用，Cloudflare 管域名和 DNS，Supabase 管数据和登录，Resend 发每周邮件（与 Veli 同一个发信域名）。
+其余沿用 Veli 的选择：Vercel 跑应用，Cloudflare 管域名和 DNS，Supabase 管数据和登录，Resend 发订阅邮件（与 Veli 同一个发信域名）。
 
 ## ADR
 

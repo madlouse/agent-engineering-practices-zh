@@ -1,7 +1,7 @@
 ---
 name: article-visual
 description: >
-  Visually check 落地实践 pages, figures, videos, and code blocks before
+  Visually check 同席 (Velicoach Mind) pages, figures, videos, and code blocks before
   calling an article done. Triggers on "视觉", "代码块", "图注", "目录",
   "检查页面", "visual QA".
 metadata:

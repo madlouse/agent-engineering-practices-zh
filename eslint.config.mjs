@@ -42,6 +42,12 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "off",
     },
   },
+  // 沙箱预置的 src/lib 模块不改（AGENTS.md「What is already here」），里面有意吞掉异常的空 catch 放行；
+  // 别的空块照样报错，我们自己的代码在 catch 里写明为什么可以忽略。
+  {
+    files: ["src/lib/**"],
+    rules: { "no-empty": ["error", { allowEmptyCatch: true }] },
+  },
   // Disable rules that conflict with Prettier formatting.
   prettier,
 );

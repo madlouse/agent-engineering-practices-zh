@@ -1,6 +1,6 @@
 # 关口三 b：PRD v1.2 拆成规格和票
 
-> 2026-11-09，主会话派的拆票 Agent 写；同日按关口三 b 冷审（`docs/delivery/reviews/2026-11-09-gate-3b.md`，就绪：否，P0 1、P1 8、P2 24）和主会话的决定改了第二轮；再按第二轮冷审（`docs/delivery/reviews/2026-11-09-gate-3b-r2.md`，就绪：否，新 P1 4、P2 16）改了第三轮；按第三轮冷审（`docs/delivery/reviews/2026-11-09-gate-3b-r3.md`，就绪：否，P1 3、P2 9）改了第四轮。依据：PRD v1.2（在线第 275 版，快照 `docs/prd/velicoach.md`）、`docs/delivery/roadmap.md`（M1–M4）、`docs/uiue/coverage.md`、ADR-0001–0005、`docs/uiue/reviews/2026-11-04-ui-v1/closing.md` 的遗留项、`docs/prd/reviews/2026-11-09-pre-3b-r3.md` 留给票的 P2。做法照 `to-spec`、`to-tickets` 和 Veli `spec-quality.md` §2–§3，主站不同处见 `docs/standards/pipeline.md` §2.2。
+> 2026-11-09，主会话派的拆票 Agent 写；同日按关口三 b 冷审（`docs/delivery/reviews/2026-11-09-gate-3b.md`，就绪：否，P0 1、P1 8、P2 24）和主会话的决定改了第二轮；再按第二轮冷审（`docs/delivery/reviews/2026-11-09-gate-3b-r2.md`，就绪：否，新 P1 4、P2 16）改了第三轮；按第三轮冷审（`docs/delivery/reviews/2026-11-09-gate-3b-r3.md`，就绪：否，P1 3、P2 9）改了第四轮。依据：PRD v1.2（在线第 278 版，快照 `docs/prd/velicoach.md`）、`docs/delivery/roadmap.md`（M1–M4）、`docs/uiue/coverage.md`、ADR-0001–0005、`docs/uiue/reviews/2026-11-04-ui-v1/closing.md` 的遗留项、`docs/prd/reviews/2026-11-09-pre-3b-r3.md` 留给票的 P2。做法照 `to-spec`、`to-tickets` 和 Veli `spec-quality.md` §2–§3，主站不同处见 `docs/standards/pipeline.md` §2.2。
 > 本页记「拆成了什么、为什么这样拆」。票的正文以 GitHub 为准；关口三 b 是否通过由主会话在冷审后判，写在 #13。
 
 ## 1. 结论
@@ -16,7 +16,7 @@
 | P1-A 工作流文件 Agent 推不上去、`feature/v1` 上没有 | 三个工作流（迁移、监控、每周依赖检查）由主会话一次写全：迁移加 `push: site`（只看 `migrations/site/**`），新加 `site-audit`；文件放进 `site` 后主会话把 `site` 合并进 `feature/v1`。**工作流文件只由主会话维护，票的 PR 不改 `.github/workflows/`**（合并脚本把它当门槛文件拦）。#45 改成断言工作流配置、只写 `site:migrate`；#59、#61 只写脚本 | ADR-0004、0005、`team-setup.md` §2 第 3 步、runbook 第 0 步、#19、#45、#59、#61、#67 |
 | P1-B Vercel 内置异常告警也要 Observability Plus | 删掉「Pro 之后开 Vercel 内置异常告警」：错误告警就是每日日报，同一类一天超过 10 次进「等你决定」 | ADR-0005 (b)、`observer.md`、#20、#59、#65、本页 §6 |
 | P1-C Veli 生产在 `main` | #54、#66 加原生依赖 thin-muscle-coach#72；runbook 写明主站上线不早于 #72，第 4、10 步和回退补 Veli `main`、由产品负责人合并；#213 写明 base 是 `main`、产品负责人合并 | ADR-0003 (c)、runbook、#20、#54、#66、thin-muscle-coach#185、#213 |
-| P2-1 版本号 | 全部正文改成「在线第 275 版」；§9 的 PRD 待办按第 275 版重列 | 全部票、本页 |
+| P2-1 版本号 | 全部正文改成「在线第 278 版」；§9 的 PRD 待办按第 275 版重列 | 全部票、本页 |
 | P2-2 代理目标 | 写明是 Veli 项目的生产域名（`*.vercel.app`），不是某次部署的生成地址；runbook 的主站目标同理 | ADR-0003 (c)、`overview.md`、`deploy.md`、#54、#59、#62、#66 |
 | P2-3 #67 失败 | 开 `fix/` 票，原生依赖卡住 #67 | #67 |
 | P2-4 验收条数 | #45、#50、#62 各 8 条（合并相邻条，挪进备注） | #45、#50、#62 |
@@ -390,7 +390,7 @@ flowchart LR
 
 **没有砍范围，没有改优先级；前提是上线前升级 Vercel Pro。** PRD 的 v1 P0、P1 都在票里（§7），P2（F12、F17、F20）不开票。下面四条产品负责人都已知道或已定：
 
-1. **IP 频率限制按实例计数，改了细则第 6 条的验收；产品负责人 2026-11-09 已同意，PRD 细则第 6 条已写明（在线第 275 版）。** ADR-0004 (d) 只用内存计数（不加新服务商），Vercel 同时起多个实例时，同一 IP 实际能提交的次数会多于 5 次；同一邮箱每小时 3 次照样准确。Pro 生效后可以在 Vercel 防火墙加同样的规则作为第二道；上线两周后观察者按 Resend 的退信和投诉数复核。
+1. **IP 频率限制按实例计数，改了细则第 6 条的验收；产品负责人 2026-11-09 已同意，PRD 细则第 6 条已写明（在线第 278 版）。** ADR-0004 (d) 只用内存计数（不加新服务商），Vercel 同时起多个实例时，同一 IP 实际能提交的次数会多于 5 次；同一邮箱每小时 3 次照样准确。Pro 生效后可以在 Vercel 防火墙加同样的规则作为第二道；上线两周后观察者按 Resend 的退信和投诉数复核。
 2. **Vercel Pro：产品负责人 2026-11-09 确认上线前升级，#65 只剩升级这一步。** PRD 第 8 节「成本」已写上线前升级 Pro；#65 负责这件事，原生依赖卡住 #58（F29 的自定事件，P0）和上线切换 #66。不升级时，F29 的事件要按 PRD 第 10 节的替代（主站自己的接口收事件）先改 PRD。
 3. **两个定时的准点也依赖 Pro。** Hobby 的定时任务精度是一小时内：#49 周日 08:00 发信、#37 北京时间周六 00:00 换本周文章（加上构建时间），在 Hobby 上会晚到最多约一小时。两张票都写明了；上线后第一周由观察者核对实际时刻。
 4. **错误告警不加 Observability Plus（第二轮冷审 P1-4 选 (a)；第三轮冷审 P1-B 删掉了 Vercel 内置告警的补充）。** Vercel 的告警（包括内置的异常告警）都要另付 Observability Plus，不开；线上错误就是每日日报，同一类一天超过 10 次进「等你决定」；整站挂了由外部探测约 20 分钟告警（ADR-0005）。

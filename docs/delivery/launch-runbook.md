@@ -2,7 +2,7 @@
 
 > 关口三 b 第二轮冷审 P1-3。上线票是 #66（`ready-for-human`，主会话 + 产品负责人）。关口四的检查清单在 `docs/standards/pipeline.md` §2.3，分「合并前」「切换后」两段；本页写顺序和谁做。
 
-**主站上线不早于 Veli B1 上线（thin-muscle-coach#72）。** Veli 的生产分支是 `main`，B1 的票（含 #185、#101）只合并进 `feature/b1`，#72 合并后才到 Veli 生产；主站的 rewrites 代理的是 Veli 生产。产品负责人另行同意把 #185、#101 的改动当紧急修复单独进 Veli `main` 时例外。
+**主站上线不早于 Veli B1 上线（thin-muscle-coach#72）。** Veli 的生产分支是 `main`，B1 的票（含 #185、#101）只合并进 `feature/b1`，#72 合并后才到 Veli 生产；主站的 rewrites 代理的是 Veli 生产。产品负责人 2026-11-09 定：主站和 Veli B1 一起上线，不把 #185、#101 单独紧急发布。
 > 回退的做法也在本页；`docs/deploy.md` 只放部署的说明和指向这里的链接。
 
 ## 谁做什么

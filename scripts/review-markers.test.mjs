@@ -5,7 +5,7 @@ import { mkdtempSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ROLE_OF, requiredReviewKind, reviewVerdict } from "./review-markers.mjs";
+import { ROLE_OF, requiredReviewKinds, reviewVerdict } from "./review-markers.mjs";
 
 // scripts/review-markers.mjs：vc-review 结论标记只认对应评审角色、经 Claude 应用写的、没编辑过的评论（复用 Veli 安全评审 F3、S4）
 const SCRIPTS = dirname(fileURLToPath(import.meta.url));
@@ -24,7 +24,7 @@ const by = (role, body, created_at = T1, slug = "claude") => ({
 const review = (kind, verdict, at, sha) => by(ROLE_OF[kind], marker(kind, verdict, sha), at);
 
 test("评审标记：三种结论各自由对应角色给出才算", () => {
-  for (const kind of ["general", "content", "security"]) {
+  for (const kind of ["general", "general-b", "content", "security"]) {
     assert.equal(reviewVerdict([review(kind, "pass")], SHA, kind), "pass", kind);
     assert.equal(reviewVerdict([review(kind, "rework")], SHA, kind), "rework", kind);
     assert.equal(reviewVerdict([], SHA, kind), null, kind);
@@ -78,15 +78,28 @@ test("评审标记：带标记的评论编辑过就按 rework 算，并锁住所
   assert.equal(reviewVerdict([review("general", "pass"), note], SHA, "general"), "pass", "没有标记名的评论编辑过不影响");
 });
 
-test("评审种类按分支名：content/ 要内容评审，其余要站点评审", () => {
-  assert.equal(requiredReviewKind("content/21-agent-loop"), "content");
-  for (const ref of ["feat/12-home", "fix/3-nav", "chore/pipeline-prep", "obs/2026-11-09-x", "contents/1-x"]) {
-    assert.equal(requiredReviewKind(ref), "general", ref);
-  }
+test("评审种类：content/ 要内容评审；b 类要两份站点评审；其余一份", () => {
+  assert.equal(requiredReviewKinds("content/21-agent-loop", "ticket"), "content");
+  for (const ref of ["feat/12-home", "fix/3-nav", "contents/1-x"]) assert.equal(requiredReviewKinds(ref, "ticket"), "general", ref);
+  assert.equal(requiredReviewKinds("chore/pipeline-prep", "a"), "general");
+  assert.equal(requiredReviewKinds("obs/2026-11-09-x", "b"), "general general-b");
+  assert.throws(() => requiredReviewKinds("chore/x", "c"), /类别只能是/);
+  assert.throws(() => requiredReviewKinds("chore/x", ""), /类别只能是/);
+});
+
+test("b 类：只有一份评审过不了；general-b 只认评审B 写的，两份不能由同一角色顶替", () => {
+  const onlyOne = [review("general", "pass")];
+  const kinds = requiredReviewKinds("chore/x", "b").split(" ");
+  assert.deepEqual(kinds.map((k) => reviewVerdict(onlyOne, SHA, k)), ["pass", null], "只有 kind=general 时 general-b 没有结论");
+  assert.equal(reviewVerdict([by("评审", marker("general-b", "pass"))], SHA, "general-b"), null, "评审写的 general-b 不算");
+  assert.equal(reviewVerdict([by("评审B", marker("general", "pass"))], SHA, "general"), null, "评审B 写的 general 不算");
+  const both = [review("general", "pass"), review("general-b", "pass")];
+  assert.deepEqual(kinds.map((k) => reviewVerdict(both, SHA, k)), ["pass", "pass"]);
+  assert.equal(reviewVerdict([review("general", "pass"), review("general-b", "rework")], SHA, "general-b"), "rework");
 });
 
 test("评审角色名和 .claude/agents/ 里各评审写的评论首行一致", () => {
-  const agents = { general: "reviewer.md", content: "content-reviewer.md", security: "security-reviewer.md" };
+  const agents = { general: "reviewer.md", "general-b": "reviewer-b.md", content: "content-reviewer.md", security: "security-reviewer.md" };
   for (const [kind, file] of Object.entries(agents)) {
     const md = readFileSync(join(ROOT, ".claude/agents", file), "utf8");
     assert.ok(md.includes(`<!-- vc-bot role=${ROLE_OF[kind]} -->`), `${file} 的评论首行要是 role=${ROLE_OF[kind]}`);
@@ -107,7 +120,8 @@ test("合并脚本调判定库的方式能跑通", () => {
     writeFileSync(file, JSON.stringify([review("content", "pass", T1)]));
     assert.equal(run("reviewVerdictFromFile", file, SHA, "content").stdout.trim(), "pass");
     assert.equal(run("reviewVerdictFromFile", file, SHA, "general").stdout.trim(), "none");
-    assert.equal(run("requiredReviewKind", "content/7-x").stdout.trim(), "content");
+    assert.equal(run("requiredReviewKinds", "content/7-x", "ticket").stdout.trim(), "content");
+    assert.equal(run("requiredReviewKinds", "chore/x", "b").stdout.trim(), "general general-b");
     assert.notEqual(run("reviewVerdictFromFile", file, SHA, "bogus").status, 0, "种类不对就拒绝");
     assert.notEqual(run("reviewVerdictFromFile", file, "abc", "general").status, 0, "sha 格式不对就拒绝");
     writeFileSync(file, JSON.stringify([{ ...review("general", "pass"), id: 42, updated_at: T2 }]));
@@ -118,4 +132,12 @@ test("合并脚本调判定库的方式能跑通", () => {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("合并脚本逐个核对 requiredReviewKinds 给的每一种评审，类别取自 merge-gates 的输出", () => {
+  const sh = readFileSync(join(SCRIPTS, "merge-ticket-pr.sh"), "utf8");
+  assert.match(sh, /kinds=\$\(markers requiredReviewKinds "\$head" "\$category"\)/);
+  assert.match(sh, /for kind in \$kinds; do/);
+  assert.match(sh, /--pr-base "\$base" --target "\$TARGET"/);
+  assert.ok(sh.indexOf("merge-gates.mjs\" \"$tgt\"") < sh.indexOf("for kind in $kinds"), "先定类别，再核对评审");
 });

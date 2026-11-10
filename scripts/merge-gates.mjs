@@ -1,13 +1,13 @@
 // 合并脚本的「改动范围」检查（scripts/merge-ticket-pr.sh 从集成分支取本文件的版本来跑，PR 改不了它）。只读 git，不改任何东西。
-// 用法：node scripts/merge-gates.mjs <base-ref> <head-sha> <head 分支名> [PR 标题和正文的文件]
-// 分支名决定是不是票（TICKET_BRANCH）和票号；票的 PR 查得最严。
-// 输出：通过时无输出、退出码 0；不通过时打印原因、退出码 1。
+// 用法：node scripts/merge-gates.mjs <base-ref> <head-sha> <head 分支名> [PR 正文和标题的文件] [--pr-base <PR 的 base> --target <目标分支>]
+// 分支名决定是不是票（TICKET_BRANCH）和票号；票的 PR 查得最严。不是票的 PR 按类别分 a、b（prCategory）。
+// 输出：通过时最后一行是 category=<ticket|a|b>、退出码 0；不通过时打印原因、退出码 1。
 // 复用 Veli scripts/merge-gates.mjs，按主站改（docs/standards/pipeline.md §5、§8 第 0 阶段、§9）。
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
-// 定义门槛的文件：票的 PR（feat/、fix/、content/）不能动，改名、删除也算。要改就由主会话开 chore/ PR，打 owner:merge
+// 定义门槛的文件：票的 PR（feat/、fix/、content/）不能动，改名、删除也算。不是票的 PR 改了它们，一律按 b 类（要两份评审）
 export const GATE_FILES = [
   /^scripts\/merge-ticket-pr\.sh$/,
   /^scripts\/merge-gates(\.test)?\.mjs$/,
@@ -28,6 +28,27 @@ export const TICKET_BRANCH = /^(?:feat|fix|content)\/(\d+)-/;
 
 // 不是票的分支只认这两种前缀；其余一律拒绝（出错时拒绝，不放行）
 export const OTHER_BRANCH = /^(?:chore|obs)\/[^/]/;
+
+// 上线前只合并进集成分支，上线后（feature/v1 删掉）只合并进生产分支；上线前进 site 的只有产品负责人确认的上线合并，脚本不做
+export const INTEGRATION_BRANCH = "feature/v1";
+export const PRODUCTION_BRANCH = "site";
+
+/** PR 的 base 必须是目标分支（pipeline.md §5.1）。 */
+export function checkBase(prBase, target) {
+  if (![INTEGRATION_BRANCH, PRODUCTION_BRANCH].includes(target)) return [`目标分支只能是 ${INTEGRATION_BRANCH} 或 ${PRODUCTION_BRANCH}：${target}`];
+  if (prBase === target) return [];
+  if (prBase === PRODUCTION_BRANCH) return [`base 是 ${PRODUCTION_BRANCH}：上线前 ${PRODUCTION_BRANCH} 只接受产品负责人确认的上线合并，PR 改以 ${target} 为 base`];
+  return [`base 是 ${prBase}，现在只合并进 ${target}`];
+}
+
+// PR 说明（正文）第一行写类别：「类别：票 / a / b / 内容定稿」（pipeline.md §5.1）
+const CATEGORY_LINE = /^类别\s*[：:]\s*(票|a|b|内容定稿)\s*$/i;
+/** 正文第一个非空行里的类别；没写或写错返回 null。 */
+export function declaredCategory(body) {
+  const first = (body ?? "").split(/\r?\n/).map((l) => l.trim()).find(Boolean) ?? "";
+  const m = CATEGORY_LINE.exec(first);
+  return m ? m[1].toLowerCase() : null;
+}
 
 /** 分支名 → { kind: 'ticket' | 'other' | 'invalid', ticket: 票号或 '' } */
 export function classifyBranch(ref) {
@@ -87,10 +108,43 @@ export function checkGates({ base, head, kind, ticket = "", text = "", git }) {
   return problems;
 }
 
+/**
+ * PR 的类别：票 → ticket；不是票的 → a 或 b。拿不准一律按 b：没写类别、写的不是 a、
+ * 改了门槛文件（GATE_FILES）、改或删了 package.json 已有的命令。返回 { category, reasons, problems }。
+ */
+export function prCategory({ base, head, kind, body = "", git }) {
+  const declared = declaredCategory(body);
+  if (kind === "ticket") {
+    if (declared === "内容定稿") return { category: "ticket", reasons: [], problems: ["类别是内容定稿：等产品负责人本人合并，合并就是定稿（pipeline.md §5.1）"] };
+    if (declared === "a" || declared === "b") return { category: "ticket", reasons: [], problems: [`票的分支写了类别 ${declared}：票的 PR 写「类别：票」`] };
+    return { category: "ticket", reasons: [], problems: [] };
+  }
+  const reasons = [];
+  if (declared === null) reasons.push("PR 说明第一行没写类别");
+  else if (declared !== "a") reasons.push(`PR 说明的类别是 ${declared}`);
+  const fork = git("merge-base", base, head).trim();
+  const changed = git("diff", "--no-renames", "--name-only", `${fork}..${head}`).split("\n").filter(Boolean);
+  for (const f of changed) if (GATE_FILES.some((r) => r.test(f))) reasons.push(`改了门槛文件 ${f}`);
+  const show = (ref) => { try { return git("show", `${ref}:package.json`); } catch { return null; } };
+  const bs = JSON.parse(show(fork) ?? "{}").scripts ?? {};
+  const hs = JSON.parse(show(head) ?? "{}").scripts ?? {};
+  for (const k of Object.keys(bs)) if (hs[k] !== bs[k]) reasons.push(`package.json 的 scripts.${k} 被改或被删`);
+  return { category: reasons.length ? "b" : "a", reasons, problems: [] };
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const [base, head, ref, bodyFile = ""] = process.argv.slice(2);
-  if (!base || !head || !ref) {
-    console.log("用法：node scripts/merge-gates.mjs <base-ref> <head-sha> <head 分支名> [正文文件]");
+  const args = process.argv.slice(2);
+  const flag = (name) => {
+    const i = args.indexOf(name);
+    if (i < 0) return null;
+    const [, v] = args.splice(i, 2);
+    return v ?? "";
+  };
+  const prBase = flag("--pr-base");
+  const target = flag("--target");
+  const [base, head, ref, bodyFile = ""] = args;
+  if (!base || !head || !ref || (prBase === null) !== (target === null)) {
+    console.log("用法：node scripts/merge-gates.mjs <base-ref> <head-sha> <head 分支名> [正文文件] [--pr-base <分支> --target <分支>]");
     process.exit(2);
   }
   const { kind, ticket } = classifyBranch(ref);
@@ -100,10 +154,17 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   }
   const git = (...a) => execFileSync("git", a, { encoding: "utf8", maxBuffer: 64 << 20 });
   const text = bodyFile ? readFileSync(bodyFile, "utf8") : "";
-  const problems = checkGates({ base, head, kind, ticket, text, git });
+  const cat = prCategory({ base, head, kind, body: text, git });
+  const problems = [
+    ...(target === null ? [] : checkBase(prBase, target)),
+    ...cat.problems,
+    ...checkGates({ base, head, kind, ticket, text, git }),
+  ];
   if (problems.length) {
     console.log(problems.map((p) => `- ${p}`).join("\n"));
-    if (kind === "ticket") console.log("这类改动单独开 chore/ PR，由主会话做、打 owner:merge（docs/standards/pipeline.md §5）。");
+    if (kind === "ticket") console.log("门槛文件的改动单独开 chore/ PR，按 b 类两份评审通过后合并（docs/standards/pipeline.md §5.1）。");
     process.exit(1);
   }
+  if (cat.reasons.length) console.log(`按 b 类处理：${cat.reasons.join("；")}`);
+  console.log(`category=${cat.category}`);
 }

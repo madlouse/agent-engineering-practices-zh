@@ -9,10 +9,11 @@
 import { readFileSync } from "node:fs";
 
 // 角色名和 .claude/agents/ 里各评审写的首行一致（docs/standards/pipeline.md §3、§5）
-export const ROLE_OF = { general: "评审", content: "内容评审", security: "安全评审" };
+// general-b：不是票的 b 类 PR 的第二份评审，由不同模型的 reviewer-b 写（pipeline.md §5.1）
+export const ROLE_OF = { general: "评审", "general-b": "评审B", content: "内容评审", security: "安全评审" };
 export const KINDS = Object.keys(ROLE_OF);
 
-const MARKER = /^<!-- vc-review kind=(general|content|security) verdict=(pass|rework) sha=([0-9a-f]{40}) -->$/;
+const MARKER = /^<!-- vc-review kind=(general-b|general|content|security) verdict=(pass|rework) sha=([0-9a-f]{40}) -->$/;
 // 数「像标记的东西」用宽松的写法：写坏的第二个标记也算多个，整条作废
 const LOOSE = /vc-review/g;
 
@@ -57,7 +58,12 @@ export function reviewVerdictFromFile(file, sha, kind) {
   return reviewVerdict(comments, sha, kind) ?? "none";
 }
 
-/** 票按分支名分种类：content/ 走内容评审，其余（feat/、fix/、chore/、obs/）走站点评审。 */
-export function requiredReviewKind(headRef) {
-  return /^content\//.test(headRef) ? "content" : "general";
+/**
+ * 要哪几种评审（空格分隔，合并脚本逐个核对）：content/ 分支要 content；不是票的 b 类要 general 和 general-b；其余要 general。
+ * category 是 merge-gates.mjs 的 prCategory 结果：ticket / a / b。
+ */
+export function requiredReviewKinds(headRef, category) {
+  if (!["ticket", "a", "b"].includes(category)) throw new Error(`类别只能是 ticket / a / b：${category}`);
+  if (/^content\//.test(headRef)) return "content";
+  return category === "b" ? "general general-b" : "general";
 }

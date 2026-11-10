@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# 合并一个 PR 进主站的集成分支（docs/standards/pipeline.md §5、§8 第 0 阶段）。流水线里唯一的合并入口：云端会话只放行本脚本。
+# 合并一个 PR 进主站的集成分支（docs/standards/pipeline.md §5.1「谁合并」、§8 第 0 阶段）。流水线里唯一的合并入口：云端会话只放行本脚本。
 # 复用 Veli scripts/merge-ticket-pr.sh，按主站改：
 # - 目标分支：GitHub 上有 feature/v1 时只合并进 feature/v1（上线前）；feature/v1 删掉以后只合并进 site（上线后）。
 #   上线前 feature/v1 → site 那一次由产品负责人确认，本脚本不做。
-# - 只合并：base 是目标分支、开着、不是草稿、带 agent:pass、不带 agent:hold / agent:rework / owner:merge 的 PR；
-# - 评审结论针对当前头提交：content/ 分支要 kind=content，其余要 kind=general；risk:high 另要 kind=security 和 security:pass。
+# - 只合并：base 是目标分支（base 是 site 的上线前一律拒绝）、开着、不是草稿、带 agent:pass、不带 agent:hold / agent:rework / owner:merge 的 PR；
+# - 类别（merge-gates.mjs 的 prCategory）：票；不是票的 a 类；b 类（PR 说明写 b、没写类别、改了门槛文件或已有命令）。
+# - 评审结论针对当前头提交：content/ 分支要 kind=content；b 类要 kind=general 和 kind=general-b 两份；其余要 kind=general；
+#   risk:high 另要 kind=security 和 security:pass。
 #   结论只认对应评审角色经 Claude 应用写的、没编辑过的 vc-review 标记（scripts/review-markers.mjs）。头提交一变，旧结论自动失效。
 # - 票的 PR（feat/、fix/、content/）不能改门槛文件（scripts/merge-gates.mjs）；判定库、门槛和检查命令一律取目标分支上的版本。
 # - 合并前在「PR + 最新目标分支」上重跑 §7 的检查：npm test、check:terms、check:vague；装了 tsc、eslint 时也跑类型检查和 lint，
@@ -32,7 +34,6 @@ has() { [[ ",$labels," == *",$1,"* ]]; }
 
 # 分支名只允许 A-Z a-z 0-9 . _ / -，不能以 - 开头（最后删分支的 DELETE 和 git 参数都靠它，Veli 安全评审）
 [[ "$head" =~ ^[A-Za-z0-9._/][A-Za-z0-9._/-]*$ ]] || fail "分支名 $head 不合规：只允许字母、数字和 . _ / -，不能以 - 开头"
-[ "$base" = "$TARGET" ] || fail "base 是 $base，现在只合并进 $TARGET"
 git fetch -q origin -- "$TARGET" "$head" || fail "取不到 origin/$TARGET 或分支 $head"
 # 信任根只用一个 sha：后面一律用 $tgt，再和 GitHub 上的核对一次
 tgt=$(git rev-parse --verify -q "refs/remotes/origin/$TARGET^{commit}") || fail "本地没有 origin/$TARGET"
@@ -65,11 +66,19 @@ lib_dir=$(mktemp -d)
 for f in review-markers.mjs merge-gates.mjs; do
   git show "$tgt:scripts/$f" > "$lib_dir/$f" || fail "$TARGET 上没有 scripts/$f"
 done
+# 改动范围、base 和类别：正文放前面，第一行是「类别：…」
+body_file=$(mktemp); { field 'p.body||""'; field 'p.title||""'; } > "$body_file"
+gates_out=$(node "$lib_dir/merge-gates.mjs" "$tgt" "$sha" "$head" "$body_file" --pr-base "$base" --target "$TARGET") || { echo "$gates_out"; fail "改动范围、base 或类别不合规（见上）"; }
+category=$(printf '%s\n' "$gates_out" | sed -n 's/^category=//p' | tail -1)
+[[ "$category" =~ ^(ticket|a|b)$ ]] || fail "读不懂类别：$gates_out"
+printf '%s\n' "$gates_out" | grep -v '^category=' || true
 markers() { node --input-type=module -e 'const [lib,fn,...a]=process.argv.slice(1);const {pathToFileURL}=await import("node:url");const m=await import(pathToFileURL(lib).href);console.log(m[fn](...a))' "$lib_dir/review-markers.mjs" "$@"; }
-kind=$(markers requiredReviewKind "$head") || fail "读不懂评审种类"
-verdict=$(markers reviewVerdictFromFile "$comments_file" "$sha" "$kind") || fail "读不懂评审结论标记"
-[[ "$verdict" != locked:* ]] || fail "评论 ${verdict#locked:} 带结论标记又被编辑过：这条会锁住整个 PR，要解开就删掉那条评论（DELETE $REPO/issues/comments/<id>），再重新评审"
-[ "$verdict" = "pass" ] || fail "没有针对头提交 ${sha:0:7} 的 kind=$kind 评审通过记录（只认对应评审角色经 Claude 应用写的、没编辑过的 vc-review 标记，同一提交上有 rework 就是 rework；现在是 $verdict）。下一步：派新的评审评这个头提交"
+kinds=$(markers requiredReviewKinds "$head" "$category") || fail "读不懂评审种类"
+for kind in $kinds; do
+  verdict=$(markers reviewVerdictFromFile "$comments_file" "$sha" "$kind") || fail "读不懂评审结论标记"
+  [[ "$verdict" != locked:* ]] || fail "评论 ${verdict#locked:} 带结论标记又被编辑过：这条会锁住整个 PR，要解开就删掉那条评论（DELETE $REPO/issues/comments/<id>），再重新评审"
+  [ "$verdict" = "pass" ] || fail "类别 $category：没有针对头提交 ${sha:0:7} 的 kind=$kind 评审通过记录（要 $kinds 各一份；只认对应评审角色经 Claude 应用写的、没编辑过的 vc-review 标记，同一提交上有 rework 就是 rework；现在是 $verdict）。下一步：派新的 $([ "$kind" = general-b ] && echo reviewer-b || echo 评审) 评这个头提交"
+done
 if has risk:high; then
   v_security=$(markers reviewVerdictFromFile "$comments_file" "$sha" security) || fail "读不懂安全评审结论标记"
   [ "$v_security" = "pass" ] || fail "risk:high：没有针对头提交 ${sha:0:7} 的 kind=security 通过记录（现在是 $v_security）。下一步：派一个 security-reviewer 子 Agent 评这个头提交"
@@ -77,9 +86,7 @@ fi
 # 预览部署：由调用方用 Vercel 连接器确认 PR 头提交的预览部署 READY 后，用 PREVIEW_READY_SHA=<该提交> 声明
 [ "${PREVIEW_READY_SHA:-}" = "$sha" ] || fail "没有确认 PR 头 ${sha:0:7} 的 Vercel 预览部署 READY（先查，再用 PREVIEW_READY_SHA=$sha 调用）"
 
-echo "▶ 在 PR #$PR（$head@${sha:0:7}）+ 最新 $TARGET 上重跑检查"
-body_file=$(mktemp); { field 'p.title||""'; field 'p.body||""'; } > "$body_file"
-node "$lib_dir/merge-gates.mjs" "$tgt" "$sha" "$head" "$body_file" || fail "改动范围不合规（见上）"
+echo "▶ 在 PR #$PR（$head@${sha:0:7}，类别 $category）+ 最新 $TARGET 上重跑检查"
 # 检查命令取自目标分支的 package.json，不用 PR 自己的版本
 base_script() { git show "$tgt:package.json" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{const v=JSON.parse(d).scripts[process.argv[1]];if(!v)process.exit(1);console.log(v)})' "$1"; }
 checks=()

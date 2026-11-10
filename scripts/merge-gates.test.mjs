@@ -5,7 +5,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, renameSync, rmSync } from "node:
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyBranch } from "./merge-gates.mjs";
+import { checkBase, classifyBranch, declaredCategory } from "./merge-gates.mjs";
 
 // scripts/merge-gates.mjs：合并脚本替票的 PR 把的「改动范围」关（pipeline.md §5、§8 第 0 阶段）
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), "merge-gates.mjs");
@@ -30,9 +30,9 @@ function repo() {
   write(".gitignore", ".pr-body\n");
   commit("base");
   // 和合并脚本一样：第三个参数是分支名，由脚本自己判断是不是票
-  const run = (head, ref, body = "") => {
+  const run = (head, ref, body = "", flags = []) => {
     writeFileSync(join(dir, ".pr-body"), body);
-    return spawnSync("node", [SCRIPT, "base", head, ref, join(dir, ".pr-body")], { cwd: dir, encoding: "utf8" });
+    return spawnSync("node", [SCRIPT, "base", head, ref, join(dir, ".pr-body"), ...flags], { cwd: dir, encoding: "utf8" });
   };
   const branch = (name) => git("checkout", "-q", "-b", name, "base");
   return { dir, git, write, commit, run, branch, cleanup: () => rmSync(dir, { recursive: true, force: true }) };
@@ -160,5 +160,73 @@ test("分支名不合规：改门槛文件、削弱测试的同一组改动，�
       assert.match(res.stdout, /分支名不合规/, ref);
     }
     assert.equal(r.run(head, "feat/12-ok").status, 1, "按票处理时照样拦住改门槛文件");
+  } finally { r.cleanup(); }
+});
+
+// pipeline.md §5.1「谁合并」：base、类别和 b 类的判定
+const category = (res) => /^category=(\S+)$/m.exec(res.stdout)?.[1];
+
+test("base：上线前只合并进 feature/v1，base 是 site 的拒绝；上线后只合并进 site", () => {
+  assert.deepEqual(checkBase("feature/v1", "feature/v1"), []);
+  assert.deepEqual(checkBase("site", "site"), []);
+  assert.match(checkBase("site", "feature/v1")[0], /site 只接受产品负责人确认的上线合并/);
+  assert.equal(checkBase("main", "feature/v1").length, 1);
+  assert.equal(checkBase("feature/v1", "site").length, 1, "上线后 feature/v1 不再是目标");
+  assert.equal(checkBase("x", "x").length, 1, "目标分支只能是 feature/v1 或 site");
+  const r = repo();
+  try {
+    r.branch("feat/1-base"); r.write("src/a.ts", "export const a = 9;\n");
+    const head = r.commit("w");
+    const bad = r.run(head, "feat/1-base", "类别：票", ["--pr-base", "site", "--target", "feature/v1"]);
+    assert.equal(bad.status, 1);
+    assert.match(bad.stdout, /base 是 site/);
+    const ok = r.run(head, "feat/1-base", "类别：票", ["--pr-base", "feature/v1", "--target", "feature/v1"]);
+    assert.equal(ok.status, 0, ok.stdout);
+    assert.equal(category(ok), "ticket");
+    assert.equal(r.run(head, "feat/1-base", "", ["--pr-base", "feature/v1"]).status, 2, "--pr-base 和 --target 要成对");
+  } finally { r.cleanup(); }
+});
+
+test("类别行：只认正文第一个非空行", () => {
+  for (const [body, want] of [["类别：a\n说明", "a"], ["\n  类别: b  \n", "b"], ["类别：票", "票"], ["类别：内容定稿", "内容定稿"], ["类别：A", "a"]]) {
+    assert.equal(declaredCategory(body), want, body);
+  }
+  for (const body of ["", "说明\n类别：a", "类别：c", "类别：a 类", "类别：a / b"]) assert.equal(declaredCategory(body), null, body);
+});
+
+test("不是票的 PR：写 a 且不碰门槛才算 a；没写、写 b、改门槛文件或已有命令一律按 b", () => {
+  const r = repo();
+  try {
+    r.branch("chore/docs"); r.write("docs/notes.md", "x\n");
+    const docs = r.commit("docs");
+    assert.equal(category(r.run(docs, "chore/docs", "类别：a\n加一条检查")), "a");
+    assert.equal(category(r.run(docs, "chore/docs", "加一条检查")), "b", "没写类别按 b");
+    assert.equal(category(r.run(docs, "chore/docs", "类别：b")), "b");
+    assert.equal(category(r.run(docs, "obs/2026-11-09-x", "类别：票")), "b", "类别和分支对不上按 b");
+    assert.equal(category(r.run(docs, "chore/docs", "标题\n类别：a")), "b", "类别不在第一行按 b");
+
+    r.branch("chore/gate"); r.write("docs/standards/pipeline.md", "# 流水线 v2\n");
+    const gate = r.run(r.commit("gate"), "chore/gate", "类别：a");
+    assert.equal(gate.status, 0, gate.stdout);
+    assert.equal(category(gate), "b", "改了门槛文件、说明写 a，也按 b");
+    assert.match(gate.stdout, /按 b 类处理：改了门槛文件 docs\/standards\/pipeline\.md/);
+
+    r.branch("obs/2026-11-09-pkg");
+    r.write("package.json", JSON.stringify({ scripts: { test: "true", "check:terms": "node scripts/check-terms.mjs" } }));
+    assert.equal(category(r.run(r.commit("pkg"), "obs/2026-11-09-pkg", "类别：a")), "b", "改了已有检查命令按 b");
+  } finally { r.cleanup(); }
+});
+
+test("票的 PR：类别写内容定稿的不合并（等产品负责人），写 a / b 的拒绝；没写按票", () => {
+  const r = repo();
+  try {
+    r.branch("content/7-final"); r.write("src/content/post.ts", "export default { c: 1 };\n");
+    const head = r.commit("final");
+    const fin = r.run(head, "content/7-final", "类别：内容定稿");
+    assert.equal(fin.status, 1);
+    assert.match(fin.stdout, /等产品负责人本人合并/);
+    assert.equal(r.run(head, "content/7-final", "类别：b").status, 1);
+    assert.equal(category(r.run(head, "content/7-final", "类别：票")), "ticket");
+    assert.equal(category(r.run(head, "content/7-final", "")), "ticket");
   } finally { r.cleanup(); }
 });

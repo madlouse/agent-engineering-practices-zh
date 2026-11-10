@@ -39,7 +39,7 @@
 ### 给 Matt Pocock 技能的约定
 
 - **Issue tracker**：本仓库的 GitHub Issues；云端会话只能用 REST（`gh api`）。
-- **Triage labels**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 上另有 `agent:pass`、`agent:rework`、`agent:hold`、`owner:merge`、`risk:high`、`security:pass`、`security:rework`；状态 issue #13 上的 `agent:stop` 是总开关（`docs/standards/pipeline.md` §5）。
+- **Triage labels**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 上另有 `agent:hold`、`owner:merge`、`risk:high`（评审通过与否只看评论里的结论标记，不用标签）；状态 issue #13 上的 `agent:stop` 是总开关（`docs/standards/pipeline.md` §5）。
 - **评论**：Agent 写的每一条评论首行都是 `<!-- vc-bot role=<角色> -->`；不带它的评论才算产品负责人的回复。
 - **Domain docs**：单一上下文，术语表 `docs/GLOSSARY.md`，ADR 在 `docs/architecture/adr/`。
 

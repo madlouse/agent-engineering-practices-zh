@@ -3,11 +3,11 @@
 # 复用 Veli scripts/merge-ticket-pr.sh，按主站改：
 # - 目标分支：GitHub 上有 feature/v1 时只合并进 feature/v1（上线前）；feature/v1 删掉以后只合并进 site（上线后）。
 #   上线前 feature/v1 → site 那一次由产品负责人确认，本脚本不做。
-# - 只合并：base 是目标分支（base 是 site 的上线前一律拒绝）、开着、不是草稿、带 agent:pass、不带 agent:hold / agent:rework / owner:merge 的 PR；
+# - 只合并：base 是目标分支（base 是 site 的上线前一律拒绝）、开着、不是草稿、不带 agent:hold / owner:merge 的 PR；评审通过与否只看结论标记，不看标签；
 # - 类别（merge-gates.mjs 的 prCategory）：票；不是票的 a 类；b 类（PR 说明写 b、没写类别、改了门槛文件、检查脚本或已有命令、削弱了测试）；
 #   改了权限设置（.claude/settings*.json）或 docs/standards/observer.md 的、观察者 obs/ 分支的 b 类，一律不合并，等产品负责人。
 # - 评审结论针对当前头提交：content/ 分支要 kind=content；b 类要 kind=general 和 kind=general-b 两份；其余要 kind=general；
-#   risk:high 另要 kind=security 和 security:pass；改依赖、锁文件、.npmrc、生命周期脚本、migrations/site/、site:migrate 的（merge-gates.mjs 输出 risk=high）同样要。
+#   risk:high 另要 kind=security；改依赖、锁文件、.npmrc、生命周期脚本、migrations/site/、site:migrate 的（merge-gates.mjs 输出 risk=high）同样要。
 # - 带 owner:merge 或判成 owner 类的，拒绝时顺带跑决策简报检查（check-owner-brief.mjs，取目标分支上的版本），缺简报就提示先补。
 #   结论只认对应评审角色经 Claude 应用写的、没编辑过的 vc-review 标记（scripts/review-markers.mjs）。头提交一变，旧结论自动失效。
 # - 票的 PR（feat/、fix/、content/）不能改门槛文件（scripts/merge-gates.mjs）；判定库、门槛和检查命令一律取目标分支上的版本。
@@ -65,9 +65,7 @@ owner_brief() {
 [ "$state" = "open" ] || fail "状态是 $state"
 [ "$draft" = "false" ] || fail "还是草稿"
 has owner:merge && { owner_brief; fail "带着 owner:merge：等产品负责人本人合并（pipeline.md §5.1）"; }
-has agent:pass || fail "没有 agent:pass（冷评审没通过）"
 has agent:hold && fail "带着 agent:hold"
-has agent:rework && fail "同时带着 agent:rework：以最新一次评审为准，先由评审换好标签"
 
 # 读全部评论：云端代理拒绝 --paginate 的第 2 页，自己按 page= 翻页，读失败就拒绝
 comments_file=$(mktemp); echo '[]' > "$comments_file"
@@ -91,10 +89,6 @@ printf '%s\n' "$gates_out" | grep -v -e '^category=' -e '^risk=high$' || true
 risk_high=false
 has risk:high && risk_high=true
 printf '%s\n' "$gates_out" | grep -qx 'risk=high' && risk_high=true
-if $risk_high; then
-  has security:pass || fail "要独立安全评审（risk:high 或改了依赖、迁移，见上），还没有 security:pass。下一步：派一个 security-reviewer 子 Agent，并给 PR 打 risk:high"
-  has security:rework && fail "带着 security:rework"
-fi
 markers() { node --input-type=module -e 'const [lib,fn,...a]=process.argv.slice(1);const {pathToFileURL}=await import("node:url");const m=await import(pathToFileURL(lib).href);console.log(m[fn](...a))' "$lib_dir/review-markers.mjs" "$@"; }
 kinds=$(markers requiredReviewKinds "$head" "$category") || fail "读不懂评审种类"
 for kind in $kinds; do

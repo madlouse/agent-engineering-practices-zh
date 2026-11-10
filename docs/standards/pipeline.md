@@ -76,12 +76,12 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 | 站点票推进器 | 定时任务 ① | Sonnet · medium | 选票、派活、合并、交接 | 运行锁、领票评论、交接评论 | 观察者 |
 | 内容推进器 | 定时任务 ② | Sonnet · medium | 同上，只管内容车道 | 同上 | 观察者 |
 | `implementer` | 复用 | Sonnet · medium | 实现一张站点票 + 证据 | PR 和证据表 | `reviewer` |
-| `reviewer` | 复用，加主站检查 | Opus · medium | 冷评审一个站点 PR | 一条结论评论 + 标签 | 观察者抽查复审 |
+| `reviewer` | 复用，加主站检查 | Opus · medium | 冷评审一个站点 PR | 一条结论评论（绑定头提交的结论标记） | 观察者抽查复审 |
 | `reviewer-b` | 新增，替 Veli 的 Codex 第二道评审 | Sonnet · high | b 类 PR 的第二份独立冷评审（§5.1） | 一条 `kind=general-b` 结论评论 | 观察者抽查 |
 | `content-writer` | 新增 | Sonnet · medium | 起草一张内容票：选材、成稿、中英两版 | PR 和出处表 | `content-reviewer` |
-| `content-reviewer` | 新增 | Opus · medium | 冷审一个内容 PR：事实、出处、授权、术语、双语 | 一条结论评论 + 标签 | 观察者抽查 |
+| `content-reviewer` | 新增 | Opus · medium | 冷审一个内容 PR：事实、出处、授权、术语、双语 | 一条结论评论（绑定头提交的结论标记） | 观察者抽查 |
 | `design-reviewer` / `design-reviewer-b` | 新增，复用 Veli 两人走查和 `design-bar` 独立评审 | Opus · medium / Sonnet · medium | 关口三 a、里程碑关口和关口四的独立评审 | 各自一份问题清单 | 主会话合并；观察者 |
-| `security-reviewer` | 复用 | Sonnet · high | 带 `risk:high` 的 PR 的独立安全评审：订阅和发信、表单、数据库和行级安全、密钥（PRD 第 8 节「安全」） | 一条 `kind=security` 结论评论 + `security:*` 标签 | 观察者全查 |
+| `security-reviewer` | 复用 | Sonnet · high | 带 `risk:high` 的 PR 的独立安全评审：订阅和发信、表单、数据库和行级安全、密钥（PRD 第 8 节「安全」） | 一条 `kind=security` 结论评论 | 观察者全查 |
 | `spec-reviewer` | 复用 | Opus · high | 冷审规格和一批票 | 一条「就绪：是 / 否」评论 | 观察者看下游返工 |
 | `digest-writer` | 复用 | Haiku · low | 日报正文 | 状态 issue 正文 | 观察者核对和真实状态一致 |
 | `observer` | 复用 | Opus · high | 整条流水线和机制本身（`observer.md`） | 观察报告、`docs/quality/` | 产品负责人每周看一次 |
@@ -120,7 +120,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 - **分支**：生产分支 `site`（Vercel 的生产分支一直是它）。命名照 Veli `agent-gitflow.md` §3.1：`feat/<票号>-<短名>`、`fix/…`、`content/<票号>-<短名>`（内容车道，和 `feat/` 一样算票的分支）、`obs/<日期>-<短名>`（观察者）、`chore/<短名>`（主会话）。只有这五种前缀；合并脚本对其他分支名一律拒绝（`merge-gates.mjs` 的 `classifyBranch`，出错时拒绝，不放行）。
   - **上线前**：GitHub 默认分支是集成分支 `feature/v1`（同 Veli B1 期间默认分支是 `feature/b1`），工作流文件放在它上面就能手动触发和定时运行。所有 PR（票、`chore/`、`obs/`）都以 `feature/v1` 为 base；`site` 只接受关口四通过后产品负责人确认的那一次上线合并。
   - **上线后**：默认分支改回 `site`，`feature/v1` 删掉，所有 PR 直接以 `site` 为 base，分级不变（§5.1）。内容的周六上线就是把定稿的 PR 合并进 `site`。
-- **标签**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 用 `agent:pass`、`agent:rework`、`agent:hold`、`owner:merge`、`risk:high`、`security:pass`、`security:rework`，含义照 Veli `pipeline.md` §3。`owner:merge` = 等产品负责人本人合并，只用在 §5.1 写明的三种 PR：有没定的取舍的、要人定稿的内容、观察者提的 b 类。
+- **标签**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 用 `agent:hold`（暂停合并）、`owner:merge`、`risk:high`。评审通过与否只看评论里绑定头提交的结论标记（`scripts/review-markers.mjs`），不设 `agent:pass`、`agent:rework`、`security:pass`、`security:rework` 标签：标记已经绑定提交、防编辑，标签是重复的副本，而且评审改标签时常被权限系统拦下，卡住合并（2026-11-10）。`owner:merge` = 等产品负责人本人合并，只用在 §5.1 写明的三种 PR：有没定的取舍的、要人定稿的内容、观察者提的 b 类。
 - **机器人标记**：Agent 在 GitHub 上写的**每一条**评论，首行都是 `<!-- vc-bot role=<角色> -->`（运行锁、领票、交接、评审、观察报告都一样）。不带这个标记的评论才算产品负责人的回复；漏了标记，Agent 的话会被当成指令执行。
 - **总开关和运行锁**：在状态 issue #13「主站工厂状态」上。它带 `agent:stop` 时，任何运行开工就结束。运行锁照 Veli `pipeline.md` §7 第 1 步：评论「运行开始 / 运行结束 / 运行跳过」，评论开头写 `<!-- vc-bot role=<循环名> -->`；90 分钟没有动静算断掉。两条车道各用自己的锁（评论里写 `lane=site` 或 `lane=content`），互不阻塞。
 - **领票**：指派给自己 + 一条领票评论（分支名、接棒结果、就绪结论）。
@@ -147,7 +147,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 - **类别写在 PR 说明第一行**：`类别：票`、`类别：a`、`类别：b` 或 `类别：内容定稿`。评审核对类别，拿不准按 b。正文为空时不拿标题当类别。不是票的 PR，脚本按 b 处理：没写类别、写的不是 a、改了门槛文件（`GATE_FILES`，含各级 `AGENTS*.md`、`CLAUDE.md`）、改或删了检查脚本（`CHECK_FILES`）或 `package.json` 已有命令、删测试文件、改已有测试时删掉含 `assert` / `expect` 的行或新增提前 `return`（`return;`、`{ return }`、`return 0;` 这类）、新增 `.only` / `.skip` / `.todo` / `.skipIf` / `.runIf`（按条件不跑）/ 关 lint / `@ts-nocheck` / `@ts-ignore` 的写法。路径按原样读（`-z`），中文文件名同样判。base 不是目标分支（上线前 `feature/v1`，上线后 `site`）的，脚本拒绝。
 - **票的 PR**：删测试文件、新增跳过、关 lint、关类型检查的写法，脚本拒绝，提示按原因分开；票写了 `内容定稿`，脚本拒绝（等产品负责人）。删断言、加提前 `return` 脚本不拦（实现需求时改测试是正常的），由评审逐条核对（`reviewer.md` 第 5 步）。
 - **`@ts-expect-error`**：只在 `tsc` 检查的目录（`tsconfig.json` 的 `include`：`src/`、`server/`）放行，别处等于 `@ts-ignore`，照样拦。放行的理由：下一行没有类型错误时它自己报错，不会留下压错的空壳；换来的是类型负例测试这类有意的抑制不再被误拒。代价：它压掉的真实错误脚本看不出，靠评审核对。
-- **和 `risk:high` 同效**：改了 `package.json` 的依赖字段（含 `overrides`）、生命周期脚本（`preinstall`、`install`、`postinstall`、`prepare` 等，构建时 `npm install` 会执行）或 `site:migrate`，`package-lock.json`、`.npmrc`、`migrations/site/**` 的 PR，脚本输出 `risk=high`，要 `kind=security` 结论和 `security:pass`，不论有没有打标签（`riskHigh`）。评审看到时补打 `risk:high`。
+- **和 `risk:high` 同效**：改了 `package.json` 的依赖字段（含 `overrides`）、生命周期脚本（`preinstall`、`install`、`postinstall`、`prepare` 等，构建时 `npm install` 会执行）或 `site:migrate`，`package-lock.json`、`.npmrc`、`migrations/site/**` 的 PR，脚本输出 `risk=high`，要 `kind=security` 结论，不论有没有打标签（`riskHigh`）。评审看到时补打 `risk:high`。
 - **改规则的**（`AGENTS.project.md`、`docs/standards/`、技能、角色 md、检查脚本）：照 Veli §5.4 四步（定位、检索、判定、代码化），检索命令和每个命中（已改 / 不用改 + 理由）贴进 PR 说明。
 - **谁返工**：谁提的谁改，按分支前缀认；评审最多 3 次（Veli §7 第 8 步）。
 - **两份评审靠派发保证独立**：脚本只能核对角色行和标记，核对不了「不同模型」「互相看不到」。派发时 `reviewer-b` 不给 `reviewer` 的评论；观察者抽查派发记录里的模型。票和 a 类只有一份评审（Veli 是 Codex 每个 PR 都评），Codex 连接器恢复后可以加回。
@@ -235,6 +235,7 @@ git -C /tmp/veli checkout 19170d2
 | `npm run verify`、`tmc-dev-setup` §5 | 本页 §7 的检查 |
 | `tmc-ux-walkthrough`、`ux-walker` 两人走查 | `design-reviewer` + `design-reviewer-b`，加 `check_page.py` 六项 |
 | `docs/delivery/milestones/M<n>.json` | 里程碑总票里写的退出条件 |
+| 通过与否的标签 `agent:pass`、`agent:rework`、`security:pass`、`security:rework`（Veli §3 标签表；§7 第 8 步「`agent:rework` 或 `security:rework` 都算要返工」） | 不设这些标签，只看头提交上的结论标记：推进器和观察者判断「要返工」= 头提交上任一种类的结论是 rework（`review-markers.mjs` 的 `reviewVerdict`）；「通过」= 要的几种都是 pass（§3「标签」，2026-11-10） |
 | `risk:high`、`security-reviewer` | 照用：订阅要收邮箱（PRD F07），订阅和发信、表单、数据库和行级安全、密钥的 PR 都打 `risk:high` |
 | 数据库迁移（Supabase、集成库） | 主站订阅库的迁移放在 `migrations/site/`，只由工作流 `site-db-migrate` 用 `SITE_DB_MIGRATE_URL` 执行（ADR-0004 (a)），构建命令里不跑迁移；预览和测试里由新模块对内存 PGLite 执行。沙箱预置的 `npm run db:migrate` 只用于 Grok 沙箱 |
 | 集成分支「黄」、`/api/health` | 不适用，状态只有绿和红（§6） |

@@ -8,7 +8,7 @@ effort: high
 规则全文在 `docs/standards/observer.md`，先读它，再读 `docs/standards/pipeline.md`；共用机制按 `pipeline.md` §9 读 Veli 固定版本的 `observer.md`、`pipeline.md`、`quality-gates.md`。GitHub 只用 `gh api` REST；Vercel 用连接器。
 
 每次运行：分支一律 `obs/<日期>-<短名>`（合并脚本按它认出观察者）。
-0. 先看自己提的、带 `agent:rework` 的 PR，只修评审点名的阻塞项。
+0. 先看自己提的、最新评审结论是「要改」的 PR，只修评审点名的阻塞项。
 1. 范围：上次「观察报告」以来的所有运行（状态 issue 上的运行锁）、合并的 PR、开着的 agent PR、关掉的票、定时任务的运行记录和配置。
 2. 先看协作和交接（`pipeline.md` §3），再看过程合规、证据重跑、评审漏检，再看 `observer.md` §2 的主站各方面；设计和内容的评审按 §3 检查是否可信。
 3. 每个发现归因到机制（Veli `observer.md` §6 的顺序），按 §4 的权限处理：收紧的和白名单内的简化开小 PR（标题以「观察者：」开头），派新的 `reviewer` 冷评审，通过、预览 READY 后用合并脚本合并；放宽、删减、改流程和版本号的写进「等你决定」或打 `owner:merge`。`obs/` 分支脚本判成 b 的（包括改了门槛文件的收紧）和改 `docs/standards/observer.md` 的，合并脚本一律拒绝，同样打 `owner:merge`，说明最上面写决策简报（`pipeline.md` §5.2）。PR 说明第一行写类别（`pipeline.md` §5.1）。

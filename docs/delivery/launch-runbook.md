@@ -19,7 +19,7 @@
 
 ## 合并前（在 `feature/v1` 的预览上）
 
-1. **首次生产迁移**：主会话手动触发 `site-db-migrate`（`ref=feature/v1`），然后做 #67 的核对。不过就停在这里修。
+1. **首次生产迁移**：先核对 Environment `site-db` 的部署分支只允许 `site`、`feature/v1`，密钥 `SITE_DB_MIGRATE_URL` 已配（#40）；核对前不触发。然后主会话手动触发 `site-db-migrate`（`ref=feature/v1`），再做 #67 的核对。不过就停在这里修。
 2. **监控演练**：主会话手动触发 `site-monitor`（`ref=feature/v1`），`target` 填一个必定失败的地址，连跑两次，开出一个告警 issue；产品负责人回复收到告警邮件；关掉这个 issue。
 3. **关口四「合并前」清单**全部通过（`pipeline.md` §2.3）。
 4. **Veli 侧就绪**：thin-muscle-coach#72 已合并，Veli 生产上 `/body`、`/en/body`、法务页返回 200（直接请求 Veli 项目的生产域名）；#185、#101 已关；#213 的切换 PR 已开、以 Veli 的 `main` 为 base、评审通过、还没合并。
@@ -30,12 +30,12 @@
 6. 产品负责人在 GitHub 上把 `feature/v1` 合并进 `site`（合并脚本只合并进集成分支，不做这一步，`pipeline.md` §5.1）。
 7. 主站生产部署 READY；`site-db-migrate` 用 `ref=site` 再跑一次（没有新迁移时什么也不改），#67 的查询再跑一次。
 8. Supabase 项目没有处于暂停状态（`/api/site/health` 返回 200）。
-9. 主会话用 #62 的核对脚本对**主站项目的生产域名**（`*.vercel.app`，不是某一次部署的生成地址）跑一遍：路由表每一行、`/api/site/health`。全过才进下一步。
+9. 主会话用 #62 的核对脚本对**主站项目的生产域名**（`*.vercel.app`，不是某一次部署的生成地址）跑一遍：路由表每一行、`/api/site/health`。全过以后，主会话把仓库变量 `MONITOR_TARGET` 设成这个生产域名，再进下一步。在这之前不设：上线合并前生产部署没有 `/api/site/health`，提前设会误报并开告警 issue。
 
 ## 切换
 
 10. 主会话用 Vercel 的接口把 `velicoach.com` 从 Veli 项目移除、挂到主站项目；同时产品负责人把 #213 的切换 PR 合并进 Veli 的 `main`，Veli 生产部署 READY。
-11. 主会话把仓库变量 `MONITOR_TARGET` 设成 `https://velicoach.com`（合并后到切换之前是主站项目的生产域名）。
+11. 主会话把仓库变量 `MONITOR_TARGET` 从主站项目的生产域名（第 9 步设的）改成 `https://velicoach.com`。
 
 ## 切换后（60 分钟内做完）
 

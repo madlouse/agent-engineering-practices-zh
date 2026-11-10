@@ -99,7 +99,9 @@ test("timeline headings must be exactly «## N»", () => {
   const trace = "| 84 | a | b | c | d | e | 同类位置在流水线规则和检查脚本里都已改完 |";
   assert.deepEqual(traceGaps("## 84\n", trace), []);
   assert.deepEqual(traceGaps("# 用户原话\n\n## 84\n\n2026-11-09 21:39 ET\n\n> 原话\n", trace), []);
-  for (const bad of ["### 85\n", "## 85 补充\n", "#85\n", "##  85\n", "##\t85\n", " ## 85\n", "## 85a\n", "## 第85条\n", "## ８５\n", "85\n===\n", "85\n---\n"]) {
+  // 标题或引用下面的 --- 是分隔线，不是 setext 标题
+  assert.deepEqual(traceGaps("## 84\n---\n\n> 原话\n---\n", trace), []);
+  for (const bad of ["### 85\n", "## 85 补充\n", "#85\n", "##  85\n", "##\t85\n", " ## 85\n", "## 85a\n", "## 第85条\n", "## ８５\n", "85\n===\n", "85\n---\n", "85\r\n===\r\n", "#第85条\n===\n", "#第85条\n---\n"]) {
     assert.equal(traceGaps("## 84\n" + bad, trace).length, 1, bad);
   }
 });

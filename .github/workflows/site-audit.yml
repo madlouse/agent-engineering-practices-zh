@@ -1,0 +1,40 @@
+# 依赖漏洞每周检查（PRD 第 8 节「安全」，#61）。工作流文件只由主会话维护，票的 PR 不改 .github/workflows/。
+# 定时只在默认分支上生效：上线前默认分支是 feature/v1，上线后改回 site。也能手动触发，分支选 feature/v1 或票分支。
+# 判定和开票脚本由 #61 加；脚本不存在时这份工作流什么也不做。
+# 工作流写的每一条 issue 正文和评论，首行都是 AUDIT_BOT_HEADER。
+name: site-audit
+
+on:
+  schedule:
+    - cron: "41 2 * * 1" # 每周一 02:41 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: site-audit
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      AUDIT_BOT_HEADER: "<!-- vc-bot role=监控 -->"
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: npm audit 并按结果开票
+        run: |
+          if [ ! -f scripts/audit/run.mjs ]; then
+            echo "scripts/audit/run.mjs 还不存在（由 #61 加），这次不执行。"
+            exit 0
+          fi
+          # 只读 package-lock.json，不安装依赖；npm audit 有漏洞时退出码非 0，交给脚本判定。
+          npm audit --json --package-lock-only > audit.json || true
+          node scripts/audit/run.mjs audit.json

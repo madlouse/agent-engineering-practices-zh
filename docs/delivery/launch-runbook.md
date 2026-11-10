@@ -9,13 +9,13 @@
 
 | 角色 | 做的事 |
 |---|---|
-| 产品负责人 | 关口四「合并前」的确认；把 `feature/v1` 合并进 `site`；真机、真实邮件、RSS 阅读器、告警邮件这几项人工核对 |
+| 产品负责人 | 关口四「合并前」的确认；把 `feature/v1` 合并进 `site`（`site` 上线前只接受这一次合并，`pipeline.md` §5.1）；真机、真实邮件、RSS 阅读器、告警邮件这几项人工核对 |
 | 主会话 | 手动触发两个工作流；跑核对脚本；用 Vercel 的接口挪域名、改监控目标；贴结果；判断要不要回退 |
 | Veli 的主会话 | 按 thin-muscle-coach#213 准备切换 PR（base 是 Veli 的 `main`），由产品负责人在「切换」一步合并 |
 
 ## 开始之前（一次性）
 
-0. **工作流已就位**：主会话的 `chore/` PR 已把 `site-db-migrate`、`site-monitor`、`site-audit` 三个工作流文件放进 `site`，主会话随后把 `site` 合并进 `feature/v1`（手动触发执行的是所选分支上的文件）。工作流文件只由主会话改。
+0. **工作流已就位**：主会话的 `chore/` PR 已把 `site-db-migrate`、`site-monitor`、`site-audit` 三个工作流文件放进默认分支 `feature/v1`（手动触发执行的是所选分支上的文件）。工作流文件只由主会话改。
 
 ## 合并前（在 `feature/v1` 的预览上）
 
@@ -27,7 +27,7 @@
 
 ## 合并
 
-6. 产品负责人把 `feature/v1` 合并进 `site`（合并脚本，`pipeline.md` §5）。
+6. 产品负责人在 GitHub 上把 `feature/v1` 合并进 `site`（合并脚本只合并进集成分支，不做这一步，`pipeline.md` §5.1）。
 7. 主站生产部署 READY；`site-db-migrate` 用 `ref=site` 再跑一次（没有新迁移时什么也不改），#67 的查询再跑一次。
 8. Supabase 项目没有处于暂停状态（`/api/site/health` 返回 200）。
 9. 主会话用 #62 的核对脚本对**主站项目的生产域名**（`*.vercel.app`，不是某一次部署的生成地址）跑一遍：路由表每一行、`/api/site/health`。全过才进下一步。
@@ -50,3 +50,7 @@
 2. Veli：产品负责人在 Veli 的 `main` 上 revert #213 的切换 PR（恢复 `/` 到 `/body` 的临时跳转和 Veli 自己的 robots.txt），Veli 生产部署 READY。
 3. `MONITOR_TARGET` 改回主站项目的生产域名。
 4. `site` 上的主站代码不用回退：没有域名指向它，访客看不到。订阅库里已经写进的订阅照常保留。
+
+## 上线后（当天）
+
+16. 切换后的清单全过以后，主会话把 GitHub 默认分支改回 `site`，删掉 `feature/v1`；合并脚本读到 `feature/v1` 404 就只合并进 `site`（`pipeline.md` §5）。开着的 PR 把 base 改成 `site`。工作流文件已随上线合并进了 `site`，确认定时运行改在 `site` 上触发。

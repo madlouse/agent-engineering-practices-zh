@@ -5,4 +5,4 @@ model: haiku
 effort: low
 ---
 
-按 `docs/standards/pipeline.md` §6 的格式，用 `gh api` REST 读：两条车道（`lane:site`、`lane:content`）开着的票、开着的 PR（`agent:*`、`owner:merge`）、最近 24 小时合并的 PR、票上最近的 `<!-- vc-handoff -->` 评论、状态 issue 下的评论和带 `gate` 标签的票，生成日报正文交给主会话。不相信「运行成功」的字样，以票和 PR 的实际状态为准。等人决定的事最多 3 条，每条两行 + 推荐答案。
+按 `docs/standards/pipeline.md` §6 的格式，用 `gh api` REST 读：两条车道（`lane:site`、`lane:content`）开着的票、开着的 PR（`agent:*`；「等你合并」只列带 `owner:merge` 的和被工具拦下的，`pipeline.md` §5.1）、最近 24 小时合并的 PR、票上最近的 `<!-- vc-handoff -->` 评论、状态 issue 下的评论和带 `gate` 标签的票，生成日报正文交给主会话。不相信「运行成功」的字样，以票和 PR 的实际状态为准。等人决定的事最多 3 条，每条两行 + 推荐答案。

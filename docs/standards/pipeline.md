@@ -71,12 +71,13 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 
 | 角色 | 定义 | 模型 · 强度 | 负责 | 交接物 | 谁来查 |
 |---|---|---|---|---|---|
-| 产品负责人 | — | — | 产品意图和需求类的改动、关口四（上线）的确认、内容的周一选题和周五定稿、`owner:merge` 的合并；安排持证教练审核训练指导类内容，把审核记录贴在内容票上 | 状态 issue 里的回复 | — |
+| 产品负责人 | — | — | 产品意图和需求类的改动、内容的周一选题；§5.1「亲手做的」几件事（含有没定的取舍的 PR 和内容定稿）；安排持证教练审核训练指导类内容，把审核记录贴在内容票上 | 状态 issue 里的回复 | — |
 | 主会话 | 和产品负责人对话的会话 | Opus · high | 关口三 a 的合并与修改、规格和拆票、落实产品负责人的决定；把内容票提出的写回（PRD、技能、术语表、画板、`trace.md`）落到对应位置；写合并脚本 | 规格、票、`chore/` 分支的 PR | `spec-reviewer`；观察者 |
 | 站点票推进器 | 定时任务 ① | Sonnet · medium | 选票、派活、合并、交接 | 运行锁、领票评论、交接评论 | 观察者 |
 | 内容推进器 | 定时任务 ② | Sonnet · medium | 同上，只管内容车道 | 同上 | 观察者 |
 | `implementer` | 复用 | Sonnet · medium | 实现一张站点票 + 证据 | PR 和证据表 | `reviewer` |
 | `reviewer` | 复用，加主站检查 | Opus · medium | 冷评审一个站点 PR | 一条结论评论 + 标签 | 观察者抽查复审 |
+| `reviewer-b` | 新增，替 Veli 的 Codex 第二道评审 | Sonnet · high | b 类 PR 的第二份独立冷评审（§5.1） | 一条 `kind=general-b` 结论评论 | 观察者抽查 |
 | `content-writer` | 新增 | Sonnet · medium | 起草一张内容票：选材、成稿、中英两版 | PR 和出处表 | `content-reviewer` |
 | `content-reviewer` | 新增 | Opus · medium | 冷审一个内容 PR：事实、出处、授权、术语、双语 | 一条结论评论 + 标签 | 观察者抽查 |
 | `design-reviewer` / `design-reviewer-b` | 新增，复用 Veli 两人走查和 `design-bar` 独立评审 | Opus · medium / Sonnet · medium | 关口三 a、里程碑关口和关口四的独立评审 | 各自一份问题清单 | 主会话合并；观察者 |
@@ -86,7 +87,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 | `observer` | 复用 | Opus · high | 整条流水线和机制本身（`observer.md`） | 观察报告、`docs/quality/` | 产品负责人每周看一次 |
 | 合并脚本、检查脚本 | 复用后改写 | — | 确定性的门 | 退出码 | 观察者看有没有被绕过 |
 
-**一共 10 份子 Agent 定义、4 个定时任务**（§4）。平时同一时刻 6 个 Agent 在跑：两条车道各一个主会话 + 一个做事的 + 一个评审的。最多约 11 个：站点车道一次能跑 6 小时，会和观察者（主会话 + `observer` + 它派的 `reviewer`）、日报（主会话 + `digest-writer`）重叠；`risk:high` 的 PR 同时派两个评审。返工第 2 轮的 `implementer` 和 `content-writer` 改用 Opus · medium（同 Veli）。
+**一共 11 份子 Agent 定义、4 个定时任务**（§4）。平时同一时刻 6 个 Agent 在跑：两条车道各一个主会话 + 一个做事的 + 一个评审的。最多约 11 个：站点车道一次能跑 6 小时，会和观察者（主会话 + `observer` + 它派的 `reviewer`）、日报（主会话 + `digest-writer`）重叠；`risk:high` 的 PR 同时派两个评审。返工第 2 轮的 `implementer` 和 `content-writer` 改用 Opus · medium（同 Veli）。
 
 ## 4. 循环（定时任务）
 
@@ -116,18 +117,39 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 
 ## 5. 分支、标签、锁
 
-- **分支**：生产分支 `site`（默认分支）。命名照 Veli `agent-gitflow.md` §3.1：`feat/<票号>-<短名>`、`fix/…`、`content/<票号>-<短名>`（内容车道，和 `feat/` 一样算票的分支）、`obs/<日期>-<短名>`（观察者）、`chore/<短名>`（主会话）。
-  - **上线前**：集成分支 `feature/v1` 从 `site` 开，两条车道的 PR 都合并回 `feature/v1`；关口四通过后，产品负责人确认一次合并进 `site`。
-  - **上线后**：`feature/v1` 删掉，两条车道的 PR 直接以 `site` 为 base，门不变（冷评审通过、预览 READY、合并脚本）。内容的周六上线就是把定稿的 PR 合并进 `site`。
-- **标签**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 用 `agent:pass`、`agent:rework`、`agent:hold`、`owner:merge`、`risk:high`、`security:pass`、`security:rework`，含义照 Veli `pipeline.md` §3，只有 `owner:merge` 在主站多一种用法：**等产品负责人本人合并**的 PR，除了删掉或放宽要求的机制改动，还有要人定稿的内容（模块样稿、每周的文章）。产品负责人合并就是定稿。
+- **分支**：生产分支 `site`（Vercel 的生产分支一直是它）。命名照 Veli `agent-gitflow.md` §3.1：`feat/<票号>-<短名>`、`fix/…`、`content/<票号>-<短名>`（内容车道，和 `feat/` 一样算票的分支）、`obs/<日期>-<短名>`（观察者）、`chore/<短名>`（主会话）。只有这五种前缀；合并脚本对其他分支名一律拒绝（`merge-gates.mjs` 的 `classifyBranch`，出错时拒绝，不放行）。
+  - **上线前**：GitHub 默认分支是集成分支 `feature/v1`（同 Veli B1 期间默认分支是 `feature/b1`），工作流文件放在它上面就能手动触发和定时运行。所有 PR（票、`chore/`、`obs/`）都以 `feature/v1` 为 base；`site` 只接受关口四通过后产品负责人确认的那一次上线合并。
+  - **上线后**：默认分支改回 `site`，`feature/v1` 删掉，所有 PR 直接以 `site` 为 base，分级不变（§5.1）。内容的周六上线就是把定稿的 PR 合并进 `site`。
+- **标签**：issue 用 `ready-for-agent`、`ready-for-human`、`spec`、`gate`，车道用 `lane:site`、`lane:content`；PR 用 `agent:pass`、`agent:rework`、`agent:hold`、`owner:merge`、`risk:high`、`security:pass`、`security:rework`，含义照 Veli `pipeline.md` §3。`owner:merge` = 等产品负责人本人合并，只用在 §5.1 写明的三种 PR：有没定的取舍的、要人定稿的内容、观察者提的 b 类。
 - **机器人标记**：Agent 在 GitHub 上写的**每一条**评论，首行都是 `<!-- vc-bot role=<角色> -->`（运行锁、领票、交接、评审、观察报告都一样）。不带这个标记的评论才算产品负责人的回复；漏了标记，Agent 的话会被当成指令执行。
 - **总开关和运行锁**：在状态 issue #13「主站工厂状态」上。它带 `agent:stop` 时，任何运行开工就结束。运行锁照 Veli `pipeline.md` §7 第 1 步：评论「运行开始 / 运行结束 / 运行跳过」，评论开头写 `<!-- vc-bot role=<循环名> -->`；90 分钟没有动静算断掉。两条车道各用自己的锁（评论里写 `lane=site` 或 `lane=content`），互不阻塞。
 - **领票**：指派给自己 + 一条领票评论（分支名、接棒结果、就绪结论）。
 - **交接评论**：格式照 Veli `pipeline.md` §8，标记改为 `<!-- vc-handoff -->`。
 
+### 5.1 谁合并
+
+产品负责人：「让用户确认其实要有一套对应的规则，不是什么都要用户去合并。」照 Veli `agent-gitflow.md` §5.3、§5.4 改（§9）。合并进集成分支一律用合并脚本；脚本判定 base、类别和要几份评审（`merge-gates.mjs` 的 `checkBase`、`prCategory`，`review-markers.mjs` 的 `requiredReviewKinds`），测试在两份 `.test.mjs`。
+
+| PR | 合并条件 | 谁合并 |
+|---|---|---|
+| 票（`feat/`、`fix/`、`content/`） | 冷评审 pass（`content/` 是内容评审），`risk:high` 另要安全评审；预览 READY | 推进器用合并脚本 |
+| 不是票的 **a 类**：收紧、不减要求（加检查、加清单项、写清含糊或过时的说法、文档同步、合并重复条目） | 同上，一份 `kind=general` | 提 PR 的循环或主会话用合并脚本 |
+| 不是票的 **b 类**：删掉、跳过或放宽任何要求；改流程顺序、模型、频率；改文档里写的角色权限 | 两份互相看不到的冷评审都 pass：`reviewer`（`kind=general`）和不同模型的 `reviewer-b`（`kind=general-b`，角色 `评审B`）；预览 READY | 主会话用合并脚本，不等产品负责人。观察者提的 b 类（放宽、改流程顺序、模型、频率、同步 Veli 版本号）仍打 `owner:merge` 等产品负责人（`observer.md` §4，照 Veli） |
+| 有没定的取舍：产品意图、钱、法律责任、难以撤回（照 Veli「什么时候要人」） | 说明最上面写决策摘要（核心设计思想 → 事实 → 要判断的问题和选项 → 推荐 → 合与不合各会怎样）和风险摘要（可能出什么事 → 证明安全的证据 → 怎么回滚）；冷评审 pass 后打 `owner:merge` | 产品负责人合并 |
+| 改了权限设置（`.claude/settings*.json`） | 合并脚本一律拒绝（`OWNER_FILES`）；Agent 只出草稿 | 产品负责人 |
+| 要人定稿的内容（模块样稿、每周文章） | 冷评审 pass 后打 `owner:merge` | 产品负责人合并，合并就是定稿 |
+| 上线前任何 → `site`（上线合并、紧急修复） | 关口四（§2.3），或产品负责人在对话里同意 | 只有产品负责人确认 |
+| 工具拦截了 Agent 的合并 | 不绕过 | 把待合并的 PR 列成一条消息给产品负责人，一句话批量确认（「合并 #N #M」） |
+
+- **类别写在 PR 说明第一行**：`类别：票`、`类别：a`、`类别：b` 或 `类别：内容定稿`。评审核对类别，拿不准按 b。正文为空时不拿标题当类别。脚本也按 b 处理：没写类别、写的不是 a、改了门槛文件（`GATE_FILES`，含各级 `AGENTS*.md`、`CLAUDE.md`）、改或删了检查脚本（`CHECK_FILES`）或 `package.json` 已有命令、删测试文件、新增 `.only` / `.skip` / `.todo` / 关 lint 的写法。票的 PR 写了 `内容定稿`，脚本拒绝。base 不是目标分支（上线前 `feature/v1`，上线后 `site`）的，脚本拒绝。
+- **改规则的**（`AGENTS.project.md`、`docs/standards/`、技能、角色 md、检查脚本）：照 Veli §5.4 四步（定位、检索、判定、代码化），检索命令和每个命中（已改 / 不用改 + 理由）贴进 PR 说明。
+- **谁返工**：谁提的谁改，按分支前缀认；评审最多 3 次（Veli §7 第 8 步）。
+- **两份评审靠派发保证独立**：两份都经 Claude 应用写，脚本只能核对角色行和标记，核对不了「不同模型」「互相看不到」。派发时 `reviewer-b` 不给 `reviewer` 的评论；观察者抽查派发记录里的模型。票和 a 类只有一份评审，这是和 Veli（Codex 每个 PR 都评）的差别；Codex 连接器恢复后可以加回。
+- **产品负责人亲手做的只有**：付费、账号和权限设置、有没定的取舍的 PR、上线合并与域名切换的确认、内容定稿、观察者提的 b 类 PR。其余告知即可（日报和 #13）。
+
 ## 6. 人的注意力
 
-状态 issue「主站工厂状态」的正文每天覆盖更新，格式照 Veli `pipeline.md` §6：今天（合并、在评审、卡住、集成分支的状态）、等你合并、等你决定（最多 3 条，每条两行 + 推荐答案）、里程碑进度。
+状态 issue「主站工厂状态」的正文每天覆盖更新，格式照 Veli `pipeline.md` §6：今天（合并、在评审、卡住、集成分支的状态）、等你合并（只列带 `owner:merge` 的和被工具拦下的，§5.1）、等你决定（最多 3 条，每条两行 + 推荐答案）、里程碑进度。
 
 **集成分支的状态只有绿和红，只在这里定义**：绿 = §7 的检查全过，且最新提交的预览部署 READY；红 = 检查不过，或预览部署不是 READY（排队或构建中先等，超过 30 分钟算红）。主站没有健康检查接口，所以没有 Veli 的「黄」。红了先修，不领新票。
 
@@ -149,7 +171,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 |---|---|---|
 | 术语 | `npm run check:terms` | 两条车道的评审 |
 | 质量词 | `npm run check:vague`；票和规格的正文先存成临时文件再跑 `node scripts/check-vague.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
-| 脚本单元测试 | `npm test`（`scripts/` 下除 grok-pwa 以外的测试，加 `npm run test:pwa`：grok-pwa 插件的测试读当前目录的分享卡配置，要在空临时目录里跑；沙箱契约不许改它的测试文件。PR #68 起） | `reviewer` |
+| 脚本单元测试 | `npm test`（`scripts/` 下除 grok-pwa 以外的测试，加 `npm run test:pwa`：grok-pwa 插件的测试读当前目录的分享卡配置，要在空临时目录里跑；沙箱契约不许改它的测试文件。PR #68 起。后半段的 `src/lib` 测试要依赖装全，云端会话装不上依赖时那两个文件报找不到模块，以预览构建为准） | `reviewer` |
 | 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖 | `reviewer` 用 Vercel 连接器看构建日志 |
 | 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |
 | token | `python .grok/skills/design-bar/scripts/lint_tokens.py src --tokens <token 文件>` | `reviewer`（界面票） |
@@ -162,7 +184,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 
 | 阶段 | 开哪些 | 进入条件 |
 |---|---|---|
-| 0 准备 | 都不开 | 前置票 #15 全部做完：Vercel 项目和预览绕过头、`feature/v1`、基线变绿（`npm test` 现在 8 个失败）、合并脚本（主会话从 Veli 复用改写，`chore/` 分支，冷评审后 `owner:merge`，不能由票自己写：票的 PR 不能改门槛文件）、云端会话放行合并脚本 |
+| 0 准备 | 都不开 | 前置票 #15 全部做完：Vercel 项目和预览绕过头、`feature/v1`、基线变绿（`npm test`，#15）、合并脚本（主会话从 Veli 复用改写，`chore/` 分支，按 b 类两份冷评审后合并，不能由票自己写：票的 PR 不能改门槛文件）；GitHub 默认分支改成 `feature/v1`（§5）、云端会话放行合并脚本 |
 | 试跑 | 手动跑一次 ①，做第一张票 | 关口三已过；走完整条链路，交接评论格式对 |
 | 1 | ① ② ③ ④ | 前 5 个合并的 PR 产品负责人抽查，没有要退回的 |
 | 2 | 加评审清扫、清理与经验 | 连续一周没有「集成分支红超过 4 小时」 |
@@ -189,11 +211,12 @@ git -C /tmp/veli checkout 19170d2
 | `risk:high`、`security-reviewer` | 照用：订阅要收邮箱（PRD F07），订阅和发信、表单、数据库和行级安全、密钥的 PR 都打 `risk:high` |
 | 数据库迁移（Supabase、集成库） | 主站订阅库的迁移放在 `migrations/site/`，只由工作流 `site-db-migrate` 用 `SITE_DB_MIGRATE_URL` 执行（ADR-0004 (a)），构建命令里不跑迁移；预览和测试里由新模块对内存 PGLite 执行。沙箱预置的 `npm run db:migrate` 只用于 Grok 沙箱 |
 | 集成分支「黄」、`/api/health` | 不适用，状态只有绿和红（§6） |
-| `scripts/merge-ticket-pr.sh`、`merge-gates.mjs` | 主站的同名脚本（§8 第 0 阶段，主会话写）：认 `kind=general` 和 `kind=content` 两种结论；`content/` 和 `feat/`、`fix/` 一样算票的分支，同样不能改门槛文件、按关掉没合并的 PR 数尝试次数 |
+| `scripts/merge-ticket-pr.sh`、`merge-gates.mjs`、`lib/review-markers.ts` | 主站的 `scripts/merge-ticket-pr.sh`、`merge-gates.mjs`、`review-markers.mjs`（§8 第 0 阶段，主会话写）：GitHub 上有 `feature/v1` 时只合并进它，删掉以后只合并进 `site`；`content/` 分支要 `kind=content` 结论（角色 `内容评审`），b 类要 `kind=general` 和 `kind=general-b`（角色 `评审B`）两份，其余要 `kind=general`（角色 `评审`），`risk:high` 另要 `kind=security`（角色 `安全评审`）；`content/` 和 `feat/`、`fix/` 一样算票的分支，不能改门槛文件（清单在 `merge-gates.mjs` 的 `GATE_FILES`），不能关 #13；合并前在「PR + 最新目标分支」上跑 `npm test`、`check:terms`、`check:vague`。Veli 的 Codex 第二道评审主站换成 `reviewer-b`。尝试次数照 Veli §7 第 8 步由推进器数：这张票关掉没合并的 PR 个数，分支 `feat|fix|content/<票号>-…` |
+| 谁合并、什么要人确认：`agent-gitflow.md` §5.3（含「什么时候要人」「不是票的 PR」a、b 两类）、§5.4；`pipeline.md` §3 标签表、§7 第 7–9 步；`observer.md` §7；出处 `docs/delivery/pipeline-rationale.md` §3。读 `feature/b1` 提交 `b53252b`（2026-11-09），比上面的固定版本新 | §5.1。不同处：集成分支 `feature/v1`、生产 `site`；b 类的第二道评审是 `reviewer-b`（`kind=general-b`），不是 Codex，所以没有「Codex 用不了时退回 `owner:merge`」；`owner:merge` 只留给有没定的取舍的、内容定稿和观察者的 b 类 PR（观察者照 Veli，是否放开由产品负责人定）；权限设置一律不由脚本合并；不是票的 PR 削弱测试或检查脚本、改 `AGENTS*.md` 按 b（Veli 没有这条）；票和 a 类只有一份评审，两份评审的独立性靠派发保证（§5.1）；没有评审清扫（§4），b 类由主会话合并 |
 
 ## 10. 和 Veli 一起改机制
 
-两个仓库的流水线是同一套机制。Veli 那边改了规则（`docs/standards/` 或 `.claude/agents/`），主站的观察者每周日对比一次：适用于主站的，开一个 `obs/` PR 把 §9 的版本号换成新提交（必要时补对照表）；不适用的在观察报告里写一句理由。换版本号算改流程，打 `owner:merge` 等产品负责人合并。主站发现的机制问题，也写进观察报告，由产品负责人决定要不要改到 Veli。经验库各自维护，观察者读对方的 `docs/delivery/lessons.md`。
+两个仓库的流水线是同一套机制。Veli 那边改了规则（`docs/standards/` 或 `.claude/agents/`），主站的观察者每周日对比一次：适用于主站的，开一个 `obs/` PR 把 §9 的版本号换成新提交（必要时补对照表）；不适用的在观察报告里写一句理由。换版本号算改流程，打 `owner:merge` 等产品负责人合并（§5.1）。主站发现的机制问题，也写进观察报告，由产品负责人决定要不要改到 Veli。经验库各自维护，观察者读对方的 `docs/delivery/lessons.md`。
 
 ## 11. 总开关和回退
 

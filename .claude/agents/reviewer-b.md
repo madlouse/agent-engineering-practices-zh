@@ -8,4 +8,4 @@ effort: high
 照 `.claude/agents/reviewer.md` 的七步做，不看 `reviewer` 的评论。只有两处不同：
 
 - 评论首行 `<!-- vc-bot role=评审B -->`，最后一行 `<!-- vc-review kind=general-b verdict=pass|rework sha=<PR 头提交完整 sha> -->`。
-- 只评 b 类：重点核对放宽的那几项要求，在 PR 说明里找到依据和预期效果；任何一项说不清要换来什么，就是阻塞项。标签：要改就把 `agent:pass` 换成 `agent:rework`；通过不动标签（`agent:pass` 由 `reviewer` 打，合并脚本另外核对两份标记都是 pass）。
+- 只评 b 类：重点核对放宽的那几项要求，在 PR 说明里找到依据和预期效果；任何一项说不清要换来什么，就是阻塞项。要产品负责人合并的，同样核对决策简报齐全且属实（`reviewer.md` 第 2 步）。标签：要改就把 `agent:pass` 换成 `agent:rework`；通过不动标签（`agent:pass` 由 `reviewer` 打，合并脚本另外核对两份标记都是 pass）。

@@ -2,7 +2,9 @@
 // 用法：node scripts/merge-gates.mjs <base-ref> <head-sha> <head 分支名> [PR 正文和标题的文件] [--pr-base <PR 的 base> --target <目标分支>]
 // 分支名决定是不是票（TICKET_BRANCH）和票号；票的 PR 查得最严。不是票的 PR 按类别分 a、b；改了 OWNER_FILES 的、观察者（obs/）的 b 类一律不合并（prCategory）。
 // 读路径一律用 -z（diffPaths），读内容的 diff 加 core.quotepath=false：git 默认把非 ASCII 文件名转义成带引号的形式，正则就匹配不上。
-// 输出：通过时最后一行是 category=<ticket|a|b>、退出码 0；不通过时打印原因、退出码 1。
+// 输出：通过时最后一行是 category=<ticket|a|b>、退出码 0；不通过时打印原因和按原因分开的下一步、退出码 1。
+// 另有两行信号给合并脚本：risk=high（改依赖、锁文件、订阅库迁移或 site:migrate，和 risk:high 标签同效，riskHigh）；
+// owner=yes（等产品负责人合并的类别，合并脚本顺带核对决策简报，scripts/check-owner-brief.mjs）。
 // 复用 Veli scripts/merge-gates.mjs，按主站改（docs/standards/pipeline.md §5、§8 第 0 阶段、§9）。
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
@@ -13,7 +15,7 @@ export const GATE_FILES = [
   /^scripts\/merge-ticket-pr\.sh$/,
   /^scripts\/merge-gates(\.test)?\.mjs$/,
   /^scripts\/review-markers(\.test)?\.mjs$/,
-  /^scripts\/(check-terms|check-vague|vague-terms)\.mjs$/,
+  /^scripts\/(check-terms|check-vague|vague-terms|check-owner-brief)\.mjs$/,
   /^eslint\.config\.mjs$/,
   /^\.github\/workflows\//,
   /^\.claude\/agents\//,
@@ -128,7 +130,8 @@ export function weakenings({ fork, head, git }) {
     const code = l.slice(1).trim();
     if (SKIP.some((r) => r.test(code))) problems.push(`新增了跳过或只跑部分测试的写法：${code.slice(0, 80)}`);
     if (/eslint-disable|\/\*\s*eslint\s/.test(code)) problems.push(`新增了关掉 lint 的写法：${code.slice(0, 80)}`);
-    if (/@ts-(?:nocheck|ignore|expect-error)\b/.test(code)) problems.push(`新增了关掉类型检查的写法：${code.slice(0, 80)}`);
+    // @ts-expect-error 不算：下面一行没有类型错误时它自己报错，不会悄悄关掉检查
+    if (/@ts-(?:nocheck|ignore)\b/.test(code)) problems.push(`新增了关掉类型检查的写法：${code.slice(0, 80)}`);
   }
   return problems;
 }
@@ -146,10 +149,55 @@ export function removedAssertions({ fork, head, git }) {
   return problems;
 }
 
+/** 改已有测试文件时新增的提前 return（「return;」或行尾的「return」）：后面的断言就不跑了。新测试文件里的不算。 */
+export function earlyReturns({ fork, head, git }) {
+  const problems = [];
+  for (const { st, path } of diffPaths(git, `${fork}..${head}`)) {
+    if (st !== "M" || !TEST_FILE.test(path)) continue;
+    const added = git(...QUOTE_OFF, "diff", "-U0", `${fork}..${head}`, "--", `:(literal)${path}`)
+      .split("\n")
+      .filter((l) => l.startsWith("+") && !l.startsWith("+++") && /\breturn\s*(?:;|$)/.test(l.slice(1).replace(/\/\/.*$/, "").trimEnd()));
+    if (added.length) problems.push(`改了已有测试 ${path}，新增 ${added.length} 处提前 return：${added[0].slice(1).trim().slice(0, 80)}`);
+  }
+  return problems;
+}
+
+// 和 risk:high 标签同效的改动：依赖、锁文件、订阅库迁移、执行迁移的命令（pipeline.md §5.1；#13 的后续待办）
+export const DEP_FIELDS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies", "overrides"];
+export const RISK_FILES = [/^package-lock\.json$/, /^npm-shrinkwrap\.json$/, /^migrations\/site\//];
+export const RISK_SCRIPTS = ["site:migrate"];
+/** 要安全评审的改动（返回原因）：改了 package.json 的依赖字段或 site:migrate、锁文件、migrations/site/ 下的文件。 */
+export function riskHigh({ fork, head, git }) {
+  const reasons = [];
+  for (const { path } of diffPaths(git, `${fork}..${head}`)) if (RISK_FILES.some((r) => r.test(path))) reasons.push(`改了 ${path}`);
+  const show = (ref) => { try { return JSON.parse(git("show", `${ref}:package.json`)); } catch { return {}; } };
+  const b = show(fork);
+  const h = show(head);
+  const same = (x, y) => JSON.stringify(x ?? null) === JSON.stringify(y ?? null);
+  for (const k of DEP_FIELDS) if (!same(b[k], h[k])) reasons.push(`改了 package.json 的 ${k}`);
+  for (const k of RISK_SCRIPTS) if (!same(b.scripts?.[k], h.scripts?.[k])) reasons.push(`改了 package.json 的 scripts.${k}`);
+  return reasons;
+}
+
+// 拒绝时的下一步，按原因分开（problems 是给人看的句子，这里按句子开头认原因）
+const HINTS = [
+  [/^改了定义门槛的文件|^package\.json 的 scripts\./, "门槛文件和已有命令的改动单独开 chore/ PR，按 b 类两份评审通过后合并（docs/standards/pipeline.md §5.1）。"],
+  [/^删了测试文件|^新增了跳过|^新增了关掉/, "恢复测试，去掉跳过、关 lint、@ts-nocheck / @ts-ignore 的写法（@ts-expect-error 可以用）；确实要放宽的，单独开 chore/ PR 按 b 类评审。"],
+  [/^会关掉|会关掉别的 issue/, "改掉 PR 标题、正文或提交说明里的关闭关键字：票的 PR 只关自己那张票，任何 PR 都不关 #13。"],
+  [/^base 是|^目标分支只能是/, "把 PR 的 base 改成目标分支（上线前 feature/v1，上线后 site）。"],
+  [/^票的分支写了类别/, "PR 说明第一行改成「类别：票」。"],
+  [/等产品负责人/, "先补决策简报（docs/standards/pipeline.md §5.1「要你合并时给什么」，检查：node scripts/check-owner-brief.mjs <正文文件>），再把简报原样贴给产品负责人。"],
+];
+/** 每条原因对应的下一步，去重、按 HINTS 的顺序。 */
+export function rejectionHints(problems) {
+  return HINTS.filter(([re]) => problems.some((p) => re.test(p))).map(([, hint]) => hint);
+}
+
 /**
- * PR 的类别：票 → ticket；不是票的 → a 或 b；改了 OWNER_FILES 的、观察者（obs/）的 b 类 → owner（不合并，等产品负责人）。
+ * PR 的类别：票 → ticket；不是票的 → a 或 b；改了 OWNER_FILES 的、观察者（obs/）的 b 类、票写了内容定稿的 → owner（不合并，等产品负责人）。
  * 不是票的拿不准一律按 b：没写类别、写的不是 a、改了门槛文件（GATE_FILES）、改或删了检查脚本（CHECK_FILES）
- * 或 package.json 已有的命令、削弱了测试（weakenings）、删了已有测试的断言（removedAssertions）。返回 { category, reasons, problems }。
+ * 或 package.json 已有的命令、削弱了测试（weakenings）、删了已有测试的断言（removedAssertions）、已有测试里加了提前 return（earlyReturns）。
+ * 返回 { category, reasons, problems }。
  */
 export function prCategory({ base, head, kind, ref = "", body = "", git }) {
   const fork = git("merge-base", base, head).trim();
@@ -158,7 +206,7 @@ export function prCategory({ base, head, kind, ref = "", body = "", git }) {
   if (owner.length) return { category: "owner", reasons: [], problems: owner };
   const declared = declaredCategory(body);
   if (kind === "ticket") {
-    if (declared === "内容定稿") return { category: "ticket", reasons: [], problems: ["类别是内容定稿：等产品负责人本人合并，合并就是定稿（pipeline.md §5.1）"] };
+    if (declared === "内容定稿") return { category: "owner", reasons: [], problems: ["类别是内容定稿：等产品负责人本人合并，合并就是定稿（pipeline.md §5.1）"] };
     if (declared === "a" || declared === "b") return { category: "ticket", reasons: [], problems: [`票的分支写了类别 ${declared}：票的 PR 写「类别：票」`] };
     return { category: "ticket", reasons: [], problems: [] };
   }
@@ -173,7 +221,7 @@ export function prCategory({ base, head, kind, ref = "", body = "", git }) {
   const bs = JSON.parse(show(fork) ?? "{}").scripts ?? {};
   const hs = JSON.parse(show(head) ?? "{}").scripts ?? {};
   for (const k of Object.keys(bs)) if (hs[k] !== bs[k]) reasons.push(`package.json 的 scripts.${k} 被改或被删`);
-  reasons.push(...weakenings({ fork, head, git }), ...removedAssertions({ fork, head, git }));
+  reasons.push(...weakenings({ fork, head, git }), ...removedAssertions({ fork, head, git }), ...earlyReturns({ fork, head, git }));
   if (reasons.length && OBSERVER_BRANCH.test(ref)) {
     return { category: "owner", reasons, problems: [`观察者提的 b 类（${reasons.join("；")}）：等产品负责人合并（pipeline.md §5.1）`] };
   }
@@ -208,9 +256,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     ...cat.problems,
     ...checkGates({ base, head, kind, ticket, text, git }),
   ];
+  const fork = git("merge-base", base, head).trim();
+  const risk = riskHigh({ fork, head, git });
+  if (risk.length) console.log(`要安全评审（同 risk:high）：${risk.join("；")}\nrisk=high`);
   if (problems.length) {
     console.log(problems.map((p) => `- ${p}`).join("\n"));
-    if (kind === "ticket" && cat.category !== "owner") console.log("门槛文件的改动单独开 chore/ PR，按 b 类两份评审通过后合并（docs/standards/pipeline.md §5.1）。");
+    for (const hint of rejectionHints(problems)) console.log(`下一步：${hint}`);
+    if (cat.category === "owner") console.log("owner=yes");
     process.exit(1);
   }
   if (cat.reasons.length) console.log(`按 b 类处理：${cat.reasons.join("；")}`);

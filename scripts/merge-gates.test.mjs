@@ -381,3 +381,96 @@ test("改 docs/standards/observer.md 的 PR 等产品负责人（§4 只能由�
     }
   } finally { r.cleanup(); }
 });
+
+// #13 的后续待办（#70–#72 的评审建议）
+test("@ts-expect-error 放行：票和不是票的 PR 都不算关类型检查；@ts-nocheck / @ts-ignore 照样拦", () => {
+  const r = repo();
+  try {
+    r.branch("feat/8-expect"); r.write("src/a.ts", "// @ts-expect-error 故意传错类型\nexport const a: number = '1';\n");
+    const head = r.commit("expect");
+    const t = r.run(head, "feat/8-expect", "类别：票");
+    assert.equal(t.status, 0, t.stdout);
+    assert.equal(category(r.run(head, "chore/expect", "类别：a")), "a");
+    r.branch("feat/9-ignore"); r.write("src/a.ts", "// @ts-ignore\nexport const a: number = '1';\n");
+    assert.match(r.run(r.commit("ignore"), "feat/9-ignore", "类别：票").stdout, /关掉类型检查/);
+  } finally { r.cleanup(); }
+});
+
+test("已有测试里新增提前 return：不是票的 PR 写 a 也按 b；新测试文件里的 return 不算", () => {
+  const r = repo();
+  try {
+    r.write("scripts/v.test.mjs", "test('v', () => {\n  assert.equal(f(1), 2);\n});\n");
+    r.commit("tests base");
+    for (const [i, line] of ["  return;", "  if (!ok) return;", "  return // 先不跑"].entries()) {
+      const ref = `chore/ret-${i}`;
+      r.git("checkout", "-q", "-b", ref, "base");
+      r.write("scripts/v.test.mjs", `test('v', () => {\n${line}\n  assert.equal(f(1), 2);\n});\n`);
+      const res = r.run(r.commit(ref), ref, "类别：a");
+      assert.equal(category(res), "b", `${line}：${res.stdout}`);
+      assert.match(res.stdout, /改了已有测试 scripts\/v\.test\.mjs，新增 1 处提前 return/, line);
+    }
+    r.git("checkout", "-q", "-b", "chore/ret-value", "base");
+    r.write("scripts/v.test.mjs", "test('v', () => {\n  assert.equal(f(1), 2);\n  const g = () => { return 2; };\n});\n");
+    assert.equal(category(r.run(r.commit("value"), "chore/ret-value", "类别：a")), "a", "return 一个值不算提前结束");
+    r.git("checkout", "-q", "-b", "chore/ret-new", "base");
+    r.write("scripts/n.test.mjs", "test('n', () => {\n  if (skip) return;\n  assert.ok(1);\n});\n");
+    assert.equal(category(r.run(r.commit("new"), "chore/ret-new", "类别：a")), "a", "新测试文件不算");
+  } finally { r.cleanup(); }
+});
+
+test("依赖、锁文件、订阅库迁移、site:migrate：输出 risk=high（和 risk:high 标签同效），其余不输出", () => {
+  const r = repo();
+  try {
+    r.write("package-lock.json", "{}\n");
+    r.write("package.json", JSON.stringify({ scripts: { test: "node --test", "check:terms": "node scripts/check-terms.mjs" }, dependencies: { a: "1" } }));
+    r.commit("deps base");
+    const risky = (s) => /^risk=high$/m.test(s.stdout);
+    const pkg = (extra) => JSON.stringify({ scripts: { test: "node --test", "check:terms": "node scripts/check-terms.mjs", ...extra.scripts }, dependencies: extra.dependencies ?? { a: "1" }, ...extra.more });
+    const cases = [
+      ["lock", () => r.write("package-lock.json", '{"x":1}\n'), /改了 package-lock\.json/],
+      ["migration", () => r.write("migrations/site/0002_x.sql", "select 1;\n"), /改了 migrations\/site\/0002_x\.sql/],
+      ["dep", () => r.write("package.json", pkg({ dependencies: { a: "2" } })), /改了 package\.json 的 dependencies/],
+      ["devdep", () => r.write("package.json", pkg({ more: { devDependencies: { b: "1" } } })), /改了 package\.json 的 devDependencies/],
+      ["migrate", () => r.write("package.json", pkg({ scripts: { "site:migrate": "node scripts/m.mjs" } })), /改了 package\.json 的 scripts\.site:migrate/],
+    ];
+    cases.forEach(([name, change, why], i) => {
+      for (const ref of [`feat/${30 + i}-${name}`, `chore/risk-${name}`]) {
+        r.git("checkout", "-q", "-b", ref, "base"); change();
+        const res = r.run(r.commit(ref), ref, ref.startsWith("feat") ? "类别：票" : "类别：a");
+        assert.ok(risky(res), `${ref}：${res.stdout}`);
+        assert.match(res.stdout, why, ref);
+      }
+    });
+    r.git("checkout", "-q", "-b", "feat/40-plain", "base"); r.write("src/a.ts", "export const a = 7;\n");
+    r.write("package.json", pkg({ scripts: { "check:x": "y" } }));
+    const plain = r.run(r.commit("plain"), "feat/40-plain", "类别：票");
+    assert.equal(plain.status, 0, plain.stdout);
+    assert.ok(!risky(plain), "只加普通命令、改源码不算");
+  } finally { r.cleanup(); }
+});
+
+test("拒绝提示按原因分开；等产品负责人的输出 owner=yes 并提示先补决策简报", () => {
+  const r = repo();
+  try {
+    r.branch("feat/50-gate"); r.write("docs/standards/pipeline.md", "# x\n");
+    const gate = r.run(r.commit("gate"), "feat/50-gate", "类别：票");
+    assert.match(gate.stdout, /下一步：门槛文件和已有命令的改动单独开 chore\/ PR/);
+    assert.doesNotMatch(gate.stdout, /恢复测试/);
+    assert.doesNotMatch(gate.stdout, /^owner=yes$/m);
+
+    r.branch("feat/51-skip"); r.write("scripts/a.test.mjs", "test.skip('a', () => {});\n");
+    const skip = r.run(r.commit("skip"), "feat/51-skip", "类别：票");
+    assert.match(skip.stdout, /下一步：恢复测试/);
+    assert.doesNotMatch(skip.stdout, /门槛文件和已有命令/, "削弱测试不再提示「门槛文件单独开 PR」");
+
+    r.branch("feat/52-close"); r.write("src/a.ts", "export const a = 8;\n");
+    assert.match(r.run(r.commit("c"), "feat/52-close", "类别：票\nCloses #13").stdout, /下一步：改掉 PR 标题、正文或提交说明里的关闭关键字/);
+
+    r.branch("content/53-final"); r.write("src/content/post.ts", "export default { d: 1 };\n");
+    const fin = r.run(r.commit("final"), "content/53-final", "类别：内容定稿");
+    assert.match(fin.stdout, /^owner=yes$/m);
+    assert.match(fin.stdout, /下一步：先补决策简报/);
+    r.branch("obs/2026-11-09-b"); r.write("docs/standards/pipeline.md", "# y\n");
+    assert.match(r.run(r.commit("o"), "obs/2026-11-09-b", "类别：b").stdout, /^owner=yes$/m);
+  } finally { r.cleanup(); }
+});

@@ -12,9 +12,9 @@ PRD 要两件事：主站挂了有人知道（外部探测、连续两次失败�
 **(a) 可用性：GitHub Actions 定时任务做外部探测。**
 
 - 主站仓库的工作流 `site-monitor`（`.github/workflows/site-monitor.yml`）每 10 分钟请求一次：首页 `/`、`/mind`、一篇文章页和 `GET /api/site/health`。任何一个返回非 2xx 或 10 秒内没有响应，记一次失败。
-- **上线前就能跑**：GitHub 的定时任务只跑默认分支上的工作流，手动触发也只认默认分支上已有的文件。上线前默认分支是 `feature/v1`（`docs/standards/pipeline.md` §5），所以这个文件由主会话的 `chore/` PR 一次写全放进 `feature/v1`，在上面就能手动触发和定时运行（脚本不存在或没有探测目标时什么也不做）；上线合并把文件带进 `site`，上线后默认分支改回 `site`。工作流文件只由主会话维护，监控票只写 `scripts/monitor/run.mjs`；演练告警用手动触发的 `target` 输入。探测目标是仓库变量 `MONITOR_TARGET`：上线合并、生产部署有了 `/api/site/health` 之后才设（之前设会误报），到切换之前是主站项目的生产域名（`*.vercel.app`），切换后是 `https://velicoach.com`（`docs/delivery/launch-runbook.md`）。
+- **上线前就能跑**：GitHub 的定时任务只跑默认分支上的工作流，手动触发也只认默认分支上已有的文件。上线前默认分支是 `feature/v1`（`docs/standards/pipeline.md` §5），所以这个文件由主会话的 `chore/` PR 一次写全放进 `feature/v1`，在上面就能手动触发和定时运行（脚本不存在或没有探测目标时什么也不做）；上线合并把文件带进 `site`，上线后默认分支改回 `site`。工作流文件只由主会话维护，监控票只写 `scripts/monitor/run.mjs`；演练告警用手动触发的 `target` 输入，地址也要在允许清单里：用一个没有部署的 `*.vercel.app` 子域名（`https://velicoach-drill-404.vercel.app`，Vercel 对它返回 404），演练前先请求一次，确认是 404 再触发。探测目标是仓库变量 `MONITOR_TARGET`：上线合并、生产部署有了 `/api/site/health` 之后才设（之前设会误报），到切换之前是主站项目的生产域名（`*.vercel.app`），切换后是 `https://velicoach.com`（`docs/delivery/launch-runbook.md`）。
 - **工作流和脚本的接口**：工作流给脚本的环境变量是 `MONITOR_TARGET`（探测的主机地址）、`MONITOR_EVENT_SCHEDULE`（定时触发时是 cron 串，等于 `17 1 1 * *` 时算可用率，手动触发时为空）、`MONITOR_BOT_HEADER`（机器人标记）和 `GH_TOKEN`；脚本是 `node scripts/monitor/run.mjs`，不带参数。
-- **告警**：连续两次失败，在本仓库开一个 issue（标题写哪个地址、从什么时候开始失败），正文 @ 产品负责人的 GitHub 账号；GitHub 按产品负责人的通知设置发邮件。已经有一个没关的告警 issue 时只在里面加评论，不重复开。恢复后自动在 issue 里写恢复时间并关掉。
+- **告警**：连续两次失败，在本仓库开一个 issue（标题以固定前缀「主站告警：」开头，写哪个地址、从什么时候开始失败），正文 @ 产品负责人的 GitHub 账号；GitHub 按产品负责人的通知设置发邮件。已经有一个没关的告警 issue（按标题前缀认，不按标签：可用率 issue 也带 `monitor`）时只在里面加评论，不重复开；只有「主站可用率」开着时照样新开告警。恢复后自动在 issue 里写恢复时间并关掉。
 - **可用率**：每次探测把结果（时间、地址、状态码、耗时）写进这次运行的摘要和结论（全部通过为成功）；每月 1 日由同一个工作流用 GitHub 的运行记录接口（保留 90 天）算出上个月的可用率，写进一个固定的 issue「主站可用率」的评论；不用状态 issue #13，日报引用它。脚本按固定标题「主站可用率」加标签 `monitor` 找这个 issue，找不到就新建；不用仓库变量存号码（`GITHUB_TOKEN` 读写不了仓库变量），工作流也不用为它改。不往仓库里提交探测数据。
 - **机器人标记**：工作流写的每一条 issue 正文和评论，首行都是 `<!-- vc-bot role=监控 -->`；不带它的评论会被推进器当成产品负责人的回复。
 - **为什么是 10 分钟**：GitHub 的定时任务在高峰时会延迟、最短间隔 5 分钟也不保证准点；10 分钟加「连续两次」，等于主站连续不可用约 20 分钟才告警。PRD 原来写每 5 分钟，在线第 269 版已改成每 10 分钟。

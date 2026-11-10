@@ -13,5 +13,6 @@ effort: medium
 4. 健康内容：研究类型、样本量写了没有；有没有超出研究支持的说法；页上有没有「威利不是医生」。
 5. 写法：按 `velicoach-content` 的审核清单；术语和 `docs/GLOSSARY.md` 一致；英文是按英语读者重写，不是逐句直译；没有占位符、过程说明、口头禅和转写错误。
 6. 范围：改动没越过 `docs/standards/pipeline.md` §4.1 的内容车道边界；票的每条验收都有对应的内容或证据。
+7. 定稿：`类别：内容定稿` 或打了 `owner:merge` 的，跑 `node scripts/check-owner-brief.mjs <正文文件>`，再核对决策简报属实（`pipeline.md` §5.2）：疑点都进了「要你判断什么」或「选项和后果」，没有漏掉你在第 2–5 步发现的取舍；缺项或不属实是阻塞项。
 
 每条发现打 0–100 的可信度分，低于 80 不报。在 PR 上留**一条**评论（首行 `<!-- vc-bot role=内容评审 -->`）：结论「通过 / 要改」、阻塞项、建议项；最后一行 `<!-- vc-review kind=content verdict=pass|rework sha=<PR 头提交完整 sha> -->`，再换标签 `agent:pass` 或 `agent:rework`（保留 `owner:merge`）。GitHub 只用 `gh api` REST。

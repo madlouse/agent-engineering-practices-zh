@@ -134,14 +134,14 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 |---|---|---|
 | 票（`feat/`、`fix/`、`content/`） | 冷评审 pass（`content/` 是内容评审），`risk:high` 另要安全评审；预览 READY | 推进器用合并脚本 |
 | 不是票的 **a 类**：收紧、不减要求（加检查、加清单项、写清含糊或过时的说法、文档同步、合并重复条目） | 同上，一份 `kind=general` | 提 PR 的循环或主会话用合并脚本 |
-| 不是票的 **b 类**：删掉、跳过或放宽任何要求；改流程顺序、模型、频率；改文档里写的角色权限 | 两份互相看不到的冷评审都 pass：`reviewer`（`kind=general`）和不同模型的 `reviewer-b`（`kind=general-b`，角色 `评审B`）；预览 READY | 主会话用合并脚本，不等产品负责人。观察者提的 b 类（放宽、改流程顺序、模型、频率、同步 Veli 版本号）仍打 `owner:merge` 等产品负责人（`observer.md` §4，照 Veli） |
+| 不是票的 **b 类**：删掉、跳过或放宽任何要求；改流程顺序、模型、频率；改文档里写的角色权限 | 两份互相看不到的冷评审都 pass：`reviewer`（`kind=general`）和不同模型的 `reviewer-b`（`kind=general-b`，角色 `评审B`）；预览 READY | 主会话用合并脚本，不等产品负责人。两个例外打 `owner:merge` 等产品负责人：观察者提的 b 类（放宽、改流程顺序、模型、频率、同步 Veli 版本号；`observer.md` §4，照 Veli），`obs/` 分支判成 b 的脚本直接拒绝，包括改了门槛文件的收紧；改 `observer.md` §4（权限）的（`observer.md` 开头写明只能由产品负责人改），脚本分不清节，改 `observer.md` 的一律拒绝 |
 | 有没定的取舍：产品意图、钱、法律责任、难以撤回（照 Veli「什么时候要人」） | 说明最上面写决策摘要（核心设计思想 → 事实 → 要判断的问题和选项 → 推荐 → 合与不合各会怎样）和风险摘要（可能出什么事 → 证明安全的证据 → 怎么回滚）；冷评审 pass 后打 `owner:merge` | 产品负责人合并 |
-| 改了权限设置（`.claude/settings*.json`） | 合并脚本一律拒绝（`OWNER_FILES`）；Agent 只出草稿 | 产品负责人 |
+| 改了权限设置（`.claude/settings*.json`）或 `docs/standards/observer.md` | 合并脚本一律拒绝（`OWNER_FILES`）；Agent 只出草稿 | 产品负责人 |
 | 要人定稿的内容（模块样稿、每周文章） | 冷评审 pass 后打 `owner:merge` | 产品负责人合并，合并就是定稿 |
 | 上线前任何 → `site`（上线合并、紧急修复） | 关口四（§2.3），或产品负责人在对话里同意 | 只有产品负责人确认 |
 | 工具拦截了 Agent 的合并 | 不绕过 | 把待合并的 PR 列成一条消息给产品负责人，一句话批量确认（「合并 #N #M」） |
 
-- **类别写在 PR 说明第一行**：`类别：票`、`类别：a`、`类别：b` 或 `类别：内容定稿`。评审核对类别，拿不准按 b。正文为空时不拿标题当类别。脚本也按 b 处理：没写类别、写的不是 a、改了门槛文件（`GATE_FILES`，含各级 `AGENTS*.md`、`CLAUDE.md`）、改或删了检查脚本（`CHECK_FILES`）或 `package.json` 已有命令、删测试文件、新增 `.only` / `.skip` / `.todo` / 关 lint 的写法。票的 PR 写了 `内容定稿`，脚本拒绝。base 不是目标分支（上线前 `feature/v1`，上线后 `site`）的，脚本拒绝。
+- **类别写在 PR 说明第一行**：`类别：票`、`类别：a`、`类别：b` 或 `类别：内容定稿`。评审核对类别，拿不准按 b。正文为空时不拿标题当类别。脚本也按 b 处理：没写类别、写的不是 a、改了门槛文件（`GATE_FILES`，含各级 `AGENTS*.md`、`CLAUDE.md`）、改或删了检查脚本（`CHECK_FILES`）或 `package.json` 已有命令、删测试文件、改已有测试时删掉含 `assert` / `expect` 的行、新增 `.only` / `.skip` / `.todo` / `.skipIf` / 关 lint / `@ts-nocheck` / `@ts-ignore` 的写法。路径一律按原样读（`-z`），中文文件名同样判。票的 PR 写了 `内容定稿`，脚本拒绝。base 不是目标分支（上线前 `feature/v1`，上线后 `site`）的，脚本拒绝。
 - **改规则的**（`AGENTS.project.md`、`docs/standards/`、技能、角色 md、检查脚本）：照 Veli §5.4 四步（定位、检索、判定、代码化），检索命令和每个命中（已改 / 不用改 + 理由）贴进 PR 说明。
 - **谁返工**：谁提的谁改，按分支前缀认；评审最多 3 次（Veli §7 第 8 步）。
 - **两份评审靠派发保证独立**：两份都经 Claude 应用写，脚本只能核对角色行和标记，核对不了「不同模型」「互相看不到」。派发时 `reviewer-b` 不给 `reviewer` 的评论；观察者抽查派发记录里的模型。票和 a 类只有一份评审，这是和 Veli（Codex 每个 PR 都评）的差别；Codex 连接器恢复后可以加回。
@@ -212,7 +212,7 @@ git -C /tmp/veli checkout 19170d2
 | 数据库迁移（Supabase、集成库） | 主站订阅库的迁移放在 `migrations/site/`，只由工作流 `site-db-migrate` 用 `SITE_DB_MIGRATE_URL` 执行（ADR-0004 (a)），构建命令里不跑迁移；预览和测试里由新模块对内存 PGLite 执行。沙箱预置的 `npm run db:migrate` 只用于 Grok 沙箱 |
 | 集成分支「黄」、`/api/health` | 不适用，状态只有绿和红（§6） |
 | `scripts/merge-ticket-pr.sh`、`merge-gates.mjs`、`lib/review-markers.ts` | 主站的 `scripts/merge-ticket-pr.sh`、`merge-gates.mjs`、`review-markers.mjs`（§8 第 0 阶段，主会话写）：GitHub 上有 `feature/v1` 时只合并进它，删掉以后只合并进 `site`；`content/` 分支要 `kind=content` 结论（角色 `内容评审`），b 类要 `kind=general` 和 `kind=general-b`（角色 `评审B`）两份，其余要 `kind=general`（角色 `评审`），`risk:high` 另要 `kind=security`（角色 `安全评审`）；`content/` 和 `feat/`、`fix/` 一样算票的分支，不能改门槛文件（清单在 `merge-gates.mjs` 的 `GATE_FILES`），不能关 #13；合并前在「PR + 最新目标分支」上跑 `npm test`、`check:terms`、`check:vague`。Veli 的 Codex 第二道评审主站换成 `reviewer-b`。尝试次数照 Veli §7 第 8 步由推进器数：这张票关掉没合并的 PR 个数，分支 `feat|fix|content/<票号>-…` |
-| 谁合并、什么要人确认：`agent-gitflow.md` §5.3（含「什么时候要人」「不是票的 PR」a、b 两类）、§5.4；`pipeline.md` §3 标签表、§7 第 7–9 步；`observer.md` §7；出处 `docs/delivery/pipeline-rationale.md` §3。读 `feature/b1` 提交 `b53252b`（2026-11-09），比上面的固定版本新 | §5.1。不同处：集成分支 `feature/v1`、生产 `site`；b 类的第二道评审是 `reviewer-b`（`kind=general-b`），不是 Codex，所以没有「Codex 用不了时退回 `owner:merge`」；`owner:merge` 只留给有没定的取舍的、内容定稿和观察者的 b 类 PR（观察者照 Veli，是否放开由产品负责人定）；权限设置一律不由脚本合并；不是票的 PR 削弱测试或检查脚本、改 `AGENTS*.md` 按 b（Veli 没有这条）；票和 a 类只有一份评审，两份评审的独立性靠派发保证（§5.1）；没有评审清扫（§4），b 类由主会话合并 |
+| 谁合并、什么要人确认：`agent-gitflow.md` §5.3（含「什么时候要人」「不是票的 PR」a、b 两类）、§5.4；`pipeline.md` §3 标签表、§7 第 7–9 步；`observer.md` §7；出处 `docs/delivery/pipeline-rationale.md` §3。读 `feature/b1` 提交 `b53252b`（2026-11-09），比上面的固定版本新 | §5.1。不同处：集成分支 `feature/v1`、生产 `site`；b 类的第二道评审是 `reviewer-b`（`kind=general-b`），不是 Codex，所以没有「Codex 用不了时退回 `owner:merge`」；`owner:merge` 只留给有没定的取舍的、内容定稿和观察者的 b 类 PR（观察者照 Veli，是否放开由产品负责人定；主站由脚本拒绝 `obs/` 的 b 类，Veli 只靠观察者自己打标签，放开时删掉 `prCategory` 里的这一支）；权限设置和 `observer.md` 一律不由脚本合并；不是票的 PR 削弱测试或检查脚本、改 `AGENTS*.md` 按 b（Veli 没有这条）；票和 a 类只有一份评审，两份评审的独立性靠派发保证（§5.1）；没有评审清扫（§4），b 类由主会话合并 |
 
 ## 10. 和 Veli 一起改机制
 

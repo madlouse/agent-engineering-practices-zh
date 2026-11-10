@@ -5,7 +5,7 @@
 #   上线前 feature/v1 → site 那一次由产品负责人确认，本脚本不做。
 # - 只合并：base 是目标分支（base 是 site 的上线前一律拒绝）、开着、不是草稿、带 agent:pass、不带 agent:hold / agent:rework / owner:merge 的 PR；
 # - 类别（merge-gates.mjs 的 prCategory）：票；不是票的 a 类；b 类（PR 说明写 b、没写类别、改了门槛文件、检查脚本或已有命令、削弱了测试）；
-#   改了权限设置（.claude/settings*.json）的一律不合并，等产品负责人。
+#   改了权限设置（.claude/settings*.json）或 docs/standards/observer.md 的、观察者 obs/ 分支的 b 类，一律不合并，等产品负责人。
 # - 评审结论针对当前头提交：content/ 分支要 kind=content；b 类要 kind=general 和 kind=general-b 两份；其余要 kind=general；
 #   risk:high 另要 kind=security 和 security:pass。
 #   结论只认对应评审角色经 Claude 应用写的、没编辑过的 vc-review 标记（scripts/review-markers.mjs）。头提交一变，旧结论自动失效。

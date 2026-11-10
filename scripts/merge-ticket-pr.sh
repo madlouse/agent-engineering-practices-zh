@@ -10,7 +10,7 @@
 #   risk:high 另要 kind=security 和 security:pass。
 #   结论只认对应评审角色经 Claude 应用写的、没编辑过的 vc-review 标记（scripts/review-markers.mjs）。头提交一变，旧结论自动失效。
 # - 票的 PR（feat/、fix/、content/）不能改门槛文件（scripts/merge-gates.mjs）；判定库、门槛和检查命令一律取目标分支上的版本。
-# - 合并前在「PR + 最新目标分支」上重跑 §7 的检查：npm test、check:terms、check:vague；装了 tsc、eslint 时也跑类型检查和 lint，
+# - 合并前在「PR + 最新目标分支」上重跑 §7 的检查：npm test、check:terms、check:vague、check:voice；装了 tsc、eslint 时也跑类型检查和 lint，
 #   没装时以已确认 READY 的预览构建为准（构建命令里有 tsc --noEmit && eslint .）。
 # 威胁模型同 Veli：本地门槛只防 Agent 出错、走捷径；不防有人篡改本地环境，那部分交给 GitHub 规则集。
 set -euo pipefail
@@ -95,6 +95,8 @@ for s in test check:terms check:vague; do
   cmd=$(base_script "$s") || fail "$TARGET 的 package.json 里没有 $s"
   checks+=("$cmd")
 done
+# check:voice 从引入它的 PR 起才在目标分支上：目标分支有就必跑（删它要改 package.json 已有命令，按 b 类）
+if cmd=$(base_script check:voice); then checks+=("$cmd"); fi
 work=$(mktemp -d)
 git worktree add -q --detach "$work" "$sha"
 # 每一步单独判断退出码：子 shell 放在 `|| fail` 左边时 set -e 不生效

@@ -9,7 +9,7 @@
 | 你要做的事 | 先读 |
 |---|---|
 | 任何任务 | [docs/README.md](docs/README.md)（文档地图）、[docs/GLOSSARY.md](docs/GLOSSARY.md)（术语，一个词一个意思） |
-| 弄清用户到底要什么 | [docs/requirements/timeline.md](docs/requirements/timeline.md)（用户原句，按时间）→ [docs/requirements/trace.md](docs/requirements/trace.md)（第 28 条起每条怎么理解、落在哪）→ [docs/requirements/summary.md](docs/requirements/summary.md)（原来博客部分的要求，按主题汇总）。汇总和原句冲突时，以原句为准；原句按语义和整体目标理解，语音转写错误不照字面；第 1 条只有残段，不要补写 |
+| 弄清用户到底要什么 | [docs/requirements/timeline.md](docs/requirements/timeline.md)（用户原句，按时间）→ [docs/requirements/trace.md](docs/requirements/trace.md)（第 28 条起每条怎么理解、落在哪）→ [docs/requirements/summary.md](docs/requirements/summary.md)（原来博客部分的要求，按主题汇总）。汇总和原句冲突时，以原句为准；原句按语义和整体目标理解，语音转写错误不照字面（「不能越过的线」第 1 条）；第 1 条只有残段，不要补写 |
 | 改主站需求或产品规则 | [docs/prd/velicoach.md](docs/prd/velicoach.md)（主站 PRD 快照，在线文档是唯一来源）、[docs/prd/velicoach-strategy.md](docs/prd/velicoach-strategy.md) |
 | 改看清的文章部分的范围 | [docs/prd/remaining.md](docs/prd/remaining.md)、[docs/uiue/identity.md](docs/uiue/identity.md)、[docs/issues/README.md](docs/issues/README.md) |
 | 写、改、审内容 | 技能 `velicoach-content`；收录一篇文章另见下面「收录一篇时」 |
@@ -45,16 +45,18 @@
 
 ## 不能越过的线
 
-1. **对外只放正式版**：页面和发布稿里没有占位符、过程说明、口头禅和语音转写错误；过程思考写进 `docs/`。
+1. **原话和正式表述分开，一条输入代表一类问题**（`check:voice`、`check:terms`）：
+   - **原话只进 `timeline.md`**，原样保留，口语、错别字、同音字都不改。PRD、规格、票、技能、设计系统和对外文字一律用产品经理的书面表达和术语表的标准术语：同音字和转写错误按语义改正，拿不准的名字列给产品负责人确认，不猜。对外只放正式版：没有占位符、过程说明、口头禅和转写错误；过程思考写进 `docs/`。口语标记和登记过的转写错误清单在术语表「口语和转写错误」。
+   - **每条输入都举一反三**：在 `trace.md` 写清这条输入代表哪一类问题、全仓库同类位置在哪、各改了什么；把原则写回技能、设计系统或术语表。
+   - **结构性思考**：按金字塔原理先定位到层级和维度（本表、规范、技能、设计系统、术语表），找已有的相关规则，合并或升级，不另起重复的一条；能写成检查的就写成检查。
 2. **一站、一键、一秒**：不让用户离开、不再登录；核心场景两步内完成，不常用的不超过三步；操作 P95 ≤ 1 秒；看图标和位置就会用，少放要读的字（主站 PRD 第 4 节；`quality-terms.md` U1、U7、U8、C10）。
 3. **中英双语**：所有对外文字都有两版；英文按英语读者重写。
 4. **设计系统是唯一来源**：主站样式只引用 token，不写死颜色、字号、间距、圆角和时长。浅色、深色两套主题都要支持，默认跟随系统。
 5. **主站不读健康数据**：只用账号里的名字和邮箱；训练内容只在 Veli 里读。
 6. **事实有出处**：数字、研究、引用都写明出处；官方中文原样保留，学习分享，不替代原文。
-7. **一条意见代表一类问题**：改完所有同类位置，把原则写回技能、设计系统或术语表，在 `docs/requirements/trace.md` 记一笔。
-8. 密钥只放在服务端环境变量，不写进代码、文档和提交信息。
-9. **合并只走合并脚本**：上线前所有 PR 以默认分支 `feature/v1` 为 base，关口四通过后由产品负责人确认一次合并进 `site`；上线后 PR 直接进 `site`。谁合并、什么要产品负责人确认、PR 说明第一行的类别，见 `docs/standards/pipeline.md` §5.1。
-10. **形容词和动词都要能判对错**：「体验友好」「高级感」「打磨」「优化」这类词，意思以 [docs/standards/quality-terms.md](docs/standards/quality-terms.md) 为准：每个词有对标产品、可观察的特征和可检查的规则。验收里用到它们必须链到定义，或者直接写成那里的规则；「适当」「尽量」这类判不了对错的虚词不能出现在验收里（`npm run check:vague`）。新的质量词先进那份文档，再用。
+7. 密钥只放在服务端环境变量，不写进代码、文档和提交信息。
+8. **合并只走合并脚本**：上线前所有 PR 以默认分支 `feature/v1` 为 base，关口四通过后由产品负责人确认一次合并进 `site`；上线后 PR 直接进 `site`。谁合并、什么要产品负责人确认、PR 说明第一行的类别，见 `docs/standards/pipeline.md` §5.1。
+9. **形容词和动词都要能判对错**：「体验友好」「高级感」「打磨」「优化」这类词，意思以 [docs/standards/quality-terms.md](docs/standards/quality-terms.md) 为准：每个词有对标产品、可观察的特征和可检查的规则。验收里用到它们必须链到定义，或者直接写成那里的规则；「适当」「尽量」这类判不了对错的虚词不能出现在验收里（`npm run check:vague`）。新的质量词先进那份文档，再用。
 
 ## 收录一篇时
 

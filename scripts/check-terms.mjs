@@ -1,14 +1,11 @@
 // Fails when docs, skills or site copy use a term listed under 「不再用的说法」 in docs/GLOSSARY.md.
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { parseFence } from "./voice-terms.mjs";
 
 const glossary = readFileSync("docs/GLOSSARY.md", "utf8");
-const block = glossary.match(/```stale-terms\n([\s\S]*?)```/);
-if (!block) {
-  console.error("docs/GLOSSARY.md has no ```stale-terms block");
-  process.exit(1);
-}
-const terms = block[1].split("\n").map((t) => t.trim()).filter(Boolean);
+// Transcription errors are one list shared with check-voice (GLOSSARY 「口语和转写错误」).
+const terms = [...parseFence(glossary, "stale-terms"), ...parseFence(glossary, "transcription-errors")];
 
 // History files keep old wording on purpose: verbatim user input, the decision log and the glossary itself.
 const skip = [

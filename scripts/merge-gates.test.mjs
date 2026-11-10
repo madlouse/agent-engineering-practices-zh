@@ -61,7 +61,7 @@ test("门槛文件：站点票和内容票改源码、内容放行；改门槛�
 
     const gates = [
       "scripts/merge-ticket-pr.sh", "scripts/merge-gates.mjs", "scripts/review-markers.mjs", "scripts/merge-gates.test.mjs",
-      "scripts/check-vague.mjs", "docs/standards/pipeline.md", "docs/standards/quality-terms.md", "docs/GLOSSARY.md",
+      "scripts/check-vague.mjs", "scripts/check-voice.mjs", "scripts/voice-terms.mjs", "docs/standards/pipeline.md", "docs/standards/quality-terms.md", "docs/GLOSSARY.md",
       ".github/workflows/site-db-migrate.yml", ".claude/agents/reviewer.md", ".claude/settings.json", "docs/delivery/loops/site-runner.md",
       "eslint.config.mjs",
     ];

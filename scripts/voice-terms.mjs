@@ -85,11 +85,15 @@ export function traceGaps(timeline, trace, from = 84) {
   const wanted = new Set([...timeline.matchAll(/^## (\d+)\s*$/gm)].map((m) => Number(m[1])).filter((n) => n >= from));
   for (const n of rows.keys()) if (n >= from) wanted.add(n);
   const gaps = [];
-  // 编号标题只能写成「## N」：换级别或在编号后加字会绕过上面的匹配，直接报错
-  for (const m of timeline.matchAll(/^(#{1,6})[ \t]*(\d+)\b(.*)$/gm)) {
-    if (m[1] === "##" && m[3].trim() === "") continue;
-    gaps.push({ n: Number(m[2]), why: `timeline.md 的编号标题要写成「## ${m[2]}」，现在是「${m[0].trim()}」` });
-  }
+  // 除第一行的总标题外，timeline.md 的每个标题都只能写成「## N」（和上面取编号的写法一致）：
+  // 换级别、多空格、缩进、编号后加字、全角数字都会绕过取编号，一律报错
+  const lines = timeline.split("\n");
+  const first = lines.findIndex((l) => l.trim() !== "");
+  lines.forEach((line, i) => {
+    if (i === first || !/^[ \t]{0,3}#{1,6}([ \t]|$|\d)/.test(line) || /^## \d+\s*$/.test(line)) return;
+    const n = Number((line.match(/\d+/) ?? [NaN])[0]);
+    gaps.push({ n, why: `timeline.md 第 ${i + 1} 行的标题要写成「## 编号」，现在是「${line.trim()}」` });
+  });
   for (const n of [...wanted].sort((a, b) => a - b)) {
     const c = rows.get(n);
     if (!c) {

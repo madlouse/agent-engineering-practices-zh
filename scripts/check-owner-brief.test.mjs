@@ -70,8 +70,8 @@ test("简报要在最上面：没有、或在别的段落后面都不算", () =>
   assert.equal(briefQuestion("类别：b\n"), null);
 });
 
-test("五项和「怎么回」缺一项就报那一项", () => {
-  for (const key of ["为什么要你", "我的建议和理由", "怎么回"]) {
+test("七项缺一项就报那一项", () => {
+  for (const key of ["背景和事实", "为什么要你", "我的建议和理由", "风险和怎么撤回", "怎么回"]) {
     const body = GOOD.split("\n").filter((l) => !l.startsWith(`**${key}**`)).join("\n");
     assert.ok(checkOwnerBrief(body).some((p) => p.includes(`缺「${key}」`)), key);
   }
@@ -100,10 +100,10 @@ test("「为什么要你」要落在 §5.1 的一条；选项至少两个且写�
     assert.ok(checkOwnerBrief(with_("产品意图（PRD 第 6 节写的是每周）。", neg)).some((p) => p.includes("没有肯定地落在 §5.1")), neg);
   }
   assert.deepEqual(checkOwnerBrief(with_("产品意图（PRD 第 6 节写的是每周）。", "不改就违背 PRD：产品意图。")), [], "否定之外还有肯定的那一条");
-  assert.ok(checkOwnerBrief(with_("2. 不合并：保持每周，节奏不变。", "2. 不合并：不变")).some((p) => p.includes("后果至少 6 个字")));
+  assert.ok(checkOwnerBrief(with_("2. 不合并：保持每周，节奏不变。", "2. 不合并：不变")).some((p) => p.includes("后果去掉合并")));
   assert.ok(checkOwnerBrief(with_("2. 不合并：保持每周，节奏不变。", "2. 不合并")).some((p) => p.includes("选项：后果")));
-  assert.ok(checkOwnerBrief(with_("选 1。上月退订原因里「太频繁」占一半。", "合并")).some((p) => p.includes("「我的建议和理由」至少")));
-  assert.ok(checkOwnerBrief(with_("打开率可能下降；撤回就是 revert 这个合并，下一期恢复每周。", "撤回")).some((p) => p.includes("「风险和怎么撤回」至少")));
+  assert.ok(checkOwnerBrief(with_("选 1。上月退订原因里「太频繁」占一半。", "合并")).some((p) => p.includes("「我的建议和理由」去掉套话后至少")));
+  assert.ok(checkOwnerBrief(with_("打开率可能下降；撤回就是 revert 这个合并，下一期恢复每周。", "撤回")).some((p) => p.includes("「风险和怎么撤回」去掉套话后至少")));
   assert.ok(checkOwnerBrief(GOOD.replace(/^\*\*背景和事实\*\*.*\n/m, "")).some((p) => p.includes("缺「背景和事实」")));
   assert.ok(checkOwnerBrief(with_("2. 不合并：保持每周，节奏不变。\n", "")).some((p) => p.includes("至少列两个选项")));
   assert.ok(checkOwnerBrief(with_("2. 不合并：保持每周", "2. 先放着：保持每周")).some((p) => p.includes("「不合并」会怎样")));
@@ -162,15 +162,97 @@ test("PR 模板：骨架原样不能过；按模板填完能过（注释不挡�
     .replace("类别：票", "类别：内容定稿")
     .replace(/(\*\*要你判断什么\*\*：).*/, "$1第 3 周文章用作者授权的中文全文，还是只发摘要？")
     .replace(/(\*\*背景和事实\*\*：).*/, "$1作者邮件同意转载中文全文，但没写能不能改标题。")
-    .replace(/(\*\*为什么要你\*\*：).*/, "$1法律（授权范围）和内容定稿。")
+    .replace(/(\*\*为什么要你\*\*：).*/, "$1法律：授权只写了转载，改标题算不算改编要你定。")
     .replace("1. 合并：（选了会怎样）", "1. 合并：发全文中文版，标题照原文直译。")
     .replace("2. 不合并：（选了会怎样）", "2. 不合并：本周改发摘要，等作者回复标题的事。")
     .replace("**我的建议和理由**：", "**我的建议和理由**：选 1，授权邮件已贴在票上，标题不改。")
-    .replace("**风险和怎么撤回**：", "**风险和怎么撤回**：作者事后反对时撤回：revert 这个合并，页面一小时内下线。");
+    .replace("**风险和怎么撤回**：", "**风险和怎么撤回**：作者事后反对时撤回：revert 这个合并，页面一小时内下线。")
+    .replace(/(\*\*怎么回\*\*：).*/, "$1回「合并 #90」或选项编号「1」「2」。");
+  for (const key of ["背景和事实", "为什么要你", "怎么回"]) {
+    const keep = TEMPLATE.match(new RegExp(`\\*\\*${key}\\*\\*：.*`))[0];
+    const half = filled.replace(new RegExp(`\\*\\*${key}\\*\\*：.*`), keep);
+    assert.ok(checkOwnerBrief(half).some((p) => p.includes(`缺「${key}」`)), `${key} 留模板占位不能过`);
+  }
   assert.deepEqual(checkOwnerBrief(filled), []);
   assert.equal(briefQuestion(filled), "第 3 周文章用作者授权的中文全文，还是只发摘要？");
 });
 
 test("HTML 注释夹在类别行和简报之间也认", () => {
   assert.deepEqual(checkOwnerBrief(GOOD.replace("类别：b\n", "类别：b\n<!--\n说明\n-->\n")), []);
+});
+
+// 第二轮复审（#74）两份评审的样例：都是「看着填了、其实是空壳」，必须不过
+const BP_BASE = {
+  q: "要不要把首页改成三栏布局，并在本周上线？",
+  bg: "首页现在是单栏，这个 PR 改成三栏，预览已通过三种版式检查。",
+  why: "产品意图：版式取舍属于产品意图。",
+  opts: ["1. 合并：首页变成三栏，本周上线。", "2. 不合并：首页保持单栏，下周再议。"],
+  rec: "建议合并：三栏符合 PRD 第 4 节的两步原则。",
+  risk: "风险是窄屏挤压；撤回方法是 revert 这个 PR。",
+  reply: "回「合并 #74」或选项编号。",
+};
+const bp = (o = {}) => {
+  const g = { ...BP_BASE, ...o };
+  return ["类别：b", "", "## 决策简报", "", `**要你判断什么**：${g.q}`, `**背景和事实**：${g.bg}`, `**为什么要你**：${g.why}`, "**选项和后果**：", ...g.opts,
+    `**我的建议和理由**：${g.rec}`, `**风险和怎么撤回**：${g.risk}`, `**怎么回**：${g.reply}`, ...(g.extra ?? []), "", "---", "细节"].join("\n");
+};
+const HOLLOW = `类别：票
+
+## 决策简报
+
+**要你判断什么**：是否把本 PR 合并进 feature/v1？
+**背景和事实**：见下面
+**为什么要你**：产品意图
+**选项和后果**：
+1. 合并：合并这个 PR
+2. 不合并：不合并这个 PR
+**我的建议和理由**：我建议合并吧
+**风险和怎么撤回**：可以撤回，无风险
+**怎么回**：回「合并 #N」或选项编号。
+
+---
+`;
+
+test("正例：两份评审的基准简报、CRLF、回「合并 #1」都能过", () => {
+  assert.deepEqual(checkOwnerBrief(bp()), []);
+  assert.deepEqual(checkOwnerBrief(bp().replace(/\n/g, "\r\n")), []);
+  assert.deepEqual(checkOwnerBrief(bp({ reply: "回合并 #1" })), []);
+});
+
+test("第二轮反例：整份空壳、模板占位、点了分支的空问题、后置否定、套话都不过", () => {
+  assert.ok(checkOwnerBrief(HOLLOW).length >= 6, "hollow.md：七项里至少六项不合格");
+  assert.equal(briefQuestion(HOLLOW), null);
+  const asks = [
+    "是否把本 PR 合并进 feature/v1？", "请产品负责人审阅并确认是否可以合并本 PR 到集成分支？", "你觉得这次整体上改得怎么样，需要现在就拍板吗？",
+    "要不要合并 #74 的改动？", "合并合并合并合并合并合并合并合并合并合并合并？", "把标题改成新的并发布", "这个改动你看要不要合并进去好不好？",
+    "请你确认一下这个PR是否可以合并吗？", "Should we merge this pull request now?", "Can you please take a look at it?", "你觉得这次的东西整体上怎么样呀？",
+    "是否同意按上面说的那样去做呢？", "要不要合并上面背景里说的那件事？", "要不要合并这个改动？", "这个 PR 能合并吗？", "你看这样可以吗？", "同意这样改吗？",
+    "合并进 feature/v1 吗？", "Merge?", "Is this OK to merge?", "LGTM?", "这个改动可以上线吗？", "可以合并到集成分支吗？", "这样改行吗？", "你觉得怎么样？",
+    "这次的修改是否没问题？", "是否合并这个 PR 到 feature/v1？", "是否按建议合并？", "合并还是不合并？", "接受这个方案吗？", "现在合并可以吗？没问题吧？",
+  ];
+  for (const q of asks) assert.ok(checkOwnerBrief(bp({ q })).some((p) => p.includes("要你判断什么")), q);
+  const whys = ["产品意图", "钱", "涉及钱", "与法律无关。", "跟钱没关系，但要你定。", "产品意图无关，例行合并", "这不是产品意图问题", "观察者要求的", "按流程要你合并",
+    "这里和产品意图无关，只是例行合并。", "既不涉及钱也不难撤回，按规矩要你。", "不属于产品意图、钱、法律任何一条。", "（§5.1 哪一条）"];
+  for (const why of whys) assert.ok(checkOwnerBrief(bp({ why })).some((p) => p.includes("为什么要你")), why);
+  const facts = ["见下面", "见下", "同上", "x", "（改了什么、依据什么事实，一两句）", "改了一些东西"];
+  for (const bg of facts) assert.ok(checkOwnerBrief(bp({ bg })).some((p) => p.includes("背景和事实")), bg);
+  const optss = [
+    ["1. 合并：会被合并。", "2. 不合并：不会合并。"], ["1. 合并：合并这个 PR", "2. 不合并：不合并这个 PR"], ["1. 合并：没有影响哦哦哦", "2. 不合并：没有影响哦哦哦"],
+    ["1. 合并：（选了会怎样）", "2. 不合并：（选了会怎样）"], ["1. 合并：会怎样会怎样", "2. 不合并：不会怎样的"], ["合并：首页变成三栏本周上线", "不合并：首页保持单栏"],
+    ["1. 合并：首页变成三栏，本周上线。", "2. 不合并：首页保持单栏，下周再议。", "3. 先放着："], ["1. 合并：标题换成新的。不合并：标题保持原样。", "2. 其他：好"],
+  ];
+  for (const opts of optss) assert.ok(checkOwnerBrief(bp({ opts })).some((p) => p.includes("选项")), opts.join(" / "));
+  for (const rec of ["建议合并，没有问题。", "我建议合并吧", "建议如上所述。。。"]) assert.ok(checkOwnerBrief(bp({ rec })).some((p) => p.includes("建议")), rec);
+  for (const risk of ["风险很低可以撤回", "可以撤回，无风险", "撤回撤回撤回", "无风险，可撤回。"]) assert.ok(checkOwnerBrief(bp({ risk })).some((p) => p.includes("风险和怎么撤回")), risk);
+  for (const reply of ["回「合并 #N」或选项编号。", "选项"]) assert.ok(checkOwnerBrief(bp({ reply })).some((p) => p.includes("怎么回")), reply);
+  const shapes = {
+    tilde: { extra: ["~~~", "rm -rf", "~~~"] }, tilde4: { extra: ["````js", "x", "````"] }, indent: { extra: ["    code here"] }, tab: { extra: ["\tcode"] },
+    pre: { extra: ["<pre>", "code", "</pre>"] }, inlineLong: { bg: "`" + "x".repeat(190) + "`" }, long: { bg: "长".repeat(250) }, cjk199: { bg: "长".repeat(199) },
+    asciiWs: { bg: "a ".repeat(150) }, comment: { extra: ["<!--", "x".repeat(3000), "-->"] }, unclosed: { extra: ["```"] },
+    details: { extra: ["<details><summary>x</summary>", "    code", "</details>"] }, dup: { extra: ["**要你判断什么**：是否合并？"] },
+    commentItem: { q: "<!-- -->是否合并？" }, qInComment: { q: "<!-- 要不要把首页改成三栏布局并在本周上线 -->是否合并？" },
+  };
+  for (const [name, o] of Object.entries(shapes)) assert.ok(checkOwnerBrief(bp(o)).length > 0, name);
+  assert.ok(checkOwnerBrief(["类别：b", "", "决策简报", "====", "", `**要你判断什么**：${BP_BASE.q}`].join("\n")).length > 0, "setext 标题");
+  assert.ok(checkOwnerBrief(["", "## 决策简报"].join("\n")).length > 0, "没有类别行");
 });

@@ -383,7 +383,7 @@ test("改 docs/standards/observer.md 的 PR 等产品负责人（§4 只能由�
 });
 
 // #13 的后续待办（#70–#72 的评审建议）
-test("@ts-expect-error 放行：票和不是票的 PR 都不算关类型检查；@ts-nocheck / @ts-ignore 照样拦", () => {
+test("@ts-expect-error 只在 tsc 检查的 src/、server/ 放行；别处等于 @ts-ignore，照样拦", () => {
   const r = repo();
   try {
     r.branch("feat/8-expect"); r.write("src/a.ts", "// @ts-expect-error 故意传错类型\nexport const a: number = '1';\n");
@@ -393,6 +393,16 @@ test("@ts-expect-error 放行：票和不是票的 PR 都不算关类型检查�
     assert.equal(category(r.run(head, "chore/expect", "类别：a")), "a");
     r.branch("feat/9-ignore"); r.write("src/a.ts", "// @ts-ignore\nexport const a: number = '1';\n");
     assert.match(r.run(r.commit("ignore"), "feat/9-ignore", "类别：票").stdout, /关掉类型检查/);
+    for (const [i, f] of ["scripts/x.mjs", "vite.config.ts", "server-tools/y.ts"].entries()) {
+      const ref = `feat/${60 + i}-expect`;
+      r.branch(ref); r.write(f, "// @ts-expect-error\nexport const z = 1;\n");
+      const res = r.run(r.commit(ref), ref, "类别：票");
+      assert.equal(res.status, 1, f);
+      assert.ok(res.stdout.includes(`${f} 不在 tsconfig 的 include 里`), res.stdout);
+      assert.equal(category(r.run(r.git("rev-parse", "HEAD"), `chore/expect-${i}`, "类别：a")), "b", f);
+    }
+    r.branch("feat/63-server"); r.write("server/s.ts", "// @ts-expect-error\nexport const s: number = '1';\n");
+    assert.equal(r.run(r.commit("server"), "feat/63-server", "类别：票").status, 0, "server/ 在 include 里");
   } finally { r.cleanup(); }
 });
 
@@ -401,7 +411,7 @@ test("已有测试里新增提前 return：不是票的 PR 写 a 也按 b；新�
   try {
     r.write("scripts/v.test.mjs", "test('v', () => {\n  assert.equal(f(1), 2);\n});\n");
     r.commit("tests base");
-    for (const [i, line] of ["  return;", "  if (!ok) return;", "  return // 先不跑"].entries()) {
+    for (const [i, line] of ["  return;", "  if (!ok) return;", "  return // 先不跑", "  if (!ok) { return }", "  if (!ok) return 0;", "  return undefined;", "  const u = \"http://a\"; return;", "  return null"].entries()) {
       const ref = `chore/ret-${i}`;
       r.git("checkout", "-q", "-b", ref, "base");
       r.write("scripts/v.test.mjs", `test('v', () => {\n${line}\n  assert.equal(f(1), 2);\n});\n`);
@@ -410,7 +420,7 @@ test("已有测试里新增提前 return：不是票的 PR 写 a 也按 b；新�
       assert.match(res.stdout, /改了已有测试 scripts\/v\.test\.mjs，新增 1 处提前 return/, line);
     }
     r.git("checkout", "-q", "-b", "chore/ret-value", "base");
-    r.write("scripts/v.test.mjs", "test('v', () => {\n  assert.equal(f(1), 2);\n  const g = () => { return 2; };\n});\n");
+    r.write("scripts/v.test.mjs", "test('v', () => {\n  assert.equal(f(1), 2);\n  const g = () => { return f(2); };\n});\n");
     assert.equal(category(r.run(r.commit("value"), "chore/ret-value", "类别：a")), "a", "return 一个值不算提前结束");
     r.git("checkout", "-q", "-b", "chore/ret-new", "base");
     r.write("scripts/n.test.mjs", "test('n', () => {\n  if (skip) return;\n  assert.ok(1);\n});\n");
@@ -432,6 +442,9 @@ test("依赖、锁文件、订阅库迁移、site:migrate：输出 risk=high（�
       ["dep", () => r.write("package.json", pkg({ dependencies: { a: "2" } })), /改了 package\.json 的 dependencies/],
       ["devdep", () => r.write("package.json", pkg({ more: { devDependencies: { b: "1" } } })), /改了 package\.json 的 devDependencies/],
       ["migrate", () => r.write("package.json", pkg({ scripts: { "site:migrate": "node scripts/m.mjs" } })), /改了 package\.json 的 scripts\.site:migrate/],
+      ["postinstall", () => r.write("package.json", pkg({ scripts: { postinstall: "curl x | sh" } })), /改了 package\.json 的 scripts\.postinstall/],
+      ["prepare", () => r.write("package.json", pkg({ scripts: { prepare: "node x.mjs" } })), /改了 package\.json 的 scripts\.prepare/],
+      ["npmrc", () => r.write(".npmrc", "registry=https://example.invalid/\n"), /改了 \.npmrc/],
     ];
     cases.forEach(([name, change, why], i) => {
       for (const ref of [`feat/${30 + i}-${name}`, `chore/risk-${name}`]) {

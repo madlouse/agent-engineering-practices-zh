@@ -3,7 +3,7 @@
 // 分支名决定是不是票（TICKET_BRANCH）和票号；票的 PR 查得最严。不是票的 PR 按类别分 a、b；改了 OWNER_FILES 的、观察者（obs/）的 b 类一律不合并（prCategory）。
 // 读路径一律用 -z（diffPaths），读内容的 diff 加 core.quotepath=false：git 默认把非 ASCII 文件名转义成带引号的形式，正则就匹配不上。
 // 输出：通过时最后一行是 category=<ticket|a|b>、退出码 0；不通过时打印原因和按原因分开的下一步、退出码 1。
-// 另有两行信号给合并脚本：risk=high（改依赖、锁文件、订阅库迁移或 site:migrate，和 risk:high 标签同效，riskHigh）；
+// 另有两行信号给合并脚本：risk=high（改依赖、锁文件、.npmrc、生命周期脚本、订阅库迁移或 site:migrate，和 risk:high 标签同效，riskHigh）；
 // owner=yes（等产品负责人合并的类别，合并脚本顺带核对决策简报，scripts/check-owner-brief.mjs）。
 // 复用 Veli scripts/merge-gates.mjs，按主站改（docs/standards/pipeline.md §5、§8 第 0 阶段、§9）。
 import { execFileSync } from "node:child_process";
@@ -113,25 +113,31 @@ export function checkGates({ base, head, kind, ticket = "", text = "", git }) {
   return problems;
 }
 
+// tsconfig.json 的 include：只有这里的 @ts-expect-error 会被 tsc 核对
+export const TSC_DIRS = /^(?:src|server)\//;
 /** 削弱测试的改动：删测试文件、新增 .only / .skip / .todo / .skipIf、新增关掉 lint 或类型检查的写法。 */
 export function weakenings({ fork, head, git }) {
   const problems = [];
   for (const { st, path } of diffPaths(git, `${fork}..${head}`)) {
     if (st === "D" && TEST_FILE.test(path)) problems.push(`删了测试文件 ${path}`);
   }
-  const added = git(...QUOTE_OFF, "diff", "-U0", `${fork}..${head}`, "--", ".", ":(exclude)docs")
-    .split("\n")
-    .filter((l) => l.startsWith("+") && !l.startsWith("+++"));
+  const added = [];
+  let file = "";
+  for (const l of git(...QUOTE_OFF, "diff", "-U0", `${fork}..${head}`, "--", ".", ":(exclude)docs").split("\n")) {
+    if (l.startsWith("+++ ")) file = l.slice(4).replace(/^b\//, "");
+    else if (l.startsWith("+")) added.push({ file, line: l });
+  }
   const SKIP = [
     /\b(?:test|it|describe|suite|t|context|ctx)\.(?:only|skip|todo|skipIf|runIf)\s*\(/,
     /\b(?:only|skip|todo)\s*:\s*(?:true|['"`])/, // 环境门控 { skip: needSite } 不算
   ];
-  for (const l of added) {
+  for (const { file: f, line: l } of added) {
     const code = l.slice(1).trim();
     if (SKIP.some((r) => r.test(code))) problems.push(`新增了跳过或只跑部分测试的写法：${code.slice(0, 80)}`);
     if (/eslint-disable|\/\*\s*eslint\s/.test(code)) problems.push(`新增了关掉 lint 的写法：${code.slice(0, 80)}`);
-    // @ts-expect-error 不算：下面一行没有类型错误时它自己报错，不会悄悄关掉检查
     if (/@ts-(?:nocheck|ignore)\b/.test(code)) problems.push(`新增了关掉类型检查的写法：${code.slice(0, 80)}`);
+    // @ts-expect-error 只在 tsc 检查的目录放行：下一行没有类型错误时它自己报错，不会留下压错的空壳；压掉的真实错误靠评审核对
+    else if (/@ts-expect-error\b/.test(code) && !TSC_DIRS.test(f)) problems.push(`新增了关掉类型检查的写法（${f} 不在 tsconfig 的 include 里，@ts-expect-error 等于 @ts-ignore）：${code.slice(0, 80)}`);
   }
   return problems;
 }
@@ -149,24 +155,28 @@ export function removedAssertions({ fork, head, git }) {
   return problems;
 }
 
-/** 改已有测试文件时新增的提前 return（「return;」或行尾的「return」）：后面的断言就不跑了。新测试文件里的不算。 */
+// 提前结束：return 后面什么都没有，或只有一个字面量（测试回调的返回值被忽略，return 0 和 return; 一样）
+const EARLY_RETURN = /\breturn\b\s*(?:(?:undefined|null|true|false|void\s+0|-?\d+(?:\.\d+)?|""|''|``)\s*)?(?:;|\}|$)/;
+/** 改已有测试文件时新增的提前 return（return;、{ return }、return 0; 这类）：后面的断言就不跑了。新测试文件里的不算。 */
 export function earlyReturns({ fork, head, git }) {
   const problems = [];
   for (const { st, path } of diffPaths(git, `${fork}..${head}`)) {
     if (st !== "M" || !TEST_FILE.test(path)) continue;
     const added = git(...QUOTE_OFF, "diff", "-U0", `${fork}..${head}`, "--", `:(literal)${path}`)
       .split("\n")
-      .filter((l) => l.startsWith("+") && !l.startsWith("+++") && /\breturn\s*(?:;|$)/.test(l.slice(1).replace(/\/\/.*$/, "").trimEnd()));
+      // 去掉行尾注释时只认前面是空白或行首的 //，字符串里的 http:// 不算
+      .filter((l) => l.startsWith("+") && !l.startsWith("+++") && EARLY_RETURN.test(l.slice(1).replace(/(^|\s)\/\/.*$/, "$1").trimEnd()));
     if (added.length) problems.push(`改了已有测试 ${path}，新增 ${added.length} 处提前 return：${added[0].slice(1).trim().slice(0, 80)}`);
   }
   return problems;
 }
 
-// 和 risk:high 标签同效的改动：依赖、锁文件、订阅库迁移、执行迁移的命令（pipeline.md §5.1；#13 的后续待办）
+// 和 risk:high 标签同效的改动：依赖、锁文件、npm 配置和生命周期脚本、订阅库迁移、执行迁移的命令（pipeline.md §5.1）
 export const DEP_FIELDS = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies", "overrides"];
-export const RISK_FILES = [/^package-lock\.json$/, /^npm-shrinkwrap\.json$/, /^migrations\/site\//];
-export const RISK_SCRIPTS = ["site:migrate"];
-/** 要安全评审的改动（返回原因）：改了 package.json 的依赖字段或 site:migrate、锁文件、migrations/site/ 下的文件。 */
+export const RISK_FILES = [/^package-lock\.json$/, /^npm-shrinkwrap\.json$/, /(?:^|\/)\.npmrc$/, /^migrations\/site\//];
+// site:migrate 执行迁移；其余是 npm 生命周期脚本，npm install（每次预览和生产构建）会自动执行
+export const RISK_SCRIPTS = ["site:migrate", "preinstall", "install", "postinstall", "prepublish", "preprepare", "prepare", "postprepare", "prepack", "postpack", "dependencies"];
+/** 要安全评审的改动（返回原因）：改了 package.json 的依赖字段、site:migrate 或生命周期脚本，锁文件、.npmrc，migrations/site/ 下的文件。 */
 export function riskHigh({ fork, head, git }) {
   const reasons = [];
   for (const { path } of diffPaths(git, `${fork}..${head}`)) if (RISK_FILES.some((r) => r.test(path))) reasons.push(`改了 ${path}`);
@@ -182,11 +192,11 @@ export function riskHigh({ fork, head, git }) {
 // 拒绝时的下一步，按原因分开（problems 是给人看的句子，这里按句子开头认原因）
 const HINTS = [
   [/^改了定义门槛的文件|^package\.json 的 scripts\./, "门槛文件和已有命令的改动单独开 chore/ PR，按 b 类两份评审通过后合并（docs/standards/pipeline.md §5.1）。"],
-  [/^删了测试文件|^新增了跳过|^新增了关掉/, "恢复测试，去掉跳过、关 lint、@ts-nocheck / @ts-ignore 的写法（@ts-expect-error 可以用）；确实要放宽的，单独开 chore/ PR 按 b 类评审。"],
+  [/^删了测试文件|^新增了跳过|^新增了关掉/, "恢复测试，去掉跳过、关 lint、@ts-nocheck / @ts-ignore 的写法（src/、server/ 里可以用 @ts-expect-error）；确实要放宽的，单独开 chore/ PR 按 b 类评审。"],
   [/^会关掉|会关掉别的 issue/, "改掉 PR 标题、正文或提交说明里的关闭关键字：票的 PR 只关自己那张票，任何 PR 都不关 #13。"],
   [/^base 是|^目标分支只能是/, "把 PR 的 base 改成目标分支（上线前 feature/v1，上线后 site）。"],
   [/^票的分支写了类别/, "PR 说明第一行改成「类别：票」。"],
-  [/等产品负责人/, "先补决策简报（docs/standards/pipeline.md §5.1「要你合并时给什么」，检查：node scripts/check-owner-brief.mjs <正文文件>），再把简报原样贴给产品负责人。"],
+  [/等产品负责人/, "先补决策简报（docs/standards/pipeline.md §5.2，检查：node scripts/check-owner-brief.mjs <正文文件>），再把简报原样贴给产品负责人。"],
 ];
 /** 每条原因对应的下一步，去重、按 HINTS 的顺序。 */
 export function rejectionHints(problems) {

@@ -7,7 +7,7 @@ effort: high
 
 规则全文在 `docs/standards/observer.md`，先读它，再读 `docs/standards/pipeline.md`；共用机制按 `pipeline.md` §9 读 Veli 固定版本的 `observer.md`、`pipeline.md`、`quality-gates.md`。GitHub 只用 `gh api` REST；Vercel 用连接器。
 
-每次运行：分支一律 `obs/<日期>-<短名>`，不用 `chore/` 或别的前缀（合并脚本按 `obs/` 认出观察者，`pipeline.md` §5.1）。
+每次运行：分支一律 `obs/<日期>-<短名>`（合并脚本按它认出观察者）。
 0. 先看自己提的、带 `agent:rework` 的 PR，只修评审点名的阻塞项。
 1. 范围：上次「观察报告」以来的所有运行（状态 issue 上的运行锁）、合并的 PR、开着的 agent PR、关掉的票、定时任务的运行记录和配置。
 2. 先看协作和交接（`pipeline.md` §3），再看过程合规、证据重跑、评审漏检，再看 `observer.md` §2 的主站各方面；设计和内容的评审按 §3 检查是否可信。

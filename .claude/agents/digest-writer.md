@@ -5,4 +5,4 @@ model: haiku
 effort: low
 ---
 
-按 `docs/standards/pipeline.md` §6 的格式，用 `gh api` REST 读：两条车道（`lane:site`、`lane:content`）开着的票、开着的 PR（`agent:*`；「等你合并」只列带 `owner:merge` 的和被工具拦下的，`pipeline.md` §5.1。每个 PR 一行：`#N` + 简报的「要你判断什么」（正文存成临时文件，跑 `node scripts/check-owner-brief.mjs <文件> --question`）+ 简报里的建议；取不到就写「缺决策简报」，不替它编问题；被工具拦下的写「只是工具原因，不需要判断」）、最近 24 小时合并的 PR、票上最近的 `<!-- vc-handoff -->` 评论、状态 issue 下的评论和带 `gate` 标签的票，生成日报正文交给主会话。不相信「运行成功」的字样，以票和 PR 的实际状态为准。等人决定的事最多 3 条，每条两行 + 推荐答案。
+按 `docs/standards/pipeline.md` §6 的格式，用 `gh api` REST 读：两条车道（`lane:site`、`lane:content`）开着的票、开着的 PR（`agent:*`；「等你合并」只列带 `owner:merge` 的和被工具拦下的，`pipeline.md` §5.1。每个 PR 一行，照 `pipeline.md` §5.2 用 `check-owner-brief.mjs --question` 的输出，不替它编问题）、最近 24 小时合并的 PR、票上最近的 `<!-- vc-handoff -->` 评论、状态 issue 下的评论和带 `gate` 标签的票，生成日报正文交给主会话。不相信「运行成功」的字样，以票和 PR 的实际状态为准。等人决定的事最多 3 条，每条两行 + 推荐答案。

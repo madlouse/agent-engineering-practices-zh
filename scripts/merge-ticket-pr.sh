@@ -7,7 +7,7 @@
 # - 类别（merge-gates.mjs 的 prCategory）：票；不是票的 a 类；b 类（PR 说明写 b、没写类别、改了门槛文件、检查脚本或已有命令、削弱了测试）；
 #   改了权限设置（.claude/settings*.json）或 docs/standards/observer.md 的、观察者 obs/ 分支的 b 类，一律不合并，等产品负责人。
 # - 评审结论针对当前头提交：content/ 分支要 kind=content；b 类要 kind=general 和 kind=general-b 两份；其余要 kind=general；
-#   risk:high 另要 kind=security 和 security:pass；改依赖、锁文件、migrations/site/、site:migrate 的（merge-gates.mjs 输出 risk=high）同样要。
+#   risk:high 另要 kind=security 和 security:pass；改依赖、锁文件、.npmrc、生命周期脚本、migrations/site/、site:migrate 的（merge-gates.mjs 输出 risk=high）同样要。
 # - 带 owner:merge 或判成 owner 类的，拒绝时顺带跑决策简报检查（check-owner-brief.mjs，取目标分支上的版本），缺简报就提示先补。
 #   结论只认对应评审角色经 Claude 应用写的、没编辑过的 vc-review 标记（scripts/review-markers.mjs）。头提交一变，旧结论自动失效。
 # - 票的 PR（feat/、fix/、content/）不能改门槛文件（scripts/merge-gates.mjs）；判定库、门槛和检查命令一律取目标分支上的版本。
@@ -16,8 +16,8 @@
 # 威胁模型同 Veli：本地门槛只防 Agent 出错、走捷径；不防有人篡改本地环境，那部分交给 GitHub 规则集。
 set -euo pipefail
 cd "$(dirname "$0")/.."
-body_file=""; lib_dir=""; comments_file=""; work=""; ROOT="$PWD"
-trap 'cd "$ROOT"; if [ -n "$work" ]; then git worktree remove --force "$work" >/dev/null 2>&1 || rm -rf "$work"; fi; git worktree prune >/dev/null 2>&1; rm -rf "$lib_dir"; rm -f "$body_file" "$comments_file" "$comments_file.n"' EXIT
+body_file=""; brief_file=""; lib_dir=""; comments_file=""; work=""; ROOT="$PWD"
+trap 'cd "$ROOT"; if [ -n "$work" ]; then git worktree remove --force "$work" >/dev/null 2>&1 || rm -rf "$work"; fi; git worktree prune >/dev/null 2>&1; rm -rf "$lib_dir"; rm -f "$body_file" "$brief_file" "$comments_file" "$comments_file.n"' EXIT
 REPO="repos/madlouse/velicoach"
 PR="${1:?用法：bash scripts/merge-ticket-pr.sh <PR 号>}"
 [[ "$PR" =~ ^[0-9]+$ ]] || { echo "PR 号要是数字"; exit 1; }
@@ -50,12 +50,13 @@ for f in review-markers.mjs merge-gates.mjs; do
 done
 # 正文放前面，第一行是「类别：…」；正文为空时第一行是空行，不拿标题当类别
 body_file=$(mktemp); { field 'p.body||""'; field 'p.title||""'; } > "$body_file"
-# 等产品负责人的 PR：核对决策简报（pipeline.md §5.1「要你合并时给什么」）。只提示，不改变拒绝
+# 等产品负责人的 PR：核对决策简报（pipeline.md §5.2），只读正文、不拼标题。只提示，不改变拒绝
+brief_file=$(mktemp); field 'p.body||""' > "$brief_file"
 owner_brief() {
   if ! git show "$tgt:scripts/check-owner-brief.mjs" > "$lib_dir/check-owner-brief.mjs" 2>/dev/null; then
     echo "（$TARGET 上还没有 scripts/check-owner-brief.mjs，没核对决策简报）"; return 0
   fi
-  if node "$lib_dir/check-owner-brief.mjs" "$body_file"; then
+  if node "$lib_dir/check-owner-brief.mjs" "$brief_file"; then
     echo "下一步：把 PR 说明里的决策简报原样贴给产品负责人（对话或 #13），不要只说「等你合并」。"
   else
     echo "下一步：先补决策简报，再请产品负责人合并。"

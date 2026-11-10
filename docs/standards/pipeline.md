@@ -58,7 +58,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 
 **切换后（生产）**
 
-- 核对脚本对 `velicoach.com` 跑通：路由表每一行、with.velicoach.com 跳转清单每一条（301，落点 200）；
+- 核对脚本对 `velicoach.com` 跑通：路由表每一行、迁入的 5 篇文章和中英旁白（200）；
 - 经 `velicoach.com` 打开 `/`、`/body`、`/en/body`、`/app`，页面发出的请求里 4xx、5xx 为 0，研究卡锚点在；
 - 发信：用真实邮箱订阅一次，在 Gmail「显示原始邮件」里 SPF、DKIM、DMARC 三项都是 PASS，欢迎邮件页脚有通讯地址（预览不配 `RESEND_API_KEY`，只能在生产做）；
 - 监控：定时探测已经按 `MONITOR_TARGET=https://velicoach.com` 跑过至少一次，结果全部通过；

@@ -7,8 +7,8 @@
 // owner=yes（等产品负责人合并的类别，合并脚本顺带核对决策简报，scripts/check-owner-brief.mjs）。
 // 复用 Veli scripts/merge-gates.mjs，按主站改（docs/standards/pipeline.md §5、§8 第 0 阶段、§9）。
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import { readFileSync, realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 // 定义门槛的文件：票的 PR（feat/、fix/、content/）不能动，改名、删除也算。不是票的 PR 改了它们，一律按 b 类（要两份评审）
 export const GATE_FILES = [
@@ -238,7 +238,7 @@ export function prCategory({ base, head, kind, ref = "", body = "", git }) {
   return { category: reasons.length ? "b" : "a", reasons, problems: [] };
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const flag = (name) => {
     const i = args.indexOf(name);

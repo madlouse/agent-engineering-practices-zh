@@ -3,8 +3,8 @@
 //   不带 --question：简报合格退出码 0；不合格逐条打印缺什么、退出码 1。
 //   带 --question：先查整份简报，合格才打印「要你判断什么」那一句（日报「等你合并」用）；不合格打印「简报不合格：…」、退出码 1。
 // 脚本守住「不是空壳」的下限（每项有内容、问题点名了要定的事）；简报是否属实靠评审。
-import { readFileSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import { readFileSync, realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 export const BRIEF_TITLE = "决策简报";
 // 七项，顺序就是简报里的顺序
@@ -140,7 +140,7 @@ export function briefQuestion(body) {
   return parseBrief(body).items["要你判断什么"].trim();
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
   const question = args.includes("--question");
   const file = args.find((a) => a !== "--question");

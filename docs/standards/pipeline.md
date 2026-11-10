@@ -76,12 +76,12 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 | 站点票推进器 | 定时任务 ① | Sonnet · medium | 选票、派活、合并、交接 | 运行锁、领票评论、交接评论 | 观察者 |
 | 内容推进器 | 定时任务 ② | Sonnet · medium | 同上，只管内容车道 | 同上 | 观察者 |
 | `implementer` | 复用 | Sonnet · medium | 实现一张站点票 + 证据 | PR 和证据表 | `reviewer` |
-| `reviewer` | 复用，加主站检查 | Opus · medium | 冷评审一个站点 PR | 一条结论评论 + 标签 | 观察者抽查复审 |
+| `reviewer` | 复用，加主站检查 | Opus · medium | 冷评审一个站点 PR | 一条结论评论（绑定头提交的结论标记） | 观察者抽查复审 |
 | `reviewer-b` | 新增，替 Veli 的 Codex 第二道评审 | Sonnet · high | b 类 PR 的第二份独立冷评审（§5.1） | 一条 `kind=general-b` 结论评论 | 观察者抽查 |
 | `content-writer` | 新增 | Sonnet · medium | 起草一张内容票：选材、成稿、中英两版 | PR 和出处表 | `content-reviewer` |
-| `content-reviewer` | 新增 | Opus · medium | 冷审一个内容 PR：事实、出处、授权、术语、双语 | 一条结论评论 + 标签 | 观察者抽查 |
+| `content-reviewer` | 新增 | Opus · medium | 冷审一个内容 PR：事实、出处、授权、术语、双语 | 一条结论评论（绑定头提交的结论标记） | 观察者抽查 |
 | `design-reviewer` / `design-reviewer-b` | 新增，复用 Veli 两人走查和 `design-bar` 独立评审 | Opus · medium / Sonnet · medium | 关口三 a、里程碑关口和关口四的独立评审 | 各自一份问题清单 | 主会话合并；观察者 |
-| `security-reviewer` | 复用 | Sonnet · high | 带 `risk:high` 的 PR 的独立安全评审：订阅和发信、表单、数据库和行级安全、密钥（PRD 第 8 节「安全」） | 一条 `kind=security` 结论评论 + `security:*` 标签 | 观察者全查 |
+| `security-reviewer` | 复用 | Sonnet · high | 带 `risk:high` 的 PR 的独立安全评审：订阅和发信、表单、数据库和行级安全、密钥（PRD 第 8 节「安全」） | 一条 `kind=security` 结论评论 | 观察者全查 |
 | `spec-reviewer` | 复用 | Opus · high | 冷审规格和一批票 | 一条「就绪：是 / 否」评论 | 观察者看下游返工 |
 | `digest-writer` | 复用 | Haiku · low | 日报正文 | 状态 issue 正文 | 观察者核对和真实状态一致 |
 | `observer` | 复用 | Opus · high | 整条流水线和机制本身（`observer.md`） | 观察报告、`docs/quality/` | 产品负责人每周看一次 |
@@ -235,6 +235,7 @@ git -C /tmp/veli checkout 19170d2
 | `npm run verify`、`tmc-dev-setup` §5 | 本页 §7 的检查 |
 | `tmc-ux-walkthrough`、`ux-walker` 两人走查 | `design-reviewer` + `design-reviewer-b`，加 `check_page.py` 六项 |
 | `docs/delivery/milestones/M<n>.json` | 里程碑总票里写的退出条件 |
+| 通过与否的标签 `agent:pass`、`agent:rework`、`security:pass`、`security:rework`（Veli §3 标签表；§7 第 8 步「`agent:rework` 或 `security:rework` 都算要返工」） | 不设这些标签，只看头提交上的结论标记：推进器和观察者判断「要返工」= 头提交上任一种类的结论是 rework（`review-markers.mjs` 的 `reviewVerdict`）；「通过」= 要的几种都是 pass（§3「标签」，2026-11-10） |
 | `risk:high`、`security-reviewer` | 照用：订阅要收邮箱（PRD F07），订阅和发信、表单、数据库和行级安全、密钥的 PR 都打 `risk:high` |
 | 数据库迁移（Supabase、集成库） | 主站订阅库的迁移放在 `migrations/site/`，只由工作流 `site-db-migrate` 用 `SITE_DB_MIGRATE_URL` 执行（ADR-0004 (a)），构建命令里不跑迁移；预览和测试里由新模块对内存 PGLite 执行。沙箱预置的 `npm run db:migrate` 只用于 Grok 沙箱 |
 | 集成分支「黄」、`/api/health` | 不适用，状态只有绿和红（§6） |

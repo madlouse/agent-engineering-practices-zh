@@ -7,6 +7,7 @@
 // 同一个 sha 上只要有一条有效的 rework，就按 rework 算，后来的 pass 盖不过：评审要翻案，推新提交或由产品负责人合并。
 // 经 Claude 应用写、含标记名、又编辑过的评论锁住整个 PR（不分 sha、不分种类），推新提交也解不开；要解开就删掉那条评论。
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
 // 角色名和 .claude/agents/ 里各评审写的首行一致（docs/standards/pipeline.md §3、§5）
 // general-b：不是票的 b 类 PR 的第二份评审，由不同模型的 reviewer-b 写（pipeline.md §5.1）
@@ -66,4 +67,29 @@ export function requiredReviewKinds(headRef, category) {
   if (!["ticket", "a", "b"].includes(category)) throw new Error(`类别只能是 ticket / a / b：${category}`);
   if (/^content\//.test(headRef)) return "content";
   return category === "b" ? "general general-b" : "general";
+}
+
+/**
+ * 评审贴评论前自查草稿（.claude/agents/reviewer.md 第 7 步）：按上面 parse 的同一套规则，列出这条评论贴出后会作废的原因；空数组表示有效。
+ */
+export function draftProblems(body, kind, sha) {
+  if (!KINDS.includes(kind)) return [`评审种类只能是 ${KINDS.join(" / ")}：${kind}`];
+  const problems = [];
+  const lines = body.split(/\r?\n/).map((l) => l.trim());
+  if (lines[0] !== `<!-- vc-bot role=${ROLE_OF[kind]} -->`) problems.push(`第一行要是 <!-- vc-bot role=${ROLE_OF[kind]} -->`);
+  const count = (body.match(LOOSE) ?? []).length;
+  if (count !== 1) problems.push(`标记名全文要正好出现 1 次，现在 ${count} 次`);
+  const m = MARKER.exec(lines.find((l) => l.includes("vc-review")) ?? "");
+  if (!m) problems.push("结论标记要单独一行，写法见 reviewer.md 第 7 步");
+  else if (m[1] !== kind || m[3] !== sha) problems.push(`结论标记的 kind 和 sha 要是 ${kind}、${sha}`);
+  return problems;
+}
+
+// 命令行：node scripts/review-markers.mjs check-draft <草稿文件> <种类> <PR 头 sha>；有问题就逐条打印、退出码 1
+if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === "check-draft") {
+  const [file, kind, sha] = process.argv.slice(3);
+  const problems = draftProblems(readFileSync(file, "utf8"), kind, sha);
+  for (const p of problems) console.error(`草稿不能贴：${p}`);
+  if (problems.length === 0) console.log("草稿可以贴");
+  process.exit(problems.length === 0 ? 0 : 1);
 }

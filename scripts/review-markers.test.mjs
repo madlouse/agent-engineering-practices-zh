@@ -141,3 +141,39 @@ test("合并脚本逐个核对 requiredReviewKinds 给的每一种评审，类�
   assert.match(sh, /--pr-base "\$base" --target "\$TARGET"/);
   assert.ok(sh.indexOf("merge-gates.mjs\" \"$tgt\"") < sh.indexOf("for kind in $kinds"), "先定类别，再核对评审");
 });
+
+test("贴前自查：draftProblems 和合并时的判定一致", async () => {
+  const { draftProblems } = await import("./review-markers.mjs");
+  for (const kind of ["general", "general-b", "content", "security"]) {
+    const ok = review(kind, "pass").body;
+    assert.deepEqual(draftProblems(ok, kind, SHA), [], kind);
+    assert.equal(reviewVerdict([{ ...review(kind, "pass"), body: ok }], SHA, kind), "pass");
+  }
+  const ok = review("general", "pass").body;
+  const bad = {
+    "正文再写一次标记名": ok.replace("结论：……", "检索 vc-review kind= 命中 4 处"),
+    "角色行不对": ok.replace("role=评审", "role=评审B"),
+    "sha 不对": review("general", "pass", T1, OTHER).body,
+    "标记不单独一行": ok.replace("<!-- vc-review", "结论 <!-- vc-review"),
+  };
+  for (const [why, body] of Object.entries(bad)) {
+    assert.ok(draftProblems(body, "general", SHA).length > 0, why);
+    assert.equal(reviewVerdict([{ ...review("general", "pass"), body }], SHA, "general"), null, why);
+  }
+});
+
+test("贴前自查：命令行退出码", () => {
+  const dir = mkdtempSync(join(tmpdir(), "draft-"));
+  try {
+    const f = join(dir, "c.md");
+    writeFileSync(f, review("general", "pass").body);
+    const run = () => spawnSync(process.execPath, [join(SCRIPTS, "review-markers.mjs"), "check-draft", f, "general", SHA], { encoding: "utf8" });
+    assert.equal(run().status, 0);
+    writeFileSync(f, review("general", "pass").body + "\nvc-review");
+    const r = run();
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /正好出现 1 次/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

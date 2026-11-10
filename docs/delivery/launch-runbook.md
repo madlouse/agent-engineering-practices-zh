@@ -20,7 +20,7 @@
 ## 合并前（在 `feature/v1` 的预览上）
 
 1. **首次生产迁移**：先核对 Environment `site-db` 的部署分支只允许 `site`、`feature/v1`，密钥 `SITE_DB_MIGRATE_URL` 已配（#40）；核对前不触发。然后主会话手动触发 `site-db-migrate`（`ref=feature/v1`），再做 #67 的核对。不过就停在这里修。
-2. **监控演练**：主会话手动触发 `site-monitor`（`ref=feature/v1`），`target` 填一个必定失败的地址，连跑两次，开出一个告警 issue；产品负责人回复收到告警邮件；关掉这个 issue。
+2. **监控演练**：主会话手动触发 `site-monitor`（`ref=feature/v1`），`target` 填允许清单内、必定失败的地址 `https://velicoach-drill-404.vercel.app`（先请求一次确认返回 404；允许清单外的地址脚本直接拒绝，演练不了告警，ADR-0005 (a)），连跑两次，开出一个标题以「主站告警：」开头的 issue；产品负责人回复收到告警邮件；关掉这个 issue。
 3. **关口四「合并前」清单**全部通过（`pipeline.md` §2.3）。
 4. **Veli 侧就绪**：thin-muscle-coach#72 已合并，Veli 生产上 `/body`、`/en/body`、法务页返回 200（直接请求 Veli 项目的生产域名）；#185、#101 已关；#213 的切换 PR 已开、以 Veli 的 `main` 为 base、评审通过、还没合并。
 5. 产品负责人在 #66 回复「确认上线」。

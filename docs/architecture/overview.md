@@ -40,7 +40,7 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 
 ## 部署与服务
 
-框架沿用本仓库已有的 TanStack Start（Vite、React），不换。原来计划的 `with.velicoach.com` 改为永久跳转到 `velicoach.com/mind`（PRD 决定记录）。本仓库 `AGENTS.md` 是 Grok 构建沙箱的契约，它的 `auth`、`neon` 技能只用于沙箱预览；正式站的账号用 Veli 的 Supabase Auth（ADR-0001）。
+框架沿用本仓库已有的 TanStack Start（Vite、React），不换。看清用主站的二级目录 `velicoach.com/mind`，不另用子域名（PRD 决定记录）。本仓库 `AGENTS.md` 是 Grok 构建沙箱的契约，它的 `auth`、`neon` 技能只用于沙箱预览；正式站的账号用 Veli 的 Supabase Auth（ADR-0001）。
 
 其余沿用 Veli 的选择：Vercel 跑应用，Cloudflare 管域名和 DNS，Supabase 管数据和登录，Resend 发订阅邮件（订阅用子域名 news.velicoach.com，Veli 的登录验证码继续用主域名）。
 

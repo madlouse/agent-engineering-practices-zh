@@ -196,9 +196,10 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 检查 | 命令 | 谁跑 |
 |---|---|---|
 | 术语 | `npm run check:terms` | 两条车道的评审 |
+| 评审结论评论 | 贴之前 `node scripts/check-review-draft.mjs <草稿文件> <种类> <PR 头 sha>`，不通过不贴（和合并脚本同一套判定） | 四种评审 |
 | 质量词 | `npm run check:vague`；票和规格的正文先存成临时文件再跑 `node scripts/check-vague.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 口语和转写错误 | `npm run check:voice`（原话只在 `timeline.md`，其余正式文字不带口语标记和登记过的转写错误）；票和规格的正文同样跑 `node scripts/check-voice.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
-| 脚本单元测试 | `npm test`（`scripts/` 下除 grok-pwa 以外的测试，加 `npm run test:pwa`：grok-pwa 插件的测试读当前目录的分享卡配置，要在空临时目录里跑；沙箱契约不许改它的测试文件。PR #68 起。后半段的 `src/lib` 测试要依赖装全，云端会话装不上依赖时那两个文件报找不到模块，以预览构建为准） | `reviewer` |
+| 脚本单元测试 | `npm test`（`scripts/` 下除 grok-pwa 以外的测试，加 `npm run test:pwa`：grok-pwa 插件的测试读当前目录的分享卡配置，要在空临时目录里跑；沙箱契约不许改它的测试文件。PR #68 起。后半段的 `src/lib` 测试要依赖装全。云端会话里 `registry.npmjs.org` 在 `NO_PROXY` 里、直连解析不了，`npm ci` 报 ENOTFOUND；装依赖时让它走代理：`NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 npm ci --no-audit --no-fund`） | `reviewer` |
 | 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖 | `reviewer` 用 Vercel 连接器看构建日志 |
 | 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |
 | token | `python .grok/skills/design-bar/scripts/lint_tokens.py src --tokens <token 文件>` | `reviewer`（界面票） |
@@ -235,7 +236,7 @@ git -C /tmp/veli checkout 19170d2
 | `npm run verify`、`tmc-dev-setup` §5 | 本页 §7 的检查 |
 | `tmc-ux-walkthrough`、`ux-walker` 两人走查 | `design-reviewer` + `design-reviewer-b`，加 `check_page.py` 六项 |
 | `docs/delivery/milestones/M<n>.json` | 里程碑总票里写的退出条件 |
-| 通过与否的标签 `agent:pass`、`agent:rework`、`security:pass`、`security:rework`（Veli §3 标签表；§7 第 8 步「`agent:rework` 或 `security:rework` 都算要返工」） | 不设这些标签，只看头提交上的结论标记：推进器和观察者判断「要返工」= 头提交上任一种类的结论是 rework（`review-markers.mjs` 的 `reviewVerdict`）；「通过」= 要的几种都是 pass（§3「标签」，2026-11-10） |
+| 通过与否的标签 `agent:pass`、`agent:rework`、`security:pass`、`security:rework`（Veli §3 标签表；§7 第 8 步「`agent:rework` 或 `security:rework` 都算要返工」） | 不设这些标签，只看头提交上的结论标记：推进器和观察者判断「要返工」= 头提交上任一种类的结论是 rework（`review-markers.mjs` 的 `reviewVerdict`）；「通过」= 要的几种都是 pass（§5「标签」；要哪几种见 §5.1，2026-11-10） |
 | `risk:high`、`security-reviewer` | 照用：订阅要收邮箱（PRD F07），订阅和发信、表单、数据库和行级安全、密钥的 PR 都打 `risk:high` |
 | 数据库迁移（Supabase、集成库） | 主站订阅库的迁移放在 `migrations/site/`，只由工作流 `site-db-migrate` 用 `SITE_DB_MIGRATE_URL` 执行（ADR-0004 (a)），构建命令里不跑迁移；预览和测试里由新模块对内存 PGLite 执行。沙箱预置的 `npm run db:migrate` 只用于 Grok 沙箱 |
 | 集成分支「黄」、`/api/health` | 不适用，状态只有绿和红（§6） |

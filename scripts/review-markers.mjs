@@ -67,3 +67,19 @@ export function requiredReviewKinds(headRef, category) {
   if (/^content\//.test(headRef)) return "content";
   return category === "b" ? "general general-b" : "general";
 }
+
+/**
+ * 评审贴评论前自查草稿（.claude/agents/reviewer.md 第 7 步，命令行在 check-review-draft.mjs）：按上面 parse 的同一套规则，列出这条评论贴出后会作废的原因；空数组表示有效。
+ */
+export function draftProblems(body, kind, sha) {
+  if (!KINDS.includes(kind)) return [`评审种类只能是 ${KINDS.join(" / ")}：${kind}`];
+  const problems = [];
+  const lines = body.split(/\r?\n/).map((l) => l.trim());
+  if (lines[0] !== `<!-- vc-bot role=${ROLE_OF[kind]} -->`) problems.push(`第一行要是 <!-- vc-bot role=${ROLE_OF[kind]} -->`);
+  const count = (body.match(LOOSE) ?? []).length;
+  if (count !== 1) problems.push(`标记名全文要正好出现 1 次，现在 ${count} 次`);
+  const m = MARKER.exec(lines.find((l) => l.includes("vc-review")) ?? "");
+  if (!m) problems.push("结论标记要单独一行，写法见 reviewer.md 第 7 步");
+  else if (m[1] !== kind || m[3] !== sha) problems.push(`结论标记的 kind 和 sha 要是 ${kind}、${sha}`);
+  return problems;
+}

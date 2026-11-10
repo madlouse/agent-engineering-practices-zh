@@ -12,9 +12,9 @@
  * copying would have to land its temp in the target's directory, which is the
  * one thing a staged path is not allowed to do.
  */
-import { existsSync, mkdirSync, renameSync } from "node:fs";
+import { existsSync, mkdirSync, renameSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -68,7 +68,7 @@ export function handOver(staged, target, { rename = renameSync } = {}) {
   }
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = parseWriteAtomicArgs(process.argv.slice(2));
   if (args.error) {
     console.error(`[write-atomic] ${args.error}`);

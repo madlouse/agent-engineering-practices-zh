@@ -27,9 +27,9 @@
  * favicon, PWA icons and title for a plain utility that keeps the og.grok.me
  * card — where no card is the expected verdict rather than a failure.
  */
-import { existsSync, statSync } from "node:fs";
+import { existsSync, statSync, realpathSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { OG_SITE_REL_PATH, readOgSite, siteHasCustomCard } from "./grok-pwa-shared.mjs";
 
 // Over this, link scrapers (X card previews included) time out or skip the
@@ -193,7 +193,7 @@ function isBrandWarning(message) {
   return message.startsWith("BRAND WARNING:");
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = parseBrandCheckArgs(process.argv.slice(2));
   if (args.error) {
     console.error(JSON.stringify({ ok: false, error: args.error }, null, 2));

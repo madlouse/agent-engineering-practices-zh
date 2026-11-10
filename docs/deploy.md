@@ -19,10 +19,6 @@
 
 订阅库的迁移不在构建里跑。迁移文件在 `migrations/site/`，只由 GitHub Actions 工作流 `site-db-migrate` 用 `SITE_DB_MIGRATE_URL` 执行（ADR-0004 (a)）：上线前手动触发、分支选 `feature/v1`；上线后改了 `migrations/site/**` 的提交进 `site` 时自动执行。自动执行和 Vercel 的生产构建同时开始，新代码可能比迁移先上线，所以迁移必须向后兼容（先加后删，ADR-0004「迁移约定」）；做不到兼容的，先单独合并只含迁移的 PR。工作流文件只由主会话维护。Vercel 项目的构建命令是 `tsc --noEmit && eslint . && vite build`。
 
-## 原来的 with.velicoach.com
-
-不再作为站点地址。如果这个子域名已经有人用过，在 Cloudflare 的 DNS 和 Vercel 上把它设成永久跳转（301，PRD F27）到 `velicoach.com/mind`，文章路径一一对应。DNS 要由域名持有人改，这个仓库改不了。
-
 ## 代码里已经准备的
 
 `vercel.json` 只指定了安装命令。站点没有写死主机名。

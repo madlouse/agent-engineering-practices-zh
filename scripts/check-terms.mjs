@@ -18,16 +18,15 @@ const skip = [
   "docs/requirements/trace.md",
   "docs/uiue/decisions.md",
   "docs/issues/README.md",
-  "docs/uiue/identity.md",
 ];
-// Review reports quote the wording they found; they are records, not live copy.
-const skipDirs = ["docs/uiue/reviews/", "docs/prd/reviews/"];
+// Review reports and research notes quote the wording they found; they are records, not live copy.
+const skipDirs = ["docs/uiue/reviews/", "docs/prd/reviews/", "docs/delivery/reviews/", "docs/uiue/research/"];
 // Allowed phrasings that name the past on purpose.
-const allowed = ["原同席博客", "原来的同席博客", "搏击等对抗性运动", "学习路径步骤", "（不是阀值）"];
+const allowed = ["搏击等对抗性运动", "学习路径步骤", "（不是阀值）"];
 
-const files = execFileSync("git", ["ls-files", "docs", "src", "AGENTS.project.md", "README.md", ".grok/skills/velicoach-content", ".grok/skills/velicoach-layout"], { encoding: "utf8" })
+const files = execFileSync("git", ["ls-files", "docs", "src", "AGENTS.project.md", "README.md", ".grok/skills/velicoach-content", ".grok/skills/velicoach-layout", ".grok/skills/article-pipeline", ".grok/skills/article-fidelity", ".grok/skills/article-zh-style", ".grok/skills/article-feynman", ".grok/skills/article-visual", "public/favicon.svg"], { encoding: "utf8" })
   .split("\n")
-  .filter((f) => /\.(md|ts|tsx|json)$/.test(f) && !skip.includes(f) && !skipDirs.some((d) => f.startsWith(d)));
+  .filter((f) => /\.(md|ts|tsx|json|svg)$/.test(f) && !skip.includes(f) && !skipDirs.some((d) => f.startsWith(d)));
 
 let hits = 0;
 for (const file of files) {

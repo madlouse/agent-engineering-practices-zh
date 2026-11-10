@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>液态玻璃演示</title>
+<link rel="stylesheet" href="../../assets/liquid-glass.css">
+<style>
+  body { margin: 0; font: 16px/1.5 -apple-system, "Inter", "Noto Sans SC", sans-serif; background: #111; }
+  .stage { position: relative; width: 960px; height: 600px; overflow: hidden; }
+  #bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .card { position: absolute; left: 60px; top: 60px; width: 360px; height: 220px; padding: 24px; box-sizing: border-box; --lg-radius: 28px; }
+  .card h2 { margin: 0 0 8px; font-size: 22px; }
+  .card p { margin: 0; font-size: 15px; }
+  .bar { position: absolute; left: 60px; top: 340px; width: 340px; height: 64px; padding: 0 20px; box-sizing: border-box; display: flex; align-items: center; gap: 16px; --lg-radius: 32px; }
+  .btn { position: absolute; left: 680px; top: 340px; height: 56px; padding: 0 28px; border: 0; font: inherit; font-weight: 600; --lg-radius: 28px; display: flex; align-items: center; }
+  .dark-zone { position: absolute; left: 480px; top: 60px; width: 420px; height: 220px; padding: 24px; box-sizing: border-box; --lg-radius: 24px; }
+  .tiny { position: absolute; left: 680px; top: 440px; width: 28px; height: 28px; --lg-radius: 14px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <canvas id="bg" width="960" height="600"></canvas>
+  <div class="lg card" id="card"><h2 class="lg-ink">本周的训练</h2><p class="lg-ink-2">三次力量训练，每次 40 分钟。背后的图案会在边缘弯折。</p></div>
+  <div class="lg dark-zone" id="dz"><h2 class="lg-ink" style="margin:0 0 8px;font-size:22px">压在暗处</h2><p class="lg-ink-2" style="margin:0">背后偏暗时，墨色换成浅色。</p></div>
+  <div class="lg bar" id="bar"><span class="lg-ink" style="font-weight:600">▶</span><span class="lg-ink">3 分钟视频</span><span class="lg-ink-2" style="margin-left:auto">0:00 / 3:04</span></div>
+  <button class="lg btn lg-hoverable" id="btn"><span class="lg-ink">开始训练</span></button>
+  <div class="lg tiny" id="tiny"></div>
+</div>
+<script src="../../scripts/liquid-glass.js"></script>
+<script>
+  // 背景：左亮右暗的高对比条纹和圆点，方便看边缘的弯折
+  const c = document.getElementById('bg'), x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 960, 0); g.addColorStop(0, '#f6e7b0'); g.addColorStop(0.45, '#7fd1c7'); g.addColorStop(0.55, '#24324a'); g.addColorStop(1, '#0b0d14');
+  x.fillStyle = g; x.fillRect(0, 0, 960, 600);
+  for (let i = 0; i < 960; i += 24) { x.fillStyle = i % 48 ? 'rgba(200,40,60,.55)' : 'rgba(20,40,160,.5)'; x.fillRect(i, 0, 8, 600); }
+  for (let y = 30; y < 600; y += 60) for (let i = 30; i < 960; i += 60) { x.beginPath(); x.arc(i, y, 10, 0, 7); x.fillStyle = '#fff'; x.fill(); }
+  window.ready = (async () => {
+    const LG = globalThis.LiquidGlass;
+    window.adapt = { left: LG.adaptInk([document.getElementById('card')], c, { dark: false, storageKey: 'demo-a' }),
+                     dark: LG.adaptInk([document.getElementById('dz')], c, { dark: false, storageKey: 'demo-b' }),
+                     bar: LG.adaptInk([document.getElementById('bar')], c, { dark: false, storageKey: 'demo-c' }),
+                     btn: LG.adaptInk([document.getElementById('btn')], c, { dark: false, storageKey: 'demo-d' }) };
+    const ids = ['card', 'dz', 'bar', 'btn', 'tiny'];
+    window.lens = {};
+    for (const id of ids) { await LG.attachLens(document.getElementById(id)); window.lens[id] = getComputedStyle(document.getElementById(id)).backdropFilter; }
+    window.supports = LG.supportsLens();
+    return true;
+  })();
+</script>
+</body>
+</html>

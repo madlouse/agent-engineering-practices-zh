@@ -1,0 +1,106 @@
+/* 液态玻璃 token 模板（references/liquid-glass.md）。
+   接入时把 --lg-* 映射到项目自己的 token；表面只加 .lg 和一个状态类，标记不动。
+   状态：.lg-light（浅色玻璃、深色字，默认）、.lg-on-dark（浅色模式压在暗处、浅色字）、.lg-dark（深色模式）。
+   liquid-glass.js 会按背后的内容改 --lg-density（0 薄 – 1 浓）和 --lg-sat，按需切换状态类。 */
+
+@property --lg-density { syntax: '<number>'; inherits: true; initial-value: 0.5; }
+@property --lg-tint-scale { syntax: '<number>'; inherits: true; initial-value: 1; }
+@property --lg-sat { syntax: '<number>'; inherits: true; initial-value: 1; }
+@property --lg-tint { syntax: '<color>'; inherits: true; initial-value: rgb(255 255 255 / 0.14); }
+@property --lg-ink { syntax: '<color>'; inherits: true; initial-value: rgb(0 0 0 / 0.86); }
+@property --lg-ink-2 { syntax: '<color>'; inherits: true; initial-value: rgb(60 60 67 / 0.7); }
+
+:root {
+  --lg-tint-scale-light: 1;  /* 设计内部的总旋钮：浅色主题整体浓度，默认 1；不做用户设置 */
+  --lg-tint-scale-dark: 1;   /* 设计内部的总旋钮：深色主题整体浓度，默认 1 */
+  --lg-blur: 2px;
+}
+
+.lg {
+  --lg-tint-scale: var(--lg-tint-scale-light);
+  position: relative;
+  isolation: isolate;  /* 圆角、间距、字体沿用表面自己的，不改 */
+  /* 四个声明：底色、背景滤镜（透镜由 JS 追加在最后）、边缘、墨色 */
+  background: var(--lg-tint);
+  -webkit-backdrop-filter: var(--lg-filter);
+  backdrop-filter: var(--lg-filter);
+  box-shadow: var(--lg-edge);
+  color: var(--lg-ink);
+  transition: --lg-tint 240ms cubic-bezier(0.2, 0.8, 0.2, 1), --lg-density 240ms cubic-bezier(0.2, 0.8, 0.2, 1), --lg-tint-scale 400ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 240ms;
+}
+
+/* 浅色玻璃、深色字：白 6%–22%，按密度；提亮随浓度设置变薄 */
+.lg, .lg-light {
+  --lg-tint: rgb(255 255 255 / calc((0.06 + 0.16 * var(--lg-density)) * var(--lg-tint-scale)));
+  --lg-filter: blur(var(--lg-blur)) saturate(calc(180% * var(--lg-sat))) brightness(calc(1 + 0.06 * min(var(--lg-tint-scale), 1)));
+  --lg-edge: inset 1.5px 1.5px 1px -1px rgb(255 255 255 / 0.95), inset -1.5px -1.5px 1px -1px rgb(255 255 255 / 0.55),
+             inset 0 0 0 0.5px rgb(255 255 255 / 0.3), 0 0 0 0.5px rgb(0 0 0 / 0.06), 0 6px 24px rgb(0 0 0 / 0.08);
+  --lg-light: 1;
+  --lg-ink: rgb(0 0 0 / 0.86);
+  --lg-ink-2: rgb(60 60 67 / 0.7);
+  --lg-blend: multiply;
+}
+
+/* 浅色模式压在暗处、浅色字 */
+.lg-on-dark {
+  --lg-tint: rgb(16 18 22 / calc((0.10 + 0.20 * var(--lg-density)) * var(--lg-tint-scale)));
+  --lg-filter: blur(var(--lg-blur)) saturate(calc(170% * var(--lg-sat))) brightness(calc(1 - 0.15 * min(var(--lg-tint-scale), 1)));
+  --lg-edge: inset 0 1px 0 rgb(255 255 255 / 0.22), 0 0 0 0.5px rgb(0 0 0 / 0.4), 0 6px 24px rgb(0 0 0 / 0.18);
+  --lg-light: 0.35;
+  --lg-ink: rgb(255 255 255 / 0.94);
+  --lg-ink-2: rgb(235 235 245 / 0.64);
+  --lg-blend: plus-lighter;
+}
+
+/* 深色模式：压暗像正片叠底，边缘和内光约三分之一。
+   页面用 data-theme="dark" 切深色时自动生效（.lg-on-dark 除外）；别的切换方式在接入时把选择器补进这里。 */
+:is(.lg-dark, [data-theme="dark"] .lg:not(.lg-on-dark)) {
+  --lg-tint-scale: var(--lg-tint-scale-dark);
+  --lg-tint: rgb(20 20 24 / calc((0.16 + 0.22 * var(--lg-density)) * var(--lg-tint-scale)));
+  --lg-filter: blur(var(--lg-blur)) saturate(calc(160% * var(--lg-sat))) brightness(calc(1 - 0.2 * min(var(--lg-tint-scale), 1)));
+  --lg-edge: inset 1.5px 1.5px 1px -1px rgb(255 255 255 / 0.32), inset -1.5px -1.5px 1px -1px rgb(255 255 255 / 0.18),
+             inset 0 0 0 0.5px rgb(255 255 255 / 0.1), 0 0 0 0.5px rgb(0 0 0 / 0.5), 0 6px 24px rgb(0 0 0 / 0.36);
+  --lg-light: 0.33;
+  --lg-ink: rgb(255 255 255 / 0.94);
+  --lg-ink-2: rgb(235 235 245 / 0.64);
+  --lg-blend: plus-lighter;
+}
+
+/* 内光：左上径向高光 + 贴边的内发光（上、左亮，下边略暗），强度按 --lg-light */
+.lg::before {
+  content: "";
+  position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  opacity: var(--lg-light);
+  background: radial-gradient(120% 100% at 0% 0%, rgb(255 255 255 / 0.3), rgb(255 255 255 / 0) 55%);
+  box-shadow: inset 0 1px 6px rgb(255 255 255 / 0.45), inset 1px 0 6px rgb(255 255 255 / 0.3), inset 0 -2px 6px rgb(0 0 0 / 0.08);
+}
+
+/* 墨色：玻璃上画的一切用同一种颜色、固定几档；图标用不透明色画再整体降 opacity */
+.lg-ink, .lg-ink-2 { mix-blend-mode: var(--lg-blend); }
+.lg-ink { color: var(--lg-ink); }
+.lg-ink-2 { color: var(--lg-ink-2); }
+
+/* 悬停提亮底色约 14%，不加大影子 */
+.lg.lg-hoverable:hover { --lg-density: calc(var(--lg-base-density, 0.5) + 0.14); }
+
+/* 高亮行：更浅的一层玻璃，不用灰色蒙层 */
+.lg-row:hover { background: rgb(255 255 255 / 0.42); }
+.lg-row[aria-selected="true"], .lg-row[aria-current="true"] { background: rgb(255 255 255 / 0.76); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.9); }
+:is(.lg-dark, [data-theme="dark"] .lg) .lg-row:hover, .lg-on-dark .lg-row:hover { background: rgb(255 255 255 / 0.12); }
+:is(.lg-dark, [data-theme="dark"] .lg) .lg-row[aria-selected="true"], .lg-on-dark .lg-row[aria-selected="true"] { background: rgb(255 255 255 / 0.22); }
+
+/* 退路：降低透明度、强制颜色、不支持背景滤镜 → 同色不透明实色面，去掉透镜和内光 */
+@media (prefers-reduced-transparency: reduce) {
+  .lg { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--lg-solid, rgb(244 244 246)); }
+  .lg-on-dark, .lg-dark { background: var(--lg-solid-dark, rgb(28 28 32)); }
+  .lg::before { display: none; }
+}
+@media (forced-colors: active) {
+  .lg { -webkit-backdrop-filter: none; backdrop-filter: none; background: Canvas; color: CanvasText; box-shadow: none; border: 1px solid CanvasText; }
+  .lg::before { display: none; }
+  .lg-ink, .lg-ink-2 { mix-blend-mode: normal; color: CanvasText; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lg { background: var(--lg-solid, rgb(244 244 246)); }
+  .lg-on-dark, .lg-dark { background: var(--lg-solid-dark, rgb(28 28 32)); }
+}

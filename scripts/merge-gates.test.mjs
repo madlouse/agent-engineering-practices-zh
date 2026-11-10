@@ -202,7 +202,7 @@ test("不是票的 PR：写 a 且不碰门槛才算 a；没写、写 b、改门�
     assert.equal(category(r.run(docs, "chore/docs", "类别：a\n加一条检查")), "a");
     assert.equal(category(r.run(docs, "chore/docs", "加一条检查")), "b", "没写类别按 b");
     assert.equal(category(r.run(docs, "chore/docs", "类别：b")), "b");
-    assert.equal(category(r.run(docs, "obs/2026-11-09-x", "类别：票")), "b", "类别和分支对不上按 b");
+    assert.equal(category(r.run(docs, "chore/docs", "类别：票")), "b", "类别和分支对不上按 b");
     assert.equal(category(r.run(docs, "chore/docs", "标题\n类别：a")), "b", "类别不在第一行按 b");
 
     r.branch("chore/gate"); r.write("docs/standards/pipeline.md", "# 流水线 v2\n");
@@ -211,9 +211,9 @@ test("不是票的 PR：写 a 且不碰门槛才算 a；没写、写 b、改门�
     assert.equal(category(gate), "b", "改了门槛文件、说明写 a，也按 b");
     assert.match(gate.stdout, /按 b 类处理：改了门槛文件 docs\/standards\/pipeline\.md/);
 
-    r.branch("obs/2026-11-09-pkg");
+    r.branch("chore/pkg");
     r.write("package.json", JSON.stringify({ scripts: { test: "true", "check:terms": "node scripts/check-terms.mjs" } }));
-    assert.equal(category(r.run(r.commit("pkg"), "obs/2026-11-09-pkg", "类别：a")), "b", "改了已有检查命令按 b");
+    assert.equal(category(r.run(r.commit("pkg"), "chore/pkg", "类别：a")), "b", "改了已有检查命令按 b");
   } finally { r.cleanup(); }
 });
 
@@ -289,5 +289,95 @@ test("正文为空时标题不算类别：按 b", () => {
     r.branch("chore/empty"); r.write("docs/notes.md", "y\n");
     // 合并脚本写的文件：正文（空）一行，再是标题
     assert.equal(category(r.run(r.commit("e"), "chore/empty", "\n类别：a\n")), "b");
+  } finally { r.cleanup(); }
+});
+
+// 后续加固（PR #68 两份复审的应改项）
+test("非 ASCII 文件名：门槛文件、删测试文件照样认出来（git 默认转义中文路径）", () => {
+  const r = repo();
+  try {
+    r.write("scripts/中文.test.mjs", "test('z', () => {});\n");
+    r.commit("zh base");
+    for (const f of [".github/workflows/中文.yml", ".claude/agents/中文.md"]) {
+      const ref = `fix/21-${f.includes("workflows") ? "wf" : "agent"}`;
+      r.branch(ref); r.write(f, "x\n");
+      const res = r.run(r.commit(f), ref, "类别：票");
+      assert.equal(res.status, 1, `${ref}：${res.stdout}`);
+      assert.ok(res.stdout.includes(`改了定义门槛的文件 ${f}`), res.stdout);
+    }
+    r.branch("chore/zh-wf"); r.write(".github/workflows/中文.yml", "x\n");
+    const wf = r.run(r.commit("wf"), "chore/zh-wf", "类别：a");
+    assert.equal(category(wf), "b", wf.stdout);
+    assert.ok(wf.stdout.includes("改了门槛文件 .github/workflows/中文.yml"), wf.stdout);
+    r.branch("chore/zh-del"); r.git("rm", "-q", "scripts/中文.test.mjs");
+    const del = r.run(r.commit("del"), "chore/zh-del", "类别：a");
+    assert.equal(category(del), "b", del.stdout);
+    assert.ok(del.stdout.includes("删了测试文件 scripts/中文.test.mjs"), del.stdout);
+  } finally { r.cleanup(); }
+});
+
+test("观察者（obs/）判成 b 的直接拒绝，等产品负责人；判成 a 的照常", () => {
+  const r = repo();
+  try {
+    r.branch("obs/2026-11-09-gate"); r.write("docs/standards/pipeline.md", "# 流水线 v3\n");
+    const gate = r.commit("gate");
+    for (const body of ["类别：a", "类别：b", ""]) {
+      const res = r.run(gate, "obs/2026-11-09-gate", body);
+      assert.equal(res.status, 1, body);
+      assert.match(res.stdout, /观察者提的 b 类（.*改了门槛文件 docs\/standards\/pipeline\.md.*）：等产品负责人合并/, body);
+      assert.equal(category(res), undefined, body);
+    }
+    assert.equal(category(r.run(gate, "chore/gate", "类别：a")), "b", "同一组改动主会话提，按 b 合并");
+    r.branch("obs/2026-11-09-docs"); r.write("docs/quality/notes.md", "x\n");
+    const docs = r.commit("docs");
+    const a = r.run(docs, "obs/2026-11-09-docs", "类别：a");
+    assert.equal(a.status, 0, a.stdout);
+    assert.equal(category(a), "a");
+    assert.equal(r.run(docs, "obs/2026-11-09-docs", "加一条").status, 1, "没写类别按 b，观察者的拒绝");
+  } finally { r.cleanup(); }
+});
+
+test("改已有测试的断言、新增 skipIf / @ts-nocheck / @ts-ignore：不是票的 PR 写 a 也按 b", () => {
+  const r = repo();
+  try {
+    r.write("scripts/v.test.mjs", "test('v', () => {\n  assert.equal(f(1), 2);\n  expect(g()).toBe(3);\n});\n");
+    r.write("src/b.ts", "export const b = 1;\n");
+    r.commit("tests base");
+    const cases = [
+      ["assert 换成空语句", () => r.write("scripts/v.test.mjs", "test('v', () => {\n  ;\n  expect(g()).toBe(3);\n});\n"), /改了已有测试 scripts\/v\.test\.mjs，删掉 1 行断言：assert\.equal/],
+      ["删 expect", () => r.write("scripts/v.test.mjs", "test('v', () => {\n  assert.equal(f(1), 2);\n});\n"), /删掉 1 行断言：expect/],
+      ["skipIf", () => r.write("scripts/a.test.mjs", "test.skipIf(true)('a', () => {});\n"), /跳过或只跑部分测试/],
+      ["describe.skipIf", () => r.write("scripts/a.test.mjs", "describe.skipIf(ci)('a', () => {});\n"), /跳过或只跑部分测试/],
+      ["@ts-nocheck", () => r.write("src/b.ts", "// @ts-nocheck\nexport const b = 1;\n"), /关掉类型检查/],
+      ["@ts-ignore", () => r.write("src/b.ts", "// @ts-ignore\nexport const b: number = '1';\n"), /关掉类型检查/],
+    ];
+    cases.forEach(([name, change, why], i) => {
+      const ref = `chore/assert-${i}`;
+      r.git("checkout", "-q", "-b", ref, "base"); change();
+      const res = r.run(r.commit(name), ref, "类别：a");
+      assert.equal(res.status, 0, `${name}：${res.stdout}`);
+      assert.equal(category(res), "b", name);
+      assert.match(res.stdout, why, name);
+    });
+    r.git("checkout", "-q", "-b", "chore/add-case", "base");
+    r.write("scripts/v.test.mjs", "test('v', () => {\n  assert.equal(f(1), 2);\n  expect(g()).toBe(3);\n});\ntest('w', () => { assert.ok(h()); });\n");
+    assert.equal(category(r.run(r.commit("add"), "chore/add-case", "类别：a")), "a", "只新增用例仍是 a");
+    r.git("checkout", "-q", "-b", "feat/6-ts", "base"); r.write("src/b.ts", "// @ts-ignore\nexport const b = 1;\n");
+    assert.match(r.run(r.commit("t"), "feat/6-ts", "类别：票").stdout, /关掉类型检查/, "票的 PR 也不能关类型检查");
+  } finally { r.cleanup(); }
+});
+
+test("改 docs/standards/observer.md 的 PR 等产品负责人（§4 只能由产品负责人改）", () => {
+  const r = repo();
+  try {
+    r.write("docs/standards/observer.md", "# 观察者\n## 4. 权限\n");
+    r.commit("observer base");
+    for (const [ref, body] of [["chore/obs-perm", "类别：a"], ["chore/obs-perm-b", "类别：b"], ["obs/2026-11-09-perm", "类别：a"]]) {
+      r.git("checkout", "-q", "-b", ref, "base"); r.write("docs/standards/observer.md", "# 观察者\n## 4. 权限：都能做\n");
+      const res = r.run(r.commit(ref), ref, body);
+      assert.equal(res.status, 1, ref);
+      assert.match(res.stdout, /改了 docs\/standards\/observer\.md：§4（观察者的权限）只能由产品负责人改/, ref);
+      assert.equal(category(res), undefined, ref);
+    }
   } finally { r.cleanup(); }
 });

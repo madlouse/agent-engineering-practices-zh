@@ -1,6 +1,7 @@
 // 合并脚本的「改动范围」检查（scripts/merge-ticket-pr.sh 从集成分支取本文件的版本来跑，PR 改不了它）。只读 git，不改任何东西。
 // 用法：node scripts/merge-gates.mjs <base-ref> <head-sha> <head 分支名> [PR 正文和标题的文件] [--pr-base <PR 的 base> --target <目标分支>]
-// 分支名决定是不是票（TICKET_BRANCH）和票号；票的 PR 查得最严。不是票的 PR 按类别分 a、b；改了权限设置的一律不合并（prCategory）。
+// 分支名决定是不是票（TICKET_BRANCH）和票号；票的 PR 查得最严。不是票的 PR 按类别分 a、b；改了 OWNER_FILES 的、观察者（obs/）的 b 类一律不合并（prCategory）。
+// 读路径一律用 -z（diffPaths），读内容的 diff 加 core.quotepath=false：git 默认把非 ASCII 文件名转义成带引号的形式，正则就匹配不上。
 // 输出：通过时最后一行是 category=<ticket|a|b>、退出码 0；不通过时打印原因、退出码 1。
 // 复用 Veli scripts/merge-gates.mjs，按主站改（docs/standards/pipeline.md §5、§8 第 0 阶段、§9）。
 import { execFileSync } from "node:child_process";
@@ -22,8 +23,12 @@ export const GATE_FILES = [
   /^docs\/GLOSSARY\.md$/,
   /(?:^|\/)(?:AGENTS[^/]*|CLAUDE)\.md$/,
 ];
-// 权限设置只归产品负责人：任何 PR 改了它们，脚本都不合并（pipeline.md §5.1）
-export const OWNER_FILES = [/^\.claude\/settings[^/]*\.json$/];
+// 只归产品负责人的文件：任何 PR 改了，脚本都不合并（pipeline.md §5.1）
+export const OWNER_FILES = [
+  { re: /^\.claude\/settings[^/]*\.json$/, why: (p) => `改了权限设置 ${p}：等产品负责人合并（pipeline.md §5.1）` },
+  // observer.md §4（观察者的权限）只能由产品负责人改（observer.md 开头）；脚本分不清改的是哪一节，整页都等产品负责人
+  { re: /^docs\/standards\/observer\.md$/, why: (p) => `改了 ${p}：§4（观察者的权限）只能由产品负责人改，脚本分不清节，整页等产品负责人合并（pipeline.md §5.1）` },
+];
 // 执行检查的脚本：不是票的 PR 改或删它们，按 b 类（新增不算）
 export const CHECK_FILES = [/^scripts\/(?:check-[^/]+|vague-terms|brand-check|[^/]+-verdict)\.mjs$/, /^eslint-suppressions\.json$/];
 // 状态 issue #13（总开关、运行锁、日报）不能被 PR 关掉
@@ -33,6 +38,18 @@ export const TICKET_BRANCH = /^(?:feat|fix|content)\/(\d+)-/;
 
 // 不是票的分支只认这两种前缀；其余一律拒绝（出错时拒绝，不放行）
 export const OTHER_BRANCH = /^(?:chore|obs)\/[^/]/;
+// 观察者的分支：它提的 b 类等产品负责人合并（pipeline.md §5.1、observer.md §4），不靠它自己打 owner:merge
+export const OBSERVER_BRANCH = /^obs\//;
+export const TEST_FILE = /\.test\.(?:[cm]?[jt]sx?)$/;
+
+const QUOTE_OFF = ["-c", "core.quotepath=false"];
+/** 改动的文件：[{ st, path }]，用 -z 读，非 ASCII 和带空白的文件名原样拿到。 */
+export function diffPaths(git, range) {
+  const parts = git(...QUOTE_OFF, "diff", "--no-renames", "--name-status", "-z", range).split("\0");
+  const out = [];
+  for (let i = 0; i + 1 < parts.length; i += 2) if (parts[i]) out.push({ st: parts[i], path: parts[i + 1] });
+  return out;
+}
 
 // 上线前只合并进集成分支，上线后（feature/v1 删掉）只合并进生产分支；上线前进 site 的只有产品负责人确认的上线合并，脚本不做
 export const INTEGRATION_BRANCH = "feature/v1";
@@ -73,8 +90,7 @@ export function checkGates({ base, head, kind, ticket = "", text = "", git }) {
   const isTicket = kind === "ticket";
 
   if (isTicket) {
-    const changed = git("diff", "--no-renames", "--name-only", `${fork}..${head}`).split("\n").filter(Boolean);
-    for (const f of changed) if (GATE_FILES.some((r) => r.test(f))) problems.push(`改了定义门槛的文件 ${f}`);
+    for (const { path: f } of diffPaths(git, `${fork}..${head}`)) if (GATE_FILES.some((r) => r.test(f))) problems.push(`改了定义门槛的文件 ${f}`);
     // package.json：已有的检查命令不能改、不能删；新增命令可以
     const bs = JSON.parse(show(fork, "package.json") ?? "{}").scripts ?? {};
     const hs = JSON.parse(show(head, "package.json") ?? "{}").scripts ?? {};
@@ -95,40 +111,51 @@ export function checkGates({ base, head, kind, ticket = "", text = "", git }) {
   return problems;
 }
 
-/** 削弱测试的改动：删测试文件、新增 .only / .skip / .todo、新增关掉 lint 的写法。 */
+/** 削弱测试的改动：删测试文件、新增 .only / .skip / .todo / .skipIf、新增关掉 lint 或类型检查的写法。 */
 export function weakenings({ fork, head, git }) {
   const problems = [];
-  const status = git("diff", "--no-renames", "--name-status", `${fork}..${head}`).split("\n").filter(Boolean);
-  for (const line of status) {
-    const [st, path] = line.split("\t");
-    if (st === "D" && /\.test\.(?:mjs|ts|tsx)$/.test(path)) problems.push(`删了测试文件 ${path}`);
+  for (const { st, path } of diffPaths(git, `${fork}..${head}`)) {
+    if (st === "D" && TEST_FILE.test(path)) problems.push(`删了测试文件 ${path}`);
   }
-  const added = git("diff", "-U0", `${fork}..${head}`, "--", ".", ":(exclude)docs")
+  const added = git(...QUOTE_OFF, "diff", "-U0", `${fork}..${head}`, "--", ".", ":(exclude)docs")
     .split("\n")
     .filter((l) => l.startsWith("+") && !l.startsWith("+++"));
   const SKIP = [
-    /\b(?:test|it|describe|suite|t|context|ctx)\.(?:only|skip|todo)\s*\(/,
+    /\b(?:test|it|describe|suite|t|context|ctx)\.(?:only|skip|todo|skipIf|runIf)\s*\(/,
     /\b(?:only|skip|todo)\s*:\s*(?:true|['"`])/, // 环境门控 { skip: needSite } 不算
   ];
   for (const l of added) {
     const code = l.slice(1).trim();
     if (SKIP.some((r) => r.test(code))) problems.push(`新增了跳过或只跑部分测试的写法：${code.slice(0, 80)}`);
     if (/eslint-disable|\/\*\s*eslint\s/.test(code)) problems.push(`新增了关掉 lint 的写法：${code.slice(0, 80)}`);
+    if (/@ts-(?:nocheck|ignore|expect-error)\b/.test(code)) problems.push(`新增了关掉类型检查的写法：${code.slice(0, 80)}`);
+  }
+  return problems;
+}
+
+/** 改已有测试文件时删掉的断言行（含 assert / expect）。只新增用例的不算。 */
+export function removedAssertions({ fork, head, git }) {
+  const problems = [];
+  for (const { st, path } of diffPaths(git, `${fork}..${head}`)) {
+    if (st !== "M" || !TEST_FILE.test(path)) continue;
+    const removed = git(...QUOTE_OFF, "diff", "-U0", `${fork}..${head}`, "--", `:(literal)${path}`)
+      .split("\n")
+      .filter((l) => l.startsWith("-") && !l.startsWith("---") && /\b(?:assert|expect)\b/.test(l));
+    if (removed.length) problems.push(`改了已有测试 ${path}，删掉 ${removed.length} 行断言：${removed[0].slice(1).trim().slice(0, 80)}`);
   }
   return problems;
 }
 
 /**
- * PR 的类别：票 → ticket；不是票的 → a 或 b；改了权限设置的 → owner（任何 PR 都不合并，等产品负责人）。
+ * PR 的类别：票 → ticket；不是票的 → a 或 b；改了 OWNER_FILES 的、观察者（obs/）的 b 类 → owner（不合并，等产品负责人）。
  * 不是票的拿不准一律按 b：没写类别、写的不是 a、改了门槛文件（GATE_FILES）、改或删了检查脚本（CHECK_FILES）
- * 或 package.json 已有的命令、削弱了测试（weakenings）。返回 { category, reasons, problems }。
+ * 或 package.json 已有的命令、削弱了测试（weakenings）、删了已有测试的断言（removedAssertions）。返回 { category, reasons, problems }。
  */
-export function prCategory({ base, head, kind, body = "", git }) {
+export function prCategory({ base, head, kind, ref = "", body = "", git }) {
   const fork = git("merge-base", base, head).trim();
-  const status = git("diff", "--no-renames", "--name-status", `${fork}..${head}`).split("\n").filter(Boolean)
-    .map((l) => { const [st, path] = l.split("\t"); return { st, path }; });
-  const owner = status.filter(({ path }) => OWNER_FILES.some((r) => r.test(path)));
-  if (owner.length) return { category: "owner", reasons: [], problems: owner.map(({ path }) => `改了权限设置 ${path}：等产品负责人合并（pipeline.md §5.1）`) };
+  const status = diffPaths(git, `${fork}..${head}`);
+  const owner = status.flatMap(({ path }) => OWNER_FILES.filter(({ re }) => re.test(path)).map(({ why }) => why(path)));
+  if (owner.length) return { category: "owner", reasons: [], problems: owner };
   const declared = declaredCategory(body);
   if (kind === "ticket") {
     if (declared === "内容定稿") return { category: "ticket", reasons: [], problems: ["类别是内容定稿：等产品负责人本人合并，合并就是定稿（pipeline.md §5.1）"] };
@@ -146,7 +173,10 @@ export function prCategory({ base, head, kind, body = "", git }) {
   const bs = JSON.parse(show(fork) ?? "{}").scripts ?? {};
   const hs = JSON.parse(show(head) ?? "{}").scripts ?? {};
   for (const k of Object.keys(bs)) if (hs[k] !== bs[k]) reasons.push(`package.json 的 scripts.${k} 被改或被删`);
-  reasons.push(...weakenings({ fork, head, git }));
+  reasons.push(...weakenings({ fork, head, git }), ...removedAssertions({ fork, head, git }));
+  if (reasons.length && OBSERVER_BRANCH.test(ref)) {
+    return { category: "owner", reasons, problems: [`观察者提的 b 类（${reasons.join("；")}）：等产品负责人合并（pipeline.md §5.1）`] };
+  }
   return { category: reasons.length ? "b" : "a", reasons, problems: [] };
 }
 
@@ -172,7 +202,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   }
   const git = (...a) => execFileSync("git", a, { encoding: "utf8", maxBuffer: 64 << 20 });
   const text = bodyFile ? readFileSync(bodyFile, "utf8") : "";
-  const cat = prCategory({ base, head, kind, body: text, git });
+  const cat = prCategory({ base, head, kind, ref, body: text, git });
   const problems = [
     ...(target === null ? [] : checkBase(prBase, target)),
     ...cat.problems,

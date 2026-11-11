@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { findSharedPrefixRefs, findSharedPrefixRefsInIssues } from "./cross-repo-refs.mjs";
+import { findSharedPrefixRefs, findSharedPrefixRefsInIssues, isOwnerIssue } from "./cross-repo-refs.mjs";
 
 test("a repo prefix shared across 顿号 is reported", () => {
   assert.deepEqual(findSharedPrefixRefs("等 thin-muscle-coach#185、#101 做完"), ["thin-muscle-coach#185、#101"]);
@@ -60,4 +60,10 @@ test("issue bodies: only issues opened by the repository owner are checked", () 
   ]);
   assert.equal(checked, 2);
   assert.deepEqual(hits, [{ number: 1, line: 2, ref: "thin-muscle-coach#185、#101" }]);
+});
+
+test("isOwnerIssue: owner-opened issues only, pull requests excluded", () => {
+  assert.equal(isOwnerIssue({ author_association: "OWNER" }), true);
+  assert.equal(isOwnerIssue({ author_association: "NONE" }), false);
+  assert.equal(isOwnerIssue({ author_association: "OWNER", pull_request: {} }), false);
 });

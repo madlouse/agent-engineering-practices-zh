@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { blockerRefs, compare, counts, expectedEdges, findCycle, paginate, parseCounts, parseMermaidEdges, parseTables, regenerate } from "./ticket-table.mjs";
+import { blockerRefs, compare, counts, diagramTitle, expectedEdges, findCycle, loadIssues, paginate, parseArgs, parseCounts, parseMermaidEdges, parseTables, regenerate, tableTitle } from "./ticket-table.mjs";
 
 const local = (number, state = "open") => ({ repo: "velicoach", number, state });
 const veli = (number, state = "open") => ({ repo: "thin-muscle-coach", number, state });
@@ -92,7 +92,7 @@ test("blockers: open ones only, this repo first, other repos with their prefix",
   assert.deepEqual(blockerRefs([veli(72), local(22), local(29, "closed"), local(5)]), ["#22", "#5", "thin-muscle-coach#72"]);
 });
 
-test("the sample doc matches the sample issues", () => {
+test("the sample doc matches the sample issues; specs, the umbrella issue and issues without a lane label are not expected in the table", () => {
   assert.deepEqual(compare(DOC, ISSUES()), []);
 });
 
@@ -128,10 +128,6 @@ test("title, label, closed-ticket, missing-ticket and count differences are each
   assert.match(problems, /#21：GitHub 上不是开着的票/);
   assert.match(problems, /#99「新票」开着，§3 的表里没有它/);
   assert.match(problems, /§1 的数字不对/);
-});
-
-test("specs, the content umbrella issue and issues without a lane label are not expected in the table", () => {
-  assert.deepEqual(compare(DOC, ISSUES()), []);
 });
 
 test("an edge the diagram has but GitHub does not is reported", () => {
@@ -175,4 +171,101 @@ test("regenerate refuses to guess when the table lists a closed ticket", () => {
   const issues = ISSUES();
   issues.delete(21);
   assert.throws(() => regenerate(DOC, issues), /#21/);
+});
+
+test("a blocker the table lists but GitHub does not have is reported", () => {
+  const issues = ISSUES();
+  issues.get(22).blockedBy = [];
+  const problems = compare(DOC, issues);
+  assert.ok(problems.some((p) => p.includes("#22") && p.includes("多了 #15")));
+});
+
+test("a blocker that has been closed on GitHub counts as extra in the table", () => {
+  const issues = ISSUES();
+  issues.get(22).blockedBy = [local(15, "closed")];
+  assert.ok(compare(DOC, issues).some((p) => p.includes("#22") && p.includes("多了 #15")));
+});
+
+test("the same ticket in the table twice is reported", () => {
+  const row = "| #21 | 页脚 | F21 | — | 站点 | `lane:site` `ready-for-human` | 没动 |\n";
+  const doc = DOC.replace(row, row + row);
+  assert.ok(compare(doc, ISSUES()).some((p) => p.includes("#21") && p.includes("出现了两次")));
+});
+
+test("compare reports a dependency cycle", () => {
+  const issues = ISSUES();
+  issues.get(22).blockedBy.push(local(5));
+  assert.ok(compare(DOC, issues).some((p) => p.startsWith("原生依赖有环") && p.includes("#22") && p.includes("#5")));
+});
+
+test("paginate stops with an error after maxPages full pages", async () => {
+  await assert.rejects(
+    paginate(async () => Array(30).fill(0), 30, 3),
+    /翻了 3 页/,
+  );
+});
+
+test("titles are neutralised before they are written into the table and the diagram", () => {
+  assert.equal(tableTitle("文章页 /mind/<slug> 和 `code` [x](http://e.com) a\\b"), "文章页 /mind/&lt;slug> 和 code &#91;x](http:&#47;&#47;e.com) ab");
+  assert.equal(diagramTitle('a"]<b>`c`[d]\\e'), "abcde");
+  const issues = ISSUES();
+  issues.get(21).title = "页脚 <script> [x](y) `z`";
+  const out = regenerate(DOC, issues);
+  assert.match(out, /\| #21 \| 页脚 &lt;script> &#91;x\]\(y\) z \|/);
+  assert.match(out, /T21\["#21 页脚 script x\(y\) z"\]/);
+  assert.deepEqual(compare(out, issues), [], "the doc with the neutralised title matches GitHub");
+});
+
+test("titles: bare links, www., mentions and bidirectional controls are neutralised too", () => {
+  assert.equal(tableTitle("见 https://evil.example/x 和 WWW.evil.example，找 @someone"), "见 https:&#47;&#47;evil.example/x 和 WWW&#46;evil.example，找 &#64;someone");
+  assert.equal(tableTitle("a\u202Eb\u2066c\u200Fd"), "abcd");
+  assert.equal(diagramTitle("a\u202Eb\u2069c"), "abc");
+});
+
+test("parseArgs: --write only for this repository, unknown flags and malformed repos are refused", () => {
+  assert.deepEqual(parseArgs([]), { write: false, repo: "madlouse/velicoach" });
+  assert.deepEqual(parseArgs(["--write"]), { write: true, repo: "madlouse/velicoach" });
+  assert.deepEqual(parseArgs(["someone/else"]), { write: false, repo: "someone/else" });
+  assert.match(parseArgs(["--write", "someone/else"]).error, /--write 只对 madlouse\/velicoach 用/);
+  assert.match(parseArgs(["--write", "Madlouse/velicoach"]).error, /--write 只对/);
+  assert.match(parseArgs(["--force"]).error, /不认识的参数/);
+  assert.match(parseArgs(["not-a-repo"]).error, /owner\/repo/);
+});
+
+test("loadIssues keeps owner-opened issues only, skips pull requests, and fetches every page of blockers", async () => {
+  const blockers = Array.from({ length: 34 }, (_, i) => ({ number: i + 100, state: "open", repository_url: "https://api.github.com/repos/madlouse/velicoach" }));
+  blockers[32] = { number: 185, state: "open", repository_url: "https://api.github.com/repos/madlouse/thin-muscle-coach" };
+  blockers[33] = { number: 29, state: "closed", repository_url: "https://api.github.com/repos/madlouse/velicoach" };
+  const calls = [];
+  const fetchPage = async (path, page) => {
+    calls.push(`${path}#${page}`);
+    if (path.endsWith("issues?state=open"))
+      return page === 1
+        ? [
+            { number: 66, title: "上线", labels: [{ name: "lane:site" }], author_association: "OWNER" },
+            { number: 70, title: "陌生人的票", labels: [{ name: "lane:site" }], author_association: "NONE" },
+            { number: 71, title: "一个 PR", labels: [], author_association: "OWNER", pull_request: {} },
+          ]
+        : [];
+    if (path.includes("/66/")) return blockers.slice((page - 1) * 30, page * 30);
+    throw new Error(`unexpected ${path}`);
+  };
+  const { issues, nonOwnerOpen } = await loadIssues("madlouse/velicoach", fetchPage, 30);
+  assert.deepEqual([...issues.keys()], [66]);
+  assert.equal(issues.get(66).title, "上线");
+  assert.equal(issues.get(66).blockedBy.length, 34);
+  assert.deepEqual(issues.get(66).blockedBy[0], { repo: "velicoach", number: 100, state: "open" });
+  assert.deepEqual(issues.get(66).blockedBy[32], { repo: "thin-muscle-coach", number: 185, state: "open" });
+  assert.deepEqual(issues.get(66).blockedBy[33], { repo: "velicoach", number: 29, state: "closed" });
+  assert.deepEqual(issues.get(66).labels, ["lane:site"]);
+  assert.deepEqual([...nonOwnerOpen], [70]);
+  assert.ok(!calls.some((c) => c.includes("/70/") || c.includes("/71/")), "no blocker requests for issues that are not kept");
+});
+
+test("a row for an open issue that the owner did not open gets its own message", () => {
+  const issues = ISSUES();
+  issues.delete(21);
+  const problems = compare(DOC, issues, { nonOwnerOpen: new Set([21]) });
+  assert.ok(problems.some((p) => p.includes("#21") && p.includes("不是仓库所有者开的")));
+  assert.ok(!problems.some((p) => p.includes("#21") && p.includes("已关闭或不存在")));
 });

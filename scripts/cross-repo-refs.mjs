@@ -20,3 +20,18 @@ export function findSharedPrefixRefs(line) {
   }
   return out;
 }
+
+// Issue bodies are checked only for issues opened by the repository owner: the repo is public,
+// so anyone can open an issue, and a stranger's text must not be able to fail this check.
+export function findSharedPrefixRefsInIssues(issues) {
+  const hits = [];
+  let checked = 0;
+  for (const issue of issues) {
+    if (issue.pull_request || issue.author_association !== "OWNER") continue;
+    checked++;
+    (issue.body ?? "").split("\n").forEach((line, i) => {
+      for (const ref of findSharedPrefixRefs(line)) hits.push({ number: issue.number, line: i + 1, ref });
+    });
+  }
+  return { checked, hits };
+}

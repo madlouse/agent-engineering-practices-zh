@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { findSharedPrefixRefs } from "./cross-repo-refs.mjs";
+import { findSharedPrefixRefs, findSharedPrefixRefsInIssues } from "./cross-repo-refs.mjs";
 
 test("a repo prefix shared across 顿号 is reported", () => {
   assert.deepEqual(findSharedPrefixRefs("等 thin-muscle-coach#185、#101 做完"), ["thin-muscle-coach#185、#101"]);
@@ -47,4 +47,17 @@ test("a very long line of prefixes and numbers stays fast", () => {
   const start = performance.now();
   assert.deepEqual(findSharedPrefixRefs(line), ["thin-muscle-coach#185、#101"]);
   assert.ok(performance.now() - start < 1000, "took too long on a long line");
+});
+
+test("issue bodies: only issues opened by the repository owner are checked", () => {
+  const bad = "等 thin-muscle-coach#185、#101 做完";
+  const { checked, hits } = findSharedPrefixRefsInIssues([
+    { number: 1, author_association: "OWNER", body: "第一行\n" + bad },
+    { number: 2, author_association: "NONE", body: bad },
+    { number: 3, author_association: "CONTRIBUTOR", body: bad },
+    { number: 4, author_association: "OWNER", body: bad, pull_request: { url: "x" } },
+    { number: 5, author_association: "OWNER", body: null },
+  ]);
+  assert.equal(checked, 2);
+  assert.deepEqual(hits, [{ number: 1, line: 2, ref: "thin-muscle-coach#185、#101" }]);
 });

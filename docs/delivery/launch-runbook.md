@@ -2,7 +2,7 @@
 
 > 关口三 b 第二轮冷审 P1-3。上线票是 #66（`ready-for-human`，主会话 + 产品负责人）。关口四的检查清单在 `docs/standards/pipeline.md` §2.3，分「合并前」「切换后」两段；本页写顺序和谁做。
 
-**主站上线不早于 Veli B1 上线（thin-muscle-coach#72）。** Veli 的生产分支是 `main`，B1 的票（含 #185、#101）只合并进 `feature/b1`，#72 合并后才到 Veli 生产；主站的 rewrites 代理的是 Veli 生产。产品负责人 2026-11-09 定：主站和 Veli B1 一起上线，不把 #185、#101 单独紧急发布。
+**主站上线不早于 Veli B1 上线（thin-muscle-coach#72）。** Veli 的生产分支是 `main`，B1 的票（含 thin-muscle-coach#185、thin-muscle-coach#101）只合并进 `feature/b1`，thin-muscle-coach#72 合并后才到 Veli 生产；主站的 rewrites 代理的是 Veli 生产。产品负责人 2026-11-09 定：主站和 Veli B1 一起上线，不把 thin-muscle-coach#185、thin-muscle-coach#101 单独紧急发布。
 > 回退的做法也在本页；`docs/deploy.md` 只放部署的说明和指向这里的链接。
 
 ## 谁做什么
@@ -22,7 +22,7 @@
 1. **首次生产迁移**：先核对 Environment `site-db` 的部署分支只允许 `site`、`feature/v1`，密钥 `SITE_DB_MIGRATE_URL` 已配（#40）；核对前不触发。然后主会话手动触发 `site-db-migrate`（`ref=feature/v1`），再做 #67 的核对。不过就停在这里修。
 2. **监控演练**：主会话手动触发 `site-monitor`（`ref=feature/v1`），`target` 填允许清单内、必定失败的地址 `https://velicoach-drill-404.vercel.app`（先请求一次确认返回 404；允许清单外的地址脚本直接拒绝，演练不了告警，ADR-0005 (a)），连跑两次，开出一个标题以「主站告警：」开头的 issue；产品负责人回复收到告警邮件；关掉这个 issue。
 3. **关口四「合并前」清单**全部通过（`pipeline.md` §2.3）。
-4. **Veli 侧就绪**：thin-muscle-coach#72 已合并，Veli 生产上 `/body`、`/en/body`、法务页返回 200（直接请求 Veli 项目的生产域名）；#185、#101 已关；#213 的切换 PR 已开、以 Veli 的 `main` 为 base、评审通过、还没合并。
+4. **Veli 侧就绪**：thin-muscle-coach#72 已合并，Veli 生产上 `/body`、`/en/body`、法务页返回 200（直接请求 Veli 项目的生产域名）；thin-muscle-coach#185、thin-muscle-coach#101 已关；thin-muscle-coach#213 的切换 PR 已开、以 Veli 的 `main` 为 base、评审通过、还没合并。
 4a. **导航约定检查**（ADR-0003 (b)，PRD F09）：主站不打包导航和页脚给 Veli，/body 的导航由 Veli 自己做。主会话用 Playwright 从主站预览打开 `/body` 和 `/en/body`，逐条检查三件事，结果贴 #66：
    - 站标回首页：左上角站标的链接是 `/`（英文页是 `/en/`）；
    - 三站的链接：导航里有站稳、看清、动手三个链接，地址是 `/body`、`/mind`、`/build`（英文加 `/en`），站稳高亮；
@@ -40,7 +40,7 @@
 
 ## 切换
 
-10. 主会话用 Vercel 的接口把 `velicoach.com` 从 Veli 项目移除、挂到主站项目；同时产品负责人把 #213 的切换 PR 合并进 Veli 的 `main`，Veli 生产部署 READY。
+10. 主会话用 Vercel 的接口把 `velicoach.com` 从 Veli 项目移除、挂到主站项目；同时产品负责人把 thin-muscle-coach#213 的切换 PR 合并进 Veli 的 `main`，Veli 生产部署 READY。
 11. 主会话把仓库变量 `MONITOR_TARGET` 从主站项目的生产域名（第 9 步设的）改成 `https://velicoach.com`。
 
 ## 切换后（60 分钟内做完）
@@ -54,7 +54,7 @@
 ## 回退（5 分钟内）
 
 1. Vercel：把 `velicoach.com` 从主站项目移除、挂回 Veli 项目。
-2. Veli：产品负责人在 Veli 的 `main` 上 revert #213 的切换 PR（恢复 `/` 到 `/body` 的临时跳转和 Veli 自己的 robots.txt），Veli 生产部署 READY。
+2. Veli：产品负责人在 Veli 的 `main` 上 revert thin-muscle-coach#213 的切换 PR（恢复 `/` 到 `/body` 的临时跳转和 Veli 自己的 robots.txt），Veli 生产部署 READY。
 3. `MONITOR_TARGET` 改回主站项目的生产域名。
 4. `site` 上的主站代码不用回退：没有域名指向它，访客看不到。订阅库里已经写进的订阅照常保留。
 
@@ -87,7 +87,7 @@
 
 | 情况 | 第一步 |
 |---|---|
-| 一期邮件已经在发（周日 08:00 以后、还没发完），要立刻停 | 直接在 Resend 后台删掉发信的 API key（下面第 3 条），不必先试别的：环境变量要重新部署才生效，管不到已经在跑的发送 |
+| 一期邮件已经在发（周日 08:00 以后、还没发完），要立刻停 | 两件事一起做。一，直接在 Resend 后台删掉发信的 API key（下面第 3 条），不必先试别的：环境变量要重新部署才生效，管不到已经在跑的发送。二，同时给当期邮件票打 `agent:hold`（第 2 条）：另一种语言是相隔十几小时的另一次发送（中文按北京时间周日 08:00，英文按美国东部时间周日 08:00），不打的话 key 一恢复它就照原样发出。key 等确认邮件文件没问题以后再恢复 |
 | 一期邮件已经在发，不必一秒都不等 | 给当期邮件票打 `agent:hold` 或关掉它（第 2 条）：发送任务每批发出前重读邮件票，在批与批之间停下 |
 | 还没开始发，要马上停收新订阅、之后也不发 | 紧急关 `SUBSCRIBE_FORCE_OFF`（第 1 条） |
 | 只想让还没开始的这一期不发 | 给当期邮件票打 `agent:hold` 或关掉它（第 2 条） |
@@ -95,9 +95,11 @@
 
 1. **紧急关**（ADR-0004「后果」）：产品负责人在 Vercel 后台给主站项目的 Production 加环境变量 `SUBSCRIBE_FORCE_OFF`，值填 1，点重新部署。任何非空且不是 `0` 的值都算关，填错了也是关。部署 READY 以后不管配置是什么，订阅都算关，一个开关管两件事：订阅表单不显示、`POST /api/site/subscribe` 返回 404；之后开跑的发送任务也不发。退订和 Resend 回调照常可用。它只能关、不能开，而且**要重新部署才生效，管不到已经在跑的那一次发送**。事后主会话补一个把配置改回关的 PR，合并后再把这个变量删掉。
 2. **当期邮件票打 `agent:hold`，或关掉它**：还没开始的一期不发；已经在发的一期，发送任务每批发出前重读邮件票，会在下一批之前停下，已发的封数记进发送记录。这一期不补发。
-3. **删掉 Resend 的 API key**：在 Resend 后台删掉发信的 API key，发送马上停。Resend 没有「停用」，删了撤不回。恢复要三步：在 Resend 新建一个只能用 news.velicoach.com 发信的 key，更新 Vercel Production 的 `RESEND_API_KEY`，重新部署。删 key 时正在发的那一期按已发算、失败数照实记，这一期不补发；欢迎邮件在恢复以前也发不出去。
+3. **删掉 Resend 的 API key**：在 Resend 后台删掉发信的 API key，发送马上停。Resend 没有「停用」，删了撤不回。恢复之前先确认：邮件文件没问题，或当期邮件票已经打了 `agent:hold`（不然还没开跑的另一种语言会照原样发出）。恢复要三步：在 Resend 新建一个只能用 news.velicoach.com 发信的 key，更新 Vercel Production 的 `RESEND_API_KEY`，重新部署。删 key 时正在发的那一期按已发算、失败数照实记，这一期不补发；欢迎邮件在恢复以前也发不出去。
 
 关上以后，已有的订阅和同意证据保留；开关关着时发送任务不发任何邮件（#49），也不排邮件、不开邮件票（`pipeline.md` §5.1「每周内容」第 3 条）。
+
+**一期出了错要重来怎么办**（例如被拦停、出错停下，或占位行是别人伪造的）：发送记录表只追加，谁都不删行，包括表所有者。重来一律用新的期号、新的邮件票、新的邮件文件，排到下一个周日，照每周的流程走一遍（`docs/delivery/loops/content-runner.md` 周五）；旧的一期不复活。期号只是个递增的整数（1 到 9999），正常使用时跳号没有影响。在 #13 记一笔：哪一期作废、为什么、新的一期是第几期。
 
 ## 密钥泄露了怎么办
 
@@ -105,10 +107,10 @@
 
 | 密钥 | 泄露了能做什么 | 在哪换 | 换完要做什么 |
 |---|---|---|---|
-| `CRON_SECRET` | 它是发送接口唯一的身份认证：拿到它就能触发定时发送（只发一次的占位行仍然拦着重发） | 主会话用 Vercel 的环境变量接口生成新值，Production、Preview 各一个 | 重新部署；Vercel 的定时任务用新值；核对带旧值的请求返回 401 |
-| `SITE_DB_URL`（`site_api` 的连接串） | 读写订阅名单和同意证据 | 产品负责人在 Supabase 的 SQL 编辑器里 `alter role site_api password …`，再更新 Vercel Production 的 `SITE_DB_URL` | 重新部署；`/api/site/health` 返回 200；按 #67 的查询核对一遍；名单可能被读过，按隐私政策和律师的意见判断要不要通知 |
+| `CRON_SECRET` | 它是发送接口唯一的身份认证：拿到它就能触发定时发送，但只在发送窗口内有效：窗口外带着它也不发、不写占位行；窗口内只能发排定在当天的那一期，只发一次的占位行仍然拦着重发 | 主会话用 Vercel 的环境变量接口生成新值，Production、Preview 各一个 | 重新部署；Vercel 的定时任务用新值；核对带旧值的请求返回 401 |
+| `SITE_DB_URL`（`site_api` 的连接串） | 读写订阅名单、读和新增同意证据；单条同意证据删不掉，但删 `subscribers` 的行会经外键级联把对应的同意证据一起抹掉，可以批量做。防线是连接串不泄露和 Supabase 的备份（当前套餐的备份能力在 #67 核对）；往发送记录表里插行：给还没发的期号预先插占位行，那一期就永远发不出去；伪造结果行，让邮件票里的记录变假。`site_api` 对发送记录表没有 delete；伪造的行不清（见上面「一期出了错要重来怎么办」），被占的期号作废 | 产品负责人在 Supabase 的 SQL 编辑器里 `alter role site_api password …`，再更新 Vercel Production 的 `SITE_DB_URL` | 重新部署；`/api/site/health` 返回 200；按 #67 的查询核对一遍；用表所有者的身份（Supabase 的 SQL 编辑器）查发送记录表：清点发送记录表时不信行自己的字段（期号、时间、封数都能伪造）：泄露可能发生以来的每一期每种语言，拿 Resend 的发送日志和 `subscribers` 里 `last_issue_sent` 等于这一期的人数对账，对不上的行列出来，不删，在 #13 记一笔；被占的期号作废，之后的期号跳过它们；期号只有 1 到 9999，可以被占满，占满以后要用迁移放宽范围才能恢复。伪造的 `complete` 会让邮件票里出现假的「发完」记录，由产品负责人在那张票里补一条说明（他的账号在锁定、已关的票上也能评论）；名单可能被读过，按隐私政策和律师的意见判断要不要通知 |
 | `SITE_DB_MIGRATE_URL`（表所有者的连接串） | 改表结构、读写全部数据 | 产品负责人在 Supabase 后台重置数据库密码，更新 Environment `site-db` 的密钥 | 手动触发一次 `site-db-migrate` 确认还能跑；#67 的查询全部重跑；同上判断要不要通知 |
-| `SITE_DB_MAIL_LOG_URL`（`site_mail_log` 的连接串） | 只能读发送记录表（期号、语言、时间、封数、失败数），没有邮箱 | 产品负责人 `alter role site_mail_log password …`，更新 Environment `site-mail-log` 的密钥 | 手动触发一次 `site-mail-log` 确认还能跑 |
+| `SITE_DB_MAIL_LOG_URL`（`site_mail_log` 的连接串） | 只能读发送记录表的七列（期号、语言、`kind`、`outcome`、时间、封数、失败数），没有邮箱 | 产品负责人 `alter role site_mail_log password …`，更新 Environment `site-mail-log` 的密钥 | 手动触发一次 `site-mail-log` 确认还能跑 |
 | `MAIL_TICKET_READ_TOKEN` | 只读本仓库的 issue（仓库是公开的，读到的都是公开内容） | 产品负责人在 GitHub 上撤销这个令牌，新建一个同样权限的，更新 Vercel Production | 重新部署；按 #96 的核对再做一遍（读返回 200、写返回 403） |
 | `RESEND_API_KEY` | 用 news.velicoach.com 发信 | 产品负责人在 Resend 后台删掉旧的，新建一个只能用这个域名发信的，更新 Vercel Production | 重新部署；发一封测试的欢迎邮件；看 Resend 的发送日志里有没有不是我们发的 |
 | `RESEND_WEBHOOK_SECRET` | 伪造退信、投诉回调，让地址被停发 | 产品负责人在 Resend 后台重新生成回调的签名密钥，更新 Vercel Production | 重新部署；带旧签名的回调返回 401；核对最近的停发记录 |

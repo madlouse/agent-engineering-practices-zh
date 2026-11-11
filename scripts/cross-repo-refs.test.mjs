@@ -22,3 +22,29 @@ test("a list of this repo's own numbers passes", () => {
 test("a cross-repo number followed by prose passes", () => {
   assert.deepEqual(findSharedPrefixRefs("thin-muscle-coach#185（/body），再做本仓库的 #54"), []);
 });
+
+test("a rubric item with a single capital before # is not a repository", () => {
+  assert.deepEqual(findSharedPrefixRefs("评分 A#17、#27 两项不过"), []);
+  assert.deepEqual(findSharedPrefixRefs("U#2、#3 和 V#5"), []);
+});
+
+test("several shared-prefix runs on one line are all reported", () => {
+  assert.deepEqual(findSharedPrefixRefs("thin-muscle-coach#185、#101 留了言；另见 thin-muscle-coach#72、#213"), [
+    "thin-muscle-coach#185、#101",
+    "thin-muscle-coach#72、#213",
+  ]);
+});
+
+test("a very long line without issue numbers returns quickly", () => {
+  const line = "a".repeat(400000);
+  const start = performance.now();
+  assert.deepEqual(findSharedPrefixRefs(line), []);
+  assert.ok(performance.now() - start < 1000, "took too long on a long line");
+});
+
+test("a very long line of prefixes and numbers stays fast", () => {
+  const line = "thin-muscle-coach#1 ".repeat(20000) + "thin-muscle-coach#185、#101";
+  const start = performance.now();
+  assert.deepEqual(findSharedPrefixRefs(line), ["thin-muscle-coach#185、#101"]);
+  assert.ok(performance.now() - start < 1000, "took too long on a long line");
+});

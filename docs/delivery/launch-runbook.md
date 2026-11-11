@@ -107,10 +107,10 @@
 
 | 密钥 | 泄露了能做什么 | 在哪换 | 换完要做什么 |
 |---|---|---|---|
-| `CRON_SECRET` | 它是发送接口唯一的身份认证：拿到它就能触发定时发送（只发一次的占位行仍然拦着重发） | 主会话用 Vercel 的环境变量接口生成新值，Production、Preview 各一个 | 重新部署；Vercel 的定时任务用新值；核对带旧值的请求返回 401 |
+| `CRON_SECRET` | 它是发送接口唯一的身份认证：拿到它就能触发定时发送，但只在发送窗口内有效：窗口外带着它也不发、不写占位行；窗口内只能发排定在当天的那一期，只发一次的占位行仍然拦着重发 | 主会话用 Vercel 的环境变量接口生成新值，Production、Preview 各一个 | 重新部署；Vercel 的定时任务用新值；核对带旧值的请求返回 401 |
 | `SITE_DB_URL`（`site_api` 的连接串） | 读写订阅名单、读和新增同意证据（删不掉单条同意证据）；往发送记录表里插行：给还没发的期号预先插占位行，那一期就永远发不出去；伪造结果行，让邮件票里的记录变假。`site_api` 对发送记录表没有 delete，这些行只有表所有者清得掉 | 产品负责人在 Supabase 的 SQL 编辑器里 `alter role site_api password …`，再更新 Vercel Production 的 `SITE_DB_URL` | 重新部署；`/api/site/health` 返回 200；按 #67 的查询核对一遍；用表所有者的身份（Supabase 的 SQL 编辑器）查发送记录表：期号对不上已合并邮件文件的行、发出时间对不上发送窗口的行都清掉，在 #13 记一笔清了哪几行；名单可能被读过，按隐私政策和律师的意见判断要不要通知 |
 | `SITE_DB_MIGRATE_URL`（表所有者的连接串） | 改表结构、读写全部数据 | 产品负责人在 Supabase 后台重置数据库密码，更新 Environment `site-db` 的密钥 | 手动触发一次 `site-db-migrate` 确认还能跑；#67 的查询全部重跑；同上判断要不要通知 |
-| `SITE_DB_MAIL_LOG_URL`（`site_mail_log` 的连接串） | 只能读发送记录表（期号、语言、时间、封数、失败数），没有邮箱 | 产品负责人 `alter role site_mail_log password …`，更新 Environment `site-mail-log` 的密钥 | 手动触发一次 `site-mail-log` 确认还能跑 |
+| `SITE_DB_MAIL_LOG_URL`（`site_mail_log` 的连接串） | 只能读发送记录表的七列（期号、语言、`kind`、`outcome`、时间、封数、失败数），没有邮箱 | 产品负责人 `alter role site_mail_log password …`，更新 Environment `site-mail-log` 的密钥 | 手动触发一次 `site-mail-log` 确认还能跑 |
 | `MAIL_TICKET_READ_TOKEN` | 只读本仓库的 issue（仓库是公开的，读到的都是公开内容） | 产品负责人在 GitHub 上撤销这个令牌，新建一个同样权限的，更新 Vercel Production | 重新部署；按 #96 的核对再做一遍（读返回 200、写返回 403） |
 | `RESEND_API_KEY` | 用 news.velicoach.com 发信 | 产品负责人在 Resend 后台删掉旧的，新建一个只能用这个域名发信的，更新 Vercel Production | 重新部署；发一封测试的欢迎邮件；看 Resend 的发送日志里有没有不是我们发的 |
 | `RESEND_WEBHOOK_SECRET` | 伪造退信、投诉回调，让地址被停发 | 产品负责人在 Resend 后台重新生成回调的签名密钥，更新 Vercel Production | 重新部署；带旧签名的回调返回 401；核对最近的停发记录 |

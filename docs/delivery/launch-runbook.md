@@ -28,7 +28,7 @@
    - 三站的链接：导航里有站稳、看清、动手三个链接，地址是 `/body`、`/mind`、`/build`（英文加 `/en`），站稳高亮；
    - 语言和外观的记忆共用：在主站把语言切到英文、外观切到深色，本机的 `vc-lang` 是 `en`、`vc-theme` 是 `dark`，再打开 /body 是英文、深色；在 /body 切回去，回到主站也跟着变。取值只有 `zh` / `en` 和 `auto` / `light` / `dark`。
    有一条不过就不切换域名：在 thin-muscle-coach#185 写明哪一条，等 Veli 改完重查。
-4b. **订阅的上线开关默认关**：核对生产配置里开关的值是关；`SITE_DB_URL`、`RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`MAIL_TICKET_READ_TOKEN` 里已经配了的，范围都只有 Production（只看变量名和范围，不打印值）；「授权与确认」表已交律师审阅，#98 里有记录；四项条件（见下面「订阅的上线开关」）到齐以前不打开。开关关着不挡上线。预览上开关恒为开，订阅的全流程在预览上照常验（`subscribe` 事件也在预览上触发，PRD F29）。
+4b. **订阅的上线开关默认关**：核对生产配置里开关的值是关；`SITE_DB_URL`、`RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`MAIL_TICKET_READ_TOKEN` 里已经配了的，范围都只有 Production（只看变量名和范围，不打印值）；律师对「授权与确认」表和法务页的书面意见已经回来、没有未处理的项，#98 已关闭（产品负责人 2026-11-11 定：拿到意见再上线，需求第 91 条）；四项条件（见下面「订阅的上线开关」）到齐以前不打开。开关关着不挡上线。预览上开关恒为开，订阅的全流程在预览上照常验（`subscribe` 事件也在预览上触发，PRD F29）。
 5. 产品负责人在 #66 回复「确认上线」。
 
 ## 合并
@@ -80,14 +80,14 @@
 1. 主会话提一个 `chore/` PR，只把配置里的开关改成开；PR 说明里逐项贴上表的证据，打 `owner:merge`，附决策简报（涉及法律责任，`pipeline.md` §5.1）。
 2. 产品负责人合并；生产部署 READY。
 3. 核对生产环境变量 `RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`SUBSCRIBE_TOKEN_SECRET_<编号>`、`CRON_SECRET`、`MAIL_TICKET_READ_TOKEN`（发送任务读邮件票用的只读 GitHub 令牌，只有读 issue 的权限）都已配，范围都只有 Production；`SUBSCRIBE_FORCE_OFF` 没有设；GitHub Environment `site-db` 里有 `SITE_DB_MAIL_LOG_URL`（#96），工作流 `site-mail-log` 已在默认分支上（ADR-0004）。
-4. 验证：各页出现订阅条和页底订阅，首屏底部是订阅入口；用真实邮箱订阅一次，原位显示「已订阅，每周日见」，收到欢迎邮件；在 Gmail「显示原始邮件」里 SPF、DKIM、DMARC 三项都是 PASS，页脚有通讯地址，邮件头有 `List-Unsubscribe` 和 `List-Unsubscribe-Post`；点一键退订生效；订阅库里有这一条同意证据。结果贴在 PR 上。
+4. 验证：各页出现订阅条和页底订阅，首屏底部是订阅入口；用真实邮箱订阅一次，原位显示「已订阅，每周日见」，收到欢迎邮件；在 Gmail「显示原始邮件」里 SPF、DKIM、DMARC 三项都是 PASS，页脚有通讯地址，邮件头有 `List-Unsubscribe` 和 `List-Unsubscribe-Post`；点一键退订生效；订阅库里有这一条同意证据；`/api/site/health` 返回 200，正文里有发信配置一项（开关开着以后它照查）。结果贴在 PR 上。
 5. 订阅数从这一天算起（PRD 第 1 节）。
 
 **再关上**有两种办法。不急的：验证不过，或律师、退信数据要求停收时，主会话提 PR 把开关改回关（类别和谁合并按 `pipeline.md` §5.1），在 #13 告知产品负责人。要马上关的（紧急关，ADR-0004「后果」）：
 
-1. 产品负责人在 Vercel 后台给主站项目的 Production 加环境变量 `SUBSCRIBE_FORCE_OFF`，值填 1，点重新部署。部署 READY 以后不管配置是什么，订阅都算关：页面没有订阅入口，`POST /api/site/subscribe` 返回 404；退订和回调照常。它只能关、不能开；事后主会话补一个把配置改回关的 PR，合并后再把这个变量删掉。
-2. 要马上停发邮件：在 Resend 后台停用发信的 API key，这是最快的办法，正在排队的也发不出去。
-3. 只想让这一期不发：给当期的邮件票打 `agent:hold`，或关掉它。
+1. 产品负责人在 Vercel 后台给主站项目的 Production 加环境变量 `SUBSCRIBE_FORCE_OFF`，值填 1，点重新部署。部署 READY 以后不管配置是什么，订阅都算关，一个开关管两件事：订阅表单不显示、`POST /api/site/subscribe` 返回 404；发送任务也不发。退订和 Resend 回调照常可用。它只能关、不能开；事后主会话补一个把配置改回关的 PR，合并后再把这个变量删掉。
+2. 只想让这一期不发：给当期的邮件票打 `agent:hold`，或关掉它。发送任务只在开跑前查一次，拦得住还没开始的一期。
+3. 最后的办法：在 Resend 后台删掉发信的 API key。Resend 没有「停用」，删了撤不回。恢复要三步：在 Resend 新建一个只能用 news.velicoach.com 发信的 key，更新 Vercel Production 的 `RESEND_API_KEY`，重新部署。删 key 时正在发的那一期会记成已发、失败数照实记，这一期不补发。
 
 关上以后，已有的订阅和同意证据保留，每周的发送按当期邮件票的状态决定（`pipeline.md` §5.1「每周内容」第 3 条）。
 

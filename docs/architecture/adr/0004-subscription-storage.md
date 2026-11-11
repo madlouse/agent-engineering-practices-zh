@@ -1,7 +1,7 @@
 # 0004 订阅的存储、发信、退订令牌和频率限制
 
 - 状态：已采纳（产品负责人 2026-11-09 确认；按关口三 b 冷审 P0-1、P1-1 修订；迁移工作流、公开仓库的限制按第二轮冷审 P1-1、P2-6–P2-9、P2-15 补；工作流由主会话维护、迁移约定按第三轮冷审 P1-A、P2-8 补）
-- 关联：主站 PRD v1.2 F07 和「订阅的细则」第 2–15 条（第 8 条要求在关口三 b 写 ADR 定表结构和同步方式，第 9 条要求定令牌怎么签、多久失效）；ADR-0003（`/api/site/*`）；PRD 第 3 节路由表 `/unsubscribe`；第三轮冷审 P2-4；关口三 b 冷审 `docs/delivery/reviews/2026-11-09-gate-3b.md` P0-1、P1-2、P1-3、P2-5、P2-9
+- 关联：主站 PRD v2.0 F07 和「订阅的细则」第 1–17 条（第 8 条要求写 ADR 定表结构和同步方式，第 9 条要求定令牌怎么签、多久失效；第 12 条每期的排定和取消、第 17 条邮件内容见 (b)；第 16 条订阅的上线开关见「后果」）；ADR-0003（`/api/site/*`）；PRD 第 3 节路由表 `/unsubscribe`；第三轮冷审 P2-4；关口三 b 冷审 `docs/delivery/reviews/2026-11-09-gate-3b.md` P0-1、P1-2、P1-3、P2-5、P2-9
 
 ## 背景
 
@@ -41,10 +41,15 @@
 
 - 发送前从 `subscribers` 读状态为 active 的地址，按订阅语言用 Resend 的批量发送接口发；这就是细则第 8 条的「发送前同步名单」。Resend 里不建受众（Audience），删除时少一处要删。
 - 每封邮件带自己的退订令牌，放进 `List-Unsubscribe`、`List-Unsubscribe-Post` 两个邮件头和正文底部的退订链接。
-- Resend 的打开追踪和点击追踪关闭。发信域名 news.velicoach.com（PRD 第 10 节）。
+- Resend 的打开追踪和点击追踪关闭。发信域名 news.velicoach.com（`docs/prd/decisions.md`）。
 - 回调 `POST /api/site/resend` 先校验 Resend 的签名（Svix），再按事件编号去重，写回状态。
 - 定时：Vercel Cron 触发发送；英文版按 America/New_York 的 08:00 换算，夏令时由处理函数判断。定时接口只接受带 `Authorization: Bearer $CRON_SECRET` 的请求，其余返回 401。Hobby 套餐的定时任务精度是一小时内，周日 08:00 准点要 Pro（PRD 第 8 节「成本」，升级票见 `docs/delivery/gate-3b-split.md` §5）。
 - 预览部署不配 `RESEND_API_KEY`，发信只记一行日志（不带邮箱），不真发。
+- **每期一份邮件文件**（2026-11-11 补，PRD 细则第 12、17 条）：一期邮件的内容是仓库里的一份文件，由内容车道在周五合并（只用已发布的内容按固定模板拼成）；发送任务只发已经合并的那一份，不在发送时现拼正文。
+- **发送前查当期的票**：周五内容车道另开一张票「订阅邮件第 N 期」。发送任务开跑前查这张票：带 `agent:hold` 或已经关闭，这一期不发，也不补发；查不到这张票或查询失败同样不发（宁可少发一期）。发完由内容推进器下一次运行在票里记录发送时间和封数并关票，发送任务自己不写 GitHub（`docs/standards/pipeline.md` §5.1「每周内容」）。
+- **每期每种语言只发一次**：发送任务发信前先在订阅库里按（期号，语言）写一条唯一的发送记录占位（(a) 的 schema `site` 里加一张发送记录表，期号加语言唯一，随发信的票建迁移），写不进去（已经有了）就不发；「已发」以这条记录为准，不以邮件票的状态为准。票被重开、任务被重复触发、内容推进器停摆时都不会重发。
+- **按票号读票，不按标题搜**：当期邮件文件里写死邮件票的编号。发送任务按编号读票，并核对：是 issue 不是 PR、作者是仓库所有者、状态开着、没有 `agent:hold`；有一项不符就不发。读票用一个只读的 GitHub 令牌（进密钥清单），发送任务不写 GitHub，票里的记录由内容推进器下一次运行补。
+- **发送时再核对一遍条目**：邮件里链到的内容已撤下，去掉那一条；去掉以后没有条目，这一期不发。
 
 **(c) 退订令牌：HMAC 签名，365 天失效，密钥可轮换。**
 
@@ -77,7 +82,8 @@
 
 ## 后果
 
-- 新增密钥：Vercel 生产环境里的 `SITE_DB_URL`、`RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`SUBSCRIBE_TOKEN_SECRET_<编号>`、`CRON_SECRET`、首页本周文章的部署钩子地址；GitHub Actions 里的 `SITE_DB_MIGRATE_URL`。预览环境的 `SUBSCRIBE_TOKEN_SECRET_1`、`CRON_SECRET` 用另一组值。值不进代码、文档和提交信息；谁配见 `docs/delivery/gate-3b-split.md` §5。
+- 新增密钥：Vercel 生产环境里的 `SITE_DB_URL`、`RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`SUBSCRIBE_TOKEN_SECRET_<编号>`、`CRON_SECRET`、读邮件票用的只读 GitHub 令牌 `MAIL_TICKET_READ_TOKEN`（只给读 issue 的权限）；GitHub Actions 里的 `SITE_DB_MIGRATE_URL`。预览环境的 `SUBSCRIBE_TOKEN_SECRET_1`、`CRON_SECRET` 用另一组值。值不进代码、文档和提交信息；谁配见 `docs/delivery/gate-3b-split.md` §5。
+- 订阅的上线开关（PRD 细则第 16 条）：站点配置的一项，默认关。关着时生产的订阅接口返回 404、不写库，页面不渲染订阅条和页底订阅；预览恒为开。打开的条件和步骤见 `docs/delivery/launch-runbook.md`「订阅的上线开关」。
 - Supabase 免费项目闲置会被暂停：上线后每 10 分钟的健康检查（ADR-0005）会访问数据库；上线前生产库没有访问，开工前按 Supabase 当前的规则核实，上线步骤里核对项目没有被暂停（`docs/delivery/launch-runbook.md`）。
 - 第三方仍是 PRD 列的那几家（Vercel、Supabase、Resend、Cloudflare），隐私政策不用多写一家。
 - IP 限流是每个实例各算，挡不住分布很广的滥用；靠一键退订、退信停发兜底。观察者上线两周后按 Resend 的退信和投诉数复核。

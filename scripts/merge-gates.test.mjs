@@ -231,6 +231,35 @@ test("票的 PR：类别写内容定稿的不合并（等产品负责人），�
   } finally { r.cleanup(); }
 });
 
+test("内容车道：每周的站上内容（文章、里程碑、开发日志）写「类别：票」，一份内容评审后由脚本合并，不等产品负责人", () => {
+  const r = repo();
+  try {
+    r.branch("content/60-weekly");
+    r.write("src/content/post.ts", "export default { weekly: 1 };\n");
+    r.write("public/explainers/post.zh.mp3", "x");
+    r.write("public/originals/post.png", "x");
+    const weekly = r.run(r.commit("weekly"), "content/60-weekly", "类别：票\n\n这一周的文章");
+    assert.equal(weekly.status, 0, weekly.stdout);
+    assert.equal(category(weekly), "ticket");
+    assert.doesNotMatch(weekly.stdout, /^owner=yes$/m);
+  } finally { r.cleanup(); }
+});
+
+test("内容定稿只留给模块样稿、训练指导和涉及法律、付费、对外承诺的内容：拒绝原因写明这三种，不再说每周文章", () => {
+  const r = repo();
+  try {
+    r.branch("content/61-sample"); r.write("src/content/post.ts", "export default { sample: 1 };\n");
+    const fin = r.run(r.commit("sample"), "content/61-sample", "类别：内容定稿");
+    assert.equal(fin.status, 1);
+    assert.match(fin.stdout, /^owner=yes$/m);
+    assert.match(fin.stdout, /模块样稿/);
+    assert.match(fin.stdout, /训练指导/);
+    assert.match(fin.stdout, /法律、付费和对外承诺/);
+    assert.match(fin.stdout, /每周的站上内容写「类别：票」/);
+    assert.doesNotMatch(fin.stdout, /合并就是定稿/);
+  } finally { r.cleanup(); }
+});
+
 test("权限设置只归产品负责人：任何 PR 改了 .claude/settings*.json 都不合并", () => {
   const r = repo();
   try {

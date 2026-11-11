@@ -77,7 +77,7 @@
 
 1. 主会话提一个 `chore/` PR，只把配置里的开关改成开；PR 说明里逐项贴上表的证据，打 `owner:merge`，附决策简报（涉及法律责任，`pipeline.md` §5.1）。
 2. 产品负责人合并；生产部署 READY。
-3. 核对生产环境变量 `RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`SUBSCRIBE_TOKEN_SECRET_<编号>`、`CRON_SECRET` 都已配（ADR-0004）。
+3. 核对生产环境变量 `RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`SUBSCRIBE_TOKEN_SECRET_<编号>`、`CRON_SECRET`、`MAIL_TICKET_READ_TOKEN`（发送任务读邮件票用的只读 GitHub 令牌，只有读 issue 的权限）都已配（ADR-0004）。
 4. 验证：各页出现订阅条和页底订阅，首屏底部是订阅入口；用真实邮箱订阅一次，原位显示「已订阅，每周日见」，收到欢迎邮件；在 Gmail「显示原始邮件」里 SPF、DKIM、DMARC 三项都是 PASS，页脚有通讯地址，邮件头有 `List-Unsubscribe` 和 `List-Unsubscribe-Post`；点一键退订生效；订阅库里有这一条同意证据。结果贴在 PR 上。
 5. 订阅数从这一天算起（PRD 第 1 节）。
 

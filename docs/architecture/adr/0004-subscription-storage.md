@@ -15,7 +15,7 @@
 - **表放在 schema `site`**，不加进 Supabase Data API 暴露的 schema 列表，公开接口（PostgREST）根本看不到它。
 - **迁移里显式收回权限**：`revoke all` 收回 `anon`、`authenticated`、`public` 对 schema `site` 和其中每张表、序列的权限，不靠 Supabase 的默认授权。
 - **运行时角色 `site_api`**：能登录，不是表的所有者，不带 `BYPASSRLS`；只授予 `usage on schema site` 和每张表需要的操作。
-- **两张表都开行级安全，按表写策略，只给 `site_api` 它需要的操作**：`subscribers` 给 select、insert、update、delete；`consent_records` 给 select、insert、delete（同意证据只增不改）。策略写成 `to site_api`，其他角色没有策略，一行也读不到。
+- **`site` 里的每张表都开行级安全，按表写策略，只给 `site_api` 它需要的操作**：`subscribers` 给 select、insert、update、delete；`consent_records` 给 select、insert、delete（同意证据只增不改）。策略写成 `to site_api`，其他角色没有策略，一行也读不到。
 - **两个连接串，分开用**：
   - `SITE_DB_URL`：`site_api` 经 Supabase 连接池（事务模式，用户名是 `site_api.<项目编号>`）的连接串，只放在 Vercel 的生产环境变量里，运行时只读它。
   - `SITE_DB_MIGRATE_URL`：表所有者的连接串，只放在 GitHub 的 Environment `site-db` 里（部署分支只允许 `site`、`feature/v1`，其他分支上的工作流读不到），只由站点迁移脚本在 CI 里读；不进 Vercel，运行时拿不到。

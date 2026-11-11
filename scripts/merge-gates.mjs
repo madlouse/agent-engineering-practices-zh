@@ -66,6 +66,9 @@ export function checkBase(prBase, target) {
 }
 
 // PR 说明（正文）第一行写类别：「类别：票 / a / b / 内容定稿」（pipeline.md §5.1）
+// 内容定稿只用在三种内容上：新开栏目或内容线的模块样稿、训练指导、涉及法律、付费和对外承诺的。每周的站上内容（文章、里程碑、开发日志）写「类别：票」，
+// 一份内容评审后由脚本合并，产品负责人事后可撤（PRD v2.0 第 6 节）。这三种内容没有固定的文件位置（样稿和每周文章都在 src/content/，训练指导和法务正文在 Veli 仓库），
+// 脚本从路径上分不出来，所以只认这一行声明：写了就等产品负责人，该写没写由内容评审核对（content-reviewer.md）。
 const CATEGORY_LINE = /^类别\s*[：:]\s*(票|a|b|内容定稿)\s*$/i;
 /** 正文第一行里的类别；没写、写错或第一行是空行（正文为空时不拿标题顶替）返回 null。 */
 export function declaredCategory(body) {
@@ -204,7 +207,7 @@ export function rejectionHints(problems) {
 }
 
 /**
- * PR 的类别：票 → ticket；不是票的 → a 或 b；改了 OWNER_FILES 的、观察者（obs/）的 b 类、票写了内容定稿的 → owner（不合并，等产品负责人）。
+ * PR 的类别：票 → ticket（含内容车道每周的站上内容）；不是票的 → a 或 b；改了 OWNER_FILES 的、观察者（obs/）的 b 类、票写了内容定稿的 → owner（不合并，等产品负责人）。
  * 不是票的拿不准一律按 b：没写类别、写的不是 a、改了门槛文件（GATE_FILES）、改或删了检查脚本（CHECK_FILES）
  * 或 package.json 已有的命令、削弱了测试（weakenings）、删了已有测试的断言（removedAssertions）、已有测试里加了提前 return（earlyReturns）。
  * 返回 { category, reasons, problems }。
@@ -216,7 +219,7 @@ export function prCategory({ base, head, kind, ref = "", body = "", git }) {
   if (owner.length) return { category: "owner", reasons: [], problems: owner };
   const declared = declaredCategory(body);
   if (kind === "ticket") {
-    if (declared === "内容定稿") return { category: "owner", reasons: [], problems: ["类别是内容定稿：等产品负责人本人合并，合并就是定稿（pipeline.md §5.1）"] };
+    if (declared === "内容定稿") return { category: "owner", reasons: [], problems: ["类别是内容定稿（只用于模块样稿、训练指导，和涉及法律、付费和对外承诺的内容）：等产品负责人本人合并；每周的站上内容写「类别：票」（pipeline.md §5.1）"] };
     if (declared === "a" || declared === "b") return { category: "ticket", reasons: [], problems: [`票的分支写了类别 ${declared}：票的 PR 写「类别：票」`] };
     return { category: "ticket", reasons: [], problems: [] };
   }

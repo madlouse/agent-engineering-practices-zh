@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { blockerRefs, compare, counts, expectedEdges, findCycle, paginate, parseCounts, parseMermaidEdges, parseTables, regenerate } from "./ticket-table.mjs";
+import { blockerRefs, compare, counts, diagramTitle, expectedEdges, findCycle, paginate, parseCounts, parseMermaidEdges, parseTables, regenerate, tableTitle } from "./ticket-table.mjs";
 
 const local = (number, state = "open") => ({ repo: "velicoach", number, state });
 const veli = (number, state = "open") => ({ repo: "thin-muscle-coach", number, state });
@@ -92,7 +92,7 @@ test("blockers: open ones only, this repo first, other repos with their prefix",
   assert.deepEqual(blockerRefs([veli(72), local(22), local(29, "closed"), local(5)]), ["#22", "#5", "thin-muscle-coach#72"]);
 });
 
-test("the sample doc matches the sample issues", () => {
+test("the sample doc matches the sample issues; specs, the umbrella issue and issues without a lane label are not expected in the table", () => {
   assert.deepEqual(compare(DOC, ISSUES()), []);
 });
 
@@ -128,10 +128,6 @@ test("title, label, closed-ticket, missing-ticket and count differences are each
   assert.match(problems, /#21：GitHub 上不是开着的票/);
   assert.match(problems, /#99「新票」开着，§3 的表里没有它/);
   assert.match(problems, /§1 的数字不对/);
-});
-
-test("specs, the content umbrella issue and issues without a lane label are not expected in the table", () => {
-  assert.deepEqual(compare(DOC, ISSUES()), []);
 });
 
 test("an edge the diagram has but GitHub does not is reported", () => {
@@ -175,4 +171,47 @@ test("regenerate refuses to guess when the table lists a closed ticket", () => {
   const issues = ISSUES();
   issues.delete(21);
   assert.throws(() => regenerate(DOC, issues), /#21/);
+});
+
+test("a blocker the table lists but GitHub does not have is reported", () => {
+  const issues = ISSUES();
+  issues.get(22).blockedBy = [];
+  const problems = compare(DOC, issues);
+  assert.ok(problems.some((p) => p.includes("#22") && p.includes("多了 #15")));
+});
+
+test("a blocker that has been closed on GitHub counts as extra in the table", () => {
+  const issues = ISSUES();
+  issues.get(22).blockedBy = [local(15, "closed")];
+  assert.ok(compare(DOC, issues).some((p) => p.includes("#22") && p.includes("多了 #15")));
+});
+
+test("the same ticket in the table twice is reported", () => {
+  const row = "| #21 | 页脚 | F21 | — | 站点 | `lane:site` `ready-for-human` | 没动 |\n";
+  const doc = DOC.replace(row, row + row);
+  assert.ok(compare(doc, ISSUES()).some((p) => p.includes("#21") && p.includes("出现了两次")));
+});
+
+test("compare reports a dependency cycle", () => {
+  const issues = ISSUES();
+  issues.get(22).blockedBy.push(local(5));
+  assert.ok(compare(DOC, issues).some((p) => p.startsWith("原生依赖有环") && p.includes("#22") && p.includes("#5")));
+});
+
+test("paginate stops with an error after maxPages full pages", async () => {
+  await assert.rejects(
+    paginate(async () => Array(30).fill(0), 30, 3),
+    /翻了 3 页/,
+  );
+});
+
+test("titles are neutralised before they are written into the table and the diagram", () => {
+  assert.equal(tableTitle("文章页 /mind/<slug> 和 `code` [x](http://e.com) a\\b"), "文章页 /mind/&lt;slug> 和 code &#91;x](http://e.com) ab");
+  assert.equal(diagramTitle('a"]<b>`c`[d]\\e'), "abcde");
+  const issues = ISSUES();
+  issues.get(21).title = "页脚 <script> [x](y) `z`";
+  const out = regenerate(DOC, issues);
+  assert.match(out, /\| #21 \| 页脚 &lt;script> &#91;x\]\(y\) z \|/);
+  assert.match(out, /T21\["#21 页脚 script x\(y\) z"\]/);
+  assert.deepEqual(compare(out, issues), [], "the doc with the neutralised title matches GitHub");
 });

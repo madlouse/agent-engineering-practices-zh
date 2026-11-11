@@ -12,14 +12,32 @@ export const NOT_IN_TABLE = new Set([3, 14]);
 const SITE_GROUPS = ["M1", "M2", "M3", "M4", "不属于里程碑"];
 const CONTENT_GROUP = "内容车道";
 
-/** Fetches every page. `fetchPage(page)` returns an array; a page shorter than `perPage` is the last one. */
-export async function paginate(fetchPage, perPage = 100) {
+/**
+ * Fetches every page. `fetchPage(page)` returns an array; a page shorter than `perPage` is the last one.
+ * Stops with an error after `maxPages` full pages instead of looping forever on a misbehaving endpoint.
+ */
+export async function paginate(fetchPage, perPage = 100, maxPages = 20) {
   const all = [];
-  for (let page = 1; ; page++) {
+  for (let page = 1; page <= maxPages; page++) {
     const items = await fetchPage(page);
     all.push(...items);
     if (items.length < perPage) return all;
   }
+  throw new Error(`翻了 ${maxPages} 页还没到头，停下（每页 ${perPage} 条）`);
+}
+
+/**
+ * A title as it is written into a table cell. Titles come from GitHub and end up in a Markdown file that people and
+ * agents read: backticks and backslashes are dropped, 「<」 and 「[」 are written as entities so the cell cannot open
+ * an HTML tag or a link. The comparison uses the same function, so the doc and GitHub still match.
+ */
+export function tableTitle(title) {
+  return title.replace(/[`\\]/g, "").replaceAll("<", "&lt;").replaceAll("[", "&#91;");
+}
+
+/** A title as it is written into a Mermaid node label: the characters that could end the label or start markup are dropped. */
+export function diagramTitle(title) {
+  return title.replace(/[<>"`\\[\]]/g, "").slice(0, 16);
 }
 
 /** One blocker as written in the table: 「#12」 for this repo, 「thin-muscle-coach#185」 for another one. */
@@ -92,17 +110,16 @@ export function parseTables(doc) {
 function formatRow(row, issue) {
   const blockers = blockerRefs(issue.blockedBy);
   const labels = issue.labels.map((l) => `\`${l}\``).join(" ");
-  return `| #${row.number} | ${escapeCell(issue.title)} | ${row.feature} | ${blockers.join("、") || "—"} | ${row.lane} | ${labels} | ${row.note} |`;
+  return `| #${row.number} | ${escapeCell(tableTitle(issue.title))} | ${row.feature} | ${blockers.join("、") || "—"} | ${row.lane} | ${labels} | ${row.note} |`;
 }
 
 /** The Mermaid block of §4, generated from the rows (for the grouping) and the issues (titles, labels, blockers). */
 export function buildMermaid(rows, issues) {
   const site = new Set(rows.filter((r) => r.group !== CONTENT_GROUP).map((r) => r.number));
-  const short = (title) => title.replace(/[<>"]/g, "").slice(0, 16);
   const lines = ["```mermaid", "flowchart LR"];
   for (const group of SITE_GROUPS) {
     lines.push(`  subgraph ${group}`);
-    for (const r of rows.filter((row) => row.group === group)) lines.push(`    T${r.number}["#${r.number} ${short(issues.get(r.number).title)}"]`);
+    for (const r of rows.filter((row) => row.group === group)) lines.push(`    T${r.number}["#${r.number} ${diagramTitle(issues.get(r.number).title)}"]`);
     lines.push("  end");
   }
   const outside = new Map();
@@ -224,7 +241,7 @@ export function compare(doc, issues) {
       problems.push(`${at}：GitHub 上不是开着的票（已关闭或不存在），表里还列着`);
       continue;
     }
-    if (row.title !== issue.title) problems.push(`${at}：标题不一样。表里「${row.title}」，GitHub「${issue.title}」`);
+    if (row.title !== tableTitle(issue.title)) problems.push(`${at}：标题不一样。表里「${row.title}」，GitHub「${tableTitle(issue.title)}」`);
     if (!sameSet(row.labels, issue.labels)) problems.push(`${at}：标签不一样。表里 ${row.labels.join("、") || "无"}，GitHub ${issue.labels.join("、") || "无"}`);
     const want = blockerRefs(issue.blockedBy);
     const missing = want.filter((x) => !row.blockers.includes(x));

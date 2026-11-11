@@ -15,7 +15,7 @@
 ---
 
 <!--
-第一行只写类别：票 / a / b / 内容定稿（docs/standards/pipeline.md §5.1）。拿不准写 b。
+第一行只写类别：票 / a / b / 内容定稿（docs/standards/pipeline.md §5.1）。拿不准写 b。内容定稿只用于模块样稿、训练指导、涉及法律、付费和对外承诺的内容；每周的站上内容写「票」。
 上面的决策简报只给要产品负责人合并的 PR（§5.2）：填完跑 node scripts/check-owner-brief.mjs <正文文件>。不要人合并的，删掉整段简报和分隔线。
 -->
 

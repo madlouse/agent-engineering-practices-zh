@@ -1,4 +1,4 @@
-> 快照：本文件是 Claude Docs《Velicoach 总体方案 · 金字塔梳理 v0.1》第 95 版的 Markdown 导出，供 agent 离线读取。唯一来源是 https://claude.ai/artifact/R5P7pEGDRaoym7mEBtLMu4；改需求先改在线文档，再重新导出覆盖本文件，不直接改这里。
+> 快照：本文件是 Claude Docs《Velicoach 总体方案 · 金字塔梳理 v0.1》第 96 版的 Markdown 导出，供 agent 离线读取。唯一来源是 https://claude.ai/artifact/R5P7pEGDRaoym7mEBtLMu4；改需求先改在线文档，再重新导出覆盖本文件，不直接改这里。
 
 # Velicoach 总体方案 · 金字塔梳理 v0.1
 
@@ -78,7 +78,7 @@ Nov 3, 2026 · @Jeking Hwang
 | --- | --- | --- |
 | 首页 | 任一站 | 悬停只倾斜预览，点击才铺满；另一侧收成 56px 书脊 |
 | 站稳 | 看清 | 「威利本身就是一个智能体」：左边课程讲的事，这里每天发生一次 |
-| 看清 | 站稳 | Dan Koe 那篇「Agent 与生活」；本周文章旁边放着今天的训练 |
+| 看清 | 站稳 | Dan Koe 那篇「Agent 与生活」；文章末尾放着今天的训练的入口 |
 | 看清 | 动手 | 学习路径的最后一步：挑一件自己的事交给智能体 |
 | 动手 | 两站 | 每个在造的产品都标明它服务哪一站 |
 | 三站 | 用户 | 订阅邮件「一读、一练、一件可以动手的事」 |

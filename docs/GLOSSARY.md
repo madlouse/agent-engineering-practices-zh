@@ -119,9 +119,12 @@
 | xAI 的 prompt | （删除） | 语音转写错误 |
 | 了解更多 | 写点了之后得到什么 | 两步原则：按钮直达结果 |
 
+**跨仓库的票号每个都写全**：指 Veli 仓库的票写 `thin-muscle-coach#185`，列几张时每个号都带前缀（`thin-muscle-coach#185、thin-muscle-coach#101`），和本仓库的号列在一起时排在后面。两个仓库的票号会撞（本仓库也有 #101），省掉前缀就分不清是哪边的。`npm run check:terms` 拦「一个前缀跨顿号共用」的写法（`scripts/cross-repo-refs.mjs`）；单独一个不带前缀的 Veli 票号它拦不住，靠评审。
+
 `npm run check:terms` 会按下面的清单，加上「口语和转写错误」一节的转写错误清单，检查文档、技能和代码里有没有不再用的说法和常见错字。清单改了，表也一起改。
 
 ```stale-terms
+本周文章
 同席
 with.velicoach.com
 心智站
@@ -174,6 +177,7 @@ See clearly
 ```
 
 ```allowed-phrases
+「本周文章」改叫
 也就是说
 （不是阀值）
 搏击等对抗性运动

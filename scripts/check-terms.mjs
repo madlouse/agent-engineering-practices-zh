@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { parseFence } from "./voice-terms.mjs";
+import { findSharedPrefixRefs } from "./cross-repo-refs.mjs";
 
 const glossary = readFileSync("docs/GLOSSARY.md", "utf8");
 // Transcription errors and allowed phrases are lists shared with check-voice (GLOSSARY 「口语和转写错误」).
@@ -25,6 +26,7 @@ const files = execFileSync("git", ["ls-files", "docs", "src", "AGENTS.project.md
   .filter((f) => /\.(md|ts|tsx|json|svg)$/.test(f) && !skip.includes(f) && !skipDirs.some((d) => f.startsWith(d)));
 
 let hits = 0;
+let refHits = 0;
 for (const file of files) {
   const lines = readFileSync(file, "utf8").split("\n");
   lines.forEach((line, i) => {
@@ -36,10 +38,18 @@ for (const file of files) {
         hits++;
       }
     }
+    for (const ref of findSharedPrefixRefs(line)) {
+      console.log(`${file}:${i + 1}: 「${ref}」 跨仓库的票号共用了一个前缀，每个号都写全`);
+      refHits++;
+    }
   });
 }
 if (hits) {
   console.error(`\n${hits} 处用了不再用的说法，改法见 docs/GLOSSARY.md「不再用的说法」。`);
+  process.exit(1);
+}
+if (refHits) {
+  console.error(`\n${refHits} 处跨仓库的票号没写全：写成「thin-muscle-coach#185、thin-muscle-coach#101」，一个前缀不跨顿号共用。`);
   process.exit(1);
 }
 console.log(`术语检查通过：${files.length} 个文件，${terms.length} 个旧说法。`);

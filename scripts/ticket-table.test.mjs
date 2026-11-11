@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { blockerRefs, compare, counts, diagramTitle, expectedEdges, findCycle, paginate, parseCounts, parseMermaidEdges, parseTables, regenerate, tableTitle } from "./ticket-table.mjs";
+import { blockerRefs, compare, counts, diagramTitle, expectedEdges, findCycle, loadIssues, paginate, parseArgs, parseCounts, parseMermaidEdges, parseTables, regenerate, tableTitle } from "./ticket-table.mjs";
 
 const local = (number, state = "open") => ({ repo: "velicoach", number, state });
 const veli = (number, state = "open") => ({ repo: "thin-muscle-coach", number, state });
@@ -206,7 +206,7 @@ test("paginate stops with an error after maxPages full pages", async () => {
 });
 
 test("titles are neutralised before they are written into the table and the diagram", () => {
-  assert.equal(tableTitle("文章页 /mind/<slug> 和 `code` [x](http://e.com) a\\b"), "文章页 /mind/&lt;slug> 和 code &#91;x](http://e.com) ab");
+  assert.equal(tableTitle("文章页 /mind/<slug> 和 `code` [x](http://e.com) a\\b"), "文章页 /mind/&lt;slug> 和 code &#91;x](http:&#47;&#47;e.com) ab");
   assert.equal(diagramTitle('a"]<b>`c`[d]\\e'), "abcde");
   const issues = ISSUES();
   issues.get(21).title = "页脚 <script> [x](y) `z`";
@@ -214,4 +214,52 @@ test("titles are neutralised before they are written into the table and the diag
   assert.match(out, /\| #21 \| 页脚 &lt;script> &#91;x\]\(y\) z \|/);
   assert.match(out, /T21\["#21 页脚 script x\(y\) z"\]/);
   assert.deepEqual(compare(out, issues), [], "the doc with the neutralised title matches GitHub");
+});
+
+test("titles: bare links, www., mentions and bidirectional controls are neutralised too", () => {
+  assert.equal(tableTitle("见 https://evil.example/x 和 WWW.evil.example，找 @someone"), "见 https:&#47;&#47;evil.example/x 和 WWW&#46;evil.example，找 &#64;someone");
+  assert.equal(tableTitle("a\u202Eb\u2066c\u200Fd"), "abcd");
+  assert.equal(diagramTitle("a\u202Eb\u2069c"), "abc");
+});
+
+test("parseArgs: --write only for this repository, unknown flags and malformed repos are refused", () => {
+  assert.deepEqual(parseArgs([]), { write: false, repo: "madlouse/velicoach" });
+  assert.deepEqual(parseArgs(["--write"]), { write: true, repo: "madlouse/velicoach" });
+  assert.deepEqual(parseArgs(["someone/else"]), { write: false, repo: "someone/else" });
+  assert.match(parseArgs(["--write", "someone/else"]).error, /--write 只对 madlouse\/velicoach 用/);
+  assert.match(parseArgs(["--write", "Madlouse/velicoach"]).error, /--write 只对/);
+  assert.match(parseArgs(["--force"]).error, /不认识的参数/);
+  assert.match(parseArgs(["not-a-repo"]).error, /owner\/repo/);
+});
+
+test("loadIssues keeps owner-opened issues only, skips pull requests, and fetches every page of blockers", async () => {
+  const blockers = Array.from({ length: 34 }, (_, i) => ({ number: i + 100, state: "open", repository_url: "https://api.github.com/repos/madlouse/velicoach" }));
+  const calls = [];
+  const fetchPage = async (path, page) => {
+    calls.push(`${path}#${page}`);
+    if (path.endsWith("issues?state=open"))
+      return page === 1
+        ? [
+            { number: 66, title: "上线", labels: [{ name: "lane:site" }], author_association: "OWNER" },
+            { number: 70, title: "陌生人的票", labels: [{ name: "lane:site" }], author_association: "NONE" },
+            { number: 71, title: "一个 PR", labels: [], author_association: "OWNER", pull_request: {} },
+          ]
+        : [];
+    if (path.includes("/66/")) return blockers.slice((page - 1) * 30, page * 30);
+    throw new Error(`unexpected ${path}`);
+  };
+  const { issues, nonOwnerOpen } = await loadIssues("madlouse/velicoach", fetchPage, 30);
+  assert.deepEqual([...issues.keys()], [66]);
+  assert.equal(issues.get(66).blockedBy.length, 34);
+  assert.deepEqual(issues.get(66).labels, ["lane:site"]);
+  assert.deepEqual([...nonOwnerOpen], [70]);
+  assert.ok(!calls.some((c) => c.includes("/70/") || c.includes("/71/")), "no blocker requests for issues that are not kept");
+});
+
+test("a row for an open issue that the owner did not open gets its own message", () => {
+  const issues = ISSUES();
+  issues.delete(21);
+  const problems = compare(DOC, issues, { nonOwnerOpen: new Set([21]) });
+  assert.ok(problems.some((p) => p.includes("#21") && p.includes("不是仓库所有者开的")));
+  assert.ok(!problems.some((p) => p.includes("#21") && p.includes("已关闭或不存在")));
 });

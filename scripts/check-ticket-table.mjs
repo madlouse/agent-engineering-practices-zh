@@ -8,19 +8,14 @@
 // Needs the gh CLI; read-only on GitHub. Not part of `npm test` (it needs the network).
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
-import { isOwnerIssue } from "./cross-repo-refs.mjs";
-import { REPO, compare, paginate, regenerate } from "./ticket-table.mjs";
+import { PER_PAGE, compare, loadIssues, parseArgs, regenerate } from "./ticket-table.mjs";
 
 const DOC = "docs/delivery/gate-3b-split.md";
-const PER_PAGE = 100;
-const MAX_PAGES = 20;
 const GH_TIMEOUT_MS = 30_000;
-const WRITABLE_REPO = `madlouse/${REPO}`;
-const args = process.argv.slice(2);
-const write = args.includes("--write");
-const repo = args.find((a) => !a.startsWith("--")) ?? WRITABLE_REPO;
-if (write && repo !== WRITABLE_REPO) {
-  console.error(`--write 只对 ${WRITABLE_REPO} 用：别的仓库的数据不能写进本仓库的文档。`);
+
+const { write, repo, error } = parseArgs(process.argv.slice(2));
+if (error) {
+  console.error(error);
   process.exit(2);
 }
 
@@ -30,24 +25,14 @@ function gh(path, page) {
   return JSON.parse(out);
 }
 
-// Only issues opened by the repository owner: the repo is public, and a stranger's issue must not reach the doc or fail the check.
-const open = (await paginate((page) => gh(`repos/${repo}/issues?state=open`, page), PER_PAGE, MAX_PAGES)).filter(isOwnerIssue);
-const issues = new Map();
-for (const issue of open) {
-  const blockers = await paginate((page) => gh(`repos/${repo}/issues/${issue.number}/dependencies/blocked_by`, page), PER_PAGE, MAX_PAGES);
-  issues.set(issue.number, {
-    title: issue.title,
-    labels: issue.labels.map((l) => l.name),
-    blockedBy: blockers.map((b) => ({ repo: b.repository_url.split("/").pop(), number: b.number, state: b.state })),
-  });
-}
+const { issues, nonOwnerOpen } = await loadIssues(repo, gh);
 
 let doc = readFileSync(DOC, "utf8");
 if (write) {
   doc = regenerate(doc, issues);
   writeFileSync(DOC, doc);
 }
-const problems = compare(doc, issues);
+const problems = compare(doc, issues, { nonOwnerOpen });
 for (const p of problems) console.log(p);
 if (problems.length) {
   console.error(`\n${DOC} 和 GitHub 有 ${problems.length} 处不一致。${write ? "重新生成以后还剩这些，要手工改。" : "跑 `npm run check:ticket-table -- --write` 重新生成 §3、§4 和 §1 的数字。"}`);

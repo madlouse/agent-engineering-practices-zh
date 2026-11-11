@@ -5,7 +5,12 @@
 // What comes from GitHub: title, labels, open blockers (native dependencies). What stays hand-written in the doc:
 // the 功能号 column, the last (备注) column, and which table a ticket sits in.
 
+import { isOwnerIssue } from "./cross-repo-refs.mjs";
+
 export const REPO = "velicoach";
+export const WRITABLE_REPO = `madlouse/${REPO}`;
+export const PER_PAGE = 100;
+export const MAX_PAGES = 20;
 // Open issues that carry a lane label but are not tickets in the table: the content umbrella issue (#3)
 // and the gate 3a review issue (#14).
 export const NOT_IN_TABLE = new Set([3, 14]);
@@ -32,12 +37,25 @@ export async function paginate(fetchPage, perPage = 100, maxPages = 20) {
  * an HTML tag or a link. The comparison uses the same function, so the doc and GitHub still match.
  */
 export function tableTitle(title) {
-  return title.replace(/[`\\]/g, "").replaceAll("<", "&lt;").replaceAll("[", "&#91;");
+  return stripBidi(title)
+    .replace(/[`\\]/g, "")
+    .replaceAll("<", "&lt;")
+    .replaceAll("[", "&#91;")
+    .replaceAll("://", ":&#47;&#47;")
+    .replace(/www\./gi, (m) => `${m.slice(0, 3)}&#46;`)
+    .replaceAll("@", "&#64;");
+}
+
+// Unicode bidirectional controls can make text display in a different order than it is stored.
+function stripBidi(text) {
+  return text.replace(/[\u202A-\u202E\u2066-\u2069\u200E\u200F]/g, "");
 }
 
 /** A title as it is written into a Mermaid node label: the characters that could end the label or start markup are dropped. */
 export function diagramTitle(title) {
-  return title.replace(/[<>"`\\[\]]/g, "").slice(0, 16);
+  return stripBidi(title)
+    .replace(/[<>"`\\[\]]/g, "")
+    .slice(0, 16);
 }
 
 /** One blocker as written in the table: 「#12」 for this repo, 「thin-muscle-coach#185」 for another one. */
@@ -228,7 +246,7 @@ const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x))
  * Every difference between the doc and GitHub, as readable lines. `issues` maps number -> { title, labels, blockedBy }
  * for every open issue of the repo; blockedBy items are { repo, number, state }.
  */
-export function compare(doc, issues) {
+export function compare(doc, issues, { nonOwnerOpen = new Set() } = {}) {
   const problems = [];
   const rows = parseTables(doc);
   const seen = new Set();
@@ -238,7 +256,11 @@ export function compare(doc, issues) {
     seen.add(row.number);
     const issue = issues.get(row.number);
     if (!issue) {
-      problems.push(`${at}：GitHub 上不是开着的票（已关闭或不存在），表里还列着`);
+      problems.push(
+        nonOwnerOpen.has(row.number)
+          ? `${at}：这张票开着，但不是仓库所有者开的，脚本不处理这样的票；表里不该列它`
+          : `${at}：GitHub 上不是开着的票（已关闭或不存在），表里还列着`,
+      );
       continue;
     }
     if (row.title !== tableTitle(issue.title)) problems.push(`${at}：标题不一样。表里「${row.title}」，GitHub「${tableTitle(issue.title)}」`);
@@ -279,4 +301,42 @@ export function regenerate(doc, issues) {
   const { lines: outLines, index } = countsLine(out);
   for (const [k, re] of Object.entries(COUNT_PATTERNS)) outLines[index] = outLines[index].replace(re, (whole, n) => whole.replace(n, String(actual[k])));
   return outLines.join("\n");
+}
+
+/**
+ * Command-line arguments of check-ticket-table: `[--write] [owner/repo]`. `--write` is only allowed for this repository:
+ * another repository's data must not be written into this repository's doc.
+ */
+export function parseArgs(argv) {
+  const unknown = argv.filter((a) => a.startsWith("--") && a !== "--write");
+  if (unknown.length) return { error: `不认识的参数：${unknown.join(" ")}` };
+  const write = argv.includes("--write");
+  const repo = argv.find((a) => !a.startsWith("--")) ?? WRITABLE_REPO;
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) return { error: `仓库要写成 owner/repo：${repo}` };
+  if (write && repo !== WRITABLE_REPO) return { error: `--write 只对 ${WRITABLE_REPO} 用：别的仓库的数据不能写进本仓库的文档。` };
+  return { write, repo };
+}
+
+/**
+ * Loads the open issues of `repo` with their blockers, page by page. `fetchPage(path, page)` returns one page of a REST list.
+ * Only issues opened by the repository owner are kept: the repo is public, and a stranger's issue must not reach the doc
+ * or fail the check. The numbers of the other open issues are returned so a row for one of them gets an accurate message.
+ */
+export async function loadIssues(repo, fetchPage, perPage = PER_PAGE, maxPages = MAX_PAGES) {
+  const open = (await paginate((page) => fetchPage(`repos/${repo}/issues?state=open`, page), perPage, maxPages)).filter((i) => !i.pull_request);
+  const issues = new Map();
+  const nonOwnerOpen = new Set();
+  for (const issue of open) {
+    if (!isOwnerIssue(issue)) {
+      nonOwnerOpen.add(issue.number);
+      continue;
+    }
+    const blockers = await paginate((page) => fetchPage(`repos/${repo}/issues/${issue.number}/dependencies/blocked_by`, page), perPage, maxPages);
+    issues.set(issue.number, {
+      title: issue.title,
+      labels: issue.labels.map((l) => l.name),
+      blockedBy: blockers.map((b) => ({ repo: b.repository_url.split("/").pop(), number: b.number, state: b.state })),
+    });
+  }
+  return { issues, nonOwnerOpen };
 }

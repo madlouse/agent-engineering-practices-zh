@@ -8,7 +8,7 @@
 
 | 文档 | 在线地址 | 仓库快照 |
 |---|---|---|
-| Velicoach 主站 PRD v1.2 | https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R | [prd/velicoach.md](prd/velicoach.md) |
+| Velicoach 主站 PRD v2.0 | https://claude.ai/artifact/DCjVTmTknxzkLpjHgrho8R | [prd/velicoach.md](prd/velicoach.md) |
 | Velicoach 总体方案（金字塔梳理） | https://claude.ai/artifact/R5P7pEGDRaoym7mEBtLMu4 | [prd/velicoach-strategy.md](prd/velicoach-strategy.md) |
 | Velicoach 设计系统 | https://claude.ai/artifact/6JqC3pUJ5GjDvXD2sEMZ5w | [uiue/system/](uiue/system/) |
 | 动效原型（A / B / C 三个方向，选定 C） | https://claude.ai/artifact/PGihowSLLCHsh3xDx14Dtd | [uiue/prototypes/velicoach-motion.html](uiue/prototypes/velicoach-motion.html) |
@@ -20,6 +20,8 @@
 |---|---|---|
 | [requirements/](requirements/) | 用户原句（`timeline.md`，按时间，一字不改）、需求追踪（`trace.md`，第 28 条起）、原来博客部分的要求按主题汇总（`summary.md`）、截图 | 拿不准用户本意时；改需求、改设计前 |
 | [prd/](prd/) | 主站 PRD 和总体方案的快照；看清的文章部分还没做完的范围（`remaining.md`） | 做任何功能前 |
+| [prd/decisions.md](prd/decisions.md) | 主站 PRD 的决定记录：每次决定的内容、理由、取代了哪条旧决定，最新的在最上面；PRD 只写「现在是什么」 | 想知道一条需求为什么这样定、能不能改时 |
+| [prd/changelog.md](prd/changelog.md) | 主站 PRD 的修订记录，和 v1.0 定稿时的对抗评审记录 | 写规格和票、要注明依据哪一版时 |
 | [uiue/](uiue/) | 设计系统的链接与副本、设计决定、动效原型；看清一站的定位，以及原来的博客留下和改掉的约定（`identity.md`） | 改界面前；做了新的体验决定后 |
 | [architecture/](architecture/) | 技术方案、路由表、ADR | 写代码前；技术选型或结构变化前 |
 | [issues/](issues/) | 原来的博客开过的打磨项和状态 | 接着打磨文章部分时 |

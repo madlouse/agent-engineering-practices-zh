@@ -21,13 +21,13 @@ export function findSharedPrefixRefs(line) {
   return out;
 }
 
-// Issue bodies are checked only for issues opened by the repository owner: the repo is public,
-// so anyone can open an issue, and a stranger's text must not be able to fail this check.
 /** An issue (not a pull request) opened by the repository owner. `author_association` is computed by GitHub and cannot be set by the author. */
 export function isOwnerIssue(issue) {
   return !issue.pull_request && issue.author_association === "OWNER";
 }
 
+// Issue bodies are checked only for issues opened by the repository owner: the repo is public,
+// so anyone can open an issue, and a stranger's text must not be able to fail this check.
 export function findSharedPrefixRefsInIssues(issues) {
   const hits = [];
   let checked = 0;

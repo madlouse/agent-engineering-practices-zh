@@ -234,6 +234,8 @@ test("parseArgs: --write only for this repository, unknown flags and malformed r
 
 test("loadIssues keeps owner-opened issues only, skips pull requests, and fetches every page of blockers", async () => {
   const blockers = Array.from({ length: 34 }, (_, i) => ({ number: i + 100, state: "open", repository_url: "https://api.github.com/repos/madlouse/velicoach" }));
+  blockers[32] = { number: 185, state: "open", repository_url: "https://api.github.com/repos/madlouse/thin-muscle-coach" };
+  blockers[33] = { number: 29, state: "closed", repository_url: "https://api.github.com/repos/madlouse/velicoach" };
   const calls = [];
   const fetchPage = async (path, page) => {
     calls.push(`${path}#${page}`);
@@ -250,7 +252,11 @@ test("loadIssues keeps owner-opened issues only, skips pull requests, and fetche
   };
   const { issues, nonOwnerOpen } = await loadIssues("madlouse/velicoach", fetchPage, 30);
   assert.deepEqual([...issues.keys()], [66]);
+  assert.equal(issues.get(66).title, "上线");
   assert.equal(issues.get(66).blockedBy.length, 34);
+  assert.deepEqual(issues.get(66).blockedBy[0], { repo: "velicoach", number: 100, state: "open" });
+  assert.deepEqual(issues.get(66).blockedBy[32], { repo: "thin-muscle-coach", number: 185, state: "open" });
+  assert.deepEqual(issues.get(66).blockedBy[33], { repo: "velicoach", number: 29, state: "closed" });
   assert.deepEqual(issues.get(66).labels, ["lane:site"]);
   assert.deepEqual([...nonOwnerOpen], [70]);
   assert.ok(!calls.some((c) => c.includes("/70/") || c.includes("/71/")), "no blocker requests for issues that are not kept");

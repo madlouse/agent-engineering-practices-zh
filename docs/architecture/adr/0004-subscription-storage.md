@@ -41,7 +41,7 @@
 
 - 发送前从 `subscribers` 读状态为 active 的地址，按订阅语言用 Resend 的批量发送接口发；这就是细则第 8 条的「发送前同步名单」。Resend 里不建受众（Audience），删除时少一处要删。
 - 每封邮件带自己的退订令牌，放进 `List-Unsubscribe`、`List-Unsubscribe-Post` 两个邮件头和正文底部的退订链接。
-- Resend 的打开追踪和点击追踪关闭。发信域名 news.velicoach.com（PRD 第 10 节）。
+- Resend 的打开追踪和点击追踪关闭。发信域名 news.velicoach.com（`docs/prd/decisions.md`）。
 - 回调 `POST /api/site/resend` 先校验 Resend 的签名（Svix），再按事件编号去重，写回状态。
 - 定时：Vercel Cron 触发发送；英文版按 America/New_York 的 08:00 换算，夏令时由处理函数判断。定时接口只接受带 `Authorization: Bearer $CRON_SECRET` 的请求，其余返回 401。Hobby 套餐的定时任务精度是一小时内，周日 08:00 准点要 Pro（PRD 第 8 节「成本」，升级票见 `docs/delivery/gate-3b-split.md` §5）。
 - 预览部署不配 `RESEND_API_KEY`，发信只记一行日志（不带邮箱），不真发。

@@ -1,0 +1,22 @@
+// Finds cross-repository issue references that share one repo prefix across a list:
+// 「thin-muscle-coach#185、#101」 reads as "#101 of this repo" once the list is split or copied.
+// Every cross-repo number carries its own prefix: 「thin-muscle-coach#185、thin-muscle-coach#101」,
+// and cross-repo numbers go after this repo's own numbers in a mixed list.
+//
+// Two passes keep it linear in the line length: first find runs of 「#N、#M…」, then look at the
+// (bounded) text right before each run for a repository name.
+const NUMBER_RUN = /#\d+(?:\s*[、，,和及与]\s*#\d+)+/g;
+// A repository name: 「owner/repo」, or a name of at least two characters that starts with a lowercase letter.
+// A single capital before 「#」 (「A#17、#27」: a rubric item in a review report) is not a repository.
+const REPO_PREFIX = /(?:[A-Za-z0-9][\w.-]*\/[\w.-]+|[a-z][\w.-]+)$/;
+const PREFIX_WINDOW = 120;
+
+export function findSharedPrefixRefs(line) {
+  const out = [];
+  for (const m of line.matchAll(NUMBER_RUN)) {
+    const before = line.slice(Math.max(0, m.index - PREFIX_WINDOW), m.index);
+    const prefix = before.match(REPO_PREFIX);
+    if (prefix) out.push(prefix[0] + m[0]);
+  }
+  return out;
+}

@@ -15,8 +15,8 @@
 - **表放在 schema `site`**，不加进 Supabase Data API 暴露的 schema 列表，公开接口（PostgREST）根本看不到它。
 - **迁移里显式收回权限**：`revoke all` 收回 `anon`、`authenticated`、`public` 对 schema `site` 和其中每张表、序列的权限，不靠 Supabase 的默认授权。
 - **运行时角色 `site_api`**：能登录，不是表的所有者，不带 `BYPASSRLS`；只授予 `usage on schema site` 和每张表需要的操作。
-- **两张表都开行级安全，按表写策略，只给 `site_api` 它需要的操作**：`subscribers` 给 select、insert、update、delete；`consent_records` 给 select、insert、delete（同意证据只增不改）。策略写成 `to site_api`，其他角色没有策略，一行也读不到。
-- **两个连接串，分开用**：
+- **`site` 里的每张表都开行级安全，按表写策略，只给 `site_api` 它需要的操作**：`subscribers` 给 select、insert、update、delete；`consent_records` 给 select、insert、delete（同意证据只增不改）；发送记录表给 select、insert（只追加，没有 update、delete，结构见 (b)）。策略写成 `to site_api`；发送记录表另给只读角色 `site_mail_log` 一条 select 的授权和策略（见 (b)），它在别的表上什么也没有。除这两个角色外没有别的策略，一行也读不到。
+- **三个连接串，分开用**（第三个 `SITE_DB_MAIL_LOG_URL` 只读发送记录表，见 (b)，订阅打开前才配，放在单独的 GitHub Environment `site-mail-log` 里，不和迁移连接串放在一起）：
   - `SITE_DB_URL`：`site_api` 经 Supabase 连接池（事务模式，用户名是 `site_api.<项目编号>`）的连接串，只放在 Vercel 的生产环境变量里，运行时只读它。
   - `SITE_DB_MIGRATE_URL`：表所有者的连接串，只放在 GitHub 的 Environment `site-db` 里（部署分支只允许 `site`、`feature/v1`，其他分支上的工作流读不到），只由站点迁移脚本在 CI 里读；不进 Vercel，运行时拿不到。
 - **迁移只走工作流 `site-db-migrate`**（`.github/workflows/site-db-migrate.yml`），构建命令里不跑迁移。触发只有两种：手动（`workflow_dispatch`）和 `push: site`（只看 `migrations/site/**`），不用 `pull_request`、`pull_request_target`。GitHub 只允许手动触发默认分支上已有的工作流，手动触发时执行的是所选分支上的那份文件。上线前默认分支是 `feature/v1`（`docs/standards/pipeline.md` §5），所以主会话的 `chore/` PR 把文件一次写全放进 `feature/v1`，上线前用 `ref=feature/v1` 手动触发，把迁移跑进生产库；上线合并把文件带进 `site`，上线后默认分支改回 `site`。上线前 `site` 上没有 `migrations/site/`，`push` 不会触发。Environment `site-db` 的部署分支限制配好并核对之前，不手动触发这个工作流（#40）。首次生产迁移后的权限核对是一张单独的票（#67）。迁移日志是公开的：`site:migrate` 不打印连接串或它的片段，驱动错误只输出类别和迁移文件名；迁移只依赖 `pg`，工作流的安装改成 `npm ci --omit=dev --ignore-scripts`（主会话改，#70 安全评审）。
@@ -46,9 +46,10 @@
 - 定时：Vercel Cron 触发发送；英文版按 America/New_York 的 08:00 换算，夏令时由处理函数判断。定时接口只接受带 `Authorization: Bearer $CRON_SECRET` 的请求，其余返回 401。Hobby 套餐的定时任务精度是一小时内，周日 08:00 准点要 Pro（PRD 第 8 节「成本」，升级票见 `docs/delivery/gate-3b-split.md` §5）。
 - 预览部署不配 `RESEND_API_KEY`，发信只记一行日志（不带邮箱），不真发。
 - **每期一份邮件文件**（2026-11-11 补，PRD 细则第 12、17 条）：一期邮件的内容是仓库里的一份文件，由内容车道在周五合并（只用已发布的内容按固定模板拼成）；发送任务只发已经合并的那一份，不在发送时现拼正文。
-- **发送前查当期的票**：周五内容车道另开一张票「订阅邮件第 N 期」。发送任务开跑前查这张票：带 `agent:hold` 或已经关闭，这一期不发，也不补发；查不到这张票或查询失败同样不发（宁可少发一期）。发完由内容推进器下一次运行在票里记录发送时间和封数并关票，发送任务自己不写 GitHub（`docs/standards/pipeline.md` §5.1「每周内容」）。
-- **每期每种语言只发一次**：发送任务发信前先在订阅库里按（期号，语言）写一条唯一的发送记录占位（(a) 的 schema `site` 里加一张发送记录表，期号加语言唯一，随发信的票建迁移），写不进去（已经有了）就不发；「已发」以这条记录为准，不以邮件票的状态为准。票被重开、任务被重复触发、内容推进器停摆时都不会重发。
-- **按票号读票，不按标题搜**：当期邮件文件里写死邮件票的编号。发送任务按编号读票，并核对：是 issue 不是 PR、作者是仓库所有者、状态开着、没有 `agent:hold`；有一项不符就不发。读票用一个只读的 GitHub 令牌（进密钥清单），发送任务不写 GitHub，票里的记录由内容推进器下一次运行补。
+- **发送前查当期的票**：周五内容车道另开一张票「订阅邮件第 N 期」。发送任务开跑前查这张票：带 `agent:hold` 或已经关闭，这一期不发，也不补发；查不到这张票或查询失败同样不发（宁可少发一期）。发送任务自己不写 GitHub；发完在票里记录并关票由一个单独的工作流做（见下面「发完由工作流在邮件票里记录」）。
+- **每期每种语言只发一次，发送记录表只追加**：(a) 的 schema `site` 里加一张发送记录表，随发信的票建迁移。列有期号、语言、`kind`、时间、封数、失败数，没有邮箱；`kind` 只有两种取值：`claim` 是占位，`result` 是结果；唯一键是（期号，语言，`kind`）。发送任务发信前先插入（期号，语言，`claim`）一行，这一行就是锁：插入冲突（已经有了）就不发。发完插入（期号，语言，`result`）一行，带发出时间、封数和失败数。两种行都只插入、不改：`site_api` 对这张表只有 select、insert，没有 update、delete；`site_mail_log` 只有 select。「已发」以占位行为准，不以邮件票的状态为准；只有占位行、没有结果行，说明这一期发到一半停了，不补发。票被重开、任务被重复触发、内容推进器停摆时都不会重发。（2026-11-11 按 PR #95 安全评审 B1 写死：唯一键只有期号加语言时，结果行插不进去，实现时只能给 `site_api` 加 update 或放宽唯一键，两条都破坏不变量。）
+- **按票号读票，不按标题搜**：当期邮件文件里写死邮件票的编号。发送任务按编号读票，过两部分核对，有一项不符就不发。**身份核对**（发送任务和下面的工作流共用一个函数，放在 `scripts/mail-log/ticket-identity.mjs`）：是 issue 不是 PR；作者的数字 `user.id` 等于仓库所有者的编号，且 `author_association` 是 `OWNER`（和「产品负责人的回复」的判法一致，不按登录名比：登录名可以改，旧名会被别人注册）；标题按锚定的正则解析出「订阅邮件第 N 期」的期号，和邮件文件的期号一致（写死的票号只能证明「这是仓库所有者开的一张 issue」）。**状态核对**（只有发送这一侧做）：票开着、没有 `agent:hold`。发送任务每批发出前重读一次邮件票、再过一遍状态核对：票被关或打了 `agent:hold` 就停下，已发的封数记进结果行，这样取消也能拦住发到一半的一期。读票用一个只读的 GitHub 令牌（进密钥清单），发送任务不写 GitHub。
+- **发完由工作流在邮件票里记录**（2026-11-11 定，关口三 b 冷审 P1-10 的做法 (b)）：一个 GitHub Actions 工作流 `site-mail-log`（主会话维护，跑在单独的 GitHub Environment `site-mail-log` 里，里面只有 `SITE_DB_MAIL_LOG_URL`；不用 `site-db`，那里有表所有者的连接串，一次写错的 `secrets` 引用就会让只读角色这层隔离白做）用只读角色 `site_mail_log` 的连接串 `SITE_DB_MAIL_LOG_URL` 读发送记录表，只取期号、语言、发出时间、封数、失败数五项，用工作流自带的 `GITHUB_TOKEN`（`issues: write`）按邮件文件里的票号在邮件票里写一条评论（首行 `<!-- vc-bot role=邮件记录 -->`）并关票；这一期没发就只写没发的原因。**写票之前的核对**：邮件文件里的票号是内容车道能改的数据，工作流又拿着能写票的令牌，所以写评论、关票之前过上一条的身份核对（同一个函数）；有一项不符就不写不关，只在工作流日志里报错。工作流这一侧不做状态核对：票已关或带 `agent:hold` 时它照样要写没发的原因。工作流照迁移工作流的加固写法（#73）：action 固定到完整的提交 SHA、checkout 不留凭据、安装不跑安装脚本；它调用的 `scripts/mail-log/`（含共用的身份核对函数）和工作流文件 `.github/workflows/site-mail-log.yml` 都进合并脚本的高风险文件清单，改它们的 PR 都要安全评审（#91）；放入 `SITE_DB_MAIL_LOG_URL` 之前，工作流文件先过一次独立的安全评审（#89）。`site_mail_log` 不带 `BYPASSRLS`，只有发送记录表的 select 授权和策略，读不到 `subscribers` 和 `consent_records`。角色由迁移建成不能登录的（`nologin`），授权和策略也写在迁移里，这样上线前的首次生产迁移不依赖任何人工步骤；订阅打开前，产品负责人只做一件事：把它改成能登录、设密码，把连接串放进 `site-mail-log` 环境（#96，排在上线前的权限核对 #67 之后：#67 核对的是上线时它还不能登录）。不为这件事加公开接口，内容推进器不读发送记录、也拿不到任何数据库连接串。没有选的两种做法：`/api/site/` 下加只读接口（多一个公开接口和一个密钥）；发送任务把这五项写进运行时日志由推进器读（依赖日志保留期）。
 - **发送时再核对一遍条目**：邮件里链到的内容已撤下，去掉那一条；去掉以后没有条目，这一期不发。
 
 **(c) 退订令牌：HMAC 签名，365 天失效，密钥可轮换。**
@@ -82,8 +83,9 @@
 
 ## 后果
 
-- 新增密钥：Vercel 生产环境里的 `SITE_DB_URL`、`RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`SUBSCRIBE_TOKEN_SECRET_<编号>`、`CRON_SECRET`、读邮件票用的只读 GitHub 令牌 `MAIL_TICKET_READ_TOKEN`（只给读 issue 的权限）；GitHub Actions 里的 `SITE_DB_MIGRATE_URL`。预览环境的 `SUBSCRIBE_TOKEN_SECRET_1`、`CRON_SECRET` 用另一组值。值不进代码、文档和提交信息；谁配见 `docs/delivery/gate-3b-split.md` §5。
-- 订阅的上线开关（PRD 细则第 16 条）：站点配置的一项，默认关。关着时生产的订阅接口返回 404、不写库，页面不渲染订阅条和页底订阅；预览恒为开。打开的条件和步骤见 `docs/delivery/launch-runbook.md`「订阅的上线开关」。
+- 新增密钥：Vercel 生产环境里的 `SITE_DB_URL`、`RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`SUBSCRIBE_TOKEN_SECRET_<编号>`、`CRON_SECRET`、读邮件票用的只读 GitHub 令牌 `MAIL_TICKET_READ_TOKEN`（只给读 issue 的权限）；GitHub Actions 里的两个，各在各的 Environment：`site-db` 里的 `SITE_DB_MIGRATE_URL`，`site-mail-log` 里只读角色 `site_mail_log` 的连接串 `SITE_DB_MAIL_LOG_URL`。每个密钥泄露了在哪换、换完要做什么，见 `docs/delivery/launch-runbook.md`「密钥泄露了怎么办」。预览环境的 `SUBSCRIBE_TOKEN_SECRET_1`、`CRON_SECRET` 用另一组值。值不进代码、文档和提交信息；谁配见 `docs/delivery/gate-3b-split.md` §5。
+- 订阅的上线开关（PRD 细则第 16 条）：站点配置的一项，默认关。关着时生产的订阅接口返回 404、不写库，页面不渲染订阅条和页底订阅；预览恒为开。打开的条件和步骤见 `docs/delivery/launch-runbook.md`「订阅的上线开关」；最早在域名切换完成以后打开。
+- 紧急关（2026-11-11 补，PR #84 安全评审的建议）：读开关的函数另读环境变量 `SUBSCRIBE_FORCE_OFF`，任何非空且不是 `0` 的值都算关，不管站点配置是什么；只能关、不能开，往关的方向失败（紧急时填成 `true`、`yes` 或多打一个空格也是关）。产品负责人在 Vercel 后台设上并点重新部署就生效，不用等 PR、评审和合并。一个开关管两件事，因为接口、页面和发送任务调的是同一个函数：订阅表单不显示、订阅接口返回 404，之后开跑的发送任务也不发；退订和 Resend 回调照常可用。**它管不到已经在跑的那一次发送**：环境变量要重新部署才生效，正在跑的调用读的还是旧值。已经在发时有两个办法：给当期邮件票打 `agent:hold` 或关掉它，发送任务每批发出前重读邮件票，会在批与批之间停下；要立刻停，直接在 Resend 后台删掉 API key，不必先试别的。Resend 没有「停用」，删了撤不回，恢复要新建一个 key、更新 Vercel 的 `RESEND_API_KEY` 并重新部署；发送任务是先写占位行再发，删 key 以后这一期按已发算、失败数照实记进结果行，这一期不补发。
 - Supabase 免费项目闲置会被暂停：上线后每 10 分钟的健康检查（ADR-0005）会访问数据库；上线前生产库没有访问，开工前按 Supabase 当前的规则核实，上线步骤里核对项目没有被暂停（`docs/delivery/launch-runbook.md`）。
 - 第三方仍是 PRD 列的那几家（Vercel、Supabase、Resend、Cloudflare），隐私政策不用多写一家。
 - IP 限流是每个实例各算，挡不住分布很广的滥用；靠一键退订、退信停发兜底。观察者上线两周后按 Resend 的退信和投诉数复核。

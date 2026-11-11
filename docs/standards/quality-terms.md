@@ -59,7 +59,7 @@
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
 | U1 一键：从用户落地的首页或三站首页出发，核心旅程两步内完成，不常用的不超过三步；悬停不算一步。步数表里每一步标「意图步」或「可删步」（定义见术语表）：每个撤不回的动作最多一个意图步，不计入预算，也不许为省步数去掉；法律要求的同意屏是第三类「法定步」：计入预算，不许省；超预算只删可删步；一个场景里意图步超过一个要在 `decisions.md` 写理由 | 全站 | 按 PRD 步数预算逐条走，记点按次数（设计评审；关口四走实现） | PRD 第 4 节；[NN/g：三次点击规则没有数据支持](https://www.nngroup.com/articles/3-click-rule/) |
-| U2 首屏回答三件事：这是给谁的（首屏里有受众词，例如「上班族」「想跟上 AI 的人」，矮屏收起说明时也留着）、能做什么、下一步点哪里；主操作和订阅在 1280×720、1440×790、390×664、320×568 下完整留在首屏里，首屏高度按视口（`100svh`）算，不写死 | 首页、三站首屏 | 视口：`verify_canvas.py --size` 按这四个尺寸各查一遍；关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
+| U2 首屏回答三件事：这是给谁的（首屏里有受众词，例如「上班族」「想跟上 AI 的人」，矮屏收起说明时也留着）、能做什么、下一步点哪里；主操作和订阅（订阅的上线开关关着时是那一行 RSS 链接）在 1280×720、1440×790、390×664、320×568 下完整留在首屏里，首屏高度按视口（`100svh`）算，不写死 | 首页、三站首屏 | 视口：`verify_canvas.py --size` 按这四个尺寸各查一遍；关口三 a：两份设计评审看截图 5 秒，都答得出算过；关口四：5 个没看过的人看首屏 5 秒，至少 4 人答得出（产品负责人找人，`pipeline.md` §2.3）。上线以关口四的结果为准 | [NN/g：用户在前 10 秒最容易离开](https://www.nngroup.com/articles/how-long-do-users-stay-on-web-pages/)；「5 人中 4 人」是自定 |
 | U3 一个区域只有 1 个主操作；整个首屏的主操作不超过 2 个 | 首页、三站首屏 | 数截图上的实色主按钮（设计评审） | apple.com、stripe.com、vercel.com 首屏各 2 个，linear.app 1 个；设计系统「一个区域只有一个主按钮」 |
 | U4 主导航不超过 6 项 | 全站 | 数导航（设计评审） | linear.app、stripe.com、anthropic.com 各 6 项，vercel.com 4 项；apple.com 的 11 项是零售站，不算 |
 | U5 导航标签和按钮文字说出去处或结果，不用「了解更多」「点击这里」；常驻的导航（主站只有顶部的胶囊导航一条；书脊和本站操作条在 v1 不做）在任何滚动位置、包括第一屏，标签都在视口里 | 全站 | 逐个读（设计评审、内容评审） | [NN/g 信息气味](https://www.nngroup.com/articles/3-click-rule/)；[Mailchimp](https://styleguide.mailchimp.com/web-elements/) |
@@ -145,7 +145,7 @@
 
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
-| X1 主要状态都在地址里：语言（`/en/`）、站、内容线（筛选和搜索词在 v1 没有：里程碑的类型筛选和搜索都推到 v2，做的时候同样进地址）；把当前地址在新的浏览器打开，看到同一状态；`<html lang>` 等于页面语言；涉及健康和个人数据的状态不进地址、不进统计；公开地址只增不删，改了一律 301 | 全站 | Playwright 往返测试：改状态后记地址，新上下文打开比较；旧地址清单逐条请求，状态 301、落点 200（评审；关口四。待做：关口三 b 开票） | [Vercel Web Interface Guidelines「URL as state」](https://github.com/vercel-labs/web-interface-guidelines)；[W3C Cool URIs](https://w3.org/Provider/Style/URI)（地址不变）；PRD F06 |
+| X1 主要状态都在地址里：语言（`/en/`）、站、内容线（筛选和搜索词在 v1 没有：里程碑的类型筛选和搜索都推到 v2，做的时候同样进地址）；把当前地址在新的浏览器打开，看到同一状态；`<html lang>` 等于页面语言；涉及健康和个人数据的状态不进地址、不进统计；公开地址只增不删，改了一律 301（产品负责人撤下的内容除外：原地址返回「页面不存在」，PRD 第 6 节） | 全站 | Playwright 往返测试：改状态后记地址，新上下文打开比较；旧地址清单逐条请求，状态 301、落点 200（评审；关口四。待做：关口三 b 开票） | [Vercel Web Interface Guidelines「URL as state」](https://github.com/vercel-labs/web-interface-guidelines)；[W3C Cool URIs](https://w3.org/Provider/Style/URI)（地址不变）；PRD F06 |
 | X2 可点元素都是原生控件（`button`、`a[href]`、`input`、`summary`）并有可读名称；不在 `div` 上挂点击；没有透明层盖住可点元素 | 全站 | axe 的 `button-name`、`link-name`；画板：`verify_canvas.py` 的「可点元素被盖住」；eslint `jsx-a11y/no-static-element-interactions`（待做：关口三 b 开票）；见 A7 | [web.dev：给 AI Agent 用的网站体验](https://web.dev/articles/ai-agent-site-ux)；[Claude 浏览器工具文档](https://platform.claude.com/docs/en/agents-and-tools/tool-use/browser-use-tool.md) |
 | X3 原地展开的选项始终在 DOM 里，每个是真链接，不悬停、只点击或回车也能到达；装饰性的 canvas 带 `aria-hidden`，它表达的入口另有真链接 | 全站 | Playwright 不悬停读无障碍树，所有去处都能找到（评审）；画板：设计评审 | 同上 |
 | X4 不执行脚本也读得到正文（标题、作者、日期、全文）；结构化数据、站点地图、RSS 都由内容数据生成，不手写第二份（`llms.txt` 不是规则；做了的话也由内容数据生成） | 文章页、三站页面 | `curl` 取页面查正文首尾句；脚本比对 JSON-LD 和内容数据（评审） | [Google：AI 搜索优化指南](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide)；[llmstxt.org](https://llmstxt.org/) |

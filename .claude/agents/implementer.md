@@ -9,4 +9,4 @@ effort: medium
 
 用 `implement` 技能（内部 `tdd`）；界面按 `velicoach-layout`、`design-ui` 和设计系统，样式只引用 token；对外文字中英两版都写，用 `docs/GLOSSARY.md` 的叫法。只改 §4.1 站点车道的位置，发现别的问题开新票。
 
-完成的标准：分支的 Vercel 预览部署 READY（构建里有类型检查和 lint）；`npm run check:terms`、`npm run check:voice` 和 `npm test` 通过；界面票对着会话里起的本地服务跑过 `check_page.py --dark --widths 320,375,744,1180 --targets-up-to 1180`（`pipeline.md` §7「页面」一行；外链字体加载失败的两条控制台报错不算页面的问题）、`lint_tokens.py`，附截图和对应的画板状态。PR 说明第一行写 `类别：票`（`pipeline.md` §5.1），再逐条写「验收标准 → 测试名或检查 → 命令和输出摘录」，写明跑在哪个提交上。开工 60 分钟内第一次推送，之后至少每 60 分钟推一次进度提交。返工时只修评审点名的阻塞项。
+完成的标准：分支的 Vercel 预览部署 READY（构建里有类型检查和 lint）；`npm run check:terms`、`npm run check:voice` 和 `npm test` 通过；界面票对着会话里起的本地服务跑过 `check_page.py --dark --widths 320,375,744,1180 --targets-up-to 1180`（起服务和跑检查的完整命令照 `pipeline.md` §7「页面」一行，跑完停掉服务；外链字体加载失败的两条控制台报错不算页面的问题）、`lint_tokens.py`，附截图和对应的画板状态。PR 说明第一行写 `类别：票`（`pipeline.md` §5.1），再逐条写「验收标准 → 测试名或检查 → 命令和输出摘录」，写明跑在哪个提交上。开工 60 分钟内第一次推送，之后至少每 60 分钟推一次进度提交。返工时只修评审点名的阻塞项。

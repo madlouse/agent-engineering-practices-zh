@@ -1,0 +1,202 @@
+[
+  {
+    "name": "/ 系统深色·没存过（自动）：首帧是深色",
+    "ok": true,
+    "detail": "首帧 rgb(18, 19, 16)，期望 rgb(18, 19, 16)"
+  },
+  {
+    "name": "/ 系统深色·没存过（自动）：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme null → null"
+  },
+  {
+    "name": "/ 系统深色·没存过（自动）：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "/ 系统深色·存的 auto：首帧是深色",
+    "ok": true,
+    "detail": "首帧 rgb(18, 19, 16)，期望 rgb(18, 19, 16)"
+  },
+  {
+    "name": "/ 系统深色·存的 auto：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme null → null"
+  },
+  {
+    "name": "/ 系统深色·存的 auto：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "/ 系统深色·存的 light：首帧是浅色",
+    "ok": true,
+    "detail": "首帧 rgb(244, 242, 236)，期望 rgb(244, 242, 236)"
+  },
+  {
+    "name": "/ 系统深色·存的 light：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme light → light"
+  },
+  {
+    "name": "/ 系统深色·存的 light：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "/ 系统浅色·存的 dark：首帧是深色",
+    "ok": true,
+    "detail": "首帧 rgb(18, 19, 16)，期望 rgb(18, 19, 16)"
+  },
+  {
+    "name": "/ 系统浅色·存的 dark：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme dark → dark"
+  },
+  {
+    "name": "/ 系统浅色·存的 dark：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "/ 读不到系统偏好·没存过：首帧是浅色",
+    "ok": true,
+    "detail": "首帧 rgb(244, 242, 236)，期望 rgb(244, 242, 236)"
+  },
+  {
+    "name": "/ 读不到系统偏好·没存过：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme null → null"
+  },
+  {
+    "name": "/ 读不到系统偏好·没存过：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统深色·没存过（自动）：首帧是深色",
+    "ok": true,
+    "detail": "首帧 rgb(18, 19, 16)，期望 rgb(18, 19, 16)"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统深色·没存过（自动）：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme null → null"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统深色·没存过（自动）：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统深色·存的 auto：首帧是深色",
+    "ok": true,
+    "detail": "首帧 rgb(18, 19, 16)，期望 rgb(18, 19, 16)"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统深色·存的 auto：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme null → null"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统深色·存的 auto：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统深色·存的 light：首帧是浅色",
+    "ok": true,
+    "detail": "首帧 rgb(244, 242, 236)，期望 rgb(244, 242, 236)"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统深色·存的 light：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme light → light"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统深色·存的 light：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统浅色·存的 dark：首帧是深色",
+    "ok": true,
+    "detail": "首帧 rgb(18, 19, 16)，期望 rgb(18, 19, 16)"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统浅色·存的 dark：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme dark → dark"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 系统浅色·存的 dark：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 读不到系统偏好·没存过：首帧是浅色",
+    "ok": true,
+    "detail": "首帧 rgb(244, 242, 236)，期望 rgb(244, 242, 236)"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 读不到系统偏好·没存过：加载后主题不变、首帧和加载后同一像素",
+    "ok": true,
+    "detail": "data-theme null → null"
+  },
+  {
+    "name": "/posts/dan-koe-one-day 读不到系统偏好·没存过：首次绘制之后 <html> 属性没有再变",
+    "ok": true,
+    "detail": "[]"
+  },
+  {
+    "name": "取值 \"Dark\"：按自动（系统深色→深色），data-theme 为空，值没进 DOM",
+    "ok": true,
+    "detail": "data-theme=null"
+  },
+  {
+    "name": "取值 \"blue\"：按自动（系统深色→深色），data-theme 为空，值没进 DOM",
+    "ok": true,
+    "detail": "data-theme=null"
+  },
+  {
+    "name": "取值 \"\"：按自动（系统深色→深色），data-theme 为空，值没进 DOM",
+    "ok": true,
+    "detail": "data-theme=null"
+  },
+  {
+    "name": "取值 \"<b>x</b>\"：按自动（系统深色→深色），data-theme 为空，值没进 DOM",
+    "ok": true,
+    "detail": "data-theme=null"
+  },
+  {
+    "name": "localStorage 抛异常：页面照常绘制，按自动处理（系统深色→深色）",
+    "ok": true,
+    "detail": "bg=rgb(18, 19, 16) data-theme=null pageerror=0"
+  },
+  {
+    "name": "自动：系统浅→深→浅，页面不刷新就跟着变",
+    "ok": true,
+    "detail": "rgb(244, 242, 236) → rgb(18, 19, 16) → rgb(244, 242, 236)"
+  },
+  {
+    "name": "没有发往 fonts.googleapis.com、fonts.gstatic.com 的请求（共 305 个请求）",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "外观的选择不发给服务端：没有请求的地址、正文、头里带 vc-theme",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "外观的选择不写 Cookie",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "localStorage 里的外观只有 vc-theme 这一个键",
+    "ok": true,
+    "detail": "键：vc-theme"
+  }
+]

@@ -20,8 +20,6 @@ export const Route = createRootRoute({
         name: "description",
         content: "人和 agent，一起走向还没到来的 AGI。按时间阅读这条路上的文章。",
       },
-      { name: "theme-color", media: "(prefers-color-scheme: light)", content: paperColor.light },
-      { name: "theme-color", media: "(prefers-color-scheme: dark)", content: paperColor.dark },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
@@ -34,6 +32,8 @@ export const Route = createRootRoute({
   component: () => (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content={paperColor.light} />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content={paperColor.dark} />
         <HeadContent />
       </head>
       <body>

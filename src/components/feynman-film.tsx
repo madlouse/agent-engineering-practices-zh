@@ -189,7 +189,7 @@ export function FeynmanFilm({ film, lang }: { film: Explainer; lang: "zh" | "en"
               spaceKeyToPlayOrPause
               alwaysShowControls
               acknowledgeRemotionLicense
-              className="w-full"
+              style={{ /* lint-tokens-ignore：Remotion Player 只从 style.width 读宽度，class 不起作用 */ width: "100%" }}
             />
           ) : (
             <div className="short-poster">

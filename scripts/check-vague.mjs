@@ -4,6 +4,7 @@
 import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { parseBlock, parseRuleIds, parseDimensions, findViolations } from "./vague-terms.mjs";
+import { stripPending } from "./pending-markers.mjs";
 
 const defs = readFileSync("docs/standards/quality-terms.md", "utf8");
 const terms = {
@@ -32,7 +33,8 @@ const files = process.argv.slice(2).length
 
 let hits = 0;
 for (const file of files) {
-  for (const v of findViolations(readFileSync(file, "utf8"), terms)) {
+  // A pending marker such as 〔<topic>：待定〕 is a registered open item (listed by check:pending), not vague wording.
+  for (const v of findViolations(stripPending(readFileSync(file, "utf8")), terms)) {
     const why = {
       filler: "判不了对错的虚词，换成具体的数、动作或产出",
       vague: "质量词没有定义：写上同一维度的「quality-terms <规则编号>」，或直接写成那条规则",

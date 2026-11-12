@@ -13,3 +13,12 @@ export function findPending(text) {
   });
   return hits;
 }
+
+/**
+ * Removes the markers themselves, so that a check on wording (check-vague) does not report the word inside a marker.
+ * Only the bracketed marker goes: the same word outside a marker stays and is still reported. Markers never span
+ * lines, so line numbers are unchanged.
+ */
+export function stripPending(text) {
+  return text.replace(PENDING, "");
+}

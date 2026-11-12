@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { findPending } from "./pending-markers.mjs";
+import { findPending, stripPending } from "./pending-markers.mjs";
+import { findViolations } from "./vague-terms.mjs";
 
 test("findPending lists every marker with its line and topic", () => {
   const text = ["第一行没有", "这件事〔Resend 留存：待定〕见 #13", "同一行两个〔甲：待定〕和〔乙：待定〕"].join("\n");
@@ -13,4 +14,18 @@ test("findPending lists every marker with its line and topic", () => {
 
 test("findPending ignores the bare word, other brackets and a marker broken across lines", () => {
   assert.deepEqual(findPending("待定，见 #13\n「Resend 留存：待定」\n〔Resend 留存：已定〕\n〔Resend 留存：\n待定〕"), []);
+});
+
+test("stripPending removes only the marker and keeps line numbers", () => {
+  assert.equal(stripPending("第一行\n还没有定〔Resend 留存：待定〕，见 #13\n第三行待定"), "第一行\n还没有定，见 #13\n第三行待定");
+});
+
+test("check-vague: a sentence with a marker passes, the same word outside a marker is still reported", () => {
+  const terms = { vague: [], filler: ["待定"], allowed: [], ruleIds: new Set(), dimensions: new Map() };
+  const text = "- [ ] 删除以后怎么处理还没有核对完〔Resend 留存：待定〕\n- [ ] 处理时限待定\n- [ ] 写成〔Resend 留存：待定〕以后仍然待定";
+  assert.deepEqual(findViolations(text, terms).map((v) => v.line), [1, 2, 3], "without stripping every line is reported");
+  assert.deepEqual(findViolations(stripPending(text), terms), [
+    { line: 2, word: "待定", kind: "filler" },
+    { line: 3, word: "待定", kind: "filler" },
+  ]);
 });

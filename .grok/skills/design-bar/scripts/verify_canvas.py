@@ -48,7 +48,8 @@
       连续没有文字、控件、图片的横向空带高度 > 视口的 30%（canvas、video、[data-motion] 盖住的不算空；
       只被动效画布盖住的另记一条提示：静态截图看不到它，要用 capture_motion.py 截出动效帧和兜底帧）
   31. 相邻两大块色面分不开：两块各占视口 ≥ 20%、彼此相邻（并排、上下相接或一块套一块）的平涂色面，对比 < 1.3:1（浅色、深色各查）。
-      带 box-shadow 或可见描边的面算已经分开，不报。1.3 是通用的下限；项目定了更高的门槛就用 --face-contrast 调高
+      边界已经画出来的面算分开，不报：有一层看得见的柔和阴影（不透明度 > 0.1、模糊 > 0；全透明的不算），或者描边
+      （边框、outline、没有模糊的 box-shadow 圈）和两块面里至少一块对比 ≥ 阈值（和面同色的描边不算）。1.3 是通用的下限；项目定了更高的门槛就用 --face-contrast 调高
   32. 字号种类过多：一块画板在基准视口下不同的字号 > 8 种，列出每种和用到的次数
   （提示）向第三方取字体：画板源码或运行时请求里出现 Google Fonts 这类第三方字体地址。不影响结论，理由写在报告里
   （另）颜色算不了：oklab()、color-mix() 这类写法画到画布上也取不到像素时报出来，不拿外层背景顶替
@@ -215,8 +216,9 @@ CHECK_JS = r"""
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     const own = (x, y) => { if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false; const h = document.elementFromPoint(x, y); return !!h && (h === el || el.contains(h)); };
     let w = r.width, h = r.height;
-    if (h < want && own(cx, cy - want / 2 + 1) && own(cx, cy + want / 2 - 1)) h = want;
-    if (w < want && own(cx - want / 2 + 1, cy) && own(cx + want / 2 - 1, cy)) w = want;
+    const out = (size) => size / 2 + Math.max((want - size) / 2 - 0.5, 1);  // 取样点至少在盒子外 1px：盒子自己差一点的不算撑到
+    if (h < want && own(cx, cy - out(h)) && own(cx, cy + out(h))) h = want;
+    if (w < want && own(cx - out(w), cy) && own(cx + out(w), cy)) w = want;
     return [w, h];
   };
   // 1、5：按钮
@@ -235,7 +237,7 @@ CHECK_JS = r"""
     if (interactive && !name(el) && !el.getAttribute('title')) issues.push({type: '控件没有可读名称', where: el.tagName.toLowerCase(), detail: '只有图标的按钮要写 aria-label，读屏才念得出来'});
     if (el.tagName === 'INPUT' && !['checkbox', 'radio', 'hidden'].includes(el.type) && !el.getAttribute('aria-label') && !el.closest('label') && !(el.id && document.querySelector(`label[for="${el.id}"]`)))
       issues.push({type: '控件没有可读名称', where: el.placeholder || 'input', detail: '输入框要有 <label> 或 aria-label，占位文字不算'});
-    if (interactive && !squashed && r.width > 0 && r.height > 0 && (r.width < TAP_MIN - 0.5 || r.height < TAP_MIN - 0.5) && !inSentence(el)) {
+    if (interactive && !squashed && r.width > 0 && (r.width < TAP_MIN - 0.5 || r.height < TAP_MIN - 0.5) && !inSentence(el)) {
       const measure = q => [hitSize(el, q, TAP_FLOOR), hitSize(el, q, TAP_MIN)];  // 热区要在视口里才量得到
       const [[fw, fh], [mw, mh]] = (r.bottom > innerHeight || r.top < 0) ? inView(el, measure) : measure(r);
       const size = `${Math.round(r.width)}×${Math.round(r.height)}`;
@@ -648,22 +650,33 @@ METRICS_JS = r"""
       const kids = cands.filter(b => inside(b, a) && !cands.some(m => inside(b, m) && inside(m, a)));
       a.left = a.area - kids.reduce((s, k) => s + k.area, 0); a.kids = kids;
     }
-    // 带阴影或可见描边的面，边界已经画出来了，算分得开
-    const seen = c => { const p = rgba(c); return !!p && p[3] > 0.1; };
-    const edged = el => { const cs = getComputedStyle(el);
-      if (cs.boxShadow && cs.boxShadow !== 'none') return true;
-      if (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0 && seen(cs.outlineColor)) return true;
-      return ['Top', 'Right', 'Bottom', 'Left'].some(k => cs['border' + k + 'Style'] !== 'none' && parseFloat(cs['border' + k + 'Width']) > 0 && seen(cs['border' + k + 'Color'])); };
+    // 边界已经画出来的面算分得开。两种画法：
+    //   柔和的阴影：有一层不透明度 > 0.1、模糊 > 0 的 box-shadow；全透明的（shadow-none 生成的 0 0 #0000）不算
+    //   描边：边框、outline、或没有模糊的 box-shadow（0 0 0 1px 这类圈）。描边的颜色（叠在这块面上以后）要和两块面里至少一块
+    //         对比 ≥ 阈值才算；和面同色的描边看不出来，不算
+    const need = O.faceContrast || 1.3;
+    const over = (c, base) => [0, 1, 2].map(k => c[k] * c[3] + base[k] * (1 - c[3]));
+    const stroke = (col, a, b) => { const p = rgba(col); if (!p || p[3] <= 0.1) return false; const c = over(p, a.c); return ratio(c, a.c) >= need || ratio(c, b.c) >= need; };
+    const edged = (a, b) => { const cs = getComputedStyle(a.el);
+      for (const layer of (cs.boxShadow && cs.boxShadow !== 'none' ? cs.boxShadow.split(/,(?![^(]*\))/) : [])) {
+        const col = (layer.match(/(rgba?|color|oklab|oklch|lab|lch|hsla?|hwb)\([^)]*\)|#[0-9a-f]+/i) || [''])[0];
+        const n = (layer.replace(col, '').match(/-?[\d.]+(?=px)/g) || []).map(Number);  // x、y、模糊、扩散
+        const p = rgba(col); if (!p || p[3] <= 0.1) continue;
+        if ((n[2] || 0) > 0) return true;
+        if (((n[3] || 0) !== 0 || (n[0] || 0) !== 0 || (n[1] || 0) !== 0) && stroke(col, a, b)) return true;
+      }
+      if (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0 && stroke(cs.outlineColor, a, b)) return true;
+      return ['Top', 'Right', 'Bottom', 'Left'].some(k => cs['border' + k + 'Style'] !== 'none' && parseFloat(cs['border' + k + 'Width']) > 0 && stroke(cs['border' + k + 'Color'], a, b)); };
     const pairs = [];
     for (let i = 0; i < cands.length; i++) for (let j = i + 1; j < cands.length; j++) {
       const a = cands[i], b = cands[j]; let adj = false;
-      if (inside(b, a)) adj = a.kids.includes(b) && a.left >= minA && !edged(b.el);
-      else if (inside(a, b)) adj = b.kids.includes(a) && b.left >= minA && !edged(a.el);
+      if (inside(b, a)) adj = a.kids.includes(b) && a.left >= minA && !edged(b, a);
+      else if (inside(a, b)) adj = b.kids.includes(a) && b.left >= minA && !edged(a, b);
       else {
         const ov = (p0, p1, q0, q1) => Math.min(p1, q1) - Math.max(p0, q0);
         const side = (Math.abs(a.x1 - b.x0) <= 2 || Math.abs(b.x1 - a.x0) <= 2) && ov(a.y0, a.y1, b.y0, b.y1) >= VH * 0.2;
         const stack = (Math.abs(a.y1 - b.y0) <= 2 || Math.abs(b.y1 - a.y0) <= 2) && ov(a.x0, a.x1, b.x0, b.x1) >= VW * 0.2;
-        adj = (side || stack) && a.left >= minA && b.left >= minA && !edged(a.el) && !edged(b.el);
+        adj = (side || stack) && a.left >= minA && b.left >= minA && !edged(a, b) && !edged(b, a);
       }
       if (!adj) continue;
       const k = ratio(a.c, b.c);
@@ -890,7 +903,7 @@ def main():
     ap.add_argument('--max-font-sizes', type=int, default=MAX_FONT_SIZES, help=f'一块画板里字号种类的上限（默认 {MAX_FONT_SIZES}）')
     a = ap.parse_args()
     opts = {'band': a.empty_band, 'face_contrast': a.face_contrast}
-    js_opts = json.dumps({'tapMin': a.tap_min, 'tapFloor': a.tap_floor, 'proseMin': PROSE_MIN_CHARS, 'faceArea': a.face_area})
+    js_opts = json.dumps({'tapMin': a.tap_min, 'tapFloor': a.tap_floor, 'proseMin': PROSE_MIN_CHARS, 'faceArea': a.face_area, 'faceContrast': a.face_contrast})
     size_args = []
     for m in a.size:
         name, _, wh = m.partition('=')

@@ -5,7 +5,8 @@
 
 用法：
   python check_agent_ready.py <站点地址或本地目录> [--out 目录] [--pages /,/post/hello] [--max-pages 5] [--no-render]
-  站点地址：https://example.com（普通 HTTP 请求，不执行脚本；连不上的项报「没查」，不算过）
+  站点地址：https://example.com（普通 HTTP 请求，不执行脚本；连不上的项报「没查」，不算过。根域和 www. 之间的跳转算同站，
+            跳到别的域名不跟过去取，记成没查）
   本地目录：构建产物（dist、out、public 这类静态文件）。不联网也能跑；/a/b 依次找 a/b、a/b.html、a/b/index.html
   --pages       要查的页面路径，逗号分隔。不给就查首页，再从 sitemap.xml（没有就从首页的站内链接）里取几页，共 --max-pages 页
   --no-render   不开浏览器。「原始 HTML 里有没有正文」要和执行脚本后的正文比，这一项会报「没查」
@@ -16,7 +17,7 @@
   身份        <title>、<link rel="canonical">（绝对地址）、<html lang>：缺了会取到错的版本、认错语言、说不出这页叫什么
   可点元素    都是原生的 a[href]、button（不在 div、span 上挂点击，a 都有 href）：不是原生的，Agent 找不到也点不到
   没被挡住    robots.txt 没有对所有爬虫整站 Disallow；也没有把替用户取页的（ChatGPT-User、Claude-User、Perplexity-User）整站挡掉：
-              挡了，用户让 Agent 读这个站时取不到。没有 robots.txt 按惯例是全部允许，不算不过（记成没做）
+              按惯例它们会被挡，用户让 Agent 读这个站时多半取不到。没有 robots.txt 按惯例是全部允许，不算不过（记成没做）
   做了就要对  下面的可选项一旦做了却是坏的（JSON-LD 解析不了、声明的 RSS 或 Markdown 取不到、llms.txt 里的站内链接打不开），
               也算必须项不过：坏的机器可读件比没有更糟，Agent 会照着它走，取到的就是错的
 
@@ -149,10 +150,16 @@ class OffSite(Exception):
     """站内地址被重定向到了站外：不跟过去取。"""
 
 
+def same_site_url(a, b):
+    """两个地址算不算同一个站：主机名相同（根域和 www. 互相算同站），端口相同；http 和 https 不分。"""
+    ua, ub = urllib.parse.urlparse(a), urllib.parse.urlparse(b)
+    bare = lambda u: (u.hostname or '').lower().removeprefix('www.')  # noqa: E731
+    return bool(ua.hostname) and bare(ua) == bare(ub) and ua.port == ub.port
+
+
 class SameSiteRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        old, new = urllib.parse.urlparse(req.full_url), urllib.parse.urlparse(newurl)
-        if (old.scheme, old.netloc) != (new.scheme, new.netloc) and not (old.netloc == new.netloc and new.scheme == 'https'):
+        if not same_site_url(req.full_url, newurl):
             raise OffSite(newurl)
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
@@ -172,7 +179,10 @@ class Site:
     def _file(self, path):
         rel = urllib.parse.unquote(path.split('?')[0].split('#')[0]).lstrip('/')
         for cand in (rel, rel + '.html', os.path.join(rel, 'index.html')):
-            p = os.path.realpath(os.path.join(self.root, cand))
+            try:
+                p = os.path.realpath(os.path.join(self.root, cand))
+            except ValueError:  # 路径里有 %00 这类非法字符：当成找不到，不让脚本崩
+                return None
             if os.path.commonpath([p, os.path.realpath(self.root)]) == os.path.realpath(self.root) and os.path.isfile(p):  # ../ 逃不出根目录
                 return p
         return None
@@ -206,7 +216,7 @@ class Site:
             return '/' + url.lstrip('/')
         if u.scheme not in ('http', 'https'):
             return None
-        if self.local or f'{u.scheme}://{u.netloc}' == self.origin:
+        if self.local or same_site_url(url, self.origin):
             return (u.path or '/') + ('?' + u.query if u.query else '')
         return None
 
@@ -331,7 +341,7 @@ def main():
             users = [b for b in shut if b in USER_FETCHERS]
             ev = '；'.join(f'{b}：{v}' for b, v in stances.items())
             if users:
-                ev += '。' + '、'.join(users) + ' 是替用户取页的，挡了以后用户让 Agent 读这个站时取不到'
+                ev += '。' + '、'.join(users) + ' 是替用户取页的：按惯例会被挡，用户让 Agent 读这个站时多半取不到（有的厂商说明用户发起的取页不一定照 robots.txt）'
             elif shut:
                 ev += '。被禁止的是训练或搜索用的爬虫：这些产品里搜不到、引不到这个站；是有意的决定就保留'
             add('robots.txt 点名 AI 爬虫', bool(users), FAIL if shut else PASS, ev)

@@ -26,10 +26,14 @@ button:hover{opacity:.9}
 <sc-if value="{{ emptyBand }}"><div style="height: 260px;"></div></sc-if>
 <sc-if value="{{ motionBand }}"><div style="position: relative; height: 260px;"><canvas aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%;"></canvas></div></sc-if>
 <p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">练什么、练多久，都替你排好了。</p>
-<div style="display: flex; height: 320px;"><div aria-label="左面" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 12px 20px; background: var(--ground);"><span style="font-size: 16px;">周二</span><span style="font-size: 16px;">周四</span><span style="font-size: 16px;">周六</span></div><div aria-label="右面" style="flex: 1; background: {{ faceB }}; box-shadow: {{ faceShadow }};"></div></div>
+<div style="display: flex; height: 320px;"><div aria-label="左面" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 12px 20px; background: var(--ground);"><span style="font-size: 16px;">周二</span><span style="font-size: 16px;">周四</span><span style="font-size: 16px;">周六</span></div><div aria-label="右面" style="flex: 1; background: {{ faceB }}; box-shadow: {{ faceShadow }}; border: {{ faceBorder }};"></div></div>
 <sc-if value="{{ shortLinks }}"><nav aria-label="面包屑" style="padding: 0 20px;"><a href="#mind" style="display: inline-block; min-width: 44px; height: 28px; line-height: 28px; font-size: 16px;">看清</a></nav></sc-if>
 <sc-if value="{{ proseLink }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">读完这一篇以后可以接着看<a href="#log">更新记录</a>，里面写了每次改动。</p></sc-if>
 <sc-if value="{{ shortProse }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">见<a href="#log">更新记录</a>。</p></sc-if>
+<sc-if value="{{ blockLink }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">读完这一篇以后可以接着看<a href="#ib" style="display: inline-block;">行内块链接</a>，里面写了每次改动。</p></sc-if>
+<sc-if value="{{ wholeLink }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;"><a href="#whole">整段就是一个很长的链接文字超过十二个字</a></p></sc-if>
+<sc-if value="{{ strongLink }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">读完这一篇以后可以接着看<strong><a href="#strong">加粗里的链接</a></strong>，里面写了每次改动。</p></sc-if>
+<sc-if value="{{ flatLink }}"><div style="padding: 0 20px;"><a href="#flat" aria-label="零高度的链接" style="display: block; width: 120px; height: 0;"></a></div></sc-if>
 <sc-if value="{{ divLink }}"><div style="margin: 8px 0; padding: 0 20px; font-size: 16px;">读完这一篇以后可以接着看<a href="#doc">文档</a>，里面写了每次改动。</div></sc-if>
 <sc-if value="{{ rowLink }}"><ul style="margin: 8px 0; padding: 0 20px; list-style: none; font-size: 16px;"><li><a href="#row">标题链接</a> 后面跟着一段比较长的说明文字，不是一句话中间的链接</li></ul></sc-if>
 <sc-if value="{{ cellLink }}"><table style="margin: 8px 20px; font-size: 16px;"><tr><td>读完这一篇以后可以接着看<a href="#more">更多</a>，里面写了每次改动。</td></tr></table></sc-if>
@@ -44,10 +48,10 @@ button:hover{opacity:.9}
 </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "空白带", "动效带", "色面分不开", "深色色面分不开", "链接太矮", "句中链接", "可点太小", "热区撑大", "字号太多", "短句链接", "块里的句中链接", "行标题链接", "表格里的句中链接", "页脚里的句子", "热区点不到", "色面有描边"], "default": "好的"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "空白带", "动效带", "色面分不开", "深色色面分不开", "链接太矮", "句中链接", "可点太小", "热区撑大", "字号太多", "短句链接", "块里的句中链接", "行标题链接", "表格里的句中链接", "页脚里的句子", "热区点不到", "色面有描边", "色面透明阴影", "色面同色描边", "行内块链接", "整段是链接", "加粗里的句中链接", "零高度的链接"], "default": "好的"}}'>
 class Component extends DCLogic { renderVals() {
   const c = this.props.case;
-  return { emptyBand: c === '空白带', motionBand: c === '动效带', faceShadow: c === '色面有描边' ? 'inset 0 0 0 1px var(--ink)' : 'none', faceB: (c === '色面分不开' || c === '色面有描边') ? '#e4e1d8' : c === '深色色面分不开' ? 'var(--panel)' : 'var(--ink)',
+  return { emptyBand: c === '空白带', motionBand: c === '动效带', faceShadow: c === '色面有描边' ? 'inset 0 0 0 1px var(--ink)' : c === '色面透明阴影' ? '0 0 #0000' : 'none', faceBorder: c === '色面同色描边' ? '1px solid #e4e1d8' : '0', flatLink: c === '零高度的链接', blockLink: c === '行内块链接', wholeLink: c === '整段是链接', strongLink: c === '加粗里的句中链接', faceB: ['色面分不开', '色面有描边', '色面透明阴影', '色面同色描边'].includes(c) ? '#e4e1d8' : c === '深色色面分不开' ? 'var(--panel)' : 'var(--ink)',
     shortLinks: c === '链接太矮', tallLink: !['链接太矮', '热区撑大', '热区点不到', '页脚里的句子'].includes(c), shortProse: c === '短句链接', divLink: c === '块里的句中链接', rowLink: c === '行标题链接', cellLink: c === '表格里的句中链接', footerProse: c === '页脚里的句子', deadHit: c === '热区点不到', proseLink: c === '句中链接', tooSmall: c === '可点太小', grownHit: c === '热区撑大', manySizes: c === '字号太多' };
 } }
 </script>

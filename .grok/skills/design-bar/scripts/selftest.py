@@ -101,9 +101,15 @@ def main():
             failures.append(f'漏报：SelftestSurface「{st}」应该报「{typ}」' + (f'（{th}）' if th else ''))
     # 行内例外的边界：只放过 p、li > span 里够长的句子中间的链接。短句、div、li > a 的行标题、td、页脚里的句子都照报；
     # 伪元素撑大的热区要真的点得到（pointer-events: none 的不算）
-    for st in ('case=短句链接', 'case=块里的句中链接', 'case=行标题链接', 'case=表格里的句中链接', 'case=页脚里的句子', 'case=热区点不到'):
+    for st in ('case=短句链接', 'case=块里的句中链接', 'case=行标题链接', 'case=表格里的句中链接', 'case=页脚里的句子', 'case=热区点不到',
+               'case=行内块链接', 'case=整段是链接', 'case=零高度的链接'):  # 行内显示才算句中；链接以外的字数不把链接自己的字算进去
         if not any(s_ == st and t_ in ('触控目标小于 44', '点按区域小于 24') for s_, t_, _ in sfound):
             failures.append(f'漏报：SelftestSurface「{st}」的链接应该报点按区域（不在行内例外里）')
+    if any(s_ == 'case=加粗里的句中链接' and t_ in ('触控目标小于 44', '点按区域小于 24') for s_, t_, _ in sfound):
+        failures.append('误报：SelftestSurface「case=加粗里的句中链接」verify_canvas.py 按祖先判（原来就是），p > strong > a 的句中链接不该报')
+    for st in ('case=色面透明阴影', 'case=色面同色描边'):  # 全透明的阴影、和面同色的描边都没把边界画出来
+        if not any(s_ == st and t_ == '相邻两大块色面分不开' for s_, t_, _ in sfound):
+            failures.append(f'漏报：SelftestSurface「{st}」看不见的阴影或描边不算分开，应该报「相邻两大块色面分不开」')
     if any(s_ == 'case=色面有描边' and t_ == '相邻两大块色面分不开' for s_, t_, _ in sfound):
         failures.append('误报：SelftestSurface「case=色面有描边」带 box-shadow 的面算已经分开，不该报「相邻两大块色面分不开」')
     for st, typ, th in (('case=深色色面分不开', '相邻两大块色面分不开', 'light'), ('case=色面分不开', '相邻两大块色面分不开', 'dark'), ('case=动效带', '首屏空白带', None),
@@ -201,7 +207,8 @@ def main():
             failures.append('check_page.py：页脚 16px 高的链接在手机和桌面宽度下都应该报短边 < 24')
         if any('更新记录' in t for t in w375['tinyTargets'] + w375['smallTargets']):
             failures.append('check_page.py：一句话中间的行内链接不该报点按区域')
-        for name in ('短句里的链接', '块里的链接', '页脚句子里的链接'):  # 不到 12 个字的短句、div 里、页脚里：都不在行内例外里
+        # 不到 12 个字的短句、div 里、页脚里、夹一层 strong / em（直接父元素不是原来放过的那几种）、inline-block、整段是链接：都不在行内例外里
+        for name in ('短句里的链接', '块里的链接', '页脚句子里的链接', '加粗里的链接', '强调里的链接', '行内块链接', '整段就是一个很长的链接', '差一点'):  # 43.7px 也算不到 44
             if not any(name in t for t in w375['tinyTargets'] + w375['smallTargets']):
                 failures.append(f'check_page.py：「{name}」应该报点按区域（不在行内例外里）')
         if not w375['emptyBand'] or not w1440['emptyBand']:
@@ -266,6 +273,24 @@ def main():
     ev = next((i['evidence'] for i in its if i['item'] == 'robots.txt 点名 AI 爬虫'), '')
     if code != 0 or ('robots.txt 点名 AI 爬虫', '不过') not in got or 'GPTBot：禁止整站' not in ev or 'ClaudeBot：允许' not in ev:
         failures.append(f'check_agent_ready.py：GPTBot 被整站禁止应该报不过（提示，退出码仍是 0），逐个写出允许还是禁止，实际 {code}：{ev}')
+
+    # robots.txt 对所有爬虫整站 Disallow：必须项不过
+    code, got, _ = variant(lambda d: open(os.path.join(d, 'robots.txt'), 'w').write('User-agent: *\nDisallow: /\n'))
+    if code != 1 or ('robots.txt', '不过') not in got:
+        failures.append(f'check_agent_ready.py：robots.txt 对 * 整站 Disallow 应该是必须项不过、退出码 1，实际 {code}')
+    # llms.txt 里的链接带 %00 这类非法路径：不崩，记成打不开并给出那条链接
+    code, got, its = variant(lambda d: open(os.path.join(d, 'llms.txt'), 'a', encoding='utf-8').write('\n- [坏链接](/a%00b.html)\n'))
+    ev = next((i['evidence'] for i in its if i['item'] == 'llms.txt'), '')
+    if ('llms.txt', '不过') not in got or '%00' not in ev:
+        failures.append(f'check_agent_ready.py：llms.txt 里带 %00 的链接应该记成打不开并列出来，不能崩，实际 {code}：{ev or "没有报告"}')
+    # 根域和 www. 之间的跳转算同站；别的域名、别的端口不算
+    sys.path.insert(0, HERE)
+    from check_agent_ready import same_site_url
+    for a_, b_, want in (('https://example.com/', 'https://www.example.com/x', True), ('http://www.example.com/', 'https://example.com/', True),
+                         ('https://example.com/', 'https://example.org/', False), ('https://example.com/', 'https://blog.example.com/', False),
+                         ('http://127.0.0.1:8000/', 'http://127.0.0.1:9/', False)):
+        if same_site_url(a_, b_) != want:
+            failures.append(f'check_agent_ready.py：{a_} → {b_} 应该{"算" if want else "不算"}同站')
 
     # ../ 逃不出根目录：llms.txt 里指到同级目录（名字以站点目录名开头）的链接算打不开
     def escape(d):

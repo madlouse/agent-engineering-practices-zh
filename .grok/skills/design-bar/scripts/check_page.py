@@ -10,11 +10,12 @@
 检查项：横向溢出、小字、对比度、点按区域（两级）、首屏空白带、相邻的大块色面（--dark 时深色也查）、
 语言声明、h1 和标题层级、alt、字号和文本颜色的种类、reduced-motion、焦点样式、控制台报错；向第三方取字体只作提示。
   点按区域：独立成行的链接和按钮 < --min-target（默认 44，在 --targets-up-to 以内的宽度上查）；任何可点元素短边 < --tap-floor
-           （默认 24，WCAG 2.2 的 2.5.8，所有宽度都查）。只放过一句话中间的行内链接：在 p 里或 li > span 里、行内显示、
-           不在 nav / header / footer 里、所在的块里链接以外还有 ≥ 12 个字；页脚、面包屑、整行链接、div 和 td 里的句中链接都查。
+           （默认 24，WCAG 2.2 的 2.5.8，所有宽度都查）。只放过一句话中间的行内链接：直接父元素是 P / LI / SPAN / TD / DD / BLOCKQUOTE
+           （原来的条件），并且在 p 里或 li > span 里、行内显示、不在 nav / header / footer 里、所在的块里链接以外还有 ≥ 12 个字；
+           页脚、面包屑、整行链接、div 和 td 里的句中链接、p > strong > a 这类夹一层行内标签的都查。
            用 ::before / ::after 撑大的热区按撑大后的量（伪元素要真的点得到）。
   首屏空白带、相邻色面：和 verify_canvas.py 的 30、31 是同一套量法和阈值（从它引入），页面按流式页面量第一屏；
-           带 box-shadow 或可见描边的面算已经分开。
+           有看得见的阴影、或描边和至少一侧的面对比达到阈值的面算已经分开。
 
 输出：
   <out>/shot-<宽度>-viewport.png、shot-<宽度>-full.png（--dark 时另有 -dark 版本）
@@ -132,10 +133,13 @@ COLLECT_JS = r"""
   // 点按区域：独立成行的 < minTarget（只在 mobileMax 以内的宽度）；任何可点元素短边 < tapFloor（所有宽度）
   out.smallTargets = []; out.tinyTargets = [];
   {
-    // 一句话中间的行内链接按 WCAG 2.5.8 豁免，和 verify_canvas.py 同一套判法：在 p 里或 li > span 里、行内、
-    // 不在 nav / header / footer 里、所在的块里链接以外还有 ≥ proseMin 个字。div、td、dd 里的句中链接和 li > a 照报
+    // 一句话中间的行内链接按 WCAG 2.5.8 豁免。条件和 verify_canvas.py 一样（在 p 里或 li > span 里、行内、
+    // 不在 nav / header / footer 里、所在的块里链接以外还有 ≥ proseMin 个字），另外保留本脚本原来的条件：
+    // 链接的直接父元素是 P / LI / SPAN / TD / DD / BLOCKQUOTE。两边都满足才放过，所以相对原来只有变严
     const inSentence = (el) => {
-      if (el.tagName !== 'A' || !el.closest('p, li > span') || getComputedStyle(el).display !== 'inline' || el.closest('nav, header, footer, [role="navigation"], menu')) return false;
+      // 原来的条件（直接父元素是这几种标签）和新条件都满足才放过：p > strong > a 这类夹一层行内标签的，原来报，现在照报
+      if (el.tagName !== 'A' || !el.parentElement || !/^(P|LI|SPAN|TD|DD|BLOCKQUOTE)$/.test(el.parentElement.tagName)) return false;
+      if (!el.closest('p, li > span') || getComputedStyle(el).display !== 'inline' || el.closest('nav, header, footer, [role="navigation"], menu')) return false;
       let blk = el.parentElement;
       while (blk && blk !== document.body && getComputedStyle(blk).display.startsWith('inline')) blk = blk.parentElement;
       if (!blk) return false;
@@ -151,8 +155,9 @@ COLLECT_JS = r"""
       const r = el.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
       const own = (x, y) => { if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false; const h = document.elementFromPoint(x, y); return !!h && (h === el || el.contains(h)); };
       let w = r.width, h = r.height;
-      if (h < want && own(cx, cy - want / 2 + 1) && own(cx, cy + want / 2 - 1)) h = want;
-      if (w < want && own(cx - want / 2 + 1, cy) && own(cx + want / 2 - 1, cy)) w = want;
+      const out = (size) => size / 2 + Math.max((want - size) / 2 - 0.5, 1);  // 取样点至少在盒子外 1px：盒子自己差一点的不算撑到
+      if (h < want && own(cx, cy - out(h)) && own(cx, cy + out(h))) h = want;
+      if (w < want && own(cx - out(w), cy) && own(cx + out(w), cy)) w = want;
       window.scrollTo({left: wx, top: wy, behavior: 'instant'});
       return [w, h];
     };
@@ -163,10 +168,10 @@ COLLECT_JS = r"""
       if (r.width >= opts.minTarget && r.height >= opts.minTarget) continue;
       const size = `${sel(el)} ${Math.round(r.width)}×${Math.round(r.height)}`;
       const [fw, fh] = hitSize(el, opts.tapFloor);
-      if (Math.min(fw, fh) < opts.tapFloor - 0.5) { if (out.tinyTargets.length < 12) out.tinyTargets.push(size); continue; }
+      if (Math.min(fw, fh) < opts.tapFloor) { if (out.tinyTargets.length < 12) out.tinyTargets.push(size); continue; }
       if (vw > opts.mobileMax) continue;
       const [mw, mh] = hitSize(el, opts.minTarget);
-      if ((mw < opts.minTarget - 0.5 || mh < opts.minTarget - 0.5) && out.smallTargets.length < 12) out.smallTargets.push(size);
+      if ((mw < opts.minTarget || mh < opts.minTarget) && out.smallTargets.length < 12) out.smallTargets.push(size);  // 和原来一样按 < 判，不留半个像素的余量
     }
   }
 
@@ -272,7 +277,7 @@ def main():
                                           device_scale_factor=1)
                 page = ctx.new_page()
                 page.on("request", lambda rq: requests.add(rq.url))
-                page.add_init_script("window.__vcFluid = true; window.__vcOpts = " + json.dumps({"faceArea": a.face_area}))
+                page.add_init_script("window.__vcFluid = true; window.__vcOpts = " + json.dumps({"faceArea": a.face_area, "faceContrast": a.face_contrast}))
                 if scheme == "light" and w == widths[0]:
                     page.on("console", lambda m: report["console_errors"].append(m.text) if m.type == "error" else None)
                     page.on("pageerror", lambda e: report["console_errors"].append(str(e)))

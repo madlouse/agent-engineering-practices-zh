@@ -17,6 +17,9 @@ button:hover{opacity:.9}
 .hit{position:relative}
 .hit::after{content:"";position:absolute;inset:-12px -10px}
 .hit-dead::after{pointer-events:none}
+.bar{position:relative}
+.bar::after{content:"";position:absolute;left:50%;width:2px;margin-left:-1px;top:-14px;bottom:-14px}
+.bar-22::after{width:22px;margin-left:-11px}
 :root{--ground:#f4f2ec;--ink:#1c1d19;--panel:#1c1d19}
 [data-theme="dark"]{--ground:#121310;--ink:#ecebe4;--panel:#22231f}
 </style>
@@ -44,15 +47,20 @@ button:hover{opacity:.9}
 <sc-if value="{{ shortLinks }}"><a href="#about" style="font-size: 14px;">关于</a></sc-if>
 <sc-if value="{{ grownHit }}"><a class="hit" href="#rights" style="display: inline-block; margin: 14px 12px; font-size: 14px; line-height: 20px;">版权</a></sc-if>
 <sc-if value="{{ deadHit }}"><a class="hit hit-dead" href="#rights" style="display: inline-block; margin: 14px 12px; font-size: 14px; line-height: 20px;">版权</a></sc-if>
+<sc-if value="{{ kidHit }}"><a href="#rights" aria-label="版权" style="position: relative; display: inline-block; margin: 14px 12px; width: 20px; height: 20px; font-size: 14px; line-height: 20px;">©<span aria-hidden="true" style="position: absolute; inset: -12px;"></span></a></sc-if>
+<sc-if value="{{ kidDead }}"><a href="#rights" aria-label="版权" style="position: relative; display: inline-block; margin: 14px 12px; width: 20px; height: 20px; font-size: 14px; line-height: 20px;">©<span aria-hidden="true" style="position: absolute; inset: -12px; pointer-events: none;"></span></a></sc-if>
+<sc-if value="{{ barHit }}"><a class="bar" href="#rights" style="display: inline-block; margin: 14px 12px; width: 300px; height: 16px; font-size: 14px; line-height: 16px;">版权</a></sc-if>
+<sc-if value="{{ stripHit }}"><a class="bar bar-22" href="#rights" style="display: inline-block; margin: 14px 12px; width: 300px; height: 16px; font-size: 14px; line-height: 16px;">版权</a></sc-if>
+<sc-if value="{{ holeHit }}"><span style="position: relative; display: inline-block; margin: 14px 12px;"><a class="hit" href="#rights" style="display: inline-block; font-size: 14px; line-height: 20px;">版权</a><i aria-hidden="true" style="position: absolute; left: 50%; top: -12px; width: 6px; height: 4px; margin-left: -3px; background: var(--ink);"></i></span></sc-if>
 <sc-if value="{{ footerProse }}"><p style="margin: 0; font-size: 16px;">继续使用就表示你同意我们的<a href="#terms">条款</a>，可以随时停用。</p></sc-if>
 </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "空白带", "动效带", "色面分不开", "深色色面分不开", "链接太矮", "句中链接", "可点太小", "热区撑大", "字号太多", "短句链接", "块里的句中链接", "行标题链接", "表格里的句中链接", "页脚里的句子", "热区点不到", "色面有描边", "色面透明阴影", "色面同色描边", "行内块链接", "整段是链接", "加粗里的句中链接", "零高度的链接"], "default": "好的"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "空白带", "动效带", "色面分不开", "深色色面分不开", "链接太矮", "句中链接", "可点太小", "热区撑大", "字号太多", "短句链接", "块里的句中链接", "行标题链接", "表格里的句中链接", "页脚里的句子", "热区点不到", "色面有描边", "色面透明阴影", "色面同色描边", "行内块链接", "整段是链接", "加粗里的句中链接", "零高度的链接", "子元素撑大热区", "子元素点不到", "细条热区", "窄条热区", "热区正中被盖住", "色面悬停阴影"], "default": "好的"}}'>
 class Component extends DCLogic { renderVals() {
   const c = this.props.case;
-  return { emptyBand: c === '空白带', motionBand: c === '动效带', faceShadow: c === '色面有描边' ? 'inset 0 0 0 1px var(--ink)' : c === '色面透明阴影' ? '0 0 #0000' : 'none', faceBorder: c === '色面同色描边' ? '1px solid #e4e1d8' : '0', flatLink: c === '零高度的链接', blockLink: c === '行内块链接', wholeLink: c === '整段是链接', strongLink: c === '加粗里的句中链接', faceB: ['色面分不开', '色面有描边', '色面透明阴影', '色面同色描边'].includes(c) ? '#e4e1d8' : c === '深色色面分不开' ? 'var(--panel)' : 'var(--ink)',
-    shortLinks: c === '链接太矮', tallLink: !['链接太矮', '热区撑大', '热区点不到', '页脚里的句子'].includes(c), shortProse: c === '短句链接', divLink: c === '块里的句中链接', rowLink: c === '行标题链接', cellLink: c === '表格里的句中链接', footerProse: c === '页脚里的句子', deadHit: c === '热区点不到', proseLink: c === '句中链接', tooSmall: c === '可点太小', grownHit: c === '热区撑大', manySizes: c === '字号太多' };
+  return { emptyBand: c === '空白带', motionBand: c === '动效带', faceShadow: c === '色面有描边' ? 'inset 0 0 0 1px var(--ink)' : c === '色面透明阴影' ? '0 0 #0000' : c === '色面悬停阴影' ? '0 8px 24px rgba(0,0,0,0)' : 'none', faceBorder: c === '色面同色描边' ? '1px solid #e4e1d8' : '0', flatLink: c === '零高度的链接', blockLink: c === '行内块链接', wholeLink: c === '整段是链接', strongLink: c === '加粗里的句中链接', faceB: ['色面分不开', '色面有描边', '色面透明阴影', '色面同色描边', '色面悬停阴影'].includes(c) ? '#e4e1d8' : c === '深色色面分不开' ? 'var(--panel)' : 'var(--ink)',
+    shortLinks: c === '链接太矮', tallLink: !['链接太矮', '热区撑大', '热区点不到', '页脚里的句子', '子元素撑大热区', '子元素点不到', '细条热区', '窄条热区', '热区正中被盖住'].includes(c), stripHit: c === '窄条热区', holeHit: c === '热区正中被盖住', kidHit: c === '子元素撑大热区', kidDead: c === '子元素点不到', barHit: c === '细条热区', shortProse: c === '短句链接', divLink: c === '块里的句中链接', rowLink: c === '行标题链接', cellLink: c === '表格里的句中链接', footerProse: c === '页脚里的句子', deadHit: c === '热区点不到', proseLink: c === '句中链接', tooSmall: c === '可点太小', grownHit: c === '热区撑大', manySizes: c === '字号太多' };
 } }
 </script>
 </body>

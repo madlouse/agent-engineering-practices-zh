@@ -100,20 +100,22 @@ def main():
         if not any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in sfound):
             failures.append(f'漏报：SelftestSurface「{st}」应该报「{typ}」' + (f'（{th}）' if th else ''))
     # 行内例外的边界：只放过 p、li > span 里够长的句子中间的链接。短句、div、li > a 的行标题、td、页脚里的句子都照报；
-    # 伪元素撑大的热区要真的点得到（pointer-events: none 的不算）
+    # 伪元素或子元素撑大的热区要真的点得到（pointer-events: none 的不算），并且盖得住目标尺寸的方块
     for st in ('case=短句链接', 'case=块里的句中链接', 'case=行标题链接', 'case=表格里的句中链接', 'case=页脚里的句子', 'case=热区点不到',
+               'case=子元素点不到', 'case=细条热区', 'case=窄条热区', 'case=热区正中被盖住',  # 子元素撑大的热区同样要点得到；只伸出一条 2px 或 22px 宽的条，盖不住目标方块；每条边正中那一点必须点得到
                'case=行内块链接', 'case=整段是链接', 'case=零高度的链接'):  # 行内显示才算句中；链接以外的字数不把链接自己的字算进去
         if not any(s_ == st and t_ in ('触控目标小于 44', '点按区域小于 24') for s_, t_, _ in sfound):
             failures.append(f'漏报：SelftestSurface「{st}」的链接应该报点按区域（不在行内例外里）')
     if any(s_ == 'case=加粗里的句中链接' and t_ in ('触控目标小于 44', '点按区域小于 24') for s_, t_, _ in sfound):
         failures.append('误报：SelftestSurface「case=加粗里的句中链接」verify_canvas.py 按祖先判（原来就是），p > strong > a 的句中链接不该报')
-    for st in ('case=色面透明阴影', 'case=色面同色描边'):  # 全透明的阴影、和面同色的描边都没把边界画出来
+    for st in ('case=色面透明阴影', 'case=色面悬停阴影', 'case=色面同色描边'):  # 全透明的阴影（有模糊、有偏移的也一样）、和面同色的描边都没把边界画出来
         if not any(s_ == st and t_ == '相邻两大块色面分不开' for s_, t_, _ in sfound):
             failures.append(f'漏报：SelftestSurface「{st}」看不见的阴影或描边不算分开，应该报「相邻两大块色面分不开」')
     if any(s_ == 'case=色面有描边' and t_ == '相邻两大块色面分不开' for s_, t_, _ in sfound):
         failures.append('误报：SelftestSurface「case=色面有描边」带 box-shadow 的面算已经分开，不该报「相邻两大块色面分不开」')
     for st, typ, th in (('case=深色色面分不开', '相邻两大块色面分不开', 'light'), ('case=色面分不开', '相邻两大块色面分不开', 'dark'), ('case=动效带', '首屏空白带', None),
-                        ('case=句中链接', '触控目标小于 44', None), ('case=句中链接', '点按区域小于 24', None), ('case=热区撑大', '触控目标小于 44', None), ('case=热区撑大', '点按区域小于 24', None)):
+                        ('case=句中链接', '触控目标小于 44', None), ('case=句中链接', '点按区域小于 24', None), ('case=热区撑大', '触控目标小于 44', None), ('case=热区撑大', '点按区域小于 24', None),
+                        ('case=子元素撑大热区', '触控目标小于 44', None), ('case=子元素撑大热区', '点按区域小于 24', None)):
         if any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in sfound):
             failures.append(f'误报：SelftestSurface「{st}」不该报「{typ}」' + (f'（{th}）' if th else ''))
     for s_, t_, _ in sorted(sfound):
@@ -208,9 +210,13 @@ def main():
         if any('更新记录' in t for t in w375['tinyTargets'] + w375['smallTargets']):
             failures.append('check_page.py：一句话中间的行内链接不该报点按区域')
         # 不到 12 个字的短句、div 里、页脚里、夹一层 strong / em（直接父元素不是原来放过的那几种）、inline-block、整段是链接：都不在行内例外里
-        for name in ('短句里的链接', '块里的链接', '页脚句子里的链接', '加粗里的链接', '强调里的链接', '行内块链接', '整段就是一个很长的链接', '差一点'):  # 43.7px 也算不到 44
+        for name in ('短句里的链接', '块里的链接', '页脚句子里的链接', '加粗里的链接', '强调里的链接', '行内块链接', '整段就是一个很长的链接', '差一点',  # 43.7px 也算不到 44
+                     '伪元素点不到', '子元素点不到', '细条热区', '窄条热区', '正中被盖住'):  # 撑大的部分点不到、只伸出一条比目标尺寸窄的条（2px、22px）、或上边正中被别的元素盖住，照盒子量
             if not any(name in t for t in w375['tinyTargets'] + w375['smallTargets']):
                 failures.append(f'check_page.py：「{name}」应该报点按区域（不在行内例外里）')
+        for name in ('伪元素撑大', '子元素撑大'):  # 伪元素或子元素把热区撑到 44×44、点得到的，按撑大后的量
+            if any(name in t for t in w375['tinyTargets'] + w375['smallTargets']):
+                failures.append(f'check_page.py：「{name}」的热区撑到了 44×44，不该报点按区域')
         if not w375['emptyBand'] or not w1440['emptyBand']:
             failures.append('check_page.py：首屏 50vh 的空带应该报「首屏空白带」')
         if w375['flatFaces'] or not rep['dark']['375'] or len(rep['dark']['375']) != 1:

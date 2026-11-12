@@ -12,8 +12,9 @@
   5. 点按区域（A2）：独立成行的链接和按钮 < 44×44 报「触控目标小于 44」；任何可点元素短边 < 24 报更重的「点按区域小于 24」
      （WCAG 2.2 的 2.5.8 底线）。页脚、面包屑、整行链接都查。只放过一句话中间的行内链接（2.5.8 的行内例外）：在 p 里或 li > span 里，
      行内显示，不在 nav / header / footer 里，所在的块里链接以外还有 ≥ 12 个字；div、td 里的句中链接和 li > a 的行标题链接照报。
-     用 ::before / ::after 把热区撑大的，按撑大后的量（2.5.8 量的是目标区域，不是文字盒）；伪元素要真的点得到：
-     写了 pointer-events: none、被别的东西盖住、或取样点在视口外量不了的，照盒子量
+     伪元素或子元素把热区撑大的（::before / ::after、溢出盒子的子元素），按撑大后的量（2.5.8 量的是目标区域，不是文字盒）。
+     撑大的部分要真的点得到，并且盖得住目标尺寸的方块：每条边取 5 点，正中一点要点到它或它的子元素，另外 4 点最多漏 1 点；
+     写了 pointer-events: none、被别的东西盖住、只伸出一条比目标尺寸窄的条、圆形或大圆角盖不住方块的角、或取样点在视口外量不了的，照盒子量
   6. 引用了没定义的 token：var(--x) 在样式表里找不到
   11. 展开层超出所在区块：aria-expanded 的控件用 aria-controls 指向的展开层，要完整留在所在 <section> 里
   12. 可点元素被盖住：链接、按钮、输入框的中心点上面压着别的控件或浮层
@@ -210,15 +211,22 @@ CHECK_JS = r"""
     while (tw.nextNode()) { const pe = tw.currentNode.parentElement; if (pe && !pe.closest('a, button, [role="button"], [role="link"]')) n += (tw.currentNode.textContent.match(/[A-Za-z0-9\u4e00-\u9fff]/g) || []).length; }
     return n >= PROSE_MIN;
   };
-  // 5：热区。用 ::before / ::after 撑大的热区量不到盒子上：在盒子外按目标尺寸取点，点到的还是它自己就算撑到了。
-  // 伪元素写了 pointer-events: none、或被别的东西盖住时点不到它自己，照盒子量；取样点在视口外量不了的也照盒子量
+  // 5：热区。伪元素或子元素撑大的热区（::before / ::after、溢出盒子的子元素）量不到盒子上：在盒子外按目标尺寸取点，
+  // 点到的是它自己或它的子元素就算点得到。撑大的部分写了 pointer-events: none、或被别的东西盖住时点不到，照盒子量；取样点在视口外量不了的也照盒子量
   const hitSize = (el, r, want) => {
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     const own = (x, y) => { if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false; const h = document.elementFromPoint(x, y); return !!h && (h === el || el.contains(h)); };
     let w = r.width, h = r.height;
     const out = (size) => size / 2 + Math.max((want - size) / 2 - 0.5, 1);  // 取样点至少在盒子外 1px：盒子自己差一点的不算撑到
-    if (h < want && own(cx, cy - out(h)) && own(cx, cy + out(h))) h = want;
-    if (w < want && own(cx - out(w), cy) && own(cx + out(w), cy)) w = want;
+    // 撑大的热区要盖得住目标尺寸的方块：每条边在 want 宽的窗口里取 5 点，正中那一点要点得到，另外 4 点最多漏 1 点。
+    // 只伸出一条比目标尺寸窄的竖条或横条的（300×16 的链接配 2px 或 22px 宽的伪元素），正中点得到、两边点不到，不算撑到；
+    // 圆形、圆角大于 2px 左右的撑大部分盖不住方块的角，也照盒子量
+    const SPREAD = [-0.48, -0.24, 0.24, 0.48];
+    const covers = (at) => own(...at(0)) && SPREAD.filter(f => own(...at(f * want))).length >= SPREAD.length - 1;
+    const tall = h < want && covers(d => [cx + d, cy - out(h)]) && covers(d => [cx + d, cy + out(h)]);
+    const wide = w < want && covers(d => [cx - out(w), cy + d]) && covers(d => [cx + out(w), cy + d]);
+    if (tall) h = want;
+    if (wide) w = want;
     return [w, h];
   };
   // 1、5：按钮
@@ -651,7 +659,7 @@ METRICS_JS = r"""
       a.left = a.area - kids.reduce((s, k) => s + k.area, 0); a.kids = kids;
     }
     // 边界已经画出来的面算分得开。两种画法：
-    //   柔和的阴影：有一层不透明度 > 0.1、模糊 > 0 的 box-shadow；全透明的（shadow-none 生成的 0 0 #0000）不算
+    //   柔和的阴影：有一层不透明度 > 0.1、模糊 > 0 的 box-shadow；全透明的不算（shadow-none 生成的 0 0 #0000、悬停才显出来的 0 8px 24px rgba(0,0,0,0)）
     //   描边：边框、outline、或没有模糊的 box-shadow（0 0 0 1px 这类圈）。描边的颜色（叠在这块面上以后）要和两块面里至少一块
     //         对比 ≥ 阈值才算；和面同色的描边看不出来，不算
     const need = O.faceContrast || 1.3;

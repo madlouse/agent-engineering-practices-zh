@@ -10,6 +10,14 @@ a{color:inherit}
 .panel{height:60vh;background:#1c1d19;color:#ecebe4}
 @media (prefers-color-scheme: dark){body{background:#121310;color:#ecebe4}.panel{background:#22231f}}
 @media (prefers-reduced-motion: reduce){*{transition:none}}
+.hit,.kid,.bar{position:relative;display:inline-block;font-size:14px;line-height:20px}
+.hit::after{content:"";position:absolute;inset:-12px -10px}
+.dead::after,.kid .dead{pointer-events:none}
+.kid{width:20px;height:20px}
+.kid span{position:absolute;inset:-12px}
+.bar{width:300px;height:16px;line-height:16px}
+.bar::after{content:"";position:absolute;left:50%;width:2px;margin-left:-1px;top:-14px;bottom:-14px}
+.bar22::after{width:22px;margin-left:-11px}
 </style>
 </head>
 <body>
@@ -24,6 +32,13 @@ a{color:inherit}
 <div style="padding:0 20px"><a href="#near" style="display:inline-block;width:43.7px;height:43.7px;overflow:hidden;font-size:12px">差一点</a></div>
 <p style="padding:0 20px"><a href="#whole">整段就是一个很长的链接文字超过十二个字</a></p>
 <div style="padding:0 20px">读完这一篇以后可以接着看<a href="#div">块里的链接</a>，里面写了每次改动。</div>
+<div style="padding:16px 20px"><a class="hit" href="#h1">伪元素撑大</a></div>
+<div style="padding:16px 20px"><a class="hit dead" href="#h2">伪元素点不到</a></div>
+<div style="padding:16px 20px"><a class="kid" href="#h3" aria-label="子元素撑大"><span></span></a></div>
+<div style="padding:16px 20px"><a class="kid" href="#h4" aria-label="子元素点不到"><span class="dead"></span></a></div>
+<div style="padding:16px 20px"><a class="bar" href="#h5">细条热区</a></div>
+<div style="padding:16px 20px"><a class="bar bar22" href="#h6">窄条热区</a></div>
+<div style="padding:16px 20px"><span style="position:relative;display:inline-block"><a class="hit" href="#h7">正中被盖住</a><i aria-hidden="true" style="position:absolute;left:50%;top:-12px;width:6px;height:4px;margin-left:-3px;background:#1c1d19"></i></span></div>
 <footer style="padding:20px"><a href="#about" style="font-size:14px">关于</a><p>继续使用就表示你同意我们的<a href="#terms">页脚句子里的链接</a>，可以随时停用。</p></footer>
 </body>
 </html>

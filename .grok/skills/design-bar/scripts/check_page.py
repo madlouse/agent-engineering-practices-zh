@@ -13,7 +13,8 @@
            （默认 24，WCAG 2.2 的 2.5.8，所有宽度都查）。只放过一句话中间的行内链接：直接父元素是 P / LI / SPAN / TD / DD / BLOCKQUOTE
            （原来的条件），并且在 p 里或 li > span 里、行内显示、不在 nav / header / footer 里、所在的块里链接以外还有 ≥ 12 个字；
            页脚、面包屑、整行链接、div 和 td 里的句中链接、p > strong > a 这类夹一层行内标签的都查。
-           用 ::before / ::after 撑大的热区按撑大后的量（伪元素要真的点得到）。
+           伪元素或子元素撑大的热区按撑大后的量（::before / ::after、溢出盒子的子元素；要真的点得到，
+           并且盖得住目标尺寸的方块，只伸出一条比目标尺寸窄的条、圆形或大圆角的不算）。
   首屏空白带、相邻色面：和 verify_canvas.py 的 30、31 是同一套量法和阈值（从它引入），页面按流式页面量第一屏；
            有看得见的阴影、或描边和至少一侧的面对比达到阈值的面算已经分开。
 
@@ -147,8 +148,8 @@ COLLECT_JS = r"""
       while (tw.nextNode()) { const pe = tw.currentNode.parentElement; if (pe && !pe.closest('a, button, [role="button"], [role="link"]')) n += (tw.currentNode.textContent.match(/[A-Za-z0-9\u4e00-\u9fff]/g) || []).length; }
       return n >= opts.proseMin;
     };
-    // 用 ::before / ::after 撑大的热区：在盒子外按目标尺寸取点，点到的还是它自己就算撑到了；
-    // 伪元素写了 pointer-events: none、被盖住、或取样点在视口外的，照盒子量
+    // 伪元素或子元素撑大的热区（::before / ::after、溢出盒子的子元素）：在盒子外按目标尺寸取点，
+    // 点到的是它自己或它的子元素就算点得到；撑大的部分写了 pointer-events: none、被盖住、或取样点在视口外的，照盒子量
     const hitSize = (el, want) => {
       const wx = scrollX, wy = scrollY;
       el.scrollIntoView({block: 'center', behavior: 'instant'});
@@ -156,8 +157,15 @@ COLLECT_JS = r"""
       const own = (x, y) => { if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false; const h = document.elementFromPoint(x, y); return !!h && (h === el || el.contains(h)); };
       let w = r.width, h = r.height;
       const out = (size) => size / 2 + Math.max((want - size) / 2 - 0.5, 1);  // 取样点至少在盒子外 1px：盒子自己差一点的不算撑到
-      if (h < want && own(cx, cy - out(h)) && own(cx, cy + out(h))) h = want;
-      if (w < want && own(cx - out(w), cy) && own(cx + out(w), cy)) w = want;
+      // 撑大的热区要盖得住目标尺寸的方块：每条边在 want 宽的窗口里取 5 点，正中那一点要点得到，另外 4 点最多漏 1 点。
+      // 只伸出一条比目标尺寸窄的竖条或横条的（300×16 的链接配 2px 或 22px 宽的伪元素），正中点得到、两边点不到，不算撑到；
+      // 圆形、圆角大于 2px 左右的撑大部分盖不住方块的角，也照盒子量
+      const SPREAD = [-0.48, -0.24, 0.24, 0.48];
+      const covers = (at) => own(...at(0)) && SPREAD.filter(f => own(...at(f * want))).length >= SPREAD.length - 1;
+      const tall = h < want && covers(d => [cx + d, cy - out(h)]) && covers(d => [cx + d, cy + out(h)]);
+      const wide = w < want && covers(d => [cx - out(w), cy + d]) && covers(d => [cx + out(w), cy + d]);
+      if (tall) h = want;
+      if (wide) w = want;
       window.scrollTo({left: wx, top: wy, behavior: 'instant'});
       return [w, h];
     };

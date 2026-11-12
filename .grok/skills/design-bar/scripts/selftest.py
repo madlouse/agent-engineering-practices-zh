@@ -75,7 +75,8 @@ def main():
                         ('case=词中断行', '词中断行', None), ('case=冲出容器', '文字冲出容器', None),
                         ('case=玻璃平涂', '玻璃压在平涂底色上', None), ('case=背景声明不成立', '玻璃的背景声明不成立', None),
                         ('case=没有状态样式', '可点元素没有悬停或按下样式', None), ('case=混排断行', '词中断行', None),
-                        ('case=展开挤动', '展开挤动了版面', None), ('case=写死宽度', '画板比视口宽', None), ('case=字太多', '首屏要读的字太多', None), ('case=站标不回首页', '站标不回首页', None), ('case=笼统进度', '笼统的进度文字', None)):
+                        ('case=展开挤动', '展开挤动了版面', None), ('case=写死宽度', '画板比视口宽', None), ('case=字太多', '首屏要读的字太多', None), ('case=站标不回首页', '站标不回首页', None), ('case=笼统进度', '笼统的进度文字', None),
+                        ('case=头图后首屏外', '首屏主操作在视口外', None)):  # 固定尺寸的画板：第一个 section 从半屏以下开始也照查
         if not any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in gfound):
             failures.append(f'漏报：SelftestGeometry「{st}」应该报「{typ}」')
     if any(s_ == 'case=玻璃有图' and t_ == '玻璃压在平涂底色上' for s_, t_, _ in gfound):
@@ -98,6 +99,13 @@ def main():
                         ('各状态合并', '字号种类过多', None)):
         if not any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in sfound):
             failures.append(f'漏报：SelftestSurface「{st}」应该报「{typ}」' + (f'（{th}）' if th else ''))
+    # 行内例外的边界：只放过 p、li > span 里够长的句子中间的链接。短句、div、li > a 的行标题、td、页脚里的句子都照报；
+    # 伪元素撑大的热区要真的点得到（pointer-events: none 的不算）
+    for st in ('case=短句链接', 'case=块里的句中链接', 'case=行标题链接', 'case=表格里的句中链接', 'case=页脚里的句子', 'case=热区点不到'):
+        if not any(s_ == st and t_ in ('触控目标小于 44', '点按区域小于 24') for s_, t_, _ in sfound):
+            failures.append(f'漏报：SelftestSurface「{st}」的链接应该报点按区域（不在行内例外里）')
+    if any(s_ == 'case=色面有描边' and t_ == '相邻两大块色面分不开' for s_, t_, _ in sfound):
+        failures.append('误报：SelftestSurface「case=色面有描边」带 box-shadow 的面算已经分开，不该报「相邻两大块色面分不开」')
     for st, typ, th in (('case=深色色面分不开', '相邻两大块色面分不开', 'light'), ('case=色面分不开', '相邻两大块色面分不开', 'dark'), ('case=动效带', '首屏空白带', None),
                         ('case=句中链接', '触控目标小于 44', None), ('case=句中链接', '点按区域小于 24', None), ('case=热区撑大', '触控目标小于 44', None), ('case=热区撑大', '点按区域小于 24', None)):
         if any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in sfound):
@@ -119,11 +127,11 @@ def main():
     ffound = {(st, i['type']) for i in fl for st in i['states']}
     if data['meta']['SelftestFluid.dc.html']['viewports'] != [[1200, 900], [390, 844], [320, 568]]:
         failures.append(f"流式页面应该查 1200×900、390×844、320×568，实际 {data['meta']['SelftestFluid.dc.html']['viewports']}")
-    for st, typ in (('320×568', '内容超出画板'), ('默认', '触控目标小于 44')):
+    for st, typ in (('320×568', '内容超出画板'), ('默认', '触控目标小于 44'), ('默认', '可点元素被盖住')):  # 被盖住的入口在一屏以下：滚到视口里再量
         if (st, typ) not in ffound:
             failures.append(f'漏报：SelftestFluid「{st}」应该报「{typ}」')
     for st, typ in sorted(ffound):
-        if typ not in ('写死的颜色', '触控目标小于 44') and st != '320×568':
+        if typ not in ('写死的颜色', '触控目标小于 44', '可点元素被盖住') and st != '320×568':  # 流式页面里从半屏以下开始的 section 不算首屏，里面的按钮不报「首屏主操作在视口外」
             failures.append(f'误报：SelftestFluid「{st}」不该报「{typ}」')
     cross = data['boards'].get('（跨画板）', [])
     edge = next((i for i in cross if i['type'] == '跨画板的内容左边缘不一致' and i['where'] == '390 宽'), None)
@@ -143,6 +151,21 @@ def main():
         except OSError:
             return {'viewports': [], 'size_source': r.stderr.strip()[-200:]}, set()
         return j['meta'][board], {n['type'] for n in j.get('notices', {}).get(board, [])}
+    # data-board="doc" 只在带 expand 的画板上认：固定尺寸的画板写了也照查
+    d = tempfile.mkdtemp(prefix='verify-doc-')
+    src = open(os.path.join(FIXTURES, 'SelftestSurface.dc.html'), encoding='utf-8').read().replace('data-first-screen', 'data-board="doc" data-first-screen', 1)
+    open(os.path.join(d, 'SelftestSurface.dc.html'), 'w', encoding='utf-8').write(src)
+    json.dump({'boards': {'SelftestSurface.dc.html': {'w': 390, 'h': 600}}}, open(os.path.join(d, 'canvas.json'), 'w', encoding='utf-8'))
+    subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), d, '--out', os.path.join(d, 'out'), '--themes', 'light'], capture_output=True, text=True)
+    try:
+        j = json.load(open(os.path.join(d, 'out', 'verify-canvas.json'), encoding='utf-8'))
+        if j['meta']['SelftestSurface.dc.html']['doc'] or not any(i['type'] == '点按区域小于 24' for i in j['boards']['SelftestSurface.dc.html']):
+            failures.append('固定尺寸的画板写了 data-board="doc" 不该跳过检查（只在带 expand 的画板上认）')
+    except (OSError, KeyError) as e:
+        failures.append(f'data-board 的用例没跑出报告：{e}')
+    if not data['meta']['SelftestSurface.dc.html'].get('doc') is False or '按说明文档跳过' not in open(os.path.join(out, 'verify-canvas.md'), encoding='utf-8').read():
+        failures.append('报告开头要列出按说明文档跳过检查的画板（没有时写「没有」）')
+
     m, _ = run_meta('SelftestFluid.dc.html')
     if m['size_source'] != '$preview' or m['viewports'][:1] != [[1200, 900]] or [390, 844] not in m['viewports']:
         failures.append(f'没有 canvas.json 时应该按 $preview 的 1200 宽查、并自动加窄视口，实际 {m}')
@@ -178,6 +201,9 @@ def main():
             failures.append('check_page.py：页脚 16px 高的链接在手机和桌面宽度下都应该报短边 < 24')
         if any('更新记录' in t for t in w375['tinyTargets'] + w375['smallTargets']):
             failures.append('check_page.py：一句话中间的行内链接不该报点按区域')
+        for name in ('短句里的链接', '块里的链接', '页脚句子里的链接'):  # 不到 12 个字的短句、div 里、页脚里：都不在行内例外里
+            if not any(name in t for t in w375['tinyTargets'] + w375['smallTargets']):
+                failures.append(f'check_page.py：「{name}」应该报点按区域（不在行内例外里）')
         if not w375['emptyBand'] or not w1440['emptyBand']:
             failures.append('check_page.py：首屏 50vh 的空带应该报「首屏空白带」')
         if w375['flatFaces'] or not rep['dark']['375'] or len(rep['dark']['375']) != 1:
@@ -190,24 +216,84 @@ def main():
         o = tempfile.mkdtemp(prefix='agent-ready-selftest-')
         r = subprocess.run([sys.executable, os.path.join(HERE, 'check_agent_ready.py'), target, '--out', o], capture_output=True, text=True)
         try:
-            return r.returncode, {(i['item'], i['status']) for i in json.load(open(os.path.join(o, 'agent-ready.json'), encoding='utf-8'))['items']}
+            its = json.load(open(os.path.join(o, 'agent-ready.json'), encoding='utf-8'))['items']
         except OSError:
-            return r.returncode, set()
-    code, got = agent_ready(os.path.join(FIXTURES, 'site-good'))
+            return r.returncode, set(), []
+        return r.returncode, {(i['item'], i['status']) for i in its}, its
+    code, got, _ = agent_ready(os.path.join(FIXTURES, 'site-good'))
     if code != 0 or any(st == '不过' for _, st in got):
         failures.append(f'check_agent_ready.py：做对的小站应该退出码 0、没有不过的项，实际 {code}：{sorted(x for x in got if x[1] != "过")}')
-    for item in ('正文在原始 HTML 里', 'JSON-LD', 'llms.txt', 'Markdown 版正文', 'RSS / Atom', '列表状态在地址里', 'robots.txt 点名 AI 爬虫'):
+    for item in ('正文在原始 HTML 里', 'JSON-LD', 'llms.txt', 'Markdown 版正文', 'RSS / Atom', '列表状态在地址里', 'robots.txt 点名 AI 爬虫', 'sitemap.xml'):
         if (item, '过') not in got:
             failures.append(f'check_agent_ready.py：做对的小站「{item}」应该是过')
-    code, got = agent_ready(os.path.join(FIXTURES, 'site-bad'))
+    code, got, its = agent_ready(os.path.join(FIXTURES, 'site-bad'))
     if code != 1:
         failures.append(f'check_agent_ready.py：做坏的小站应该退出码 1，实际 {code}')
-    for item in ('robots.txt', 'sitemap.xml', '正文在原始 HTML 里', 'title、描述、canonical、lang', '标题层级', '可点元素是原生的', '图片 alt', 'JSON-LD', 'llms.txt', 'RSS / Atom', '列表状态在地址里'):
+    for item in ('正文在原始 HTML 里', 'title、canonical、lang', '标题层级', '可点元素是原生的', '图片 alt', 'JSON-LD', 'llms.txt', 'RSS / Atom', '列表状态在地址里'):
         if (item, '不过') not in got:
             failures.append(f'check_agent_ready.py：做坏的小站「{item}」应该是不过')
-    code, got = agent_ready('http://127.0.0.1:9')
+    # 必须项只管取不取得到、对不对：没有 robots.txt、没有 sitemap.xml 是没做；标题层级、图片 alt 不过只是提示
+    for item in ('robots.txt', 'sitemap.xml'):
+        if (item, '没做') not in got:
+            failures.append(f'check_agent_ready.py：没有 {item} 应该记成没做，不是不过')
+    if any(i['required'] for i in its if i['item'] in ('标题层级', '图片 alt', 'robots.txt', 'sitemap.xml')):
+        failures.append('check_agent_ready.py：标题层级、图片 alt、缺 robots.txt、缺 sitemap.xml 不该算必须项')
+    code, got, _ = agent_ready('http://127.0.0.1:9')
     if code != 2 or ('首页', '没查') not in got or any(st == '过' for _, st in got):
         failures.append(f'check_agent_ready.py：连不上的站点应该报没查、退出码 2，不能算过，实际 {code}：{sorted(got)}')
+
+    def variant(change):
+        d = os.path.join(tempfile.mkdtemp(prefix='agent-ready-site-'), 'site')
+        shutil.copytree(os.path.join(FIXTURES, 'site-good'), d)
+        change(d)
+        return agent_ready(d)
+    # 只少了 robots.txt 和 sitemap.xml 的小站仍然过
+    def bare(d):
+        for f in ('robots.txt', 'sitemap.xml'):
+            os.remove(os.path.join(d, f))
+        lp = os.path.join(d, 'llms.txt')  # llms.txt 里指向站点地图的那一行一起去掉，不然它就是一条打不开的链接
+        kept = [ln for ln in open(lp, encoding='utf-8') if 'sitemap' not in ln]
+        open(lp, 'w', encoding='utf-8').writelines(kept)
+    code, got, _ = variant(bare)
+    if code != 0:
+        failures.append(f'check_agent_ready.py：只是没有 robots.txt 和 sitemap.xml 的小站应该退出码 0，实际 {code}：{sorted(x for x in got if x[1] == "不过")}')
+    # 点名 AI 爬虫要写出允许还是禁止；替用户取页的被整站禁止是必须项不过，训练用的被禁止是提示
+    code, got, its = variant(lambda d: open(os.path.join(d, 'robots.txt'), 'w').write('User-agent: *\nAllow: /\n\nUser-agent: Claude-User\nDisallow: /\n'))
+    ev = next((i['evidence'] for i in its if i['item'] == 'robots.txt 点名 AI 爬虫'), '')
+    if code != 1 or 'Claude-User：禁止整站' not in ev:
+        failures.append(f'check_agent_ready.py：Claude-User 被整站禁止应该是必须项不过，证据写明禁止，实际 {code}：{ev}')
+    code, got, its = variant(lambda d: open(os.path.join(d, 'robots.txt'), 'w').write('User-agent: *\nAllow: /\n\nUser-agent: GPTBot\nDisallow: /\n\nUser-agent: ClaudeBot\nAllow: /\n'))
+    ev = next((i['evidence'] for i in its if i['item'] == 'robots.txt 点名 AI 爬虫'), '')
+    if code != 0 or ('robots.txt 点名 AI 爬虫', '不过') not in got or 'GPTBot：禁止整站' not in ev or 'ClaudeBot：允许' not in ev:
+        failures.append(f'check_agent_ready.py：GPTBot 被整站禁止应该报不过（提示，退出码仍是 0），逐个写出允许还是禁止，实际 {code}：{ev}')
+
+    # ../ 逃不出根目录：llms.txt 里指到同级目录（名字以站点目录名开头）的链接算打不开
+    def escape(d):
+        os.makedirs(d + '2')
+        open(os.path.join(d + '2', 'secret.html'), 'w').write('<p>站点目录以外</p>')
+        open(os.path.join(d, 'llms.txt'), 'a', encoding='utf-8').write('\n- [外面](../site2/secret.html)\n')
+    code, got, _ = variant(escape)
+    if ('llms.txt', '不过') not in got:
+        failures.append('check_agent_ready.py：llms.txt 里用 ../ 指到站点目录以外的链接应该算打不开')
+
+    # 站内地址被重定向到站外：不跟过去取，记成没查
+    import http.server
+    import threading
+
+    class Redirect(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(302)
+            self.send_header('Location', 'http://127.0.0.1:9/elsewhere')
+            self.end_headers()
+
+        def log_message(self, *args):
+            pass
+    srv = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Redirect)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    code, got, its = agent_ready(f'http://127.0.0.1:{srv.server_address[1]}')
+    srv.shutdown()
+    if code != 2 or not any(i['item'] == '首页' and i['status'] == '没查' and '站外' in i['evidence'] for i in its):
+        failures.append(f'check_agent_ready.py：首页被重定向到站外应该不取、记成没查，实际 {code}：{[i["evidence"] for i in its][:3]}')
 
     # 数据字段 → 画板（coverage.py --data）：照抄进逻辑的字段不算画出来，模板洞里用到的算
     cov = tempfile.mkdtemp(prefix='coverage-selftest-')
@@ -224,7 +310,7 @@ def main():
         print(f'报告：{out}/verify-canvas.md')
         sys.exit(1)
     print(f'selftest 通过：{sum(len(v) for v in EXPECT.values())} 类问题、4 种模板味信号、属性选项、额外视口和 14 类几何和排版问题（含玻璃平涂、背景声明、悬停按下样式、中英混排断行、展开挤动、画板比视口宽、首屏字太多、站标不回首页、笼统的进度文字）都抓到了，oklab 和 color-mix 写的底色也算得对，好的状态没有误报；'
-          '首屏空白带、相邻色面（浅色、深色）、点按区域两级、字号种类、跨画板左边缘、第三方字体提示、流式页面自动加窄视口、画板尺寸的三种来源、--no-webgl 的兜底画面也对；check_page.py 和 check_agent_ready.py（做对的、做坏的、连不上的）也对；coverage.py 的数据字段对照也对')
+          '首屏空白带、相邻色面（浅色、深色）、点按区域两级、字号种类、跨画板左边缘、第三方字体提示、流式页面自动加窄视口、画板尺寸的三种来源、--no-webgl 的兜底画面也对；check_page.py 和 check_agent_ready.py（做对的、做坏的、连不上的、被挡的、../ 和站外重定向）也对；coverage.py 的数据字段对照也对')
 
 
 if __name__ == '__main__':

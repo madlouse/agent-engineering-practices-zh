@@ -11,17 +11,24 @@
   --no-render   不开浏览器。「原始 HTML 里有没有正文」要和执行脚本后的正文比，这一项会报「没查」
   --body-ratio  原始 HTML 的正文长度至少是执行脚本后的多少（默认 0.8）
 
-必须项（不过时退出码 1）。划分的理由：缺了它，Agent 取不到内容，或者取到的是错的：
-  正文      原始 HTML 里的正文长度 ≥ 执行脚本后的 80%（多数爬虫和取页工具不执行脚本）
-  身份      <title>、<meta name="description">、<link rel="canonical">（绝对地址）、<html lang>
-  结构      有且只有一个 h1，标题不跳级；可点的都是原生的 a[href]、button（不在 div、span 上挂点击，a 都有 href）；图片都有 alt
-  可发现    /robots.txt 在，而且没有对所有爬虫整站 Disallow；/sitemap.xml 在、能解析、列了地址
+必须项（不过时退出码 1）。划分只看两件事：Agent 取不取得到内容，取到的对不对。
+  正文        原始 HTML 里的正文长度 ≥ 执行脚本后的 80%（多数爬虫和取页工具不执行脚本，靠脚本渲染的正文它们取不到）
+  身份        <title>、<link rel="canonical">（绝对地址）、<html lang>：缺了会取到错的版本、认错语言、说不出这页叫什么
+  可点元素    都是原生的 a[href]、button（不在 div、span 上挂点击，a 都有 href）：不是原生的，Agent 找不到也点不到
+  没被挡住    robots.txt 没有对所有爬虫整站 Disallow；也没有把替用户取页的（ChatGPT-User、Claude-User、Perplexity-User）整站挡掉：
+              挡了，用户让 Agent 读这个站时取不到。没有 robots.txt 按惯例是全部允许，不算不过（记成没做）
   做了就要对  下面的可选项一旦做了却是坏的（JSON-LD 解析不了、声明的 RSS 或 Markdown 取不到、llms.txt 里的站内链接打不开），
-            也算必须项不过：坏的机器可读件比没有更糟，Agent 会照着它走
+              也算必须项不过：坏的机器可读件比没有更糟，Agent 会照着它走，取到的就是错的
 
-可选项（没做只提示，不影响退出码）。它们让数据更准、更省、更好取，但没有它们 Agent 仍然读得到正文：
-  JSON-LD（类型列出来）、<link rel="alternate"> 的 RSS / Atom（能不能取到、是不是全文）、Markdown 版正文、/llms.txt、
-  Open Graph、hreflang（只有一种语言的站不需要）、文章页的作者和日期、robots.txt 里点名 AI 爬虫、
+可选项（没做或不过只提示，不影响退出码）。没有它们 Agent 仍然取得到正文，它们管的是好不好找、省不省、准不准：
+  sitemap.xml         发现性：页面从首页一路链接得到就取得到，没有站点地图只是不容易取全（单页小站可以没有）
+  标题层级            一个 h1、不跳级：正文取得到，只是切分段落和摘要时不准
+  图片 alt            正文取得到；图里的信息读不到。信息只在图里的那种，评审时人判
+  描述、Open Graph    摘要和分享卡片用；没有时 Agent 自己从正文里取
+  JSON-LD（列出类型）、<link rel="alternate"> 的 RSS / Atom（是不是全文）、Markdown 版正文、/llms.txt、
+  hreflang（只有一种语言的站不需要）、文章页的作者和日期
+  robots.txt 点名 AI 爬虫：逐个写出允许还是禁止。训练和搜索用的爬虫（GPTBot、ClaudeBot、Google-Extended 等）被整站禁止时报不过：
+              这可以是有意的决定，但后果是这些产品里搜不到、引不到这个站，报出来让人确认
   列表状态在不在地址里（筛选、分页、标签页是带地址的链接，还是没有地址的按钮；报告里给出判断依据）
 
 退出码：0 必须项都过；1 有必须项不过；2 没有不过的，但有必须项没查成（连不上、没装浏览器）。
@@ -46,6 +53,7 @@ MAX_PAGES = 5           # 默认查几页
 MAX_LINKS = 60          # llms.txt 里最多核对多少个站内链接
 FULL_TEXT_CHARS = 600   # RSS 每条平均超过这么多字算全文
 UA = 'design-bar-agent-ready/1.0'
+USER_FETCHERS = ('ChatGPT-User', 'Claude-User', 'Perplexity-User')  # 替用户取页的：被挡 = 用户的 Agent 取不到
 AI_BOTS = ('GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-User', 'Claude-SearchBot', 'PerplexityBot', 'Perplexity-User',
            'Google-Extended', 'Applebot-Extended', 'CCBot', 'Bytespider', 'meta-externalagent', 'Amazonbot')
 NATIVE = {'a', 'button', 'input', 'select', 'textarea', 'summary', 'label', 'option', 'details'}
@@ -137,6 +145,21 @@ class Page(HTMLParser):
         return re.sub(r'\s+', '', ''.join(self.text))
 
 
+class OffSite(Exception):
+    """站内地址被重定向到了站外：不跟过去取。"""
+
+
+class SameSiteRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        old, new = urllib.parse.urlparse(req.full_url), urllib.parse.urlparse(newurl)
+        if (old.scheme, old.netloc) != (new.scheme, new.netloc) and not (old.netloc == new.netloc and new.scheme == 'https'):
+            raise OffSite(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+OPENER = urllib.request.build_opener(SameSiteRedirect)
+
+
 class Site:
     """站点地址或本地目录：同一套 get(path) → (状态, 内容)。状态：'ok'、'missing'、'unreachable'。"""
 
@@ -149,8 +172,8 @@ class Site:
     def _file(self, path):
         rel = urllib.parse.unquote(path.split('?')[0].split('#')[0]).lstrip('/')
         for cand in (rel, rel + '.html', os.path.join(rel, 'index.html')):
-            p = os.path.normpath(os.path.join(self.root, cand))
-            if p.startswith(self.root) and os.path.isfile(p):
+            p = os.path.realpath(os.path.join(self.root, cand))
+            if os.path.commonpath([p, os.path.realpath(self.root)]) == os.path.realpath(self.root) and os.path.isfile(p):  # ../ 逃不出根目录
                 return p
         return None
 
@@ -162,8 +185,11 @@ class Site:
             return 'ok', open(p, encoding='utf-8', errors='replace').read()
         url = path if path.startswith('http') else self.root + '/' + path.lstrip('/')
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': UA, 'Accept': '*/*'}), timeout=20) as r:
+            with OPENER.open(urllib.request.Request(url, headers={'User-Agent': UA, 'Accept': '*/*'}), timeout=20) as r:
                 return 'ok', r.read().decode('utf-8', errors='replace')
+        except OffSite as e:
+            self.why = f'被重定向到站外 {str(e)[:80]}，不取'
+            return 'unreachable', ''
         except urllib.error.HTTPError as e:
             if e.code in (404, 410):
                 return 'missing', ''
@@ -267,9 +293,9 @@ def main():
     # ---- 全站文件 ----
     st, robots = site.get('/robots.txt')
     if st == 'unreachable':
-        add('robots.txt', True, SKIP, f'连不上：{site.why}')
+        add('robots.txt', True, SKIP, f'没取到：{site.why}')
     elif st == 'missing':
-        add('robots.txt', True, FAIL, '没有 /robots.txt：爬虫不知道哪些能取，也找不到站点地图')
+        add('robots.txt', False, NONE, '没有 /robots.txt：按惯例是全部允许，取得到；做的话写明站点地图的地址和对 AI 爬虫的态度')
     else:
         groups, cur, fresh = {}, [], True  # User-agent → 规则；连着的几行 User-agent 共用一组
         for line in robots.splitlines():
@@ -285,27 +311,47 @@ def main():
                 fresh = False
                 for u in cur:
                     groups[u].append((k, v))
-        blocked = any(k == 'disallow' and v == '/' for k, v in groups.get('*', [])) and not any(k == 'allow' and v in ('/', '/*') for k, v in groups.get('*', []))
+
+        def whole_site(rules):
+            return any(k == 'disallow' and v in ('/', '/*') for k, v in rules) and not any(k == 'allow' and v in ('/', '/*') for k, v in rules)
+        blocked = whole_site(groups.get('*', []))
         add('robots.txt', True, FAIL if blocked else PASS, '对所有爬虫整站 Disallow: /' if blocked else f'在；对 * 的规则 {len(groups.get("*", []))} 条' + ('，写了 Sitemap' if re.search(r'(?im)^sitemap:', robots) else '，没写 Sitemap 一行'))
         named = [b for b in AI_BOTS if b.lower() in groups]
-        add('robots.txt 点名 AI 爬虫', False, PASS if named else NONE, '点名了 ' + '、'.join(named) if named else '没有点名任何 AI 爬虫，它们跟着 * 的规则走；想区分「训练」和「替用户取页」就分开写（例如 GPTBot / ChatGPT-User、ClaudeBot / Claude-User）')
+        if not named:
+            add('robots.txt 点名 AI 爬虫', False, NONE, '没有点名任何 AI 爬虫，它们跟着 * 的规则走；想区分「训练」和「替用户取页」就分开写（例如 GPTBot / ChatGPT-User、ClaudeBot / Claude-User）')
+        else:
+            def stance(b):
+                rules = groups[b.lower()]
+                if whole_site(rules):
+                    return '禁止整站'
+                n = sum(1 for k, v in rules if k == 'disallow' and v)
+                return f'允许（另禁止 {n} 条路径）' if n else '允许'
+            stances = {b: stance(b) for b in named}
+            shut = [b for b in named if stances[b] == '禁止整站']
+            users = [b for b in shut if b in USER_FETCHERS]
+            ev = '；'.join(f'{b}：{v}' for b, v in stances.items())
+            if users:
+                ev += '。' + '、'.join(users) + ' 是替用户取页的，挡了以后用户让 Agent 读这个站时取不到'
+            elif shut:
+                ev += '。被禁止的是训练或搜索用的爬虫：这些产品里搜不到、引不到这个站；是有意的决定就保留'
+            add('robots.txt 点名 AI 爬虫', bool(users), FAIL if shut else PASS, ev)
 
     st, sm = site.get('/sitemap.xml')
     locs = []
     if st == 'unreachable':
-        add('sitemap.xml', True, SKIP, f'连不上：{site.why}')
+        add('sitemap.xml', False, SKIP, f'没取到：{site.why}')
     elif st == 'missing':
-        add('sitemap.xml', True, FAIL, '没有 /sitemap.xml')
-    else:
+        add('sitemap.xml', False, NONE, '没有 /sitemap.xml（可选）：页面从首页链接得到就取得到；页面多了以后给一份，Agent 才取得全')
+    else:  # 做了就要对：解析不了或是空的，Agent 会照着一份坏的清单走
         try:
             locs = [e.text.strip() for e in ET.fromstring(sm.encode('utf-8')).iter() if e.tag.endswith('loc') and e.text]
-            add('sitemap.xml', True, PASS if locs else FAIL, f'{len(locs)} 个地址' if locs else '能解析，但一个地址也没有')
+            add('sitemap.xml', not locs, PASS if locs else FAIL, f'{len(locs)} 个地址' if locs else '能解析，但一个地址也没有')
         except ET.ParseError as e:
             add('sitemap.xml', True, FAIL, f'解析不了：{e}')
 
     st, home_html = site.get('/')
     if st != 'ok':
-        add('首页', True, SKIP if st == 'unreachable' else FAIL, f'连不上：{site.why}' if st == 'unreachable' else '取不到首页')
+        add('首页', True, SKIP if st == 'unreachable' else FAIL, f'没取到：{site.why}' if st == 'unreachable' else '取不到首页')
         return finish(a, site, items, [])
     home = Page()
     home.feed(home_html)
@@ -354,14 +400,14 @@ def main():
         else:
             add('正文在原始 HTML 里', True, SKIP, f'原始 HTML 正文 {raw} 字；执行脚本后的没量到（{why or "页面没打开"}）', p)
         canon = next((l.get('href', '') for l in pg.links if 'canonical' in l.get('rel', '').lower().split()), '')
-        miss = [n for n, ok in (('title', pg.title), ('description', pg.metas.get('description')), ('canonical', re.match(r'https?://', canon)), ('html lang', pg.lang)) if not ok]
-        add('title、描述、canonical、lang', True, FAIL if miss else PASS, ('缺 ' + '、'.join(miss) + ('（canonical 要写绝对地址）' if 'canonical' in miss and canon else '')) if miss else f'title「{pg.title[:30]}」，lang={pg.lang}，canonical={canon[:60]}', p)
+        miss = [n for n, ok in (('title', pg.title), ('canonical', re.match(r'https?://', canon)), ('html lang', pg.lang)) if not ok]
+        add('title、canonical、lang', True, FAIL if miss else PASS, ('缺 ' + '、'.join(miss) + ('（canonical 要写绝对地址）' if 'canonical' in miss and canon else '')) if miss else f'title「{pg.title[:30]}」，lang={pg.lang}，canonical={canon[:60]}', p)
         levels = [lv for lv, _ in pg.headings]
         skips = [f'h{levels[i - 1]} → h{levels[i]}（「{pg.headings[i][1]}」）' for i in range(1, len(levels)) if levels[i] - levels[i - 1] > 1]
         h1 = levels.count(1)
-        add('标题层级', True, PASS if h1 == 1 and not skips else FAIL, f'h1 {h1} 个' + ('；跳级：' + '、'.join(skips[:4]) if skips else '，不跳级') + f'；共 {len(levels)} 个标题', p)
+        add('标题层级', False, PASS if h1 == 1 and not skips else FAIL, f'h1 {h1} 个' + ('；跳级：' + '、'.join(skips[:4]) if skips else '，不跳级') + f'；共 {len(levels)} 个标题', p)
         add('可点元素是原生的', True, FAIL if pg.fake_controls else PASS, (f'{len(pg.fake_controls)} 处：' + '、'.join(dict.fromkeys(pg.fake_controls))[:160]) if pg.fake_controls else f'{len(pg.anchors)} 个链接都有 href，没有在 div、span 上挂点击', p)
-        add('图片 alt', True, FAIL if pg.imgs_no_alt else PASS, (f'{len(pg.imgs_no_alt)} 张没有 alt：' + '、'.join(pg.imgs_no_alt[:4])) if pg.imgs_no_alt else '都有 alt（装饰图写 alt=""）', p)
+        add('图片 alt', False, FAIL if pg.imgs_no_alt else PASS, (f'{len(pg.imgs_no_alt)} 张没有 alt：' + '、'.join(pg.imgs_no_alt[:4])) if pg.imgs_no_alt else '都有 alt（装饰图写 alt=""）', p)
         # JSON-LD：没做是可选；做了解析不了算不过
         types, bad = [], 0
         for blob in pg.jsonld:
@@ -376,8 +422,8 @@ def main():
             add('JSON-LD', False, NONE, '没有结构化数据（可选）：做的话由内容数据生成，文章用 Article / BlogPosting，带作者、发布和更新日期', p)
         else:
             add('JSON-LD', bool(bad), FAIL if bad else PASS, (f'{bad} 段解析不了；' if bad else '') + '类型：' + ('、'.join(dict.fromkeys(types)) or '没有 @type'), p)
-        og = [k for k in ('og:title', 'og:description', 'og:type', 'og:url') if not pg.metas.get(k)]
-        add('Open Graph', False, PASS if not og else NONE, '齐全' if not og else '缺 ' + '、'.join(og), p)
+        og = [k for k in ('description', 'og:title', 'og:description', 'og:type', 'og:url') if not pg.metas.get(k)]
+        add('描述、Open Graph', False, PASS if not og else NONE, '齐全' if not og else '缺 ' + '、'.join(og), p)
         if multilingual:
             hl = [l.get('hreflang') for l in pg.links if l.get('hreflang')]
             add('hreflang', False, PASS if len(hl) >= 2 and pg.lang.split('-')[0] in {h.split('-')[0] for h in hl} else FAIL, '声明了 ' + '、'.join(hl) if hl else '这一页没有 hreflang，别的页有', p)
@@ -439,7 +485,7 @@ def finish(a, site, items, paths):
     code = 1 if req_fail else 2 if req_skip else 0
     verdict = {0: '必须项都过', 1: f'{len(req_fail)} 个必须项不过', 2: f'没有不过的，但 {len(req_skip)} 个必须项没查成'}[code]
     lines = ['# 对 Agent 友好的检查', '', f'目标：{site.root}（{"本地目录" if site.local else "站点"}）；查的页面：{"、".join(paths) or "没取到首页"}', '',
-             f'**结论：{verdict}。** 可选项没做只是提示；没查的项不算过。', '', '| 项 | 页面 | 必须 | 结果 | 证据 |', '|---|---|---|---|---|']
+             f'**结论：{verdict}。** 必须项只管「取不取得到、取到的对不对」；可选项没做或不过只是提示；没查的项不算过。', '', '| 项 | 页面 | 必须 | 结果 | 证据 |', '|---|---|---|---|---|']
     order = {FAIL: 0, SKIP: 1, NONE: 2, PASS: 3}
     for i in sorted(items, key=lambda x: (not x['required'], order[x['status']])):
         lines.append(f"| {i['item']} | {i['page']} | {'必须' if i['required'] else '可选'} | {i['status']} | {i['evidence'].replace('|', '/')} |")

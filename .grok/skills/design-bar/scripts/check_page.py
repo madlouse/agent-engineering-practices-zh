@@ -10,9 +10,11 @@
 检查项：横向溢出、小字、对比度、点按区域（两级）、首屏空白带、相邻的大块色面（--dark 时深色也查）、
 语言声明、h1 和标题层级、alt、字号和文本颜色的种类、reduced-motion、焦点样式、控制台报错；向第三方取字体只作提示。
   点按区域：独立成行的链接和按钮 < --min-target（默认 44，在 --targets-up-to 以内的宽度上查）；任何可点元素短边 < --tap-floor
-           （默认 24，WCAG 2.2 的 2.5.8，所有宽度都查）。只放过一句话中间的行内链接（所在的块里链接以外还有 ≥ 12 个字，
-           且不在 nav / header / footer 里）；页脚、面包屑、整行链接都查。
-  首屏空白带、相邻色面：和 verify_canvas.py 的 30、31 是同一套量法和阈值（从它引入），页面按流式页面量第一屏。
+           （默认 24，WCAG 2.2 的 2.5.8，所有宽度都查）。只放过一句话中间的行内链接：在 p 里或 li > span 里、行内显示、
+           不在 nav / header / footer 里、所在的块里链接以外还有 ≥ 12 个字；页脚、面包屑、整行链接、div 和 td 里的句中链接都查。
+           用 ::before / ::after 撑大的热区按撑大后的量（伪元素要真的点得到）。
+  首屏空白带、相邻色面：和 verify_canvas.py 的 30、31 是同一套量法和阈值（从它引入），页面按流式页面量第一屏；
+           带 box-shadow 或可见描边的面算已经分开。
 
 输出：
   <out>/shot-<宽度>-viewport.png、shot-<宽度>-full.png（--dark 时另有 -dark 版本）
@@ -130,9 +132,10 @@ COLLECT_JS = r"""
   // 点按区域：独立成行的 < minTarget（只在 mobileMax 以内的宽度）；任何可点元素短边 < tapFloor（所有宽度）
   out.smallTargets = []; out.tinyTargets = [];
   {
-    // 一句话中间的行内链接按 WCAG 2.5.8 豁免；页脚、面包屑、导航里的链接和独占一块的链接不算在句子里
+    // 一句话中间的行内链接按 WCAG 2.5.8 豁免，和 verify_canvas.py 同一套判法：在 p 里或 li > span 里、行内、
+    // 不在 nav / header / footer 里、所在的块里链接以外还有 ≥ proseMin 个字。div、td、dd 里的句中链接和 li > a 照报
     const inSentence = (el) => {
-      if (el.tagName !== 'A' || getComputedStyle(el).display !== 'inline' || el.closest('nav, header, footer, [role="navigation"], menu')) return false;
+      if (el.tagName !== 'A' || !el.closest('p, li > span') || getComputedStyle(el).display !== 'inline' || el.closest('nav, header, footer, [role="navigation"], menu')) return false;
       let blk = el.parentElement;
       while (blk && blk !== document.body && getComputedStyle(blk).display.startsWith('inline')) blk = blk.parentElement;
       if (!blk) return false;
@@ -140,7 +143,8 @@ COLLECT_JS = r"""
       while (tw.nextNode()) { const pe = tw.currentNode.parentElement; if (pe && !pe.closest('a, button, [role="button"], [role="link"]')) n += (tw.currentNode.textContent.match(/[A-Za-z0-9\u4e00-\u9fff]/g) || []).length; }
       return n >= opts.proseMin;
     };
-    // 用 ::before / ::after 撑大的热区：在盒子外按目标尺寸取点，点到的还是它自己就算撑到了
+    // 用 ::before / ::after 撑大的热区：在盒子外按目标尺寸取点，点到的还是它自己就算撑到了；
+    // 伪元素写了 pointer-events: none、被盖住、或取样点在视口外的，照盒子量
     const hitSize = (el, want) => {
       const wx = scrollX, wy = scrollY;
       el.scrollIntoView({block: 'center', behavior: 'instant'});

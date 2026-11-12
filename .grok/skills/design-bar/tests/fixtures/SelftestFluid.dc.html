@@ -12,7 +12,8 @@
 body{margin:0}
 a{color:inherit}
 a:hover{text-decoration:underline}
-a:active{opacity:.8}
+a:active,button:active{opacity:.8}
+button:hover{opacity:.9}
 @font-face{font-family:"Selftest Remote";src:url(https://fonts.gstatic.com/s/selftest/v1/selftest.woff2) format("woff2")}
 :root{--ground:#f4f2ec;--ink:#1c1d19}
 [data-theme="dark"]{--ground:#121310;--ink:#ecebe4}
@@ -25,7 +26,9 @@ a:active{opacity:.8}
 <div style="width: 340px; height: 48px; font-size: 15px;">在 390 宽下放得下，在 320 宽下超出</div>
 <div role="img" aria-label="配图" style="height: 620px; background: repeating-linear-gradient(90deg, var(--ink) 0 10px, var(--ground) 10px 24px);"></div>
 </main>
-<footer style="margin-top: 1000px; padding: 0 clamp(32px, 4vw, 48px);"><a href="#about" style="display: inline-block; min-width: 60px; height: 30px; line-height: 30px; font-size: 16px;">关于我们</a></footer>
+<div style="margin-top: 500px; padding: 0 clamp(32px, 4vw, 48px);"><div style="position: relative; height: 48px;"><a href="#covered" style="display: block; min-width: 44px; height: 48px; line-height: 48px; font-size: 16px;">被盖住的入口</a><button type="button" style="position: absolute; inset: 0; width: 100%; border: 0; background: var(--ink); color: var(--ground); font-size: 16px;">盖在上面的按钮</button></div></div>
+<section style="margin-top: 100px; padding: 0 clamp(32px, 4vw, 48px);"><a class="btn" href="#sub" style="display: inline-block; min-width: 120px; height: 48px; line-height: 48px; font-size: 16px;">订阅每周一封信</a></section>
+<footer style="margin-top: 300px; padding: 0 clamp(32px, 4vw, 48px);"><a href="#about" style="display: inline-block; min-width: 60px; height: 30px; line-height: 30px; font-size: 16px;">关于我们</a></footer>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1200, "height": 2000}}'>

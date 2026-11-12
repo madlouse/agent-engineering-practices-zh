@@ -4,7 +4,7 @@ Disallow: /admin
 
 User-agent: GPTBot
 User-agent: ClaudeBot
-Disallow: /
+Disallow: /drafts
 
 User-agent: ChatGPT-User
 User-agent: Claude-User

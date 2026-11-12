@@ -10,12 +10,15 @@
   3. 内容超出画板：元素右边超出画板（画板会把它裁掉）
   4. 对比度：正文 < 4.5:1、大字 < 3:1（禁用态按钮除外；浅色、深色各查一次）
   5. 点按区域（A2）：独立成行的链接和按钮 < 44×44 报「触控目标小于 44」；任何可点元素短边 < 24 报更重的「点按区域小于 24」
-     （WCAG 2.2 的 2.5.8 底线）。页脚、面包屑、整行链接都查。只放过一句话中间的行内链接（它所在的块里链接以外还有 ≥ 12 个字，
-     且不在 nav / header / footer 里；2.5.8 的行内例外）。用 ::before / ::after 把热区撑大的，按撑大后的量
+     （WCAG 2.2 的 2.5.8 底线）。页脚、面包屑、整行链接都查。只放过一句话中间的行内链接（2.5.8 的行内例外）：在 p 里或 li > span 里，
+     行内显示，不在 nav / header / footer 里，所在的块里链接以外还有 ≥ 12 个字；div、td 里的句中链接和 li > a 的行标题链接照报。
+     用 ::before / ::after 把热区撑大的，按撑大后的量（2.5.8 量的是目标区域，不是文字盒）；伪元素要真的点得到：
+     写了 pointer-events: none、被别的东西盖住、或取样点在视口外量不了的，照盒子量
   6. 引用了没定义的 token：var(--x) 在样式表里找不到
   11. 展开层超出所在区块：aria-expanded 的控件用 aria-controls 指向的展开层，要完整留在所在 <section> 里
   12. 可点元素被盖住：链接、按钮、输入框的中心点上面压着别的控件或浮层
-  13. 首屏主操作在视口外：第一个 <section>（从视口上半开始的才算首屏）里的按钮和表单，底边超出视口（配合 --size 查 1280×720 这类常见高度）
+  13. 首屏主操作在视口外：第一个 <section> 里的按钮和表单，底边超出视口（配合 --size 查 1280×720 这类常见高度）；
+      流式页面里第一个 <section> 从视口下半才开始的不算首屏（固定尺寸的画板不加这个条件）
   14. 深色下露出浅色底：主题只设在里层，画板比视口矮或有外边距时，外面露出浅色的 body
   15. 按钮文字折行：按钮里的字折成两行（伪语言那一遍最容易出现）
   16. 浮层没有出路：对话框、菜单里没有「关闭」按钮，画板逻辑也没处理 Esc
@@ -44,7 +47,8 @@
   30. 首屏空白带：入口页的第一屏（标了 data-first-screen 的区域，或流式页面的第一屏；固定尺寸的 App 界面不量）里，
       连续没有文字、控件、图片的横向空带高度 > 视口的 30%（canvas、video、[data-motion] 盖住的不算空；
       只被动效画布盖住的另记一条提示：静态截图看不到它，要用 capture_motion.py 截出动效帧和兜底帧）
-  31. 相邻两大块色面分不开：两块各占视口 ≥ 20%、彼此相邻（并排、上下相接或一块套一块）的平涂色面，对比 < 1.3:1（浅色、深色各查）
+  31. 相邻两大块色面分不开：两块各占视口 ≥ 20%、彼此相邻（并排、上下相接或一块套一块）的平涂色面，对比 < 1.3:1（浅色、深色各查）。
+      带 box-shadow 或可见描边的面算已经分开，不报。1.3 是通用的下限；项目定了更高的门槛就用 --face-contrast 调高
   32. 字号种类过多：一块画板在基准视口下不同的字号 > 8 种，列出每种和用到的次数
   （提示）向第三方取字体：画板源码或运行时请求里出现 Google Fonts 这类第三方字体地址。不影响结论，理由写在报告里
   （另）颜色算不了：oklab()、color-mix() 这类写法画到画布上也取不到像素时报出来，不拿外层背景顶替
@@ -71,8 +75,9 @@
             （宽 ≥ 1024 用 900，≥ 744 用 1180，其余 844），首屏类的检查才有意义；并自动在 390×844、320×568 下各再查一遍。
   根节点不写死宽度的手机画板（宽 < 744）自动加查 320×568。--no-auto-sizes 关掉自动加的视口。
   --size 名称=宽x高 再加一个视口（名称可以不带 .dc.html，写 * 表示全部画板）。
-  说明文档类画板（组件表、旅程图）不查触控、首屏、空白带、色面、字号种类、左边缘：根节点写 data-board="doc"；
-            带 expand 又没有 nav / main / footer / data-first-screen 的也按文档算（报告里会写明）。产品页面被误判时写 data-board="page"。
+  说明文档类画板（组件表、旅程图）不查触控、首屏、空白带、色面、字号种类、左边缘。只有 canvas.json 里带 expand 的画板才可能算文档：
+            根节点写了 data-board="doc"，或者没有 nav / main / footer / data-first-screen。固定尺寸的画板写了 data-board="doc" 也照查。
+            按文档跳过的画板和原因列在报告开头。产品页面被误判时写 data-board="page"。
 
 可配的阈值（都有同名的命令行参数）：
   --edge-tol 2          29 的左边缘容差（px）
@@ -193,9 +198,10 @@ CHECK_JS = r"""
     try { return fn(el.getBoundingClientRect()); }
     finally { for (const [e, x, y] of sc) { e.scrollLeft = x; e.scrollTop = y; } window.scrollTo({left: wx, top: wy, behavior: 'instant'}); }
   };
-  // 5：一句话中间的行内链接（WCAG 2.5.8 的行内例外）。页脚、面包屑、导航里的链接、独占一块的链接都不算
+  // 5：一句话中间的行内链接（WCAG 2.5.8 的行内例外）。只放过 p 里和 li > span 里的（原来就放过的范围），而且要同时满足：
+  // 行内、不在 nav / header / footer 里、所在的块里链接以外还有 ≥ PROSE_MIN 个字。div、td 里的句中链接和 li > a 的行标题链接照报
   const inSentence = el => {
-    if (el.tagName !== 'A' || getComputedStyle(el).display !== 'inline' || el.closest('nav, header, footer, [role="navigation"], menu')) return false;
+    if (el.tagName !== 'A' || !el.closest('p, li > span') || getComputedStyle(el).display !== 'inline' || el.closest('nav, header, footer, [role="navigation"], menu')) return false;
     let blk = el.parentElement;
     while (blk && blk !== root && getComputedStyle(blk).display.startsWith('inline')) blk = blk.parentElement;
     if (!blk) return false;
@@ -203,7 +209,8 @@ CHECK_JS = r"""
     while (tw.nextNode()) { const pe = tw.currentNode.parentElement; if (pe && !pe.closest('a, button, [role="button"], [role="link"]')) n += (tw.currentNode.textContent.match(/[A-Za-z0-9\u4e00-\u9fff]/g) || []).length; }
     return n >= PROSE_MIN;
   };
-  // 5：热区。用 ::before / ::after 撑大的热区量不到盒子上：在盒子外按目标尺寸取点，点到的还是它自己就算撑到了
+  // 5：热区。用 ::before / ::after 撑大的热区量不到盒子上：在盒子外按目标尺寸取点，点到的还是它自己就算撑到了。
+  // 伪元素写了 pointer-events: none、或被别的东西盖住时点不到它自己，照盒子量；取样点在视口外量不了的也照盒子量
   const hitSize = (el, r, want) => {
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     const own = (x, y) => { if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false; const h = document.elementFromPoint(x, y); return !!h && (h === el || el.contains(h)); };
@@ -284,7 +291,7 @@ CHECK_JS = r"""
   }
   // 13：首屏（第一个 section）里的按钮和表单完整留在视口里
   const hero = root.querySelector('section');
-  if (hero && hero.getBoundingClientRect().top < innerHeight / 2) for (const el of hero.querySelectorAll('.btn, form, [role="switch"]')) {  // 第一个 section 从半屏以下才开始的不是首屏
+  if (hero && (!window.__vcFluid || hero.getBoundingClientRect().top < innerHeight / 2)) for (const el of hero.querySelectorAll('.btn, form, [role="switch"]')) {  // 流式页面里，第一个 section 从半屏以下才开始的不是首屏；固定尺寸的画板照原判法
     if (!visible(el) || el.closest('[aria-hidden="true"]')) continue;
     const r = el.getBoundingClientRect();
     if (r.bottom > innerHeight + 1) issues.push({type: '首屏主操作在视口外', where: name(el), detail: `底边 ${Math.round(r.bottom)} > 视口 ${innerHeight}；首屏高度按 100svh 算，内容跟着视口压缩`});
@@ -641,16 +648,22 @@ METRICS_JS = r"""
       const kids = cands.filter(b => inside(b, a) && !cands.some(m => inside(b, m) && inside(m, a)));
       a.left = a.area - kids.reduce((s, k) => s + k.area, 0); a.kids = kids;
     }
+    // 带阴影或可见描边的面，边界已经画出来了，算分得开
+    const seen = c => { const p = rgba(c); return !!p && p[3] > 0.1; };
+    const edged = el => { const cs = getComputedStyle(el);
+      if (cs.boxShadow && cs.boxShadow !== 'none') return true;
+      if (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0 && seen(cs.outlineColor)) return true;
+      return ['Top', 'Right', 'Bottom', 'Left'].some(k => cs['border' + k + 'Style'] !== 'none' && parseFloat(cs['border' + k + 'Width']) > 0 && seen(cs['border' + k + 'Color'])); };
     const pairs = [];
     for (let i = 0; i < cands.length; i++) for (let j = i + 1; j < cands.length; j++) {
       const a = cands[i], b = cands[j]; let adj = false;
-      if (inside(b, a)) adj = a.kids.includes(b) && a.left >= minA;
-      else if (inside(a, b)) adj = b.kids.includes(a) && b.left >= minA;
+      if (inside(b, a)) adj = a.kids.includes(b) && a.left >= minA && !edged(b.el);
+      else if (inside(a, b)) adj = b.kids.includes(a) && b.left >= minA && !edged(a.el);
       else {
         const ov = (p0, p1, q0, q1) => Math.min(p1, q1) - Math.max(p0, q0);
         const side = (Math.abs(a.x1 - b.x0) <= 2 || Math.abs(b.x1 - a.x0) <= 2) && ov(a.y0, a.y1, b.y0, b.y1) >= VH * 0.2;
         const stack = (Math.abs(a.y1 - b.y0) <= 2 || Math.abs(b.y1 - a.y0) <= 2) && ov(a.x0, a.x1, b.x0, b.x1) >= VW * 0.2;
-        adj = (side || stack) && a.left >= minA && b.left >= minA;
+        adj = (side || stack) && a.left >= minA && b.left >= minA && !edged(a.el) && !edged(b.el);
       }
       if (!adj) continue;
       const k = ratio(a.c, b.c);
@@ -745,7 +758,7 @@ def metric_issues(m, theme, opts):
                 notices.append({'type': '首屏有一带只有动效画布', 'size': g2, 'where': f'y {a2}–{b2}', 'detail': f'连续 {g2}px（视口的 {round(g2 / vh * 100)}%）只被 canvas / [data-motion] 盖着：静态截图看不到它画了什么，用 capture_motion.py 截出动效帧、--reduced-motion 的静止帧和 --no-webgl 的兜底帧，确认这一带不是空的'})
     for f in m.get('faces', []):
         if f['ratio'] < opts['face_contrast']:
-            issues.append({'type': '相邻两大块色面分不开', 'where': f"{f['a']} / {f['b']}"[:60], 'detail': f"{f['ca']} 和 {f['cb']} 对比 {f['ratio']:.2f}:1，要 ≥ {opts['face_contrast']}:1（各占视口 {f['pa']}%、{f['pb']}%）：两块是不同的面就把明度拉开，是同一块面就用同一个颜色"})
+            issues.append({'type': '相邻两大块色面分不开', 'where': f"{f['a']} / {f['b']}"[:60], 'detail': f"{f['ca']} 和 {f['cb']} 对比 {f['ratio']:.2f}:1，要 ≥ {opts['face_contrast']:g}:1（各占视口 {f['pa']}%、{f['pb']}%）：两块是不同的面就把明度拉开或加描边，是同一块面就用同一个颜色"})
     return issues, notices
 
 
@@ -793,7 +806,7 @@ def board_meta(path, src):
     """画板的基准尺寸和类别：{'w', 'h', 'source', 'expand', 'fixed_root', 'fluid', 'doc', 'doc_why'}。
     尺寸：canvas.json → data-props 的 $preview → 390×844（source 记成 None，报告里写明）。
     fluid（流式页面）：canvas.json 里带 expand；或没有 canvas.json 条目、根节点不写死宽度、$preview 比一屏高出一半以上。
-    doc（说明文档：组件表、旅程图）：根节点写了 data-board="doc"；或带 expand 又没有 nav / main / footer / data-first-screen。"""
+    doc（说明文档：组件表、旅程图）：只在带 expand 的画板上认。根节点写了 data-board="doc"，或没有 nav / main / footer / data-first-screen。"""
     m = {'w': 390, 'h': 844, 'source': None, 'expand': False}
     cj = os.path.join(os.path.dirname(os.path.abspath(path)), 'canvas.json')
     entry = None
@@ -810,8 +823,8 @@ def board_meta(path, src):
     m['fluid'] = m['expand'] or (entry is None and m['source'] == '$preview' and not m['fixed_root'] and m['h'] > fold_height(m['w']) * 1.5)
     kind = re.search(r'data-board="(doc|page)"', root_tag)
     landmarks = re.search(r'<(nav|main|footer)\b|data-first-screen', src)
-    if kind:
-        m['doc'], m['doc_why'] = kind.group(1) == 'doc', 'data-board="doc"'
+    if kind:  # 只在带 expand 的画板上认：固定尺寸的产品画板不能靠写一个属性跳过检查
+        m['doc'], m['doc_why'] = m['expand'] and kind.group(1) == 'doc', '带 expand，根节点写了 data-board="doc"'
     else:
         m['doc'] = m['expand'] and not landmarks
         m['doc_why'] = '带 expand，又没有 nav / main / footer / data-first-screen；是产品页面的话在根节点写 data-board="page"'
@@ -1056,7 +1069,7 @@ def main():
                 i['theme'] = '、'.join(i['themes'])
             total += len(items)
             sizes_txt = '、'.join(f'{x}×{y}' for x, y in dict.fromkeys(v[3] for v in variants))
-            info = {'viewports': [list(x) for x in dict.fromkeys(v[3] for v in variants)], 'size_source': meta['source'], 'fluid': meta['fluid'], 'doc': is_doc,
+            info = {'viewports': [list(x) for x in dict.fromkeys(v[3] for v in variants)], 'size_source': meta['source'], 'fluid': meta['fluid'], 'doc': is_doc, 'doc_why': meta['doc_why'] if is_doc else '',
                     'line': f'查的视口：{sizes_txt}（基准来自 {meta["source"] or "默认值，尺寸没找到"}' + ('；流式页面，视口高度取一屏' if meta['fluid'] else '') + '）'
                             + (f'；按说明文档查（{meta["doc_why"]}），不查触控、首屏、空白带、色面、字号种类、左边缘' if is_doc else '')}
             report.append((os.path.basename(f), items, board_hints, notices, info))
@@ -1077,7 +1090,9 @@ def main():
 
     verdict = 'done' if total == 0 else 'needs_work'
     lines = [f'# 画板验证报告', '', f'**结论：{verdict}**（{total} 个问题，{len(files)} 块画板，主题：{a.themes}）', '',
-             '只报会让用户看错、点不到、看不清的问题。审美判断交给评审。', '']
+             '只报能判对错的问题，每条给出位置和量出的数：会让用户看错、点不到、看不清的，以及带阈值的版面量度（首屏空白带、相邻色面、跨画板左边缘、字号种类）。构图和审美交给评审。', '',
+             f'阈值：相邻色面 ≥ {a.face_contrast:g}:1（通用的下限，项目定了更高的门槛用 --face-contrast 调高）；首屏空白带 ≤ 视口的 {a.empty_band:.0%}；左边缘容差 {a.edge_tol:g}px；字号 ≤ {a.max_font_sizes} 种；点按区域 {a.tap_min:g} / {a.tap_floor:g}px。', '',
+             '按说明文档跳过触控、首屏、空白带、色面、字号种类、左边缘的画板：' + ('；'.join(f'{n}（{inf["doc_why"]}）' for n, *_, inf in report if inf.get('doc')) or '没有') + '。', '']
     for name, items, hints, notices, info in report:
         lines.append(f'## {name}' + ('（通过）' if not items else f'（{len(items)}）'))
         lines += ['', info['line']]

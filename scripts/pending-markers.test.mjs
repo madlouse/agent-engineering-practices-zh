@@ -16,8 +16,8 @@ test("findPending ignores the bare word, other brackets and a marker broken acro
   assert.deepEqual(findPending("待定，见 #13\n「Resend 留存：待定」\n〔Resend 留存：已定〕\n〔Resend 留存：\n待定〕"), []);
 });
 
-test("stripPending removes only the marker and keeps line numbers", () => {
-  assert.equal(stripPending("第一行\n还没有定〔Resend 留存：待定〕，见 #13\n第三行待定"), "第一行\n还没有定，见 #13\n第三行待定");
+test("stripPending keeps the topic and drops only the brackets and the suffix; line numbers stay", () => {
+  assert.equal(stripPending("第一行\n还没有定〔Resend 留存：待定〕，见 #13\n第三行待定"), "第一行\n还没有定Resend 留存，见 #13\n第三行待定");
 });
 
 test("check-vague: a sentence with a marker passes, the same word outside a marker is still reported", () => {
@@ -28,4 +28,11 @@ test("check-vague: a sentence with a marker passes, the same word outside a mark
     { line: 2, word: "待定", kind: "filler" },
     { line: 3, word: "待定", kind: "filler" },
   ]);
+});
+
+test("check-vague: a filler or quality word used as the topic of a marker is still reported", () => {
+  const terms = { vague: ["体验友好"], filler: ["待定", "适当", "尽量"], allowed: [], ruleIds: new Set(), dimensions: new Map() };
+  const text = "- [ ] 做得好〔适当优化、体验友好：待定〕\n- [ ] 验收〔尽量：待定〕\n- [ ] 正常的主题〔Resend 留存：待定〕";
+  const words = findViolations(stripPending(text), terms).map((v) => `${v.line}:${v.word}`);
+  assert.deepEqual(words.sort(), ["1:体验友好", "1:适当", "2:尽量"]);
 });

@@ -33,7 +33,8 @@ const files = process.argv.slice(2).length
 
 let hits = 0;
 for (const file of files) {
-  // A pending marker such as 〔<topic>：待定〕 is a registered open item (listed by check:pending), not vague wording.
+  // A pending marker such as 〔<topic>：待定〕 is a registered open item (listed by check:pending): its fixed suffix is
+  // not vague wording. The topic inside the brackets is still checked.
   for (const v of findViolations(stripPending(readFileSync(file, "utf8")), terms)) {
     const why = {
       filler: "判不了对错的虚词，换成具体的数、动作或产出",

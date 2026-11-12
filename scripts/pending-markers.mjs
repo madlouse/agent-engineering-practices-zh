@@ -13,3 +13,12 @@ export function findPending(text) {
   });
   return hits;
 }
+
+/**
+ * Turns each marker into its topic, so that a check on wording (check-vague) does not report the marker's own
+ * "：待定" but still checks the topic. Only the brackets and the fixed suffix go: a vague word in the topic, and the
+ * same word outside a marker, are still reported. Markers never span lines, so line numbers are unchanged.
+ */
+export function stripPending(text) {
+  return text.replace(PENDING, "$1");
+}

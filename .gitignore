@@ -7,3 +7,5 @@ dist
 .grok/preview.log
 .grok/status
 .node_modules.lock
+__pycache__/
+*.pyc

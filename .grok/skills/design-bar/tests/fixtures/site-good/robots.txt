@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+
+User-agent: GPTBot
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: ChatGPT-User
+User-agent: Claude-User
+Allow: /
+
+Sitemap: https://good.example/sitemap.xml

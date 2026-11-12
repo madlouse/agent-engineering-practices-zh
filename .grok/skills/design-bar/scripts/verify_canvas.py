@@ -9,11 +9,13 @@
   2. 文字被挤成竖排：一段文字的宽度不到两个字、高度却超过 2.5 行
   3. 内容超出画板：元素右边超出画板（画板会把它裁掉）
   4. 对比度：正文 < 4.5:1、大字 < 3:1（禁用态按钮除外；浅色、深色各查一次）
-  5. 触控目标 < 44×44（段落里的文字链接除外）
+  5. 点按区域（A2）：独立成行的链接和按钮 < 44×44 报「触控目标小于 44」；任何可点元素短边 < 24 报更重的「点按区域小于 24」
+     （WCAG 2.2 的 2.5.8 底线）。页脚、面包屑、整行链接都查。只放过一句话中间的行内链接（它所在的块里链接以外还有 ≥ 12 个字，
+     且不在 nav / header / footer 里；2.5.8 的行内例外）。用 ::before / ::after 把热区撑大的，按撑大后的量
   6. 引用了没定义的 token：var(--x) 在样式表里找不到
   11. 展开层超出所在区块：aria-expanded 的控件用 aria-controls 指向的展开层，要完整留在所在 <section> 里
   12. 可点元素被盖住：链接、按钮、输入框的中心点上面压着别的控件或浮层
-  13. 首屏主操作在视口外：第一个 <section> 里的按钮和表单，底边超出视口（配合 --size 查 1280×720 这类常见高度）
+  13. 首屏主操作在视口外：第一个 <section>（从视口上半开始的才算首屏）里的按钮和表单，底边超出视口（配合 --size 查 1280×720 这类常见高度）
   14. 深色下露出浅色底：主题只设在里层，画板比视口矮或有外边距时，外面露出浅色的 body
   15. 按钮文字折行：按钮里的字折成两行（伪语言那一遍最容易出现）
   16. 浮层没有出路：对话框、菜单里没有「关闭」按钮，画板逻辑也没处理 Esc
@@ -37,6 +39,14 @@
       浮层以外要读的说明超过中文 80 字或英文 50 词（自定：约 5 秒扫完）
   28. 笼统的进度文字：看得见的文字只有「加载中」「处理中」「Loading…」这类词，没说在做什么
   27. 站标不回首页：导航里的站标（.brand、.home、aria-label 写着首页 / home 的链接）链到别处；回本页顶部另放控件
+  29. 跨画板的内容左边缘不一致：同一视口宽度下，各画板第一个 h1（没有就取第一屏第一个标题）的左边缘相差 > 2px，列出每块的值；
+      居中这类有意不对齐的标题在它或祖先上写 data-edge="free"
+  30. 首屏空白带：入口页的第一屏（标了 data-first-screen 的区域，或流式页面的第一屏；固定尺寸的 App 界面不量）里，
+      连续没有文字、控件、图片的横向空带高度 > 视口的 30%（canvas、video、[data-motion] 盖住的不算空；
+      只被动效画布盖住的另记一条提示：静态截图看不到它，要用 capture_motion.py 截出动效帧和兜底帧）
+  31. 相邻两大块色面分不开：两块各占视口 ≥ 20%、彼此相邻（并排、上下相接或一块套一块）的平涂色面，对比 < 1.3:1（浅色、深色各查）
+  32. 字号种类过多：一块画板在基准视口下不同的字号 > 8 种，列出每种和用到的次数
+  （提示）向第三方取字体：画板源码或运行时请求里出现 Google Fonts 这类第三方字体地址。不影响结论，理由写在报告里
   （另）颜色算不了：oklab()、color-mix() 这类写法画到画布上也取不到像素时报出来，不拿外层背景顶替
   按下和悬停：浅色那一遍另外把所有按钮、液态玻璃控件设成按下（.is-press）、悬停（.is-hover）各算一次对比度
   （另）占位文字：画板上出现「示例」「待定」「即将上线」「二维码」这类占位词（--placeholders 可改）
@@ -54,11 +64,28 @@
 版式类问题（主按钮被挡或挤扁、竖排、超出画板、吞空格），看换语言以后会不会坏；对比度和 token 不在这一遍重复查。
 
 属性和视口：data-props 里的枚举属性（theme 除外，主题由 --themes 管）每个非默认选项各查一遍，别的属性取默认，
-报告里记作「lang=English」；--size 名称=宽x高 让一块自适应的画板在另一个视口下再查一遍（例如手机画板在 320 宽下）。
+报告里记作「lang=English」。每块画板实际查了哪些视口、尺寸从哪来，写在报告里每块画板的标题下面。
+  基准视口：canvas.json 里的 w×h → 没有就读画板 data-props 的 $preview → 都没有时用 390×844 并在报告里写明「画板尺寸没找到」
+            （这时给了 --size 就拿第一个 --size 当基准，不再按 390 宽跑）。
+  流式页面（canvas.json 里带 expand，或没有 canvas.json、根节点不写死宽度且 $preview 比一屏高得多）：视口高度取一屏
+            （宽 ≥ 1024 用 900，≥ 744 用 1180，其余 844），首屏类的检查才有意义；并自动在 390×844、320×568 下各再查一遍。
+  根节点不写死宽度的手机画板（宽 < 744）自动加查 320×568。--no-auto-sizes 关掉自动加的视口。
+  --size 名称=宽x高 再加一个视口（名称可以不带 .dc.html，写 * 表示全部画板）。
+  说明文档类画板（组件表、旅程图）不查触控、首屏、空白带、色面、字号种类、左边缘：根节点写 data-board="doc"；
+            带 expand 又没有 nav / main / footer / data-first-screen 的也按文档算（报告里会写明）。产品页面被误判时写 data-board="page"。
+
+可配的阈值（都有同名的命令行参数）：
+  --edge-tol 2          29 的左边缘容差（px）
+  --empty-band 0.30     30 的空白带上限（占视口高度的比例）
+  --face-area 0.20      31 一块色面至少占视口的比例
+  --face-contrast 1.3   31 相邻色面的最低对比
+  --tap-min 44          5 独立成行的可点元素的最小边长（px）
+  --tap-floor 24        5 任何可点元素的最小边长（px）
+  --max-font-sizes 8    32 一块画板里字号种类的上限
 
 用法：
   python verify_canvas.py <画板目录或 .dc.html ...> --out <报告目录> [--themes light,dark,pseudo] [--only AI-Plans]
-画板尺寸从同目录的 canvas.json 读（没有就用 390x844；带 expand 的说明文档页不查触控尺寸）；状态从 <sc-if value="{{ sN }}"> 自动发现。
+状态从 <sc-if value="{{ sN }}"> 自动发现。
 结论：没有问题时 done（退出码 0），有问题时 needs_work（退出码 1）。需要 Python Playwright 和 Chromium。
 """
 import argparse
@@ -90,6 +117,26 @@ PSEUDO_JS = r"""
 }
 """
 
+# 可配的阈值：命令行同名参数可改，帮助里列出
+EDGE_TOL = 2            # 29：跨画板内容左边缘的容差（px）
+EMPTY_BAND_MAX = 0.30   # 30：首屏空白带上限（占视口高度）
+FACE_MIN_AREA = 0.20    # 31：一块色面至少占视口的比例
+FACE_MIN_CONTRAST = 1.3  # 31：相邻色面的最低对比
+TAP_MIN = 44            # 5：独立成行的可点元素
+TAP_FLOOR = 24          # 5：任何可点元素（WCAG 2.2 2.5.8）
+MAX_FONT_SIZES = 8      # 32：字号种类上限
+PROSE_MIN_CHARS = 12    # 5：块里链接以外的字数达到它，行内链接才算「在一句话中间」
+FLUID_SIZES = [(390, 844), (320, 568)]  # 流式页面自动加查的窄视口
+FONT_HOSTS = ('fonts.googleapis.com', 'fonts.gstatic.com', 'use.typekit.net', 'p.typekit.net', 'fonts.bunny.net', 'fast.fonts.net',
+              'cloud.typography.com', 'use.fontawesome.com', 'fonts.cdnfonts.com', 'fonts.loli.net', 'fonts.font.im')
+FIRST_SCREEN_TYPES = ('触控目标小于 44', '点按区域小于 24', '首屏主操作在视口外', '玻璃压在平涂底色上', '展开挤动了版面')  # 说明文档类画板不查
+
+
+def fold_height(w):
+    """流式页面的一屏有多高（和「首屏要读的字」用同一组数）。"""
+    return 900 if w >= 1024 else 1180 if w >= 744 else 844
+
+
 LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格', '展开层超出所在区块', '可点元素被盖住', '首屏主操作在视口外', '按钮文字折行', '文字冲出容器', '短标签被挤成多行'}
 
 STATE_JS = None  # 在 CHECK_JS 定义之后生成
@@ -97,6 +144,8 @@ STATE_JS = None  # 在 CHECK_JS 定义之后生成
 CHECK_JS = r"""
 () => {
   const issues = [];
+  const O = window.__vcOpts || {};
+  const TAP_MIN = O.tapMin || 44, TAP_FLOOR = O.tapFloor || 24, PROSE_MIN = O.proseMin || 12;
   const root = document.querySelector('[data-theme]') || document.body;
   const R0 = root.getBoundingClientRect(); const VW = document.documentElement.clientWidth;
   // 比的是视口，不是画板：画板写死了比视口还宽的宽度时，超出视口的部分用户看不到
@@ -136,9 +185,36 @@ CHECK_JS = r"""
   };
   const clipped = el => { for (let e = el.parentElement; e && e !== root; e = e.parentElement) { const ox = getComputedStyle(e).overflowX; if (ox === 'auto' || ox === 'scroll' || ox === 'hidden') return true; } return false; };
 
+  // 一屏以下的元素滚到视口里量，量完把窗口和各层滚动容器放回原处
+  const inView = (el, fn) => {
+    const wx = scrollX, wy = scrollY, sc = [];
+    for (let e = el.parentElement; e; e = e.parentElement) sc.push([e, e.scrollLeft, e.scrollTop]);
+    el.scrollIntoView({block: 'center', behavior: 'instant'});
+    try { return fn(el.getBoundingClientRect()); }
+    finally { for (const [e, x, y] of sc) { e.scrollLeft = x; e.scrollTop = y; } window.scrollTo({left: wx, top: wy, behavior: 'instant'}); }
+  };
+  // 5：一句话中间的行内链接（WCAG 2.5.8 的行内例外）。页脚、面包屑、导航里的链接、独占一块的链接都不算
+  const inSentence = el => {
+    if (el.tagName !== 'A' || getComputedStyle(el).display !== 'inline' || el.closest('nav, header, footer, [role="navigation"], menu')) return false;
+    let blk = el.parentElement;
+    while (blk && blk !== root && getComputedStyle(blk).display.startsWith('inline')) blk = blk.parentElement;
+    if (!blk) return false;
+    let n = 0; const tw = document.createTreeWalker(blk, NodeFilter.SHOW_TEXT);
+    while (tw.nextNode()) { const pe = tw.currentNode.parentElement; if (pe && !pe.closest('a, button, [role="button"], [role="link"]')) n += (tw.currentNode.textContent.match(/[A-Za-z0-9\u4e00-\u9fff]/g) || []).length; }
+    return n >= PROSE_MIN;
+  };
+  // 5：热区。用 ::before / ::after 撑大的热区量不到盒子上：在盒子外按目标尺寸取点，点到的还是它自己就算撑到了
+  const hitSize = (el, r, want) => {
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const own = (x, y) => { if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false; const h = document.elementFromPoint(x, y); return !!h && (h === el || el.contains(h)); };
+    let w = r.width, h = r.height;
+    if (h < want && own(cx, cy - want / 2 + 1) && own(cx, cy + want / 2 - 1)) h = want;
+    if (w < want && own(cx - want / 2 + 1, cy) && own(cx + want / 2 - 1, cy)) w = want;
+    return [w, h];
+  };
   // 1、5：按钮
-  for (const el of root.querySelectorAll('button, a, [role="button"], input, label')) {
-    if (!visible(el) || (footer && footer.contains(el) && el.tagName !== 'BUTTON')) continue;
+  for (const el of root.querySelectorAll('button, a, [role="button"], [role="link"], [role="tab"], [role="switch"], summary, input, label')) {
+    if (!visible(el)) continue;
     const r = el.getBoundingClientRect(); const cs = getComputedStyle(el);
     const bg = parse(cs.backgroundColor);
     const filled = (bg && bg.a > 0.5) || (cs.backgroundImage && cs.backgroundImage !== 'none');
@@ -148,12 +224,16 @@ CHECK_JS = r"""
       if (r.bottom > limit + 1) issues.push({type: '主按钮被挡住或在首屏外', where: name(el), detail: `按钮底边 ${Math.round(r.bottom)}，可见到 ${Math.round(limit)}；首屏放不下时先删说明文字，再压缩卡片，不靠滚动`});
       if (r.height < 43.5) { squashed = true; issues.push({type: '主按钮被挤扁', where: name(el), detail: `高 ${Math.round(r.height)}：上面的内容太多，flex 把按钮压扁了（按钮加 flex: none，并按上一条压缩内容）`}); }
     }
-    const interactive = el.tagName === 'BUTTON' || el.tagName === 'A' || el.getAttribute('role') === 'button';
+    const interactive = el.tagName === 'BUTTON' || el.tagName === 'A' || el.tagName === 'SUMMARY' || ['button', 'link', 'tab', 'switch'].includes(el.getAttribute('role'));
     if (interactive && !name(el) && !el.getAttribute('title')) issues.push({type: '控件没有可读名称', where: el.tagName.toLowerCase(), detail: '只有图标的按钮要写 aria-label，读屏才念得出来'});
     if (el.tagName === 'INPUT' && !['checkbox', 'radio', 'hidden'].includes(el.type) && !el.getAttribute('aria-label') && !el.closest('label') && !(el.id && document.querySelector(`label[for="${el.id}"]`)))
       issues.push({type: '控件没有可读名称', where: el.placeholder || 'input', detail: '输入框要有 <label> 或 aria-label，占位文字不算'});
-    if (interactive && !squashed && r.width > 0 && (r.width < 43.5 || r.height < 43.5) && !el.closest('p, li > span')) {
-      issues.push({type: '触控目标小于 44', where: name(el) || el.tagName.toLowerCase(), detail: `${Math.round(r.width)}×${Math.round(r.height)}`});
+    if (interactive && !squashed && r.width > 0 && r.height > 0 && (r.width < TAP_MIN - 0.5 || r.height < TAP_MIN - 0.5) && !inSentence(el)) {
+      const measure = q => [hitSize(el, q, TAP_FLOOR), hitSize(el, q, TAP_MIN)];  // 热区要在视口里才量得到
+      const [[fw, fh], [mw, mh]] = (r.bottom > innerHeight || r.top < 0) ? inView(el, measure) : measure(r);
+      const size = `${Math.round(r.width)}×${Math.round(r.height)}`;
+      if (Math.min(fw, fh) < TAP_FLOOR - 0.5) issues.push({type: '点按区域小于 24', where: name(el) || el.tagName.toLowerCase(), detail: `${size}，任何可点元素短边至少 ${TAP_FLOOR}px（WCAG 2.2 的 2.5.8）；独立成行的要 ${TAP_MIN}px`});
+      else if (mw < TAP_MIN - 0.5 || mh < TAP_MIN - 0.5) issues.push({type: '触控目标小于 44', where: name(el) || el.tagName.toLowerCase(), detail: `${size}，要 ${TAP_MIN}×${TAP_MIN}：给它加内边距或最小高度，整行可点的让链接包住整行`});
     }
   }
   // 2、3、4：文字
@@ -167,7 +247,7 @@ CHECK_JS = r"""
     seen.add(el);
     const cs = getComputedStyle(el); const fs = parseFloat(cs.fontSize); const lh = parseFloat(cs.lineHeight) || fs * 1.4;
     const r = el.getBoundingClientRect();
-    const vertical = cs.writingMode.startsWith('vertical');  // 有意的竖排（书脊）不算
+    const vertical = cs.writingMode.startsWith('vertical');  // 有意的竖排（侧边的竖排标签）不算
     if (!vertical && text.length >= 3 && r.width < fs * 2.2 && r.height > lh * 2.5) issues.push({type: '文字被挤成竖排', where: text.slice(0, 20), detail: `宽 ${Math.round(r.width)}、高 ${Math.round(r.height)}`});
     if (r.right > R.right + 1 && !clipped(el)) issues.push({type: '内容超出画板', where: text.slice(0, 20), detail: `右边 ${Math.round(r.right)} > ${Math.round(R.right)}`});
     if (el.closest('button[disabled], [aria-disabled="true"]')) continue;
@@ -192,16 +272,19 @@ CHECK_JS = r"""
   // 12：可点元素被别的东西盖住（看它中心那一点最上面是不是它自己）
   for (const el of root.querySelectorAll('a[href], button, input')) {
     if (!visible(el)) continue;
-    const r = el.getBoundingClientRect();
-    if (r.width < 2 || r.height < 2 || r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth) continue;
-    const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    const r0 = el.getBoundingClientRect();
+    if (r0.width < 2 || r0.height < 2 || r0.right < 0 || r0.left > innerWidth) continue;
+    const below = r0.top + r0.height / 2 >= innerHeight && r0.top < Math.max(R.bottom, document.documentElement.scrollHeight);  // 一屏以下的滚到视口里再量
+    if (!below && (r0.bottom < 0 || r0.top > innerHeight)) continue;
+    const probe = r => document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    const hit = below ? inView(el, probe) : probe(r0);
     if (!hit || el.contains(hit) || hit.contains(el)) continue;
     const owner = hit.closest('a[href], button, input, [role="group"], [role="dialog"], [role="menu"], form, header, nav');
     if (owner && !owner.contains(el) && !el.contains(owner)) issues.push({type: '可点元素被盖住', where: name(el), detail: `被「${name(owner) || owner.tagName.toLowerCase()}」盖住`});
   }
   // 13：首屏（第一个 section）里的按钮和表单完整留在视口里
   const hero = root.querySelector('section');
-  if (hero) for (const el of hero.querySelectorAll('.btn, form, [role="switch"]')) {
+  if (hero && hero.getBoundingClientRect().top < innerHeight / 2) for (const el of hero.querySelectorAll('.btn, form, [role="switch"]')) {  // 第一个 section 从半屏以下才开始的不是首屏
     if (!visible(el) || el.closest('[aria-hidden="true"]')) continue;
     const r = el.getBoundingClientRect();
     if (r.bottom > innerHeight + 1) issues.push({type: '首屏主操作在视口外', where: name(el), detail: `底边 ${Math.round(r.bottom)} > 视口 ${innerHeight}；首屏高度按 100svh 算，内容跟着视口压缩`});
@@ -474,6 +557,112 @@ GLASS_JS = r"""
 """
 
 
+METRICS_JS = r"""
+() => {
+  // 29–32 用的量：第一个标题的左边缘、首屏空白带、相邻的平涂色面、字号种类。只量，不判；阈值在 Python 一侧
+  const O = window.__vcOpts || {};
+  const root = document.querySelector('[data-theme]') || document.body;
+  const R = root.getBoundingClientRect(), VW = innerWidth, VH = innerHeight;
+  const vis = el => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity) > 0.01 && el.getClientRects().length > 0; };
+  const label = el => { if (el === document.body) return '页面底色（body）'; if (el === root) return '画板底色'; const full = ((el.getAttribute('aria-label') || '') || (el.innerText || '')).trim().replace(/\s+/g, ' '); const t = full.length <= 14 ? full : ''; const c = (el.className && el.className.baseVal === undefined ? String(el.className) : '').trim().split(/\s+/).filter(Boolean).slice(0, 2).join('.'); return el.tagName.toLowerCase() + (c ? '.' + c : '') + (t ? '「' + t + '」' : ''); };
+  const out = {};
+  // 29：第一个 h1 的左边缘；没有 h1 取第一屏第一个标题
+  {
+    const ok = h => vis(h) && !h.closest('[data-edge="free"], [aria-hidden="true"], [role="dialog"]');
+    let h = [...root.querySelectorAll('h1')].find(ok);
+    if (!h) h = [...root.querySelectorAll('h2, h3, [role="heading"]')].find(x => ok(x) && x.getBoundingClientRect().top < VH);
+    if (h) { const r = h.getBoundingClientRect(); out.edge = {left: Math.round(r.left * 10) / 10, tag: h.tagName.toLowerCase(), text: (h.innerText || '').trim().replace(/\s+/g, ' ').slice(0, 16)}; }
+  }
+  // 30：首屏空白带。内容 = 文字、控件、图片（img、svg、video、背景图）；动效 = canvas、[data-motion]
+  // 只量入口页的首屏：标了 data-first-screen 的区域，或流式页面的第一屏；固定尺寸的 App 界面（内容在上、按钮贴底）不量
+  const fsEl = root.matches('[data-first-screen]') ? root : root.querySelector('[data-first-screen]');
+  const scope = fsEl ? fsEl.getBoundingClientRect() : (window.__vcFluid ? R : null);
+  if (scope) {
+    const top0 = Math.max(0, scope.top), bot0 = Math.min(VH, scope.bottom);
+    const solid = [], motion = [];
+    const add = (arr, r) => { const a = Math.max(r.top, top0), b = Math.min(r.bottom, bot0); if (b - a > 1 && r.width > 1 && r.right > 0 && r.left < VW) arr.push([a, b]); };
+    const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    while (tw.nextNode()) {
+      const n = tw.currentNode, pe = n.parentElement;
+      if (!n.textContent.trim() || !pe || pe.closest('script, style') || !vis(pe)) continue;
+      const rg = document.createRange(); rg.selectNodeContents(n);
+      for (const r of rg.getClientRects()) add(solid, r);
+    }
+    for (const el of root.querySelectorAll('img, picture, video, [data-video], svg, [role="img"], a[href], button, input, select, textarea, [role="button"]')) if (vis(el)) add(solid, el.getBoundingClientRect());
+    for (const el of root.querySelectorAll('*')) { const bi = getComputedStyle(el).backgroundImage; if (bi && /url\(/.test(bi) && vis(el)) add(solid, el.getBoundingClientRect()); }
+    for (const el of root.querySelectorAll('canvas, [data-motion]')) if (vis(el)) add(motion, el.getBoundingClientRect());
+    const gap = ivs => { let best = [0, top0, top0], cur = top0; for (const [a, b] of [...ivs].sort((x, y) => x[0] - y[0])) { if (a - cur > best[0]) best = [a - cur, cur, a]; cur = Math.max(cur, b); } if (bot0 - cur > best[0]) best = [bot0 - cur, cur, bot0]; return best.map(Math.round); };
+    out.band = {vh: VH, all: gap(solid.concat(motion)), solid: gap(solid)};
+  }
+  // 32：字号种类
+  {
+    const sizes = {};
+    for (const el of root.querySelectorAll('*')) {
+      if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) || el.closest('script, style, svg') || !vis(el)) continue;
+      const fs = Math.round(parseFloat(getComputedStyle(el).fontSize) * 10) / 10;
+      sizes[fs] = (sizes[fs] || 0) + 1;
+    }
+    out.sizes = sizes;
+  }
+  // 31：相邻的平涂色面
+  {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 1; const cx = cv.getContext('2d', {willReadFrequently: true});
+    const rgba = c => { if (!c || c === 'transparent') return null; const m = c.match(/^rgba?\(([^)]+)\)$/); if (m) { const p = m[1].split(/[ ,\/]+/).filter(Boolean).map(parseFloat); return [p[0], p[1], p[2], p.length > 3 ? p[3] : 1]; } cx.clearRect(0, 0, 1, 1); cx.fillStyle = '#000'; cx.fillStyle = c; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
+    const flat = el => {  // 这个元素自己画出来的平涂底色（和下面各层混合后）；有背景图、渐变或透到图片上的不算平涂
+      const layers = [];
+      for (let e = el; e; e = e.parentElement) {
+        const cs = getComputedStyle(e);
+        if (cs.backgroundImage && cs.backgroundImage !== 'none') return null;
+        const c = rgba(cs.backgroundColor);
+        if (c && c[3] > 0) { layers.push(c); if (c[3] >= 1) break; }
+      }
+      let b = [255, 255, 255];
+      for (let i = layers.length - 1; i >= 0; i--) { const t = layers[i]; b = [0, 1, 2].map(k => t[k] * t[3] + b[k] * (1 - t[3])); }
+      return b;
+    };
+    const lum = c => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]); };
+    const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    const hex = c => '#' + c.map(v => Math.round(v).toString(16).padStart(2, '0')).join('');
+    const minA = (O.faceArea || 0.2) * VW * VH;
+    let cands = [];
+    for (const el of new Set([document.body, root, ...root.querySelectorAll('*')])) {
+      if (!vis(el) || el.closest('svg')) continue;
+      const own = rgba(getComputedStyle(el).backgroundColor);
+      if (!own || own[3] <= 0.5) continue;
+      const r = el.getBoundingClientRect();
+      const x0 = Math.max(0, r.left), y0 = Math.max(0, r.top), x1 = Math.min(VW, r.right), y1 = Math.min(VH, r.bottom);
+      if (x1 - x0 <= 0 || y1 - y0 <= 0 || (x1 - x0) * (y1 - y0) < minA) continue;
+      const c = flat(el); if (!c) continue;
+      cands.push({el, x0, y0, x1, y1, area: (x1 - x0) * (y1 - y0), c});
+    }
+    cands = cands.filter((b, i) => !cands.some((a, j) => j !== i && a.el !== b.el && a.el.contains(b.el) && ratio(a.c, b.c) < 1.005));  // 套在同色的外层里：同一块面
+    const inside = (b, a) => a.el !== b.el && a.el.contains(b.el);
+    for (const a of cands) {  // 露在外面的面积：减掉直接套在里面的面
+      const kids = cands.filter(b => inside(b, a) && !cands.some(m => inside(b, m) && inside(m, a)));
+      a.left = a.area - kids.reduce((s, k) => s + k.area, 0); a.kids = kids;
+    }
+    const pairs = [];
+    for (let i = 0; i < cands.length; i++) for (let j = i + 1; j < cands.length; j++) {
+      const a = cands[i], b = cands[j]; let adj = false;
+      if (inside(b, a)) adj = a.kids.includes(b) && a.left >= minA;
+      else if (inside(a, b)) adj = b.kids.includes(a) && b.left >= minA;
+      else {
+        const ov = (p0, p1, q0, q1) => Math.min(p1, q1) - Math.max(p0, q0);
+        const side = (Math.abs(a.x1 - b.x0) <= 2 || Math.abs(b.x1 - a.x0) <= 2) && ov(a.y0, a.y1, b.y0, b.y1) >= VH * 0.2;
+        const stack = (Math.abs(a.y1 - b.y0) <= 2 || Math.abs(b.y1 - a.y0) <= 2) && ov(a.x0, a.x1, b.x0, b.x1) >= VW * 0.2;
+        adj = (side || stack) && a.left >= minA && b.left >= minA;
+      }
+      if (!adj) continue;
+      const k = ratio(a.c, b.c);
+      if (k >= 1.005) pairs.push({a: label(a.el), b: label(b.el), ca: hex(a.c), cb: hex(b.c), ratio: Math.round(k * 100) / 100, pa: Math.round(a.area / VW / VH * 100), pb: Math.round(b.area / VW / VH * 100)});
+    }
+    out.faces = pairs;
+  }
+  return out;
+}
+"""
+
+
 POS_JS = r"""
 () => {
   const vis = el => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden' && el.getClientRects().length > 0; };
@@ -542,6 +731,34 @@ def flat_glass(pg):
     return issues
 
 
+def metric_issues(m, theme, opts):
+    """30、31：按阈值把 METRICS_JS 量到的数变成问题和提示（29、32 要跨变体、跨画板，在 main 里汇总）。"""
+    issues, notices = [], []
+    if theme == 'light' and m.get('band'):
+        vh = m['band']['vh']
+        g, a, b = m['band']['all']
+        if vh and g / vh > opts['band']:
+            issues.append({'type': '首屏空白带', 'where': f'y {a}–{b}', 'detail': f'连续 {g}px 没有文字、控件、图片，占视口高度 {vh} 的 {round(g / vh * 100)}%，上限 {round(opts["band"] * 100)}%：把内容或画面放进来，或者把首屏收矮'})
+        else:
+            g2, a2, b2 = m['band']['solid']
+            if vh and g2 / vh > opts['band']:
+                notices.append({'type': '首屏有一带只有动效画布', 'size': g2, 'where': f'y {a2}–{b2}', 'detail': f'连续 {g2}px（视口的 {round(g2 / vh * 100)}%）只被 canvas / [data-motion] 盖着：静态截图看不到它画了什么，用 capture_motion.py 截出动效帧、--reduced-motion 的静止帧和 --no-webgl 的兜底帧，确认这一带不是空的'})
+    for f in m.get('faces', []):
+        if f['ratio'] < opts['face_contrast']:
+            issues.append({'type': '相邻两大块色面分不开', 'where': f"{f['a']} / {f['b']}"[:60], 'detail': f"{f['ca']} 和 {f['cb']} 对比 {f['ratio']:.2f}:1，要 ≥ {opts['face_contrast']}:1（各占视口 {f['pa']}%、{f['pb']}%）：两块是不同的面就把明度拉开，是同一块面就用同一个颜色"})
+    return issues, notices
+
+
+def third_party_fonts(src, requests):
+    """向第三方取字体：源码里的链接和运行时的请求里出现已知的字体服务，或跨域的字体文件。只作提示。"""
+    hosts = set()
+    for u in re.findall(r'https?://[^\s"\'()<>]+', re.sub(r'<script type="text/x-dc".*?</script>', '', src, flags=re.S)) + list(requests):
+        host = re.sub(r'^https?://', '', u).split('/')[0].lower()
+        if host in FONT_HOSTS or (re.search(r'\.(woff2?|ttf|otf)(\?|$)', u) and u.startswith('http')):
+            hosts.add(host)
+    return [{'type': '向第三方取字体', 'where': h, 'detail': '访客每打开一次，浏览器就把 IP 和浏览器信息发给这家第三方（隐私；2022 年德国慕尼黑地方法院判过未经同意加载 Google Fonts 违反 GDPR）；多一次外部连接，连不上时掉回备用字体，截图和产品就不一样。把字体文件放到自己的域名下，或用系统字体栈'} for h in sorted(hosts)]
+
+
 def discover_states(src):
     names = sorted(set(re.findall(r'<sc-if value="\{\{\s*(s\d+)\s*\}\}"', src)), key=lambda x: int(x[1:]))
     return names or [None]
@@ -572,14 +789,33 @@ def prop_variants(src, labels):
     return out
 
 
-def board_meta(path):
-    """返回 (宽, 高, 是否文档页)。canvas.json 里带 expand 的画板是说明文档（旅程图之类），不按产品界面查触控尺寸。"""
-    cj = os.path.join(os.path.dirname(path), 'canvas.json')
+def board_meta(path, src):
+    """画板的基准尺寸和类别：{'w', 'h', 'source', 'expand', 'fixed_root', 'fluid', 'doc', 'doc_why'}。
+    尺寸：canvas.json → data-props 的 $preview → 390×844（source 记成 None，报告里写明）。
+    fluid（流式页面）：canvas.json 里带 expand；或没有 canvas.json 条目、根节点不写死宽度、$preview 比一屏高出一半以上。
+    doc（说明文档：组件表、旅程图）：根节点写了 data-board="doc"；或带 expand 又没有 nav / main / footer / data-first-screen。"""
+    m = {'w': 390, 'h': 844, 'source': None, 'expand': False}
+    cj = os.path.join(os.path.dirname(os.path.abspath(path)), 'canvas.json')
+    entry = None
     try:
-        b = json.load(open(cj, encoding='utf-8'))['boards'][os.path.basename(path)]
-        return int(b['w']), int(b['h']), bool(b.get('expand'))
+        entry = json.load(open(cj, encoding='utf-8'))['boards'][os.path.basename(path)]
+        m.update(w=int(entry['w']), h=int(entry['h']), source='canvas.json', expand=bool(entry.get('expand')))
     except Exception:
-        return 390, 844, False
+        pv = re.search(r'"\$preview"\s*:\s*\{\s*"width"\s*:\s*(\d+)\s*,\s*"height"\s*:\s*(\d+)', src)
+        if pv:
+            m.update(w=int(pv.group(1)), h=int(pv.group(2)), source='$preview')
+    root = re.search(r'<[a-zA-Z][^<>]*\bdata-theme=[^<>]*>', src)
+    root_tag = root.group(0) if root else ''
+    m['fixed_root'] = bool(re.search(r'(?:^|[;"\s])width:\s*(?:[\d.]+|\{\{[^}]*\}\})px', root_tag))  # width: 390px 或 width: {{ w }}px
+    m['fluid'] = m['expand'] or (entry is None and m['source'] == '$preview' and not m['fixed_root'] and m['h'] > fold_height(m['w']) * 1.5)
+    kind = re.search(r'data-board="(doc|page)"', root_tag)
+    landmarks = re.search(r'<(nav|main|footer)\b|data-first-screen', src)
+    if kind:
+        m['doc'], m['doc_why'] = kind.group(1) == 'doc', 'data-board="doc"'
+    else:
+        m['doc'] = m['expand'] and not landmarks
+        m['doc_why'] = '带 expand，又没有 nav / main / footer / data-first-screen；是产品页面的话在根节点写 data-board="page"'
+    return m
 
 
 COLOR_RE = re.compile(r'#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(')
@@ -629,15 +865,27 @@ def main():
     ap.add_argument('--blob', action='append', default=[], metavar='ID=PATH',
                     help='画板里 /_blob/<ID> 引用的上传文件在本地的路径（例如共享样式表），可以写多次；不给的话这些样式读不到，会误报 token 没定义和触控过小')
     ap.add_argument('--size', action='append', default=[], metavar='NAME=WxH',
-                    help='画板在另一个视口宽度下再查一遍（例如手机画板在 320 宽下），可以写多次；画板要按宽度自适应才有意义')
+                    help='画板在另一个视口下再查一遍（例如手机画板在 320 宽下），可以写多次；名称可以不带 .dc.html，写 * 表示全部画板。'
+                         '画板尺寸没找到（没有 canvas.json 也没有 $preview）时，第一个 --size 就是基准视口')
+    ap.add_argument('--no-auto-sizes', action='store_true', help='不给流式页面自动加 390×844、320×568，不给手机画板自动加 320×568')
+    ap.add_argument('--edge-tol', type=float, default=EDGE_TOL, help=f'跨画板内容左边缘的容差，px（默认 {EDGE_TOL}）')
+    ap.add_argument('--empty-band', type=float, default=EMPTY_BAND_MAX, help=f'首屏空白带上限，占视口高度的比例（默认 {EMPTY_BAND_MAX}）')
+    ap.add_argument('--face-area', type=float, default=FACE_MIN_AREA, help=f'一块色面至少占视口的比例（默认 {FACE_MIN_AREA}）')
+    ap.add_argument('--face-contrast', type=float, default=FACE_MIN_CONTRAST, help=f'相邻色面的最低对比（默认 {FACE_MIN_CONTRAST}）')
+    ap.add_argument('--tap-min', type=float, default=TAP_MIN, help=f'独立成行的可点元素的最小边长，px（默认 {TAP_MIN}）')
+    ap.add_argument('--tap-floor', type=float, default=TAP_FLOOR, help=f'任何可点元素的最小边长，px（默认 {TAP_FLOOR}）')
+    ap.add_argument('--max-font-sizes', type=int, default=MAX_FONT_SIZES, help=f'一块画板里字号种类的上限（默认 {MAX_FONT_SIZES}）')
     a = ap.parse_args()
-    extra_sizes = {}
+    opts = {'band': a.empty_band, 'face_contrast': a.face_contrast}
+    js_opts = json.dumps({'tapMin': a.tap_min, 'tapFloor': a.tap_floor, 'proseMin': PROSE_MIN_CHARS, 'faceArea': a.face_area})
+    size_args = []
     for m in a.size:
         name, _, wh = m.partition('=')
         try:
-            extra_sizes.setdefault(name, []).append(tuple(int(x) for x in wh.lower().split('x')))
+            w_, h_ = (int(x) for x in wh.lower().split('x'))
         except ValueError:
             sys.exit(f'--size {m}：写成 名称=宽x高，例如 Mobile.dc.html=320x700')
+        size_args.append((name, (w_, h_)))
 
     files = []
     for p in a.paths:
@@ -647,9 +895,16 @@ def main():
         files = [f for f in files if any(k in os.path.basename(f) for k in keys)]
     if not files:
         sys.exit('没有找到 .dc.html 画板')
-    unknown = set(extra_sizes) - {os.path.basename(f) for f in files}
+    extra_sizes, unknown = {}, []
+    bases = [os.path.basename(f) for f in files]
+    for name, wh in size_args:
+        hit = bases if name == '*' else [b for b in bases if b in (name, name + '.dc.html')]
+        if not hit:
+            unknown.append(name)
+        for b in hit:
+            extra_sizes.setdefault(b, []).append(wh)
     if unknown:
-        sys.exit('--size 的画板名没有对上：' + '、'.join(sorted(unknown)) + '（要写全名，例如 Main.dc.html）')
+        sys.exit('--size 的画板名没有对上：' + '、'.join(sorted(unknown)) + '（写文件名，例如 Main.dc.html 或 Main；* 表示全部）')
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -657,6 +912,7 @@ def main():
 
     os.makedirs(a.out, exist_ok=True)
     report, total = [], 0
+    edges = {}  # 视口宽度 → [(画板, 左边缘, 标题)]，查 29
     with sync_playwright() as pw:
         browser = pw.chromium.launch(args=['--allow-file-access-from-files'])  # 本地样式表的 cssRules 才读得到（查 23、查 token）
         logic_page = browser.new_page()  # 执行画板的 renderVals()，算出模板里的值
@@ -667,7 +923,20 @@ def main():
                 if not bpath or not os.path.exists(bpath):
                     sys.exit(f'--blob {m}：本地文件不存在')
                 src = src.replace('/_blob/' + bid, os.path.relpath(os.path.abspath(bpath), os.path.dirname(os.path.abspath(f))))
-            w, h, is_doc = board_meta(f)
+            meta = board_meta(f, src)
+            is_doc = meta['doc']
+            mine = list(extra_sizes.get(os.path.basename(f), []))
+            if meta['source'] is None and mine:  # 尺寸没找到：第一个 --size 当基准，不按 390 宽跑
+                meta.update(w=mine[0][0], h=mine[0][1], source='--size')
+                mine = mine[1:]
+            w, h = (meta['w'], fold_height(meta['w'])) if meta['fluid'] else (meta['w'], meta['h'])
+            if not a.no_auto_sizes and not is_doc and not meta['fixed_root']:
+                auto = FLUID_SIZES if meta['fluid'] else [sz for sz in FLUID_SIZES[-1:] if w < 744]
+                mine += [sz for sz in auto if sz[0] < w and sz not in mine]
+            notices = third_party_fonts(src, [])
+            if meta['source'] is None:
+                notices.append({'type': '画板尺寸没找到', 'where': '390×844', 'detail': '同目录没有 canvas.json（或里面没有这块画板），data-props 里也没有 $preview，按 390×844 查的；桌面画板这样查出来的竖排、超出画板都是假象。把 canvas.json 放到画板旁边，或用 --size 名称=宽x高 给出基准视口'})
+            font_sizes, font_reqs = {}, set()
             labels = stage_labels(src)
             refs = set(re.findall(r'var\(--([\w-]+)', src))
             # file:// 下读不到外部样式表的规则，直接从链接的 css 文件和内联 <style> 里收集定义
@@ -689,7 +958,7 @@ def main():
             first_state = variants[0][1]
             variants += [(lbl, first_state, po, (w, h)) for lbl, po in prop_variants(src, labels if states[0] else [])]
             langs = [po for lbl, po in prop_variants(src, labels if states[0] else []) if 'lang' in po]
-            for vw, vh in extra_sizes.get(os.path.basename(f), []):
+            for vw, vh in mine:
                 variants.append((f'{vw}×{vh}', first_state, {}, (vw, vh)))
                 variants += [(f'{vw}×{vh} lang={po["lang"]}', first_state, po, (vw, vh)) for po in langs]  # 窄屏最容易坏在另一种语言上
             pos_base = {}  # (宽, 高, 语言) → 第一个变体的元素位置，查 24
@@ -708,7 +977,8 @@ def main():
                     pg = browser.new_page(viewport={'width': vw, 'height': vh}, reduced_motion='reduce',  # pseudo 按浅色查
                                           color_scheme='dark' if theme == 'dark' and not manual_dark else 'light')
                     pg.on('pageerror', lambda e: errors.append(str(e)[:120]))
-                    pg.add_init_script('window.__dcHandlesEscape = ' + ('true' if 'Escape' in src else 'false'))
+                    pg.on('request', lambda rq: font_reqs.add(rq.url) if rq.url.startswith('http') else None)
+                    pg.add_init_script('window.__vcOpts = ' + js_opts + '; window.__vcFluid = ' + ('true' if meta['fluid'] else 'false') + '; window.__dcHandlesEscape = ' + ('true' if 'Escape' in src else 'false'))
                     pg.on('console', lambda m: (net if 'net::' in m.text or 'Failed to load resource' in m.text else errors).append(m.text[:120]) if m.type == 'error' else None)
                     try:
                         pg.goto('file://' + tmp)
@@ -721,7 +991,6 @@ def main():
                             for cls, lbl in (('is-press', '按下'), ('is-hover', '悬停')):
                                 more = pg.evaluate(STATE_JS, cls)
                                 res['issues'] += [{**i, 'type': '对比度不够（' + lbl + '）'} for i in more if i['type'] == '对比度不够']
-                            res['issues'] += flat_glass(pg)
                             pos = pg.evaluate(POS_JS)
                             pkey = (vw, vh, props_override.get('lang'))
                             if pkey in pos_base:
@@ -735,13 +1004,33 @@ def main():
                         if theme == 'pseudo':
                             res['issues'] = [i for i in res['issues'] if i['type'] in LAYOUT_TYPES]
                             res['hints'] = []
+                        elif not is_doc:  # 29–32：量一次，按阈值判
+                            met = pg.evaluate(METRICS_JS)
+                            more, note = metric_issues(met, theme, opts)
+                            res['issues'] += more
+                            for n in note:  # 同一类提示一块画板只留量到最大的那条
+                                old = next((x for x in notices if x['type'] == n['type']), None)
+                                if old is None:
+                                    notices.append(n)
+                                elif n['size'] > old['size']:
+                                    notices[notices.index(old)] = n
+                            if theme == 'light' and (vw, vh) == (w, h):  # 32：基准视口下各状态合并
+                                for k, n in met['sizes'].items():
+                                    font_sizes[k] = max(font_sizes.get(k, 0), n)
+                            if theme == 'light' and not props_override and state == first_state and met.get('edge'):  # 29：每个视口的默认状态
+                                edges.setdefault(vw, []).append((os.path.basename(f), met['edge']))
+                        if theme == 'light':
+                            if meta['fluid'] and (vw, vh) == (w, h):
+                                pg.set_viewport_size({'width': vw, 'height': meta['h']})  # 一屏以下的玻璃也要查：整页高度下截
+                                pg.wait_for_timeout(50)
+                            res['issues'] += flat_glass(pg)
                     finally:
                         pg.close()
                         os.remove(tmp)
                     for hnt in res.get('hints', []):
                         board_hints.setdefault((hnt['sign'], hnt['where']), set()).add(label)
                     for i in res['issues']:
-                        if is_doc and i['type'] in ('触控目标小于 44', '首屏主操作在视口外', '玻璃压在平涂底色上', '展开挤动了版面'):  # 说明文档类画板（组件表、旅程图）没有首屏
+                        if is_doc and i['type'] in FIRST_SCREEN_TYPES:  # 说明文档类画板（组件表、旅程图）没有首屏
                             continue
                         board_issues.append({'state': label, 'theme': theme, **i})
                     if theme == a.themes.split(',')[0]:
@@ -749,6 +1038,11 @@ def main():
                             board_issues.append({'state': label, 'theme': theme, 'type': '没定义的 token', 'where': '--' + name, 'detail': ''})
                     for e in errors:
                         board_issues.append({'state': label, 'theme': theme, 'type': '页面报错', 'where': e, 'detail': ''})
+            if len(font_sizes) > a.max_font_sizes:
+                kinds = sorted(font_sizes.items(), key=lambda kv: -float(kv[0]))
+                board_issues.append({'state': '各状态合并', 'theme': 'light', 'type': '字号种类过多', 'where': f'{len(kinds)} 种',
+                                     'detail': f'上限 {a.max_font_sizes} 种（{w}×{h}，各状态合并）：' + '、'.join(f'{float(k):g}px×{n}' for k, n in kinds) + '；把相近的并成一档，层级靠字号和字重拉开'})
+            notices += [n for n in third_party_fonts('', font_reqs) if n not in notices]
             # 同一个问题在多个状态里重复出现时合并
             merged = {}
             for i in board_issues:
@@ -761,15 +1055,34 @@ def main():
             for i in items:
                 i['theme'] = '、'.join(i['themes'])
             total += len(items)
-            report.append((os.path.basename(f), items, board_hints))
+            sizes_txt = '、'.join(f'{x}×{y}' for x, y in dict.fromkeys(v[3] for v in variants))
+            info = {'viewports': [list(x) for x in dict.fromkeys(v[3] for v in variants)], 'size_source': meta['source'], 'fluid': meta['fluid'], 'doc': is_doc,
+                    'line': f'查的视口：{sizes_txt}（基准来自 {meta["source"] or "默认值，尺寸没找到"}' + ('；流式页面，视口高度取一屏' if meta['fluid'] else '') + '）'
+                            + (f'；按说明文档查（{meta["doc_why"]}），不查触控、首屏、空白带、色面、字号种类、左边缘' if is_doc else '')}
+            report.append((os.path.basename(f), items, board_hints, notices, info))
+
+        # 29：跨画板的内容左边缘。同一视口宽度下，各画板第一个 h1（没有就取第一屏第一个标题）的左边缘要一致
+        cross = []
+        for vw_, rows in sorted(edges.items(), reverse=True):
+            lefts = [e['left'] for _, e in rows]
+            if len(rows) > 1 and max(lefts) - min(lefts) > a.edge_tol:
+                cross.append({'type': '跨画板的内容左边缘不一致', 'where': f'{vw_} 宽', 'theme': 'light', 'states': ['默认'], 'themes': ['light'],
+                              'detail': f'相差 {max(lefts) - min(lefts):g}px，容差 {a.edge_tol:g}px：' + '；'.join(f'{b} {e["left"]:g}px（{e["tag"]}「{e["text"]}」）' for b, e in rows)
+                                        + '。各页的内容容器用同一条边距公式；有意不对齐的标题写 data-edge="free"'})
+        if cross:
+            total += len(cross)
+            report.append(('（跨画板）', cross, {}, [], {'line': '同一视口宽度下比各画板第一个标题的左边缘'}))
 
         browser.close()
 
     verdict = 'done' if total == 0 else 'needs_work'
     lines = [f'# 画板验证报告', '', f'**结论：{verdict}**（{total} 个问题，{len(files)} 块画板，主题：{a.themes}）', '',
              '只报会让用户看错、点不到、看不清的问题。审美判断交给评审。', '']
-    for name, items, hints in report:
+    for name, items, hints, notices, info in report:
         lines.append(f'## {name}' + ('（通过）' if not items else f'（{len(items)}）'))
+        lines += ['', info['line']]
+        if notices:
+            lines += ['', '提示（不影响结论）：'] + [f"- {n['type']}：{n['where']}。{n['detail']}" for n in notices]
         if items:
             lines += ['', '| 类型 | 位置 | 细节 | 主题 | 状态 |', '|---|---|---|---|---|']
             for i in sorted(items, key=lambda x: x['type']):
@@ -780,8 +1093,9 @@ def main():
         lines.append('')
     out = os.path.join(a.out, 'verify-canvas.md')
     open(out, 'w', encoding='utf-8').write('\n'.join(lines))
-    json.dump({'verdict': verdict, 'boards': {n: it for n, it, _ in report},
-               'hints': {n: [{'sign': k[0], 'where': k[1], 'states': sorted(v)} for k, v in h.items()] for n, _, h in report}}, open(os.path.join(a.out, 'verify-canvas.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    json.dump({'verdict': verdict, 'boards': {n: it for n, it, *_ in report},
+               'notices': {n: nt for n, _, _, nt, _ in report if nt}, 'meta': {n: inf for n, *_, inf in report},
+               'hints': {n: [{'sign': k[0], 'where': k[1], 'states': sorted(v)} for k, v in h.items()] for n, _, h, *_ in report}}, open(os.path.join(a.out, 'verify-canvas.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print(f'{verdict}: {total} 个问题 → {out}')
     sys.exit(0 if verdict == 'done' else 1)
 

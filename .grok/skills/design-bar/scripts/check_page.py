@@ -3,8 +3,16 @@
 
 用法：
   python check_page.py <URL 或本地 HTML 路径> [--out 目录] [--widths 375,768,1440]
-                       [--shots-only] [--dark] [--min-font 14] [--min-target 44]
+                       [--shots-only] [--dark] [--min-font 14] [--min-target 44] [--tap-floor 24]
                        [--max-font-sizes 8] [--max-text-colors 6]
+                       [--empty-band 0.30] [--face-contrast 1.3] [--face-area 0.20]
+
+检查项：横向溢出、小字、对比度、点按区域（两级）、首屏空白带、相邻的大块色面（--dark 时深色也查）、
+语言声明、h1 和标题层级、alt、字号和文本颜色的种类、reduced-motion、焦点样式、控制台报错；向第三方取字体只作提示。
+  点按区域：独立成行的链接和按钮 < --min-target（默认 44，在 --targets-up-to 以内的宽度上查）；任何可点元素短边 < --tap-floor
+           （默认 24，WCAG 2.2 的 2.5.8，所有宽度都查）。只放过一句话中间的行内链接（所在的块里链接以外还有 ≥ 12 个字，
+           且不在 nav / header / footer 里）；页脚、面包屑、整行链接都查。
+  首屏空白带、相邻色面：和 verify_canvas.py 的 30、31 是同一套量法和阈值（从它引入），页面按流式页面量第一屏。
 
 输出：
   <out>/shot-<宽度>-viewport.png、shot-<宽度>-full.png（--dark 时另有 -dark 版本）
@@ -14,10 +22,15 @@
 """
 import argparse
 import json
+import os
 import pathlib
 import sys
 
 from playwright.sync_api import sync_playwright
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from verify_canvas import (EMPTY_BAND_MAX, FACE_MIN_AREA, FACE_MIN_CONTRAST, METRICS_JS, PROSE_MIN_CHARS, TAP_FLOOR,  # noqa: E402
+                           metric_issues, third_party_fonts)
 
 MOBILE_MAX = 480
 
@@ -114,20 +127,42 @@ COLLECT_JS = r"""
   out.textColors = Object.keys(colors);
   out.fontFamilies = Object.keys(families);
 
-  // 触控目标（仅移动宽度）
-  out.smallTargets = [];
-  if (vw <= opts.mobileMax) {
-    const q = 'a[href], button, input:not([type=hidden]), select, textarea, [role=button], [role=link], [tabindex]:not([tabindex="-1"])';
+  // 点按区域：独立成行的 < minTarget（只在 mobileMax 以内的宽度）；任何可点元素短边 < tapFloor（所有宽度）
+  out.smallTargets = []; out.tinyTargets = [];
+  {
+    // 一句话中间的行内链接按 WCAG 2.5.8 豁免；页脚、面包屑、导航里的链接和独占一块的链接不算在句子里
+    const inSentence = (el) => {
+      if (el.tagName !== 'A' || getComputedStyle(el).display !== 'inline' || el.closest('nav, header, footer, [role="navigation"], menu')) return false;
+      let blk = el.parentElement;
+      while (blk && blk !== document.body && getComputedStyle(blk).display.startsWith('inline')) blk = blk.parentElement;
+      if (!blk) return false;
+      let n = 0; const tw = document.createTreeWalker(blk, NodeFilter.SHOW_TEXT);
+      while (tw.nextNode()) { const pe = tw.currentNode.parentElement; if (pe && !pe.closest('a, button, [role="button"], [role="link"]')) n += (tw.currentNode.textContent.match(/[A-Za-z0-9\u4e00-\u9fff]/g) || []).length; }
+      return n >= opts.proseMin;
+    };
+    // 用 ::before / ::after 撑大的热区：在盒子外按目标尺寸取点，点到的还是它自己就算撑到了
+    const hitSize = (el, want) => {
+      const wx = scrollX, wy = scrollY;
+      el.scrollIntoView({block: 'center', behavior: 'instant'});
+      const r = el.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const own = (x, y) => { if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false; const h = document.elementFromPoint(x, y); return !!h && (h === el || el.contains(h)); };
+      let w = r.width, h = r.height;
+      if (h < want && own(cx, cy - want / 2 + 1) && own(cx, cy + want / 2 - 1)) h = want;
+      if (w < want && own(cx - want / 2 + 1, cy) && own(cx + want / 2 - 1, cy)) w = want;
+      window.scrollTo({left: wx, top: wy, behavior: 'instant'});
+      return [w, h];
+    };
+    const q = 'a[href], button, input:not([type=hidden]), select, textarea, summary, [role=button], [role=link], [role=tab], [role=switch], [tabindex]:not([tabindex="-1"])';
     for (const el of document.querySelectorAll(q)) {
-      if (!visible(el)) continue;
-      const cs = getComputedStyle(el);
-      // 段落内的行内文字链接按 WCAG 2.5.8 豁免
-      if (el.tagName === 'A' && cs.display === 'inline' && el.parentElement && /^(P|LI|SPAN|TD|DD|BLOCKQUOTE)$/.test(el.parentElement.tagName)) continue;
+      if (!visible(el) || inSentence(el)) continue;
       const r = el.getBoundingClientRect();
-      if (r.width < opts.minTarget || r.height < opts.minTarget) {
-        out.smallTargets.push(`${sel(el)} ${Math.round(r.width)}×${Math.round(r.height)}`);
-        if (out.smallTargets.length >= 10) break;
-      }
+      if (r.width >= opts.minTarget && r.height >= opts.minTarget) continue;
+      const size = `${sel(el)} ${Math.round(r.width)}×${Math.round(r.height)}`;
+      const [fw, fh] = hitSize(el, opts.tapFloor);
+      if (Math.min(fw, fh) < opts.tapFloor - 0.5) { if (out.tinyTargets.length < 12) out.tinyTargets.push(size); continue; }
+      if (vw > opts.mobileMax) continue;
+      const [mw, mh] = hitSize(el, opts.minTarget);
+      if ((mw < opts.minTarget - 0.5 || mh < opts.minTarget - 0.5) && out.smallTargets.length < 12) out.smallTargets.push(size);
     }
   }
 
@@ -209,13 +244,19 @@ def main():
     ap.add_argument('--targets-up-to', type=int, default=MOBILE_MAX, help='在不超过这个宽度的截图上检查触控目标（默认 480，只查手机）；全站要求可点区域都够大时设成最大宽度')
     ap.add_argument("--max-font-sizes", type=int, default=8)
     ap.add_argument("--max-text-colors", type=int, default=6)
+    ap.add_argument("--tap-floor", type=float, default=TAP_FLOOR, help=f"任何可点元素短边的下限，所有宽度都查（默认 {TAP_FLOOR}，WCAG 2.2 的 2.5.8）")
+    ap.add_argument("--empty-band", type=float, default=EMPTY_BAND_MAX, help=f"首屏空白带上限，占视口高度的比例（默认 {EMPTY_BAND_MAX}）")
+    ap.add_argument("--face-contrast", type=float, default=FACE_MIN_CONTRAST, help=f"相邻的大块色面的最低对比（默认 {FACE_MIN_CONTRAST}）")
+    ap.add_argument("--face-area", type=float, default=FACE_MIN_AREA, help=f"一块色面至少占视口的比例（默认 {FACE_MIN_AREA}）")
     a = ap.parse_args()
+    mopts = {"band": a.empty_band, "face_contrast": a.face_contrast}
 
     out = pathlib.Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     url = resolve_target(a.target)
     widths = [int(w) for w in a.widths.split(",")]
-    report = {"target": url, "widths": {}, "console_errors": [], "focus": None}
+    report = {"target": url, "widths": {}, "dark": {}, "console_errors": [], "focus": None, "third_party_fonts": []}
+    requests = set()
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
@@ -226,6 +267,8 @@ def main():
                 ctx = browser.new_context(viewport={"width": w, "height": h}, color_scheme=scheme,
                                           device_scale_factor=1)
                 page = ctx.new_page()
+                page.on("request", lambda rq: requests.add(rq.url))
+                page.add_init_script("window.__vcFluid = true; window.__vcOpts = " + json.dumps({"faceArea": a.face_area}))
                 if scheme == "light" and w == widths[0]:
                     page.on("console", lambda m: report["console_errors"].append(m.text) if m.type == "error" else None)
                     page.on("pageerror", lambda e: report["console_errors"].append(str(e)))
@@ -239,7 +282,12 @@ def main():
                 page.screenshot(path=str(out / f"shot-{w}{suffix}-full.png"), full_page=True)
                 if not a.shots_only and scheme == "light":
                     report["widths"][w] = page.evaluate(COLLECT_JS, {
-                        "minFont": a.min_font, "minTarget": a.min_target, "mobileMax": a.targets_up_to})
+                        "minFont": a.min_font, "minTarget": a.min_target, "mobileMax": a.targets_up_to,
+                        "tapFloor": a.tap_floor, "proseMin": PROSE_MIN_CHARS})
+                    page.evaluate("window.scrollTo(0, 0)")
+                    found, _ = metric_issues(page.evaluate(METRICS_JS), "light", mopts)
+                    report["widths"][w]["emptyBand"] = [f"{i['where']}：{i['detail']}" for i in found if i["type"] == "首屏空白带"]
+                    report["widths"][w]["flatFaces"] = [f"{i['where']}：{i['detail']}" for i in found if i["type"] == "相邻两大块色面分不开"]
                     if not report["widths"][w]["hasReducedMotionQuery"]:
                         # file:// 或跨域样式表的 cssRules 读不到：直接读样式表源文件
                         report["widths"][w]["hasReducedMotionQuery"] = stylesheets_mention(
@@ -252,8 +300,12 @@ def main():
                             if r:
                                 focus.append(r)
                         report["focus"] = focus
+                if not a.shots_only and scheme == "dark":
+                    found, _ = metric_issues(page.evaluate(METRICS_JS), "dark", mopts)
+                    report["dark"][w] = [f"{i['where']}：{i['detail']}" for i in found]
                 ctx.close()
         browser.close()
+    report["third_party_fonts"] = [n["where"] for n in third_party_fonts("", requests)]
 
     if a.shots_only:
         print(f"截图已保存到 {out}")
@@ -284,7 +336,13 @@ def write_markdown(r, a):
         unknown = f"（另有 {d['contrastUnknown']} 处位于图片或渐变背景上，需人工检查）" if d["contrastUnknown"] else ""
         item(not d["lowContrast"], f"文本对比度达标{unknown}", d["lowContrast"])
         if int(w) <= a.targets_up_to:
-            item(not d["smallTargets"], f"触控目标 ≥ {a.min_target}px", d["smallTargets"])
+            item(not d["smallTargets"], f"独立成行的可点元素 ≥ {a.min_target:g}px（页脚、面包屑、整行链接都算）", d["smallTargets"])
+        item(not d["tinyTargets"], f"任何可点元素短边 ≥ {a.tap_floor:g}px（WCAG 2.2 的 2.5.8）", d["tinyTargets"])
+        item(not d["emptyBand"], f"首屏没有超过视口 {a.empty_band:.0%} 的空白带", d["emptyBand"])
+        item(not d["flatFaces"], f"相邻的大块色面分得开（对比 ≥ {a.face_contrast:g}:1）", d["flatFaces"])
+        if str(w) in {str(k) for k in r["dark"]}:
+            dk = r["dark"].get(w, r["dark"].get(str(w), []))
+            item(not dk, f"深色下相邻的大块色面分得开（对比 ≥ {a.face_contrast:g}:1）", dk)
 
     widest = r["widths"][max(r["widths"], key=int)]
     lines.append("\n## 全局\n")
@@ -297,6 +355,9 @@ def write_markdown(r, a):
     item(len(widest["textColors"]) <= a.max_text_colors,
          f"文本颜色 {len(widest['textColors'])} 种（上限 {a.max_text_colors}）", widest["textColors"])
     lines.append(f"- ℹ️ 声明的首选字体（未必实际加载成功，请对照截图）：{', '.join(widest['fontFamilies'])}")
+    if r["third_party_fonts"]:
+        lines.append(f"- ℹ️ 向第三方取字体：{'、'.join(r['third_party_fonts'])}。访客每打开一次，IP 和浏览器信息就发给这家第三方（隐私），"
+                     "多一次外部连接，连不上时掉回备用字体；把字体文件放到自己的域名下，或用系统字体栈")
     if widest["animatedCount"]:
         item(widest["hasReducedMotionQuery"], f"有 {widest['animatedCount']} 处动画或过渡，并提供 prefers-reduced-motion 处理")
     if r["focus"] is not None:

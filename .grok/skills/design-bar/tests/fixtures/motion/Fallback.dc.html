@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>自测画板：没有 WebGL 时的兜底画面</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-theme="light" style="position: relative; width: 100%; height: 100vh;">
+<canvas ref="{{ glRef }}" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%;"></canvas>
+<sc-if value="{{ noGL }}"><svg data-fallback viewBox="0 0 100 100" aria-hidden="true" style="position: absolute; left: 20px; top: 20px; width: 200px; height: 200px;"><circle cx="50" cy="50" r="40" fill="currentColor"></circle></svg></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 600, "height": 400}}'>
+class Component extends DCLogic {
+  renderVals() { return { noGL: !!this.state.noGL, glRef: (el) => { this.canvas = el; } }; }
+  componentDidMount() {
+    const gl = this.canvas && (this.canvas.getContext('webgl2') || this.canvas.getContext('webgl'));
+    if (gl) this.gl = gl; else this.setState({ noGL: true });
+  }
+}
+</script>
+</body>
+</html>

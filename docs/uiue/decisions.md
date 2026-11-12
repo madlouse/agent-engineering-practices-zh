@@ -10,7 +10,8 @@
   - `src/lib/auth/popup.server.ts` 的 2 行：平台预置的登录弹窗页（`AGENTS.md`「不改预置的 `src/lib` 辅助模块」），不是主站页面。
 - **理由**：这三处不是响应式界面，硬套 token 会改变画面或破坏播放器；用标记放行并写明理由，比让检查带着已知的失败更诚实。
 - **去掉的时机**：接入主站时短片整体换新（`design-system.md`「进代码」），那时去掉短片的标记；登录弹窗页是否保留由评审和产品负责人定。
-- **改了哪里**：`src/shorts/kit.tsx` 头部注释；`docs/uiue/design-system.md` 不变。
+- **冲突和处理**：这次改动和 `docs/uiue/design-system.md`「进代码」那句「原来博客的文章页先保持原样，接入主站时再换成这套 token」冲突：文章页的颜色换成了 token，跟着深色主题变；字体从 Noto Sans SC、IBM Plex Sans、Source Serif 4 换成 token 的字体栈。按「冲突时以谁为准」，主站 PRD F24（每个页面两套主题都达到 WCAG 2.2 AA，票的验收写的是「任一页面」）高于设计系统，所以实现照 PRD，文章页提前接入 token 和深色主题。设计系统那一句由主会话另开 PR 改（站点车道不改设计系统，`pipeline.md` §4.1）。
+- **改了哪里**：`src/shorts/kit.tsx` 头部注释；`docs/uiue/design-system.md` 本 PR 没改，要写回的那一句见上。
 
 ## 2026-11-11 · #24、#39 不等新画板
 

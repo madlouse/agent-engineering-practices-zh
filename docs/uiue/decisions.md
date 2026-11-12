@@ -2,6 +2,16 @@
 
 新的在上面。每条写清：决定、理由、改了哪里。产品层面的决定同时记在 `docs/prd/decisions.md`。
 
+## 2026-11-12 · #22 token 的例外：Remotion 短片、播放器宽度、登录弹窗页
+
+- **决定**（站点车道，#22 实现时的例外；评审核对）：`lint_tokens.py src` 要求 0 个问题，下面三处用 `lint-tokens-ignore` 标记放行，其余全部引用 token：
+  - `src/shorts/*`：固定 1080×1920 的 Remotion 视频画面，数值是视频像素，不是页面的间距、字号；token 阶梯（最大间距 128px、最大字号 80px）用不上。颜色仍然只引用 token。
+  - `src/components/feynman-film.tsx` 的播放器 `style={{ width: "100%" }}`：Remotion Player 只从 `style.width` 读宽度，改成 class 不起作用（320、375 宽度下会横向溢出）。
+  - `src/lib/auth/popup.server.ts` 的 2 行：平台预置的登录弹窗页（`AGENTS.md`「不改预置的 `src/lib` 辅助模块」），不是主站页面。
+- **理由**：这三处不是响应式界面，硬套 token 会改变画面或破坏播放器；用标记放行并写明理由，比让检查带着已知的失败更诚实。
+- **去掉的时机**：接入主站时短片整体换新（`design-system.md`「进代码」），那时去掉短片的标记；登录弹窗页是否保留由评审和产品负责人定。
+- **改了哪里**：`src/shorts/kit.tsx` 头部注释；`docs/uiue/design-system.md` 不变。
+
 ## 2026-11-11 · #24、#39 不等新画板
 
 - **决定**（主会话，体验类决定；关口三 b 冷审 P2-12）：导航 #24（M1）和页面不存在 #39（M2）照现有画板（画布「Velicoach 主站 · UI v1.0」v44）做，不等画板下一版和关口三 a 补评（#94）：

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "./tokens.css";
+@import "./fonts.css";
 
 /* 原来博客的类名（bg-paper、text-ink 等）指向设计 token，深色主题跟着变。接入主站时再换成 token 的名字。 */
 @theme {

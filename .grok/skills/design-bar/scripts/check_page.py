@@ -14,7 +14,9 @@
            （原来的条件），并且在 p 里或 li > span 里、行内显示、不在 nav / header / footer 里、所在的块里链接以外还有 ≥ 12 个字；
            页脚、面包屑、整行链接、div 和 td 里的句中链接、p > strong > a 这类夹一层行内标签的都查。
            伪元素或子元素撑大的热区按撑大后的量（::before / ::after、溢出盒子的子元素；要真的点得到，
-           并且盖得住目标尺寸的方块，只伸出一条比目标尺寸窄的条、圆形或大圆角的不算）。
+           并且盖得住目标尺寸的方块：方块每条边取 9 点，全部要点到；窄条、偏在一侧、缺一块、圆形或圆角 ≥ 2px 的不算。
+           量不出来的：两个取样点之间比间距窄的缝（44 下 5.4px、24 下 2.9px）；每个方向撑到超过 43px（23px）就算撑到）。
+           量热区要把元素滚到视口里，量完把窗口和各层滚动容器放回原处。
   首屏空白带、相邻色面：和 verify_canvas.py 的 30、31 是同一套量法和阈值（从它引入），页面按流式页面量第一屏；
            有看得见的阴影、或描边和至少一侧的面对比达到阈值的面算已经分开。
 
@@ -151,23 +153,28 @@ COLLECT_JS = r"""
     // 伪元素或子元素撑大的热区（::before / ::after、溢出盒子的子元素）：在盒子外按目标尺寸取点，
     // 点到的是它自己或它的子元素就算点得到；撑大的部分写了 pointer-events: none、被盖住、或取样点在视口外的，照盒子量
     const hitSize = (el, want) => {
-      const wx = scrollX, wy = scrollY;
+      // 滚到视口里才量得到；量完把窗口和各层滚动容器（main { overflow: auto } 这类）放回原处，后面的首屏空白带、相邻色面才是在原来的画面上量的
+      const wx = scrollX, wy = scrollY, sc = [];
+      for (let e = el.parentElement; e; e = e.parentElement) sc.push([e, e.scrollLeft, e.scrollTop]);
       el.scrollIntoView({block: 'center', behavior: 'instant'});
+      try {
       const r = el.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
       const own = (x, y) => { if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false; const h = document.elementFromPoint(x, y); return !!h && (h === el || el.contains(h)); };
       let w = r.width, h = r.height;
       const out = (size) => size / 2 + Math.max((want - size) / 2 - 0.5, 1);  // 取样点至少在盒子外 1px：盒子自己差一点的不算撑到
-      // 撑大的热区要盖得住目标尺寸的方块：每条边在 want 宽的窗口里取 5 点，正中那一点要点得到，另外 4 点最多漏 1 点。
-      // 只伸出一条比目标尺寸窄的竖条或横条的（300×16 的链接配 2px 或 22px 宽的伪元素），正中点得到、两边点不到，不算撑到；
-      // 圆形、圆角大于 2px 左右的撑大部分盖不住方块的角，也照盒子量
-      const SPREAD = [-0.48, -0.24, 0.24, 0.48];
-      const covers = (at) => own(...at(0)) && SPREAD.filter(f => own(...at(f * want))).length >= SPREAD.length - 1;
+      // 撑大的热区要盖得住以盒子中心为中心、目标尺寸的方块：方块的每条边取 EDGE_POINTS 个点（两端在边线内 0.5px，中间等距），全部要点得到。
+      // 只伸出一条比目标尺寸窄的条、偏在一侧、缺一块、圆形或圆角 ≥ 2px 的，都有点落空，照盒子量。
+      // 量不出来的：相邻两点之间比间距（(want - 1) / 8：44 下 5.4px，24 下 2.9px）窄的缝；每个方向撑到超过 want - 1 就算撑到；
+      // 只量方块的四条边，盒子和边之间不取样
+      const EDGE_POINTS = 9;
+      const spread = Array.from({length: EDGE_POINTS}, (_, i) => (i / (EDGE_POINTS - 1) - 0.5) * (want - 1));
+      const covers = (at) => spread.every(d => own(...at(d)));
       const tall = h < want && covers(d => [cx + d, cy - out(h)]) && covers(d => [cx + d, cy + out(h)]);
       const wide = w < want && covers(d => [cx - out(w), cy + d]) && covers(d => [cx + out(w), cy + d]);
       if (tall) h = want;
       if (wide) w = want;
-      window.scrollTo({left: wx, top: wy, behavior: 'instant'});
       return [w, h];
+      } finally { for (const [e, x, y] of sc) e.scrollTo({left: x, top: y, behavior: 'instant'}); window.scrollTo({left: wx, top: wy, behavior: 'instant'}); }
     };
     const q = 'a[href], button, input:not([type=hidden]), select, textarea, summary, [role=button], [role=link], [role=tab], [role=switch], [tabindex]:not([tabindex="-1"])';
     for (const el of document.querySelectorAll(q)) {

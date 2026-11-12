@@ -18,6 +18,13 @@ a{color:inherit}
 .bar{width:300px;height:16px;line-height:16px}
 .bar::after{content:"";position:absolute;left:50%;width:2px;margin-left:-1px;top:-14px;bottom:-14px}
 .bar22::after{width:22px;margin-left:-11px}
+.baroff::after{width:22px;margin-left:0}
+.h40,.cross{position:relative;display:inline-block;width:20px;height:20px}
+.h40::after{content:"";position:absolute;inset:-10px}
+.cross::before{content:"";position:absolute;inset:-12px -10px}
+.cross::after{content:"";position:absolute;inset:-10px -12px}
+.cover{position:relative;display:inline-block}
+.cover i{position:absolute;top:-12px;height:4px;background:#1c1d19}
 </style>
 </head>
 <body>
@@ -39,6 +46,11 @@ a{color:inherit}
 <div style="padding:16px 20px"><a class="bar" href="#h5">细条热区</a></div>
 <div style="padding:16px 20px"><a class="bar bar22" href="#h6">窄条热区</a></div>
 <div style="padding:16px 20px"><span style="position:relative;display:inline-block"><a class="hit" href="#h7">正中被盖住</a><i aria-hidden="true" style="position:absolute;left:50%;top:-12px;width:6px;height:4px;margin-left:-3px;background:#1c1d19"></i></span></div>
+<div style="padding:16px 20px"><a class="h40" href="#h8" aria-label="只到四十"></a></div>
+<div style="padding:16px 20px"><a class="cross" href="#h9" aria-label="十字形热区"></a></div>
+<div style="padding:16px 20px"><a class="bar baroff" href="#h10">偏心窄条</a></div>
+<div style="padding:16px 20px"><span class="cover"><a class="hit" href="#h11">有细缝的</a><i aria-hidden="true" style="left:calc(50% + 1px);width:3px"></i></span></div>
+<div style="padding:16px 20px"><span class="cover"><a class="hit" href="#h12">缺一块的</a><i aria-hidden="true" style="left:calc(50% - 20px);width:19px"></i></span></div>
 <footer style="padding:20px"><a href="#about" style="font-size:14px">关于</a><p>继续使用就表示你同意我们的<a href="#terms">页脚句子里的链接</a>，可以随时停用。</p></footer>
 </body>
 </html>

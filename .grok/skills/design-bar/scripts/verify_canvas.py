@@ -13,8 +13,9 @@
      （WCAG 2.2 的 2.5.8 底线）。页脚、面包屑、整行链接都查。只放过一句话中间的行内链接（2.5.8 的行内例外）：在 p 里或 li > span 里，
      行内显示，不在 nav / header / footer 里，所在的块里链接以外还有 ≥ 12 个字；div、td 里的句中链接和 li > a 的行标题链接照报。
      伪元素或子元素把热区撑大的（::before / ::after、溢出盒子的子元素），按撑大后的量（2.5.8 量的是目标区域，不是文字盒）。
-     撑大的部分要真的点得到，并且盖得住目标尺寸的方块：每条边取 5 点，正中一点要点到它或它的子元素，另外 4 点最多漏 1 点；
-     写了 pointer-events: none、被别的东西盖住、只伸出一条比目标尺寸窄的条、圆形或大圆角盖不住方块的角、或取样点在视口外量不了的，照盒子量
+     撑大的部分要真的点得到，并且盖得住目标尺寸的方块：方块每条边取 9 点，全部要点到它或它的子元素；
+     写了 pointer-events: none、被别的东西盖住、只伸出一条比目标尺寸窄的条、偏在一侧、缺一块、圆形或圆角 ≥ 2px、或取样点在视口外量不了的，照盒子量。
+     量不出来的：两个取样点之间比间距窄的缝（44 下 5.4px、24 下 2.9px）；每个方向撑到超过 43px（23px）就算撑到；盒子和方块的边之间不取样
   6. 引用了没定义的 token：var(--x) 在样式表里找不到
   11. 展开层超出所在区块：aria-expanded 的控件用 aria-controls 指向的展开层，要完整留在所在 <section> 里
   12. 可点元素被盖住：链接、按钮、输入框的中心点上面压着别的控件或浮层
@@ -198,7 +199,7 @@ CHECK_JS = r"""
     for (let e = el.parentElement; e; e = e.parentElement) sc.push([e, e.scrollLeft, e.scrollTop]);
     el.scrollIntoView({block: 'center', behavior: 'instant'});
     try { return fn(el.getBoundingClientRect()); }
-    finally { for (const [e, x, y] of sc) { e.scrollLeft = x; e.scrollTop = y; } window.scrollTo({left: wx, top: wy, behavior: 'instant'}); }
+    finally { for (const [e, x, y] of sc) e.scrollTo({left: x, top: y, behavior: 'instant'}); window.scrollTo({left: wx, top: wy, behavior: 'instant'}); }  // 写了 scroll-behavior: smooth 的容器也要立刻放回
   };
   // 5：一句话中间的行内链接（WCAG 2.5.8 的行内例外）。只放过 p 里和 li > span 里的（原来就放过的范围），而且要同时满足：
   // 行内、不在 nav / header / footer 里、所在的块里链接以外还有 ≥ PROSE_MIN 个字。div、td 里的句中链接和 li > a 的行标题链接照报
@@ -218,11 +219,13 @@ CHECK_JS = r"""
     const own = (x, y) => { if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false; const h = document.elementFromPoint(x, y); return !!h && (h === el || el.contains(h)); };
     let w = r.width, h = r.height;
     const out = (size) => size / 2 + Math.max((want - size) / 2 - 0.5, 1);  // 取样点至少在盒子外 1px：盒子自己差一点的不算撑到
-    // 撑大的热区要盖得住目标尺寸的方块：每条边在 want 宽的窗口里取 5 点，正中那一点要点得到，另外 4 点最多漏 1 点。
-    // 只伸出一条比目标尺寸窄的竖条或横条的（300×16 的链接配 2px 或 22px 宽的伪元素），正中点得到、两边点不到，不算撑到；
-    // 圆形、圆角大于 2px 左右的撑大部分盖不住方块的角，也照盒子量
-    const SPREAD = [-0.48, -0.24, 0.24, 0.48];
-    const covers = (at) => own(...at(0)) && SPREAD.filter(f => own(...at(f * want))).length >= SPREAD.length - 1;
+    // 撑大的热区要盖得住以盒子中心为中心、目标尺寸的方块：方块的每条边取 EDGE_POINTS 个点（两端在边线内 0.5px，中间等距），全部要点得到。
+    // 只伸出一条比目标尺寸窄的条、偏在一侧、缺一块、圆形或圆角 ≥ 2px 的，都有点落空，照盒子量。
+    // 量不出来的：相邻两点之间比间距（(want - 1) / 8：44 下 5.4px，24 下 2.9px）窄的缝；每个方向撑到超过 want - 1 就算撑到；
+    // 只量方块的四条边，盒子和边之间不取样
+    const EDGE_POINTS = 9;
+    const spread = Array.from({length: EDGE_POINTS}, (_, i) => (i / (EDGE_POINTS - 1) - 0.5) * (want - 1));
+    const covers = (at) => spread.every(d => own(...at(d)));
     const tall = h < want && covers(d => [cx + d, cy - out(h)]) && covers(d => [cx + d, cy + out(h)]);
     const wide = w < want && covers(d => [cx - out(w), cy + d]) && covers(d => [cx + out(w), cy + d]);
     if (tall) h = want;
@@ -548,11 +551,11 @@ CHECK_JS = r"""
 
 
 STATE_JS = '''(cls) => {
-  const els = [...document.querySelectorAll('.btn, .liquid, .opt, .icon-btn, .orb')];
+  // 只给原来没有这个类的元素加，量完只摘掉自己加的：画板里本来就画成悬停或按下态的元素（class 里写了 is-hover）保持原样
+  const els = [...document.querySelectorAll('.btn, .liquid, .opt, .icon-btn, .orb')].filter(e => !e.classList.contains(cls));
   els.forEach(e => e.classList.add(cls));
-  const res = (''' + CHECK_JS.strip() + ''')();
-  els.forEach(e => e.classList.remove(cls));
-  return res.issues;
+  try { return (''' + CHECK_JS.strip() + ''')().issues; }
+  finally { els.forEach(e => e.classList.remove(cls)); }
 }'''
 
 
@@ -751,9 +754,12 @@ def flat_glass(pg):
         x1, y1 = min(vw, g['x'] + g['w']), min(vh, g['y'] + g['h'])
         if x1 - x0 < 8 or y1 - y0 < 8:
             continue
-        pg.evaluate("i => document.querySelector(`[data-vc-glass=\"${i}\"]`).style.setProperty('visibility', 'hidden', 'important')", g['i'])
-        png = pg.screenshot(clip={'x': x0, 'y': y0, 'width': x1 - x0, 'height': y1 - y0})
-        pg.evaluate("i => document.querySelector(`[data-vc-glass=\"${i}\"]`).style.removeProperty('visibility')", g['i'])
+        # 藏之前记下内联的 visibility（值和优先级），截完原样放回
+        pg.evaluate("i => { const e = document.querySelector(`[data-vc-glass=\"${i}\"]`); e.__vcVis = [e.style.getPropertyValue('visibility'), e.style.getPropertyPriority('visibility')]; e.style.setProperty('visibility', 'hidden', 'important'); }", g['i'])
+        try:
+            png = pg.screenshot(clip={'x': x0, 'y': y0, 'width': x1 - x0, 'height': y1 - y0})
+        finally:
+            pg.evaluate("i => { const e = document.querySelector(`[data-vc-glass=\"${i}\"]`); const [v, p] = e.__vcVis; if (v) e.style.setProperty('visibility', v, p); else e.style.removeProperty('visibility'); delete e.__vcVis; }", g['i'])
         im = Image.open(io.BytesIO(png)).convert('RGB')
         W, H = im.size
         pts = [im.getpixel((min(W - 1, int(W * (i + 0.5) / 5)), min(H - 1, int(H * (j + 0.5) / 3)))) for j in range(3) for i in range(5)]
@@ -762,6 +768,7 @@ def flat_glass(pg):
         if max(lum) - min(lum) < 0.04 and hue < 0.06:
             issues.append({'type': '玻璃压在平涂底色上', 'where': g['name'] or 'glass',
                            'detail': f'背后亮度极差 {max(lum) - min(lum):.3f}：背后是一种颜色时玻璃只是一块灰，改成实色面；只给压在图片、视频、动效、滚动内容上的表面用玻璃'})
+    pg.evaluate("() => document.querySelectorAll('[data-vc-glass]').forEach(e => e.removeAttribute('data-vc-glass'))")  # 做记号用的属性摘掉
     return issues
 
 

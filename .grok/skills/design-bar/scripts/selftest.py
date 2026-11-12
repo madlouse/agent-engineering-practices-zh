@@ -102,7 +102,9 @@ def main():
     # 行内例外的边界：只放过 p、li > span 里够长的句子中间的链接。短句、div、li > a 的行标题、td、页脚里的句子都照报；
     # 伪元素或子元素撑大的热区要真的点得到（pointer-events: none 的不算），并且盖得住目标尺寸的方块
     for st in ('case=短句链接', 'case=块里的句中链接', 'case=行标题链接', 'case=表格里的句中链接', 'case=页脚里的句子', 'case=热区点不到',
-               'case=子元素点不到', 'case=细条热区', 'case=窄条热区', 'case=热区正中被盖住',  # 子元素撑大的热区同样要点得到；只伸出一条 2px 或 22px 宽的条，盖不住目标方块；每条边正中那一点必须点得到
+               'case=子元素点不到', 'case=细条热区', 'case=窄条热区', 'case=热区正中被盖住',
+               'case=热区只到 40', 'case=十字形热区', 'case=偏心窄条', 'case=热区缺一块', 'case=内层滚动容器',  # 只撑到 40×40、四个角缺着、偏在一侧、上边缺 19px 的都盖不住目标方块；滚动容器里一屏以下的小链接也量得到
+               # 子元素撑大的热区同样要点得到；只伸出一条 2px 或 22px 宽的条，盖不住目标方块；每条边正中那一点必须点得到
                'case=行内块链接', 'case=整段是链接', 'case=零高度的链接'):  # 行内显示才算句中；链接以外的字数不把链接自己的字算进去
         if not any(s_ == st and t_ in ('触控目标小于 44', '点按区域小于 24') for s_, t_, _ in sfound):
             failures.append(f'漏报：SelftestSurface「{st}」的链接应该报点按区域（不在行内例外里）')
@@ -115,7 +117,10 @@ def main():
         failures.append('误报：SelftestSurface「case=色面有描边」带 box-shadow 的面算已经分开，不该报「相邻两大块色面分不开」')
     for st, typ, th in (('case=深色色面分不开', '相邻两大块色面分不开', 'light'), ('case=色面分不开', '相邻两大块色面分不开', 'dark'), ('case=动效带', '首屏空白带', None),
                         ('case=句中链接', '触控目标小于 44', None), ('case=句中链接', '点按区域小于 24', None), ('case=热区撑大', '触控目标小于 44', None), ('case=热区撑大', '点按区域小于 24', None),
-                        ('case=子元素撑大热区', '触控目标小于 44', None), ('case=子元素撑大热区', '点按区域小于 24', None)):
+                        ('case=子元素撑大热区', '触控目标小于 44', None), ('case=子元素撑大热区', '点按区域小于 24', None),
+                        ('case=热区有细缝', '触控目标小于 44', None), ('case=热区有细缝', '点按区域小于 24', None),  # 两个取样点之间 3px 的缝在声明的精度以内，量不出来
+                        ('case=内层滚动容器', '首屏空白带', None),  # 量完一屏以下的链接，滚动容器要放回原处
+                        ('case=画成悬停态的块', '首屏空白带', None)):  # 本来就带 is-hover 的元素，查完悬停态以后类名还在
         if any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in sfound):
             failures.append(f'误报：SelftestSurface「{st}」不该报「{typ}」' + (f'（{th}）' if th else ''))
     for s_, t_, _ in sorted(sfound):
@@ -211,10 +216,10 @@ def main():
             failures.append('check_page.py：一句话中间的行内链接不该报点按区域')
         # 不到 12 个字的短句、div 里、页脚里、夹一层 strong / em（直接父元素不是原来放过的那几种）、inline-block、整段是链接：都不在行内例外里
         for name in ('短句里的链接', '块里的链接', '页脚句子里的链接', '加粗里的链接', '强调里的链接', '行内块链接', '整段就是一个很长的链接', '差一点',  # 43.7px 也算不到 44
-                     '伪元素点不到', '子元素点不到', '细条热区', '窄条热区', '正中被盖住'):  # 撑大的部分点不到、只伸出一条比目标尺寸窄的条（2px、22px）、或上边正中被别的元素盖住，照盒子量
+                     '伪元素点不到', '子元素点不到', '细条热区', '窄条热区', '正中被盖住', '只到四十', '十字形热区', '偏心窄条', '缺一块的'):  # 撑大的部分点不到、只伸出一条比目标尺寸窄的条（2px、22px）、或上边正中被别的元素盖住，照盒子量
             if not any(name in t for t in w375['tinyTargets'] + w375['smallTargets']):
                 failures.append(f'check_page.py：「{name}」应该报点按区域（不在行内例外里）')
-        for name in ('伪元素撑大', '子元素撑大'):  # 伪元素或子元素把热区撑到 44×44、点得到的，按撑大后的量
+        for name in ('伪元素撑大', '子元素撑大', '有细缝的'):  # 伪元素或子元素把热区撑到 44×44、点得到的，按撑大后的量；3px 的缝在声明的精度以内
             if any(name in t for t in w375['tinyTargets'] + w375['smallTargets']):
                 failures.append(f'check_page.py：「{name}」的热区撑到了 44×44，不该报点按区域')
         if not w375['emptyBand'] or not w1440['emptyBand']:
@@ -223,6 +228,21 @@ def main():
             failures.append('check_page.py：相邻色面应该只在深色下报一条（浅色分得开）')
     except (OSError, KeyError) as e:
         failures.append(f'check_page.py 没有产出 report.json 或缺字段：{e}')
+
+    # check_page.py 量热区会把元素滚到视口里：滚动发生在 main { overflow: auto } 里的应用外壳，量完要把容器放回原处，
+    # 不然后面的首屏空白带是在滚过的画面上量的（铺满文字的首屏误报、真空着的首屏漏报）
+    for page_name, want_band in (('shell-good.html', False), ('shell-empty.html', True)):
+        sd = tempfile.mkdtemp(prefix='check-page-selftest-')
+        subprocess.run([sys.executable, os.path.join(HERE, 'check_page.py'), os.path.join(FIXTURES, 'pages', page_name), '--out', sd, '--widths', '375'],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            w375 = json.load(open(os.path.join(sd, 'report.json'), encoding='utf-8'))['widths']['375']
+            if not any('更早' in t for t in w375['tinyTargets']):
+                failures.append(f'check_page.py：{page_name} 滚动容器里一屏以下的 20×20 链接应该报短边 < 24')
+            if bool(w375['emptyBand']) != want_band:
+                failures.append(f'check_page.py：{page_name} ' + ('首屏真的空着，应该报「首屏空白带」（量热区滚过的容器要放回原处）' if want_band else '首屏铺满文字，不该报「首屏空白带」（量热区滚过的容器要放回原处）'))
+        except (OSError, KeyError) as e:
+            failures.append(f'check_page.py 没有产出 report.json 或缺字段（{page_name}）：{e}')
 
     # check_agent_ready.py：做对的小站必须项全过；做坏的每一项都抓到；连不上时报没查、不算过
     def agent_ready(target):

@@ -189,7 +189,7 @@ export function FeynmanFilm({ film, lang }: { film: Explainer; lang: "zh" | "en"
               spaceKeyToPlayOrPause
               alwaysShowControls
               acknowledgeRemotionLicense
-              style={{ width: "100%" }}
+              className="w-full"
             />
           ) : (
             <div className="short-poster">

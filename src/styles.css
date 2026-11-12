@@ -1,18 +1,20 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
+/* 原来博客的类名（bg-paper、text-ink 等）指向设计 token，深色主题跟着变。接入主站时再换成 token 的名字。 */
 @theme {
-  --font-sans: "Noto Sans SC", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Noto Serif SC", "Source Serif 4", Georgia, serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-sans: var(--vc-font-sans);
+  --font-serif: var(--vc-font-serif);
+  --font-mono: var(--vc-font-mono);
 
-  --color-paper: #f3efe6;
-  --color-ink: #1c1915;
-  --color-muted: #6f675e;
-  --color-faint: #8d847a;
-  --color-line: #e3d9cc;
-  --color-card: #faf7f1;
-  --color-cinnabar: #9c3b1e;
-  --color-wash: #f6e7df;
+  --color-paper: var(--vc-paper);
+  --color-ink: var(--vc-text);
+  --color-muted: var(--vc-text-2);
+  --color-faint: var(--vc-text-3);
+  --color-line: var(--vc-paper-line);
+  --color-card: var(--vc-paper-surface);
+  --color-cinnabar: var(--vc-cinnabar-deep);
+  --color-wash: color-mix(in srgb, var(--vc-cinnabar-deep) 12%, var(--vc-paper));
 }
 
 @layer base {
@@ -28,9 +30,9 @@
   }
 
   body {
-    background: var(--color-paper);
-    color: var(--color-ink);
-    font-family: var(--font-sans);
+    background: var(--vc-paper);
+    color: var(--vc-text);
+    font-family: var(--vc-font-sans);
     text-rendering: optimizeLegibility;
   }
 
@@ -49,16 +51,16 @@
   }
 
   .code-scroll {
-    font-family: "IBM Plex Mono", "Noto Sans SC", ui-monospace, monospace;
+    font-family: var(--vc-font-mono);
     font-variant-ligatures: none;
     tab-size: 2;
     scrollbar-width: thin;
-    scrollbar-color: var(--color-line) transparent;
+    scrollbar-color: var(--vc-paper-line) transparent;
   }
 
   ::selection {
-    background: #e8cfc4;
-    color: var(--color-ink);
+    background: color-mix(in srgb, var(--vc-cinnabar-deep) 25%, var(--vc-paper));
+    color: var(--vc-text);
   }
 }
 
@@ -84,7 +86,7 @@
 }
 
 .film-enter {
-  animation: film-in 400ms ease-out;
+  animation: film-in var(--vc-duration-base) var(--vc-ease-out);
 }
 
 .short-scroll {
@@ -112,14 +114,14 @@
 
 .short-poster {
   aspect-ratio: 9 / 16;
-  padding: 1.5rem;
-  background: var(--color-card);
+  padding: var(--vc-space-5);
+  background: var(--vc-paper-surface);
 }
 
 [data-lang="en"] {
-  font-family: "IBM Plex Sans", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--vc-font-sans);
 }
 
 [data-lang="en"] :is(h1, h2, h3, .font-serif) {
-  font-family: "Source Serif 4", Georgia, serif;
+  font-family: var(--vc-font-serif);
 }

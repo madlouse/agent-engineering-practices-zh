@@ -15,7 +15,7 @@
 
 ## 2. 准备（#15）
 
-1. Vercel 项目：每个分支出预览部署；构建里有类型检查和 lint；打开自动化访问绕过，绕过头只配进云端环境。
+1. Vercel 项目：每个分支出预览部署；构建里有类型检查和 lint；自动化访问绕过没有配（#15 的收尾评论 6812627422）：云端会话的命令行出不了网到 `*.vercel.app`，只配绕过头也打不开；部署状态、构建日志和预览的 HTML 用 Vercel 连接器读，页面检查对着会话里起的本地服务跑（`pipeline.md` §7）。
 2. 集成分支 `feature/v1`：已建（11-04），#2、#16 合并后已快进到 `site`（11-09）。GitHub 默认分支改成 `feature/v1`，所有 PR 以它为 base（`pipeline.md` §5）；上线后改回 `site`（`launch-runbook.md`）。
 3. 工作流：主会话的 `chore/` PR 把 `site-db-migrate`、`site-monitor`、`site-audit` 三个工作流文件放进默认分支 `feature/v1`，就能手动触发和定时运行。工作流文件只由主会话维护，票的 PR 不改 `.github/workflows/`。
 4. 基线变绿：`npm test` 全过。

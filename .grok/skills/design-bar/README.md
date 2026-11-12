@@ -72,8 +72,11 @@ docs/design/            （或 design/）
 # 设计系统的 tokens.json → 代码里的 tokens.css（--check 只比较，不写入）
 python scripts/sync_tokens.py tokens.json --out src/app/tokens.css --source <设计系统链接>
 
-# 渲染截图 + 机械检查：溢出、字号、对比度、触控尺寸、焦点、reduced-motion、h1 等
+# 渲染截图 + 机械检查：溢出、字号、对比度、点按区域、首屏空白带、相邻色面、焦点、reduced-motion、h1 等
 python scripts/check_page.py <页面路径或 URL> --out docs/design/reviews/2026-10-30-首页 --dark
+
+# 对 Agent 友好：不执行脚本取站点或读构建目录，必须项不过时退出码 1
+python scripts/check_agent_ready.py <站点地址或构建目录> --out docs/design/reviews/2026-10-30-首页
 
 # 源码里写死的颜色和数值、Tailwind 任意值、静态内联样式、!important、未定义的 token
 python scripts/lint_tokens.py src --tokens src/app/tokens.css
@@ -93,6 +96,9 @@ python scripts/lint_tokens.py src --tokens src/app/tokens.css
 | `references/rubric.md` | 评分维度与底线 |
 | `references/app.md` | App 交互的额外流程 |
 | `references/ux-canon.md` | 体验原则总纲（GUI、人和 Agent、Agent 来用的网站） |
+| `references/checks.md` | 各检查脚本查什么、怎么跑 |
+| `references/audit.md` | 已有设计的全面检查：两位侧重不同的独立评审、裁决简报、重做还是修补 |
+| `references/agent-ready.md` | 让 AI 访问时拿得到高质量数据：做什么、怎么查（`scripts/check_agent_ready.py`） |
 | `references/liquid-glass.md` | 液态玻璃的做法、数值和退路 |
 | `scripts/` | 接入、同步、检查脚本 |
 | `assets/` | 项目设计目录模板与 AGENTS.md 规则块 |

@@ -9,7 +9,10 @@ liquid-glass.js 的边缘透镜。动效、透镜、「玻璃背后会变」的�
   2. 页面里新建画板的 Component，算一次 renderVals()，把 ref 回调接到对应元素、把事件处理接到对应元素，
      再执行完整的 componentDidMount（不是只调某一个启动函数）；
   3. 等 window.LiquidGlass.attachLens 返回的位移图全部解码、字体就绪，再等 --wait 毫秒截图。
-  模板只渲染一次：布局随状态变化（比如倾斜后两半的宽度）要用 --state 给出；--hover 移动真实的指针，
+  4. 挂载代码自己改了 state 时（最常见的是拿不到 WebGL 就 setState({noGL: true}) 换成兜底画面），按改后的 state 把模板
+     重新渲染、重新挂载一遍（最多 3 遍，直到 state 不再变），输出里的 rerendered 列出是哪些键。所以 --no-webgl 截到的是画板
+     自己的兜底画面，不用再手写 --state '{"noGL": true}'。
+  挂载之后才发生的变化不会重新渲染模板：布局随悬停变化（比如倾斜后两半的宽度）要用 --state 给出；--hover 移动真实的指针，
   触发 :hover 样式和画板的 onMouseEnter / onMouseMove 处理（WebGL 循环读的 this.state 会跟着变）。
 
 用法：
@@ -23,7 +26,9 @@ liquid-glass.js 的边缘透镜。动效、透镜、「玻璃背后会变」的�
   --size WxH                    视口，默认 1440x900；--dsf 截图倍率，默认 2
   --hover X,Y                   截图前把指针移到这里（可写多次，按顺序移动）
   --reduced-motion              prefers-reduced-motion: reduce（静止帧）
-  --no-webgl                    让 getContext('webgl'/'webgl2') 返回 null（兜底画面）
+  --no-webgl                    让 getContext('webgl'/'webgl2') 返回 null，截画板自己的兜底画面（见上面第 4 步）
+  --expect SELECTOR             截图时页面上要有匹配它的可见元素，没有就退出码 3（例如 --no-webgl --expect '[data-fallback]'，
+                                证明兜底画面真的画出来了，不是一片空白）
   --blob ID=PATH                把 /_blob/ID 换成本地文件（样式表、脚本都行，可写多次）
   --wait MS                     挂载完成后再等多久截图，默认 3000
   --probe SELECTOR|X,Y,W,H      把匹配的元素藏起来（或直接给一块区域），在它的矩形里按 5×3 网格隔 --probe-interval 毫秒取 --probe-frames 帧，
@@ -71,7 +76,9 @@ HARNESS = r"""
     await Promise.all(lens.map(p => Promise.resolve(p).catch(() => null)));
     await document.fonts.ready;
     window.__c = c;
-    return { lenses: lens.length, gl: !!c.gl, noGL: !!(c.state && c.state.noGL) };
+    const after = {};  // 挂载后的 state 里能序列化的部分：和挂载前不一样时，Python 一侧按它重新渲染模板
+    for (const [k, v] of Object.entries(c.state || {})) { try { if (typeof v !== 'function' && !(v instanceof Node)) after[k] = JSON.parse(JSON.stringify(v)); } catch (e) {} }
+    return { lenses: lens.length, gl: !!c.gl, noGL: !!(c.state && c.state.noGL), state: after };
   };
 })();
 </script>
@@ -149,6 +156,7 @@ def main():
     ap.add_argument('--wait', type=int, default=3000)
     ap.add_argument('--scroll', type=int, default=0, metavar='Y', help='截图前把页面滚到 Y（看吸顶玻璃压在真实正文上的样子）')
     ap.add_argument('--focus', metavar='SELECTOR', help='截图前用键盘焦点（focus-visible）聚焦这个元素，看焦点圈')
+    ap.add_argument('--expect', metavar='SELECTOR', help='截图时页面上要有匹配它的可见元素，没有就退出码 3')
     ap.add_argument('--probe')
     ap.add_argument('--probe-frames', type=int, default=8)
     ap.add_argument('--probe-interval', type=int, default=250)
@@ -178,21 +186,34 @@ def main():
     try:
         with sync_playwright() as pw:
             b = pw.chromium.launch(args=['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'])
-            vals = logic_values(src, state, b.new_page(), props)
-            html = render_html(mark_bindings(src), state, vals)
-            html = html.replace('</body>', HARNESS % (json.dumps(code), json.dumps(full_props, ensure_ascii=False), json.dumps(state, ensure_ascii=False)) + '</body>')
-            fd, tmp = tempfile.mkstemp(prefix='.motion_', suffix='.html', dir=os.path.dirname(board))
-            with os.fdopen(fd, 'w', encoding='utf-8') as f:
-                f.write(html)
+            logic_page = b.new_page()
             pg = b.new_page(viewport={'width': w, 'height': h}, device_scale_factor=a.dsf,
                             reduced_motion='reduce' if a.reduced_motion else 'no-preference')
             errors = []
             pg.on('pageerror', lambda e: errors.append(str(e)[:160]))
             if a.no_webgl:
                 pg.add_init_script(NO_WEBGL)
-            pg.goto('file://' + tmp)
-            pg.wait_for_timeout(200)
-            info = pg.evaluate('() => window.__mount()')
+            fd, tmp = tempfile.mkstemp(prefix='.motion_', suffix='.html', dir=os.path.dirname(board))
+            os.close(fd)
+            rerendered = []
+            for _ in range(3):  # 挂载代码改了 state（拿不到 WebGL 换兜底画面）就按新的 state 重新渲染、重新挂载
+                vals = logic_values(src, state, logic_page, props)
+                html = render_html(mark_bindings(src), state, vals)
+                html = html.replace('</body>', HARNESS % (json.dumps(code), json.dumps(full_props, ensure_ascii=False), json.dumps(state, ensure_ascii=False)) + '</body>')
+                with open(tmp, 'w', encoding='utf-8') as f:
+                    f.write(html)
+                del errors[:]
+                pg.goto('file://' + tmp)
+                pg.wait_for_timeout(200)
+                info = pg.evaluate('() => window.__mount()')
+                after = info.pop('state', {})
+                changed = sorted(k for k, v in after.items() if state.get(k) != v)
+                if not changed:
+                    break
+                rerendered += [k for k in changed if k not in rerendered]
+                state = {**state, **after}
+            if rerendered:
+                info['rerendered'] = rerendered
             if a.scroll:
                 pg.evaluate('(y) => window.scrollTo(0, y)', a.scroll)
             if a.focus:
@@ -203,6 +224,8 @@ def main():
                 pg.mouse.move(x, y, steps=8)
             pg.wait_for_timeout(a.wait)
             result = {'out': a.out, **info}
+            if a.expect:
+                result['expect'] = bool(pg.evaluate("(s) => [...document.querySelectorAll(s)].some(e => { const c = getComputedStyle(e), r = e.getBoundingClientRect(); return c.display !== 'none' && c.visibility !== 'hidden' && r.width > 1 && r.height > 1; })", a.expect))
             if a.probe:
                 result.update(probe(pg, a.probe, a.probe_frames, a.probe_interval))
             pg.screenshot(path=a.out)
@@ -213,6 +236,9 @@ def main():
         if tmp:
             os.remove(tmp)
     print(json.dumps(result, ensure_ascii=False))
+    if a.expect and not result['expect']:
+        print(f'--expect {a.expect}：截图时页面上没有匹配它的可见元素', file=sys.stderr)
+        sys.exit(3)
     if a.probe and result.get('verdict') == '背后几乎不变':
         sys.exit(2)
 

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>自测画板：首屏、色面、点按区域、字号</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:inherit}
+a:hover{text-decoration:underline}
+a:active,button:active{opacity:.8}
+button:hover{opacity:.9}
+.hit{position:relative}
+.hit::after{content:"";position:absolute;inset:-12px -10px}
+.hit-dead::after{pointer-events:none}
+.bar{position:relative}
+.bar::after{content:"";position:absolute;left:50%;width:2px;margin-left:-1px;top:-14px;bottom:-14px}
+.bar-22::after{width:22px;margin-left:-11px}
+.bar-off::after{width:22px;margin-left:0}
+.hit-40::after{content:"";position:absolute;inset:-10px}
+.cross::before{content:"";position:absolute;inset:-12px -10px}
+.cross::after{content:"";position:absolute;inset:-10px -12px}
+.shell{height:400px;overflow:auto;scroll-behavior:smooth}
+.opt.drawn{height:260px}
+.opt.drawn.is-hover{display:none}
+:root{--ground:#f4f2ec;--ink:#1c1d19;--panel:#1c1d19}
+[data-theme="dark"]{--ground:#121310;--ink:#ecebe4;--panel:#22231f}
+</style>
+</helmet>
+<div data-theme="light" data-first-screen style="position: relative; width: 390px; min-height: 600px; background: var(--ground); color: var(--ink); font-family: sans-serif;">
+<header style="padding: 12px 20px;"><h1 style="margin: 0; font-size: 24px; line-height: 1.2;">每周一练</h1></header>
+<sc-if value="{{ drawnHover }}"><div class="opt drawn is-hover"></div></sc-if>
+<sc-if value="{{ shell }}"><div class="shell"><p style="margin: 0 0 8px; padding: 0 20px; font-size: 16px; line-height: 1.6;">练什么、练多久，都替你排好了。每周三次，每次四十分钟，动作和组数按上一次的完成情况调整，不用自己记。</p><p style="margin: 0 0 8px; padding: 0 20px; font-size: 16px; line-height: 1.6;">练什么、练多久，都替你排好了。每周三次，每次四十分钟，动作和组数按上一次的完成情况调整，不用自己记。</p><p style="margin: 0 0 8px; padding: 0 20px; font-size: 16px; line-height: 1.6;">练什么、练多久，都替你排好了。每周三次，每次四十分钟，动作和组数按上一次的完成情况调整，不用自己记。</p><p style="margin: 0 0 8px; padding: 0 20px; font-size: 16px; line-height: 1.6;">练什么、练多久，都替你排好了。每周三次，每次四十分钟，动作和组数按上一次的完成情况调整，不用自己记。</p><p style="margin: 0 0 8px; padding: 0 20px; font-size: 16px; line-height: 1.6;">练什么、练多久，都替你排好了。每周三次，每次四十分钟，动作和组数按上一次的完成情况调整，不用自己记。</p><p style="margin: 0 0 8px; padding: 0 20px; font-size: 16px; line-height: 1.6;">练什么、练多久，都替你排好了。每周三次，每次四十分钟，动作和组数按上一次的完成情况调整，不用自己记。</p><div style="height: 800px;"></div><a href="#older" style="margin: 0 20px; font-size: 14px;">更早的记录</a></div></sc-if>
+<sc-if value="{{ emptyBand }}"><div style="height: 260px;"></div></sc-if>
+<sc-if value="{{ motionBand }}"><div style="position: relative; height: 260px;"><canvas aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%;"></canvas></div></sc-if>
+<p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">练什么、练多久，都替你排好了。</p>
+<div style="display: flex; height: 320px;"><div aria-label="左面" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 12px 20px; background: var(--ground);"><span style="font-size: 16px;">周二</span><span style="font-size: 16px;">周四</span><span style="font-size: 16px;">周六</span></div><div aria-label="右面" style="flex: 1; background: {{ faceB }}; box-shadow: {{ faceShadow }}; border: {{ faceBorder }};"></div></div>
+<sc-if value="{{ shortLinks }}"><nav aria-label="面包屑" style="padding: 0 20px;"><a href="#mind" style="display: inline-block; min-width: 44px; height: 28px; line-height: 28px; font-size: 16px;">看清</a></nav></sc-if>
+<sc-if value="{{ proseLink }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">读完这一篇以后可以接着看<a href="#log">更新记录</a>，里面写了每次改动。</p></sc-if>
+<sc-if value="{{ shortProse }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">见<a href="#log">更新记录</a>。</p></sc-if>
+<sc-if value="{{ blockLink }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">读完这一篇以后可以接着看<a href="#ib" style="display: inline-block;">行内块链接</a>，里面写了每次改动。</p></sc-if>
+<sc-if value="{{ wholeLink }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;"><a href="#whole">整段就是一个很长的链接文字超过十二个字</a></p></sc-if>
+<sc-if value="{{ strongLink }}"><p style="margin: 8px 0; padding: 0 20px; font-size: 16px;">读完这一篇以后可以接着看<strong><a href="#strong">加粗里的链接</a></strong>，里面写了每次改动。</p></sc-if>
+<sc-if value="{{ flatLink }}"><div style="padding: 0 20px;"><a href="#flat" aria-label="零高度的链接" style="display: block; width: 120px; height: 0;"></a></div></sc-if>
+<sc-if value="{{ divLink }}"><div style="margin: 8px 0; padding: 0 20px; font-size: 16px;">读完这一篇以后可以接着看<a href="#doc">文档</a>，里面写了每次改动。</div></sc-if>
+<sc-if value="{{ rowLink }}"><ul style="margin: 8px 0; padding: 0 20px; list-style: none; font-size: 16px;"><li><a href="#row">标题链接</a> 后面跟着一段比较长的说明文字，不是一句话中间的链接</li></ul></sc-if>
+<sc-if value="{{ cellLink }}"><table style="margin: 8px 20px; font-size: 16px;"><tr><td>读完这一篇以后可以接着看<a href="#more">更多</a>，里面写了每次改动。</td></tr></table></sc-if>
+<sc-if value="{{ tooSmall }}"><div style="padding: 0 20px;"><button type="button" aria-label="关闭提示" style="width: 16px; height: 16px; padding: 0; border: 0; background: var(--ink);"></button></div></sc-if>
+<sc-if value="{{ manySizes }}"><p style="margin: 0; padding: 0 20px;"><span style="font-size: 11px;">一</span><span style="font-size: 12px;">二</span><span style="font-size: 13px;">三</span><span style="font-size: 14px;">四</span><span style="font-size: 15px;">五</span><span style="font-size: 17px;">六</span><span style="font-size: 18px;">七</span><span style="font-size: 19px;">八</span><span style="font-size: 20px;">九</span></p></sc-if>
+<footer style="padding: 0 20px;">
+<sc-if value="{{ tallLink }}"><a href="#about" style="display: inline-block; min-width: 44px; height: 44px; line-height: 44px; font-size: 16px;">关于</a></sc-if>
+<sc-if value="{{ shortLinks }}"><a href="#about" style="font-size: 14px;">关于</a></sc-if>
+<sc-if value="{{ grownHit }}"><a class="hit" href="#rights" style="display: inline-block; margin: 14px 12px; font-size: 14px; line-height: 20px;">版权</a></sc-if>
+<sc-if value="{{ deadHit }}"><a class="hit hit-dead" href="#rights" style="display: inline-block; margin: 14px 12px; font-size: 14px; line-height: 20px;">版权</a></sc-if>
+<sc-if value="{{ kidHit }}"><a href="#rights" aria-label="版权" style="position: relative; display: inline-block; margin: 14px 12px; width: 20px; height: 20px; font-size: 14px; line-height: 20px;">©<span aria-hidden="true" style="position: absolute; inset: -12px;"></span></a></sc-if>
+<sc-if value="{{ kidDead }}"><a href="#rights" aria-label="版权" style="position: relative; display: inline-block; margin: 14px 12px; width: 20px; height: 20px; font-size: 14px; line-height: 20px;">©<span aria-hidden="true" style="position: absolute; inset: -12px; pointer-events: none;"></span></a></sc-if>
+<sc-if value="{{ barHit }}"><a class="bar" href="#rights" style="display: inline-block; margin: 14px 12px; width: 300px; height: 16px; font-size: 14px; line-height: 16px;">版权</a></sc-if>
+<sc-if value="{{ stripHit }}"><a class="bar bar-22" href="#rights" style="display: inline-block; margin: 14px 12px; width: 300px; height: 16px; font-size: 14px; line-height: 16px;">版权</a></sc-if>
+<sc-if value="{{ holeHit }}"><span style="position: relative; display: inline-block; margin: 14px 12px;"><a class="hit" href="#rights" style="display: inline-block; font-size: 14px; line-height: 20px;">版权</a><i aria-hidden="true" style="position: absolute; left: 50%; top: -12px; width: 6px; height: 4px; margin-left: -3px; background: var(--ink);"></i></span></sc-if>
+<sc-if value="{{ hit40 }}"><a class="hit-40" href="#rights" aria-label="版权" style="position: relative; display: inline-block; margin: 14px 12px; width: 20px; height: 20px; font-size: 14px; line-height: 20px;">©</a></sc-if>
+<sc-if value="{{ crossHit }}"><a class="cross" href="#rights" aria-label="版权" style="position: relative; display: inline-block; margin: 14px 12px; width: 20px; height: 20px; font-size: 14px; line-height: 20px;">©</a></sc-if>
+<sc-if value="{{ offStrip }}"><a class="bar bar-off" href="#rights" style="display: inline-block; margin: 14px 12px; width: 300px; height: 16px; font-size: 14px; line-height: 16px;">版权</a></sc-if>
+<sc-if value="{{ slitHit }}"><span style="position: relative; display: inline-block; margin: 14px 12px;"><a class="hit" href="#rights" style="display: inline-block; font-size: 14px; line-height: 20px;">版权</a><i aria-hidden="true" style="position: absolute; left: calc(50% + 1px); width: 3px; top: -12px; height: 4px; background: var(--ink);"></i></span></sc-if>
+<sc-if value="{{ gapHit }}"><span style="position: relative; display: inline-block; margin: 14px 12px;"><a class="hit" href="#rights" style="display: inline-block; font-size: 14px; line-height: 20px;">版权</a><i aria-hidden="true" style="position: absolute; left: calc(50% - 20px); width: 19px; top: -12px; height: 4px; background: var(--ink);"></i></span></sc-if>
+<sc-if value="{{ footerProse }}"><p style="margin: 0; font-size: 16px;">继续使用就表示你同意我们的<a href="#terms">条款</a>，可以随时停用。</p></sc-if>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"case": {"editor": "enum", "options": ["好的", "空白带", "动效带", "色面分不开", "深色色面分不开", "链接太矮", "句中链接", "可点太小", "热区撑大", "字号太多", "短句链接", "块里的句中链接", "行标题链接", "表格里的句中链接", "页脚里的句子", "热区点不到", "色面有描边", "色面透明阴影", "色面同色描边", "行内块链接", "整段是链接", "加粗里的句中链接", "零高度的链接", "子元素撑大热区", "子元素点不到", "细条热区", "窄条热区", "热区正中被盖住", "热区只到 40", "十字形热区", "偏心窄条", "热区有细缝", "热区缺一块", "内层滚动容器", "画成悬停态的块", "色面悬停阴影"], "default": "好的"}}'>
+class Component extends DCLogic { renderVals() {
+  const c = this.props.case;
+  return { emptyBand: c === '空白带', motionBand: c === '动效带', faceShadow: c === '色面有描边' ? 'inset 0 0 0 1px var(--ink)' : c === '色面透明阴影' ? '0 0 #0000' : c === '色面悬停阴影' ? '0 8px 24px rgba(0,0,0,0)' : 'none', faceBorder: c === '色面同色描边' ? '1px solid #e4e1d8' : '0', flatLink: c === '零高度的链接', blockLink: c === '行内块链接', wholeLink: c === '整段是链接', strongLink: c === '加粗里的句中链接', faceB: ['色面分不开', '色面有描边', '色面透明阴影', '色面同色描边', '色面悬停阴影'].includes(c) ? '#e4e1d8' : c === '深色色面分不开' ? 'var(--panel)' : 'var(--ink)',
+    shortLinks: c === '链接太矮', tallLink: !['链接太矮', '热区撑大', '热区点不到', '页脚里的句子', '子元素撑大热区', '子元素点不到', '细条热区', '窄条热区', '热区正中被盖住', '热区只到 40', '十字形热区', '偏心窄条', '热区有细缝', '热区缺一块'].includes(c), hit40: c === '热区只到 40', crossHit: c === '十字形热区', offStrip: c === '偏心窄条', slitHit: c === '热区有细缝', gapHit: c === '热区缺一块', shell: c === '内层滚动容器', drawnHover: c === '画成悬停态的块', stripHit: c === '窄条热区', holeHit: c === '热区正中被盖住', kidHit: c === '子元素撑大热区', kidDead: c === '子元素点不到', barHit: c === '细条热区', shortProse: c === '短句链接', divLink: c === '块里的句中链接', rowLink: c === '行标题链接', cellLink: c === '表格里的句中链接', footerProse: c === '页脚里的句子', deadHit: c === '热区点不到', proseLink: c === '句中链接', tooSmall: c === '可点太小', grownHit: c === '热区撑大', manySizes: c === '字号太多' };
+} }
+</script>
+</body>
+</html>

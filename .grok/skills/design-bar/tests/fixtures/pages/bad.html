@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自测页面：点按区域、首屏空白带、相邻色面</title>
+<style>
+body{margin:0;font-family:sans-serif;font-size:16px;background:#f4f2ec;color:#1c1d19}
+a{color:inherit}
+.panel{height:60vh;background:#1c1d19;color:#ecebe4}
+@media (prefers-color-scheme: dark){body{background:#121310;color:#ecebe4}.panel{background:#22231f}}
+@media (prefers-reduced-motion: reduce){*{transition:none}}
+.hit,.kid,.bar{position:relative;display:inline-block;font-size:14px;line-height:20px}
+.hit::after{content:"";position:absolute;inset:-12px -10px}
+.dead::after,.kid .dead{pointer-events:none}
+.kid{width:20px;height:20px}
+.kid span{position:absolute;inset:-12px}
+.bar{width:300px;height:16px;line-height:16px}
+.bar::after{content:"";position:absolute;left:50%;width:2px;margin-left:-1px;top:-14px;bottom:-14px}
+.bar22::after{width:22px;margin-left:-11px}
+.baroff::after{width:22px;margin-left:0}
+.h40,.cross{position:relative;display:inline-block;width:20px;height:20px}
+.h40::after{content:"";position:absolute;inset:-10px}
+.cross::before{content:"";position:absolute;inset:-12px -10px}
+.cross::after{content:"";position:absolute;inset:-10px -12px}
+.cover{position:relative;display:inline-block}
+.cover i{position:absolute;top:-12px;height:4px;background:#1c1d19}
+</style>
+</head>
+<body>
+<header style="padding:12px 20px"><h1 style="margin:0;font-size:24px">每周一练</h1></header>
+<div style="height:50vh"></div>
+<div class="panel"><p style="margin:0;padding:20px">深色下这一块和页面底色只差一点。</p></div>
+<p style="padding:0 20px">读完这一篇以后可以接着看<a href="#log">更新记录</a>，里面写了每次改动。</p>
+<p style="padding:0 20px">见<a href="#short">短句里的链接</a>。</p>
+<p style="padding:0 20px">读完这一篇以后可以接着看<strong><a href="#strong">加粗里的链接</a></strong>，里面写了每次改动。</p>
+<p style="padding:0 20px">读完这一篇以后可以接着看<em><a href="#em">强调里的链接</a></em>，里面写了每次改动。</p>
+<p style="padding:0 20px">读完这一篇以后可以接着看<a href="#ib" style="display:inline-block">行内块链接</a>，里面写了每次改动。</p>
+<div style="padding:0 20px"><a href="#near" style="display:inline-block;width:43.7px;height:43.7px;overflow:hidden;font-size:12px">差一点</a></div>
+<p style="padding:0 20px"><a href="#whole">整段就是一个很长的链接文字超过十二个字</a></p>
+<div style="padding:0 20px">读完这一篇以后可以接着看<a href="#div">块里的链接</a>，里面写了每次改动。</div>
+<div style="padding:16px 20px"><a class="hit" href="#h1">伪元素撑大</a></div>
+<div style="padding:16px 20px"><a class="hit dead" href="#h2">伪元素点不到</a></div>
+<div style="padding:16px 20px"><a class="kid" href="#h3" aria-label="子元素撑大"><span></span></a></div>
+<div style="padding:16px 20px"><a class="kid" href="#h4" aria-label="子元素点不到"><span class="dead"></span></a></div>
+<div style="padding:16px 20px"><a class="bar" href="#h5">细条热区</a></div>
+<div style="padding:16px 20px"><a class="bar bar22" href="#h6">窄条热区</a></div>
+<div style="padding:16px 20px"><span style="position:relative;display:inline-block"><a class="hit" href="#h7">正中被盖住</a><i aria-hidden="true" style="position:absolute;left:50%;top:-12px;width:6px;height:4px;margin-left:-3px;background:#1c1d19"></i></span></div>
+<div style="padding:16px 20px"><a class="h40" href="#h8" aria-label="只到四十"></a></div>
+<div style="padding:16px 20px"><a class="cross" href="#h9" aria-label="十字形热区"></a></div>
+<div style="padding:16px 20px"><a class="bar baroff" href="#h10">偏心窄条</a></div>
+<div style="padding:16px 20px"><span class="cover"><a class="hit" href="#h11">有细缝的</a><i aria-hidden="true" style="left:calc(50% + 1px);width:3px"></i></span></div>
+<div style="padding:16px 20px"><span class="cover"><a class="hit" href="#h12">缺一块的</a><i aria-hidden="true" style="left:calc(50% - 20px);width:19px"></i></span></div>
+<footer style="padding:20px"><a href="#about" style="font-size:14px">关于</a><p>继续使用就表示你同意我们的<a href="#terms">页脚句子里的链接</a>，可以随时停用。</p></footer>
+</body>
+</html>

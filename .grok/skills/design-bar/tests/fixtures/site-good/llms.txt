@@ -1,0 +1,12 @@
+# 样本站
+
+> 自测用的小站：每周一篇文章，写清出处和日期。
+
+Canonical site: https://good.example
+RSS feed: https://good.example/rss.xml
+Sitemap: https://good.example/sitemap.xml
+
+## 主要页面
+
+- [首页](https://good.example/)：最近的文章
+- [第一篇：为什么先写清出处](https://good.example/post/hello)（[Markdown](https://good.example/post/hello.md)）

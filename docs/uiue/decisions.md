@@ -2,6 +2,13 @@
 
 新的在上面。每条写清：决定、理由、改了哪里。产品层面的决定同时记在 `docs/prd/decisions.md`。
 
+## 2026-11-13 · design-bar 同步到上游 612e5e7（#141）
+
+- **决定**：madlouse/skills PR 15（家族偏好 cookie）、#19、#21 合并后，本仓库的 `design-bar` 按三方合并同步到上游 612e5e7：上游新增的 cookie 条文和检查、`walk_canvas.py`、`shoot_canvas.py`、`a11y_probe.py`、SKILL.md 字节上限照收；本仓库先改的几处保留：项目配置 `design-bar.json`（阈值和 `lint-tokens.exclude`）、`lint_tokens.py` 一个文件也没检查到时报错退出、记分卡的两种动效原型和评审人检查、`check_shell.py` 对守卫形态的反例。`shell.json` 加 `cookieDomain: ".velicoach.com"`。
+- **理由**：「技能在这里迭代」，账号和上游是副本；先合上游、再保留本地的修正，两边都不丢。SKILL.md 本地多出的说明会超过上游的 23000 字节上限，所以 SKILL.md 取上游原样，`lint_tokens.py` 报错退出那句挪进 `references/checks.md`。
+- **改了哪里**：`.grok/skills/design-bar/`；`docs/uiue/shell.json`；ADR-0003 (b) 第 3 条的出处；`roadmap.md` 阶段 2；`trace.md` 第 103 条的状态。本仓库对 `design-bar` 的修正还没回到上游，回传要产品负责人授权，另提。
+- **现状**：主站源码还没写偏好 cookie，`check_shell.py` 现在报「跨子域偏好」，以及同级链接、`aria-current` 这几项，都是 M1 票 #22、#23、#25 要交付的，交付后转为通过。
+
 ## 2026-11-13 · M1 规格的决定（主会话定）
 
 以后同类的体验和技术细节由主会话直接定、记在这里；需求类和重大架构的改动仍向产品负责人说清（依据 `docs/requirements/trace.md` 第 97、100 条：主会话把控编排，需求类和重大架构的改动向他说清，其余自己判断执行，待定事项按规则定、只挑需求类的回报）。共十一条。

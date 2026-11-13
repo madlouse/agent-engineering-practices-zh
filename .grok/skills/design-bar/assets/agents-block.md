@@ -13,7 +13,7 @@
    - 项目里有 unslop 技能时，按它的信号清单（`references/signs.md`）过一遍，结果写进同一份报告；和设计系统冲突时以设计系统为准
    - 改了外壳、主题或导航：`python {{SKILL_PATH}}/scripts/check_shell.py <源码目录> --config {{DESIGN_DIR}}/shell.json`
    - 第一版或大版本定稿：独立评审填 `{{DESIGN_DIR}}/scorecard.md`，`python {{SKILL_PATH}}/scripts/gate.py {{DESIGN_DIR}}/scorecard.md` 过了才请负责人合并（口径见 `{{SKILL_PATH}}/references/award-bar.md`）
-   - 改了需求或说法：`coverage.py`（还没画的功能，覆盖表 `{{DESIGN_DIR}}/coverage.md`）和 `stale_terms.py`（旧说法，词汇表 `{{DESIGN_DIR}}/glossary.md`）
+   - 改了需求或说法：`coverage.py`（还没画的功能，覆盖表 `{{DESIGN_DIR}}/coverage.md`）和 `stale_terms.py`（旧说法，词汇表 `{{GLOSSARY}}`）
 5. 一条修改意见代表一类问题：找出背后的原则，改完所有同类位置，写回设计系统（规则或 token）或检查阈值，并在 `{{DESIGN_DIR}}/decisions.md` 记一笔。
 6. 产品决定影响界面时，同一轮改完设计系统、画板和需求文档的验收，旧说法记进词汇表。
 7. 不留下探索用的临时代码、未使用的样式和组件变体。

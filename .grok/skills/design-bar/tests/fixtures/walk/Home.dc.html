@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>Home</title></head>
+<body><x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"stage": {"editor": "enum", "options": ["首页", "改期", "已改"], "default": "首页"}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+<sc-if value="{{ s0 }}"><main>
+<button onClick="{{ go1 }}">换一天</button>
+<button onClick="{{ go2 }}"><svg aria-hidden="true"></svg>周五</button>
+<button onClick="{{ go2 }}">周五晚上</button>
+<button onClick="{{ go1 }}" aria-label="更多"><svg></svg></button>
+<button onClick="{{ go2 }}" aria-label="更多"><svg></svg></button>
+<a href="Other.dc.html">去另一页</a>
+<a href="tel:110">拨打 110</a>
+</main></sc-if>
+<sc-if value="{{ s1 }}"><main><button onClick="{{ go2 }}">周六</button><button onClick="{{ go0 }}">不改了</button></main></sc-if>
+<sc-if value="{{ s2 }}"><main><p>已改</p></main></sc-if>
+</x-dc></body></html>

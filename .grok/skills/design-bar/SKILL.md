@@ -1,6 +1,8 @@
 ---
 name: design-bar
 description: Claude Design 的配套流程：设计在 Claude Design 里做（Design 画布出界面，Design System 作为设计语言的唯一来源），本技能负责开工前确认关键信息与标杆、把设计系统同步进代码仓库、对画板和实现代码做渲染与只读验证、检查需求覆盖和过时口径、定稿前按苹果设计大奖六个维度过体验与美学门槛、让同一家族的几个产品外壳一致、把评审意见沉淀回设计系统。用户想要有品位或获奖水准的界面、要建立或沿用设计语言、做新功能或打磨已有页面和 App 界面（包括 AI 生成的页面），或设计与代码不一致时使用。
+metadata:
+  max-bytes: "23000"
 ---
 
 # Design Bar：Claude Design 的配套
@@ -38,7 +40,7 @@ python <本技能目录>/scripts/init_project.py <项目根目录> \
   --design-dir <设计目录，默认 design> --tokens-path <代码能直接引用的 tokens.css 位置>
 ```
 
-它会创建设计目录模板、把本技能复制到项目的 skills 目录、在 `AGENTS.md` 写入设计规则（`CLAUDE.md` 通过 `@AGENTS.md` 引入）。可重复运行，不覆盖已有文件。skills 目录有索引时补一行。告诉用户改了哪些文件。
+它会创建设计目录模板、把本技能复制到项目的 skills 目录、在 `AGENTS.md` 写入设计规则（`CLAUDE.md` 用 `@AGENTS.md` 引入）。可重复跑，不覆盖已有文件。skills 目录有索引时补一行。告诉用户改了哪些文件。
 
 已有的设计文档、token、画布都是第 1 步的输入。**代码和设计文档描述的是两套不同的设计语言时，这本身就是必须让用户确认的问题。**
 
@@ -57,7 +59,7 @@ python <本技能目录>/scripts/init_project.py <项目根目录> \
 
 把参考作品拆成可检查的标准，写进 `<设计目录>/bar-sheet.md`：体验关键词（意味着什么 / 不意味着什么）、参考拆解（可观察的事实）、3–5 条能检查的标杆原则、签名时刻、明确不做（具名反面模式见 `references/anti-patterns.md`）、底线。
 
-参考要真的看：能用浏览器就截图；看不到就说明是基于一般认知。借「为什么好」，不照搬「长什么样」。参考里要有 3–5 个近年苹果设计大奖获奖或入围、任务相近的 App，写清借什么（`references/award-bar.md` 第 0 节），评审时和它们并排比。
+参考要真的看：能截图就截图，看不到就注明凭一般认知。借「为什么好」，不照搬「长什么样」。参考里要有 3–5 个近年苹果设计大奖获奖或入围、任务相近的 App，写清借什么（`references/award-bar.md` 第 0 节），评审时并排比。
 
 ## 第 3 步：在 Claude Design 里建立设计语言
 
@@ -81,7 +83,7 @@ python <本技能目录>/scripts/init_project.py <项目根目录> \
 2. 画板之间用链接串成流程，状态用 `data-props` 开关切换，让用户能点一遍。
 3. 安装设计系统（画布的 `designSystems` 记录和 `project/ds/<folder>/tokens.json`），样式只引用 token；稿子里需要设计系统没有的值时，先补进设计系统。
 3.6 **生成前清单**：每块画板交出前按 `references/preflight.md` 对一遍（首屏、交互与状态、外壳与主题、版式与视口、语言、颜色与材质、内容与 Agent 可用、证据）。
-4. 每改一轮，先跑只读验证：`python scripts/verify_canvas.py <画板目录> --out <设计目录>/reviews/<日期-主题> --themes light,dark,pseudo`，修到 `done` 再给人看。**先核对报告里每块画板「查的视口」，再信结论**。查哪些项、参数、哪些证据要用 `capture_motion.py`、`render_dc.py` 另截，项目自己的阈值写进 `<设计目录>/design-bar.json`，命令不带参数也生效；目标是预览地址时只靠当前目录往上找配置，配置放在别处的项目要传 `--project-config`。见 `references/checks.md`。
+4. 每改一轮，先跑只读验证：`python scripts/verify_canvas.py <画板目录> --out <设计目录>/reviews/<日期-主题> --themes light,dark,pseudo`，修到 `done` 再给人看。**先核对报告里每块画板「查的视口」，再信结论**。查哪些项、参数、哪些证据要用 `capture_motion.py`、`render_dc.py` 另截，见 `references/checks.md`。
 5. 画板标题和生成脚本里不要手写「N 个场景」这类计数，会过时；需要时由脚本算。
 5.5 卡片、播放条、工具栏、菜单、浮层要做「液态玻璃」时，先读 `references/liquid-glass.md`：先盘点哪些表面压在图片、视频、动效上（平涂底色上不用玻璃），材质做进 token（`assets/liquid-glass.css`），边缘透镜和按背景自适应用 `scripts/liquid-glass.js`；`verify_canvas.py` 会报「玻璃压在平涂底色上」。
 5.6 一批画板分给几个 Agent 并行画时，按 `references/production.md`：小批、先探活、随写随存、`watch_workers.py` 盯进度、每块交回就提交。
@@ -110,16 +112,16 @@ python <本技能目录>/scripts/init_project.py <项目根目录> \
 
 0. 画板先过 `verify_canvas.py`（上面第 3.5 步第 4 条）；需求文档有更新时，再跑 `coverage.py`（还有哪些功能没画）和 `stale_terms.py`（哪里还在用旧说法）。
 1. `python scripts/check_page.py <页面> --out <设计目录>/reviews/<日期-主题> --dark`：多个宽度截图并做机械检查（项目见 `references/checks.md`）。
-1.5 对外的页面有了能访问的构建或预览以后：`python scripts/check_agent_ready.py <站点地址或构建目录> --out <同一目录>`，必须项修到都过（`references/agent-ready.md`）。
-2. `python scripts/lint_tokens.py <源码目录> --tokens <tokens.css>`：写死的颜色和数值、Tailwind 任意值、静态内联样式、`!important`、未定义的 token。传 CSS 变量和数据驱动的内联值不算问题。不属于页面样式的目录（按帧内联样式的视频画面、平台约定的认证代码）用可重复的 `--exclude <路径前缀>`（相对仓库根，排除前缀盖住扫描路径时报错退出，输出写明排除了几个文件）排除，或写进项目配置 `design-bar.json` 的 `{"lint-tokens": {"exclude": [...]}}`（查找和 `--project-config`、`--no-project-config` 同其他脚本；命令行给了 `--exclude` 就只用命令行的）。
-2.2 `python scripts/check_shell.py <源码目录> --config <设计目录>/shell.json`：主题跟随系统、根元素写死主题、偏好记忆、家族导航约定。
+1.5 对外页面有了构建或预览后：`python scripts/check_agent_ready.py <站点地址或构建目录> --out <同一目录>`，必须项修到都过（`references/agent-ready.md`）。
+2. `python scripts/lint_tokens.py <源码目录> --tokens <tokens.css>`：写死的颜色和数值、Tailwind 任意值、静态内联样式、`!important`、未定义的 token。传 CSS 变量和数据驱动的内联值不算问题。
+2.2 `python scripts/check_shell.py <源码目录> --config <设计目录>/shell.json`：主题跟随系统、根元素写死主题、偏好记忆、家族导航、上级域 cookie（有子域产品时路径产品也写）。
 2.5 **去模板味**：按 `unslop` 的信号清单审计（项目里有 unslop 技能时用它的 `references/signs.md`），判断重度、轻度还是没有；要改时按九遍顺序（间距 → 颜色 → 图标 → 文案 → 字体 → 版式 → 细节 → 视觉 → 动效）；最后做模板测试：把产品名换掉，这屏还成立吗（`references/craft.md` §1、§3）。
-3. **独立评审，不自评。** 交给一个没看过制作过程的评审者（子代理），只给它：截图、brief、标杆卡、`references/rubric.md`、`references/anti-patterns.md`，以及上一轮的问题清单（要它逐条核对是否真的解决）。要求它对照 1–2 个顶级参照（标杆卡里的作品）指出最大差距，每个分数附截图证据。自己打的分不算通过：制作者会不自觉地宽松。会话不能开子代理时，用户就是评审者：把截图和打分理由交给用户，不自称达标。
+3. **独立评审，不自评。** 交给一个没看过制作过程的评审者（子代理），只给它：截图、brief、标杆卡、`references/rubric.md`、`references/anti-patterns.md`，以及上一轮的问题清单（逐条核对是否解决）。要求它对照 1–2 个顶级参照（标杆卡里的作品）指出最大差距，每个分数附截图证据。自评不算：制作者会不自觉地宽松。会话不能开子代理时，用户就是评审者：把截图和打分理由交给用户，不自称达标。
 4. 按「影响 × 修复成本」排序，每轮修前 3 项，修完回看已达标项。
 
 **停止**：标杆原则都 ≥ 4 分且检查全部通过；或一轮没有提升；或已经 3 轮。不要以「找不到任何改进」为终点。
 
-**定稿**（第一版、大版本）：在上面之外过「体验与美学」门槛：独立评审填 `<设计目录>/scorecard.md`，`python scripts/gate.py <设计目录>/scorecard.md` 过了才请负责人合并。定稿期间评审只按出口表判阻塞，表外的意见记进「上线后再看」（`references/award-bar.md` 第 3、4 节）。
+**定稿**（第一版、大版本）：在上面之外过「体验与美学」门槛：独立评审填 `<设计目录>/scorecard.md`，`python scripts/gate.py <设计目录>/scorecard.md` 过了才请负责人合并。定稿期间评审只按出口表判阻塞，表外的意见记进「上线后再看」（`references/award-bar.md` 第 3、4 节）。步数、视频、截图、无障碍实测在 CI 里拿（`references/checks.md`）。
 
 **代码卫生**：复用已有组件；探索用的临时代码、废弃变体、未使用的样式在交付前删掉；改动范围与需求一致。
 
@@ -176,9 +178,9 @@ App 或移动端交互，另读 `references/app.md`。
 | `scripts/sync_tokens.py` | 设计系统 tokens.json → 代码 tokens.css |
 | `scripts/check_page.py` | 渲染截图与机械检查（需要 Python Playwright 和 Chromium） |
 | `scripts/gate.py` | 「体验与美学」出口门槛：读 `scorecard.md`，查六维、参照、交付物、步数实测齐不齐、够不够 |
-| `scripts/check_shell.py` | 外壳检查：主题跟随系统、根元素写死主题、偏好记忆、家族导航约定（读源码，按 `shell.json`） |
+| `scripts/check_shell.py` | 外壳检查：主题跟随系统、根元素写死主题、偏好记忆、家族导航约定、跨子域偏好（读源码，按 `shell.json`） |
 | `scripts/check_agent_ready.py` | 不执行脚本取站点或读构建目录，逐项报 过 / 不过 / 没做 / 没查；必须项不过时退出码 1 |
-| `scripts/lint_tokens.py` | 源码写死值检查，发现问题时退出码为 1；一个文件也没检查到（路径写错）时报错退出，退出码 2 |
+| `scripts/lint_tokens.py` | 源码写死值检查，发现问题时退出码为 1 |
 | `scripts/render_dc.py` | 把 Design 画布的 `.dc.html` 按给定状态渲染并截图（本地核对高保真稿） |
 | `scripts/capture_motion.py` | 动效和透镜的截图：执行画板完整的挂载代码，支持悬停、减弱动态效果、`--no-webgl` 的兜底帧、`--probe` 量玻璃背后会不会变；签名动效和玻璃交付的证据用它 |
 | `scripts/verify_canvas.py` | 画板的只读验证：每块画板 × 每个状态 × 浅色、深色、伪语言 × 视口，只报能判对错的问题，另列提示，给出 done / needs_work |

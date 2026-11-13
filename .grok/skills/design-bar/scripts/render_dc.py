@@ -44,6 +44,8 @@ def fill_holes(text, scope):
         v = lookup(m.group(1), scope)
         if v is None:
             return {'true': 'true', 'false': 'false'}.get(m.group(1).strip(), '')
+        if isinstance(v, bool):
+            return 'true' if v else 'false'
         return str(v)
     return re.sub(r'\{\{\s*([^}]+?)\s*\}\}', rep, text)
 

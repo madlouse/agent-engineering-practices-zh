@@ -3,13 +3,14 @@
 
 改了 verify_canvas.py 的检查规则以后先跑它。画板在 tests/fixtures/Selftest.dc.html，每个状态放一类过去真实踩过的坑：
 主按钮被输入区挡住或被挤扁、两栏里一栏被挤成竖排、flex 吞掉空格、深色模式下品牌色做文字看不清、<a> 没有 href、事件绑定写成 {{ None }} 和
-只有图标的按钮、触控目标太小、对外页面留着「示例」这类占位；另有一个状态放 unslop 的模板味信号（emoji、感叹号、全大写加宽字距、特粗字重）。
+只有图标的按钮、触控目标太小、对外页面留着「示例」这类占位、图里两个文字标签压在一起；另有一个状态放 unslop 的模板味信号（emoji、感叹号、全大写加宽字距、特粗字重）。
 
 用法：python selftest.py        通过时退出码 0，有漏报或误报时退出码 1。
-      python selftest.py --static  只跑不用浏览器的检查（gate.py、check_shell.py、stale_terms.py），没装 Playwright 时用。
+      python selftest.py --static  只跑不用浏览器的检查（SKILL.md 字节上限、gate.py、check_shell.py、stale_terms.py、回执复述检查），没装 Playwright 时用。
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -27,6 +28,7 @@ EXPECT = {
     '不能用键盘': [('控件没有可读名称', None)],
     '触控目标太小': [('触控目标小于 44', None)],
     '占位文字': [('占位文字', None)],
+    '文字互相压住': [('图里的文字压在一起', None)],
     '源码': [('控件不能用键盘到达', None), ('写死的颜色', None), ('交互绑定写错', None)],
 }
 
@@ -236,13 +238,47 @@ def lint_tokens_checks():
     return failures
 
 
+SKILL_MD_MAX = 23000
+
+
+def skill_budget_failures(skills_dir):
+    """技能仓库里每个 SKILL.md 不超过 23000 字节；frontmatter 写了 metadata.max-bytes 的按它（只能更严）。
+    复制进项目后只查写了声明的技能，项目自己的和别处来的技能归项目管。"""
+    out = []
+    in_repo = os.path.isdir(os.path.join(skills_dir, '.git'))
+    for name in sorted(os.listdir(skills_dir)):
+        path = os.path.join(skills_dir, name, 'SKILL.md')
+        if not os.path.isfile(path):
+            continue
+        raw = open(path, 'rb').read()
+        text = raw.decode('utf-8')
+        head = text.split('\n---', 1)[0] if text.startswith('---') else ''
+        m = re.search(r'^\s+max-bytes:\s*["\']?(\d+)["\']?\s*$', head, re.M)
+        if not m and not in_repo:
+            continue
+        limit = min(int(m.group(1)), SKILL_MD_MAX) if m else SKILL_MD_MAX
+        size = len(raw)
+        if size > limit:
+            out.append(f'{name}/SKILL.md：{size} 字节，超过上限 {limit}')
+    return out
+
+
 def static_checks():
-    """不用浏览器的检查：gate.py、check_shell.py、stale_terms.py 的通用词汇表。"""
-    failures = []
+    """不用浏览器的检查：SKILL.md 字节上限、gate.py、check_shell.py、stale_terms.py 的通用词汇表、init_project.py 的写入位置。"""
+    failures = skill_budget_failures(os.path.join(HERE, '..', '..'))
 
     def run(script, *args):
         r = subprocess.run([sys.executable, os.path.join(HERE, script), *args], capture_output=True, text=True)
-        return r.returncode, r.stdout
+        return r.returncode, r.stdout + r.stderr
+
+    sys.path.insert(0, HERE)
+    import canvas_common as cc
+    echo = cc.echo_issues(cc.Board(os.path.join(FIXTURES, 'echo.dc.html'), ['问', '回执', '目标']))
+    if [i['state'] for i in echo] != ['回执'] or '有，选好了' not in echo[0]['detail']:
+        failures.append(f'canvas_common.echo_issues：应只报「回执」复述了「都没有」，选项组的代表选项不报；实际 {echo}')
+    kept = cc.drop_hidden('<div inert aria-hidden="true" style="display: contents;"><div><p>都没有</p><input disabled></div></div><svg aria-hidden="true"><path d="M0"/></svg><p>按常规起步</p>')
+    if '都没有' in kept or 'svg' in kept or '按常规起步' not in kept:
+        failures.append(f'canvas_common.drop_hidden：inert、aria-hidden 的整棵子树要去掉，别的留下；实际 {kept}')
 
     gate = os.path.join(FIXTURES, 'gate')
     code, _ = run('gate.py', os.path.join(gate, 'good.md'))
@@ -264,13 +300,58 @@ def static_checks():
         if code != 1 or want not in txt:
             failures.append(f'gate.py：{name}.md 应该不过并报「{want}」，实际 {code}')
 
+    # 建档旅程的预算是 10（--onboard）
+    tmp = tempfile.mkdtemp(prefix='gate-onboard-')
+    text = open(os.path.join(gate, 'good.md'), encoding='utf-8').read()
+    shutil.copytree(gate, os.path.join(tmp, 'g'))
+    card = os.path.join(tmp, 'g', 'good.md')
+    for taps, want in (('10', 0), ('11', 1)):
+        open(card, 'w', encoding='utf-8').write(text.replace('| 改到明天 | 非核心 | 3 |', f'| 建档 | 建档 | {taps} |'))
+        code, _ = run('gate.py', card)
+        if code != want:
+            failures.append(f'gate.py：建档 {taps} 步应该退出码 {want}（预算 10），实际 {code}')
+
+    # walk_canvas.py 纯文本模式：走得通的、做坏的、缺 Playwright 时 --browser 的报错
+    walk = os.path.join(FIXTURES, 'walk')
+    wout = tempfile.mkdtemp(prefix='walk-selftest-')
+    code, txt = run('walk_canvas.py', os.path.join(walk, 'good.json'), '--canvas', walk, '--out', wout)
+    if code != 0 or '| 改期 | 核心 | 2 | 0 | — | 原型实测（画板跳转，walk_canvas 纯文本） |' not in txt or '| 建档 | 建档 | 10 |' not in txt:
+        failures.append(f'walk_canvas.py：走得通的旅程应该退出码 0、步数表和 gate.py 同列（建档预算 10），实际 {code}：{txt[-300:]}')
+    code, txt = run('walk_canvas.py', os.path.join(walk, 'bad.json'), '--canvas', walk, '--out', wout)
+    for want in ('超预算：3 次点按，核心预算是 2', '没找到可点的「删除全部」', '「更多」找到 2 个，去向不同', '点完在「改期」，旅程文件写的是「已改」',
+                 '点完在 Other，旅程文件写的是 Home', '前面已经离开画板'):
+        if want not in txt:
+            failures.append(f'walk_canvas.py：做坏的旅程应该报「{want}」')
+    if code != 1:
+        failures.append(f'walk_canvas.py：做坏的旅程应该退出码 1，实际 {code}')
+    if txt.count('前面已经离开画板') < 2:
+        failures.append('walk_canvas.py：离开画板以后先说一句意图再点，也应该报「前面已经离开画板」')
+    code, txt = run('walk_canvas.py', os.path.join(walk, 'dup.json'), '--canvas', walk, '--out', wout)
+    if code != 2 or '旅程名要唯一' not in txt:
+        failures.append(f'walk_canvas.py：旅程重名应该退出码 2 并报「旅程名要唯一」，实际 {code}')
+    for h, want in (('<p><button data-go="1"><span>换</span><span>一天</span></button><a href="x.dc.html"><img alt="Next"/></a></p>', [0, 1]),):
+        import canvas_common as cc
+        tagged = cc.with_walk_ids(h)
+        if [c.wid for c in cc.clickables(tagged)] != want or tagged.count('data-walk-id=') != len(want):
+            failures.append('canvas_common.with_walk_ids：每个可点元素都该带上和 Clickable.wid 同号的 data-walk-id')
+    if cc.themed('<div data-theme="light"><i data-theme="light"></i></div>', 'dark') != '<div data-theme="dark"><i data-theme="light"></i></div>':
+        failures.append('canvas_common.themed：只换根元素写死的主题，局部固定主题不动')
+    try:
+        import playwright  # noqa: F401
+    except ImportError:
+        for script, args in (('walk_canvas.py', [os.path.join(walk, 'good.json'), '--browser']), ('shoot_canvas.py', [walk]), ('a11y_probe.py', [walk, '--states', os.path.join(walk, 'good.json')])):
+            r = subprocess.run([sys.executable, os.path.join(HERE, script), *args, '--canvas' if script == 'walk_canvas.py' else '--out', walk if script == 'walk_canvas.py' else wout,
+                                *(['--out', wout] if script == 'walk_canvas.py' else [])], capture_output=True, text=True)
+            if r.returncode != 2 or 'Playwright' not in r.stderr:
+                failures.append(f'{script}：没有 Playwright 时应该给清楚的报错、退出码 2，实际 {r.returncode}：{r.stderr[:120]}')
+
     shell = os.path.join(FIXTURES, 'shell')
     cfg = os.path.join(shell, 'shell.json')
     code, txt = run('check_shell.py', os.path.join(shell, 'good'), '--config', cfg)
     if code != 0:
         failures.append(f'check_shell.py：做对的外壳应该过（训练屏写死深色在 fixedAllow 里），实际 {code}：{txt[:300]}')
     code, txt = run('check_shell.py', os.path.join(shell, 'bad'), '--config', cfg)
-    for want in ('| 主题跟随系统 |', '| 根元素写死主题 | ', '存储键 fam-theme', '存储键 fam-lang', '没有链到 / 的链接', '/b 在源码里没出现', '没有 aria-current'):
+    for want in ('| 主题跟随系统 |', '| 根元素写死主题 | ', '存储键 fam-theme', '存储键 fam-lang', '没有链到 / 的链接', '/b 在源码里没出现', '没有 aria-current', '源码里却没有写 cookie'):
         if want not in txt.split('## 过')[0]:
             failures.append(f'check_shell.py：做坏的外壳应该报「{want.strip("| ")}」')
     if '/a 在源码里没出现' in txt or code != 1:
@@ -278,6 +359,24 @@ def static_checks():
     code, _ = run('check_shell.py', os.path.join(shell, 'bad'))
     if code != 1:
         failures.append('check_shell.py：不给配置时也要查主题跟随系统和根元素写死主题')
+    code, txt = run('check_shell.py', os.path.join(shell, 'nodomain'), '--config', cfg)
+    if '但没把 Domain 设成上级域 .fam.example' not in txt:
+        failures.append('check_shell.py：写了 cookie 却没写上级域，应该报「跨子域偏好」（源码里链回 https://fam.example/ 不算）')
+
+    code, txt = run('check_shell.py', os.path.join(shell, 'pathonly-nocookie'), '--config', cfg)
+    if code != 1 or '同级产品先读 cookie' not in txt:
+        failures.append('check_shell.py：配了 cookieDomain 时，路径产品只写本机存储应该不过，并说明同级产品先读 cookie')
+    code, txt = run('check_shell.py', os.path.join(shell, 'pathonly'), '--config', cfg)
+    if code != 0:
+        failures.append(f'check_shell.py：路径产品写了上级域 cookie 应该过，实际 {code}：{txt[:300]}')
+    code, txt = run('check_shell.py', os.path.join(shell, 'pathonly-nocookie'), '--config', os.path.join(shell, 'shell-nodomain.json'))
+    if code != 0 or '跨子域偏好' in txt:
+        failures.append(f'check_shell.py：cookieDomain 为 null 时不要求 cookie，实际 {code}')
+
+    sys.path.insert(0, HERE)
+    from render_dc import fill_holes
+    if fill_holes('<button aria-expanded="{{ open }}">', {'open': True}) != '<button aria-expanded="true">':
+        failures.append('render_dc.py：布尔值要写成小写的 true / false，verify_canvas 才查得到展开态')
 
     code, txt = run('check_shell.py', os.path.join(shell, 'bad-classlist'))
     if code != 1 or '根元素写死主题' not in txt.split('## 过')[0]:
@@ -316,6 +415,22 @@ def static_checks():
     code, txt = run('stale_terms.py', '--glossary', os.path.join(d, 'g.md'), os.path.join(HERE, '..'))
     if code != 0:
         failures.append('stale_terms.py：技能自己的文件不该命中通用词汇表：' + txt[-300:])
+
+    proj = tempfile.mkdtemp(prefix='init-selftest-')
+    os.makedirs(os.path.join(proj, 'docs', 'standards'))
+    open(os.path.join(proj, 'AGENTS.md'), 'w', encoding='utf-8').write('# AGENTS.md\n\n路由表\n')
+    open(os.path.join(proj, 'docs', 'GLOSSARY.md'), 'w', encoding='utf-8').write('# 术语\n')
+    open(os.path.join(proj, 'docs', 'standards', 'ui.md'), 'w', encoding='utf-8').write('# 界面\n')
+    code, txt = run('init_project.py', proj, '--design-dir', 'docs/design', '--rules-file', 'docs/standards/ui.md',
+                    '--glossary', 'docs/GLOSSARY.md')
+    agents = open(os.path.join(proj, 'AGENTS.md'), encoding='utf-8').read()
+    ui = open(os.path.join(proj, 'docs', 'standards', 'ui.md'), encoding='utf-8').read()
+    if code != 0 or 'design-bar:start' in agents or os.path.exists(os.path.join(proj, 'CLAUDE.md')):
+        failures.append('init_project.py：给了 --rules-file 就不该动根目录 AGENTS.md、不该建 CLAUDE.md')
+    if 'design-bar:start' not in ui or '`docs/GLOSSARY.md`' not in ui:
+        failures.append('init_project.py：规则块应写进 --rules-file 指定的文件，词汇表指向 --glossary')
+    if os.path.exists(os.path.join(proj, 'docs', 'design', 'glossary.md')):
+        failures.append('init_project.py：给了 --glossary 就不该再建 <design-dir>/glossary.md')
     return failures
 
 
@@ -325,7 +440,7 @@ def main():
         if failures:
             print('selftest --static 不通过：\n  ' + '\n  '.join(failures))
             sys.exit(1)
-        print('selftest --static 通过：gate.py（填全的、做坏的、没填的模板）、check_shell.py（做对的、做坏的、守卫形态的反例、不给配置）、stale_terms.py 的通用词汇表、项目配置（design-bar.json，含顶层键校验）、lint_tokens.py 的排除（命令行、配置、仓库根、盖住扫描路径报错、一个文件也没检查到报错）都对')
+        print('selftest --static 通过：各 SKILL.md 在字节上限内、gate.py（填全的、做坏的、没填的模板、缺两种动效原型、没写评审人、建档预算）、walk_canvas.py 纯文本模式、check_shell.py（做对的、做坏的、守卫形态的反例、不给配置、cookie 没写上级域、路径产品也要写 cookie）、stale_terms.py 的通用词汇表、init_project.py 的 --rules-file 和 --glossary、项目配置（design-bar.json，含顶层键校验）、lint_tokens.py 的排除（命令行、配置、仓库根、盖住扫描路径报错、一个文件也没检查到报错）都对')
         return
     out = tempfile.mkdtemp(prefix='verify-selftest-')
     subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), '--no-project-config', FIXTURES, '--out', out, '--size', 'SelftestProps.dc.html=320x600'],
@@ -588,6 +703,10 @@ def main():
     code, got, _ = variant(bare)
     if code != 0:
         failures.append(f'check_agent_ready.py：只是没有 robots.txt 和 sitemap.xml 的小站应该退出码 0，实际 {code}：{sorted(x for x in got if x[1] == "不过")}')
+    # 没有 llms.txt 是没做，不能把首页也算成取不到
+    code, got, _ = variant(lambda d: os.remove(os.path.join(d, 'llms.txt')))
+    if code != 0 or any(x[0] == '页面' for x in got):
+        failures.append(f'check_agent_ready.py：只是没有 llms.txt 的小站应该退出码 0、首页照常查，实际 {code}：{sorted(x for x in got if x[1] == "不过")}')
     # 点名 AI 爬虫要写出允许还是禁止；替用户取页的被整站禁止是必须项不过，训练用的被禁止是提示
     code, got, its = variant(lambda d: open(os.path.join(d, 'robots.txt'), 'w').write('User-agent: *\nAllow: /\n\nUser-agent: Claude-User\nDisallow: /\n'))
     ev = next((i['evidence'] for i in its if i['item'] == 'robots.txt 点名 AI 爬虫'), '')
@@ -653,6 +772,15 @@ def main():
                        capture_output=True, text=True)
     if r.returncode != 1 or '| metric | **没有画板画出来** |' not in r.stdout or '| claim | Card.dc.html |' not in r.stdout:
         failures.append('coverage.py --data：应该报 metric 没画出来、claim 画在 Card.dc.html 上，退出码 1')
+    # 覆盖表点名的画板必须存在：AI-Card 在，AI-Gone 已删
+    # 不带连字符的画板名（Gone）也查；--batch 之外的功能（F3，B2）不查
+    open(os.path.join(cov, 'prd.md'), 'w', encoding='utf-8').write('| F1 | 甲 | x | B1 |\n| F2 | 乙 | x | B1 |\n| F3 | 丙 | x | B2 |\n')
+    open(os.path.join(cov, 'AI-Card.dc.html'), 'w', encoding='utf-8').write('<p>卡</p>\n')
+    open(os.path.join(cov, 'map.md'), 'w', encoding='utf-8').write('| F1 | AI-Card · 默认 | |\n| F2 | Gone · 默认；AI-Card · 默认 | |\n| F3 | AI-Future · 默认 | |\n')
+    r = subprocess.run([sys.executable, os.path.join(HERE, 'coverage.py'), '--prd', os.path.join(cov, 'prd.md'), '--canvas', cov, '--map', os.path.join(cov, 'map.md'), '--batch', 'B1'],
+                       capture_output=True, text=True)
+    if r.returncode != 1 or '| F2 | Gone |' not in r.stdout or 'AI-Card |' in r.stdout or 'AI-Future' in r.stdout:
+        failures.append(f'coverage.py --map：应该只报 F2 指向不存在的 Gone，不报范围外的 F3，退出码 1；实际 {r.returncode}：{r.stdout[-200:]}')
 
     failures += static_checks()
 

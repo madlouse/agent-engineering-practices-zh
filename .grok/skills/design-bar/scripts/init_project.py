@@ -4,11 +4,13 @@
 做三件事，全部可重复运行（已存在的文件不会被覆盖）：
   1. 在项目里创建 design/ 目录模板（设计系统链接、简报、标杆卡、决策、功能简报、评审）；
   2. 把本技能复制到项目的 skills 目录，方便各种 agent 发现和使用；
-  3. 在 AGENTS.md 和 CLAUDE.md 里写入设计工作规则（用标记包裹，重复运行时原地更新）。
+  3. 写入设计工作规则（用标记包裹，重复运行时原地更新）：默认写进 AGENTS.md 并让 CLAUDE.md 引入；
+     项目按场景加载规则时用 --rules-file 指定写入的文件，根目录 AGENTS.md 和 CLAUDE.md 都不动。
 
 用法：
   python init_project.py <项目根目录> [--skills-dir .claude/skills] [--design-dir design]
-                         [--tokens-path src/styles/tokens.css] [--update-skill] [--dry-run]
+                         [--tokens-path src/styles/tokens.css] [--rules-file AGENTS.md]
+                         [--glossary docs/GLOSSARY.md] [--update-skill] [--dry-run]
 
 skills 目录的默认选择顺序：已存在的 .claude/skills → .agents/skills → skills/（其中已有技能时）→ 新建 .claude/skills
 """
@@ -61,6 +63,9 @@ def main():
     ap.add_argument("--skills-dir")
     ap.add_argument("--design-dir", default="design")
     ap.add_argument("--tokens-path", help="tokens.css 的位置（相对项目根目录）。放在代码能直接引用的地方；默认 <design-dir>/tokens.css")
+    ap.add_argument("--rules-file", default="AGENTS.md",
+                    help="设计工作规则块写进哪个文件（相对项目根目录）。默认 AGENTS.md；按场景加载规则的项目写那份规范的路径")
+    ap.add_argument("--glossary", help="项目已有的词汇表（相对项目根目录）。给了就不再创建 <design-dir>/glossary.md")
     ap.add_argument("--update-skill", action="store_true", help="覆盖项目里已有的 design-bar 副本")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
@@ -74,9 +79,13 @@ def main():
 
     # 1. design/ 目录模板
     design = root / a.design_dir
+    glossary = a.glossary or f"{a.design_dir.strip('/')}/glossary.md"
     for src in sorted(TEMPLATE.rglob("*")):
         rel = src.relative_to(TEMPLATE)
         dst = design / rel
+        if a.glossary and rel.as_posix() == "glossary.md":
+            log(f"沿用    {a.glossary}（不创建 {a.design_dir}/glossary.md）")
+            continue
         if src.is_dir():
             if not dry:
                 dst.mkdir(parents=True, exist_ok=True)
@@ -113,10 +122,20 @@ def main():
             shutil.copytree(SKILL_ROOT, target, ignore=IGNORE)
         log(f"{'更新' if existed else '复制'}  技能 → {rel_skill}")
 
-    # 3. AGENTS.md 与 CLAUDE.md
+    # 3. 规则块：默认 AGENTS.md 与 CLAUDE.md；指定了 --rules-file 就只写那一个文件
     block = (BLOCK.read_text(encoding="utf-8")
              .replace("{{SKILL_PATH}}", rel_skill).replace("{{DESIGN_DIR}}", a.design_dir.strip("/"))
+             .replace("{{GLOSSARY}}", glossary)
              .replace("{{TOKENS_PATH}}", a.tokens_path or f"{a.design_dir.strip('/')}/tokens.css"))
+    rules = pathlib.PurePosixPath(a.rules_file)
+    if rules.as_posix() != "AGENTS.md":
+        upsert_block(root / rules, block, "", dry, lambda m: log(m.replace((root / rules).name, rules.as_posix())))
+        agents = root / "AGENTS.md"
+        if agents.exists() and START in agents.read_text(encoding="utf-8"):
+            log(f"提示    根目录 AGENTS.md 里还有旧的规则块，规则已改写进 {rules}，请删掉那一块")
+        print(("[演练，未写入任何文件]\n" if dry else "") + "\n".join(lines))
+        print(f"\n完成。规则写在 {rules}，确认项目的路由（技能或 AGENTS.md 的路由表）会在改界面时读到它。")
+        return
     upsert_block(root / "AGENTS.md", block, "# AGENTS.md\n\n", dry, log)
     claude = root / "CLAUDE.md"
     if claude.exists() and re.search(r"^@AGENTS\.md\s*$", claude.read_text(encoding="utf-8"), flags=re.M):

@@ -17,6 +17,8 @@ export default tseslint.config(
       "src/routeTree.gen.ts",
       // 画板的生成源：拼进画板的脚本片段，单个文件不是完整的模块，在画布里运行，不是站点代码（docs/uiue/prototypes/v1.1/README.md）
       "docs/uiue/prototypes/**",
+      // why: 技能自测的夹具故意写成各种形态的源码，供 check_shell.py 读，不是站点代码
+      ".grok/skills/*/tests/fixtures/**",
     ],
   },
   js.configs.recommended,

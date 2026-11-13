@@ -95,11 +95,21 @@ def project_config_checks():
             failures.append('项目配置：写错阈值名要报错，不能悄悄忽略')
         except SystemExit:
             pass
-        for key, val in (('face-contrast', 1.0), ('tap-min', 40), ('edge-tol', 5), ('empty-band', 0.5), ('max-font-sizes', 12)):
-            write(os.path.join(root, 'c', 'design-bar.json'), json.dumps({'thresholds': {key: val}}))
+        tighter = {'face-contrast': 1.8, 'tap-min': 48, 'tap-floor': 28, 'edge-tol': 1, 'empty-band': 0.2, 'max-font-sizes': 6, 'face-area': 0.1}
+        looser = {'face-contrast': 1.0, 'tap-min': 40, 'tap-floor': 20, 'edge-tol': 5, 'empty-band': 0.5, 'max-font-sizes': 12, 'face-area': 0.5}
+        if set(tighter) != set(vc.PROJECT_CONFIG_KEYS) or set(looser) != set(vc.PROJECT_CONFIG_KEYS):
+            failures.append('项目配置：每个阈值键都要有「更严的被接受、更松的报错」两条用例')
+        for key in vc.PROJECT_CONFIG_KEYS:
+            write(os.path.join(root, 'c', 'design-bar.json'), json.dumps({'thresholds': {key: tighter[key]}}))
+            try:
+                if not vc.apply_project_config(parser(), [os.path.join(root, 'c', 'boards')]):
+                    failures.append(f'项目配置：{key} 定成更严的 {tighter[key]} 没读到配置')
+            except SystemExit as e:
+                failures.append(f'项目配置：{key} 定成更严的 {tighter[key]} 应该接受，实际报错：{e.code}')
+            write(os.path.join(root, 'c', 'design-bar.json'), json.dumps({'thresholds': {key: looser[key]}}))
             try:
                 vc.apply_project_config(parser(), [os.path.join(root, 'c', 'boards')])
-                failures.append(f'项目配置：{key} 定成 {val}，比通用下限松，要报错退出')
+                failures.append(f'项目配置：{key} 定成 {looser[key]}，比通用下限松，要报错退出')
             except SystemExit as e:
                 if key not in str(e.code) or '通用下限' not in str(e.code):
                     failures.append(f'项目配置：{key} 放宽的报错要说清哪个阈值、下限多少：{e.code}')
@@ -159,6 +169,9 @@ def static_checks():
     if code != 1 or '根元素写死主题' not in txt.split('## 过')[0]:
         failures.append('check_shell.py：顶层无条件 classList.add(\'dark\') 应该报根元素写死主题')
 
+    must = {'negated-getitem', 'negated-matchmedia', 'negated-bare-matchmedia', 'negated-null', 'other-key', 'other-media'}
+    if not must <= set(os.listdir(os.path.join(shell, 'bad-guard'))):
+        failures.append(f'check_shell.py：bad-guard 缺夹具 {"、".join(sorted(must - set(os.listdir(os.path.join(shell, "bad-guard")))))}')
     for name in sorted(os.listdir(os.path.join(shell, 'bad-guard'))):
         sub = os.path.join(shell, 'bad-guard', name)
         extra = ('--config', os.path.join(sub, 'shell.json')) if os.path.isfile(os.path.join(sub, 'shell.json')) else ()

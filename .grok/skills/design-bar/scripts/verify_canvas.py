@@ -142,7 +142,7 @@ PROSE_MIN_CHARS = 12    # 5：块里链接以外的字数达到它，行内链�
 # 格式：{"thresholds": {"face-contrast": 1.8}}，键就是上面那些阈值的同名命令行参数（去掉 --）。--project-config <文件> 指定，--no-project-config 不读。
 PROJECT_CONFIG_NAME = 'design-bar.json'
 PROJECT_CONFIG_DEST_ALIASES = {'tap-min': 'min_target'}  # check_page.py 把同一个阈值叫 --min-target
-PROJECT_CONFIG_LOOSER = {'edge-tol': (EDGE_TOL, '>'), 'empty-band': (EMPTY_BAND_MAX, '>'), 'face-area': (FACE_MIN_AREA, '<'), 'face-contrast': (FACE_MIN_CONTRAST, '<'),
+PROJECT_CONFIG_LOOSER = {'edge-tol': (EDGE_TOL, '>'), 'empty-band': (EMPTY_BAND_MAX, '>'), 'face-area': (FACE_MIN_AREA, '>'), 'face-contrast': (FACE_MIN_CONTRAST, '<'),
                          'tap-min': (TAP_MIN, '<'), 'tap-floor': (TAP_FLOOR, '<'), 'max-font-sizes': (MAX_FONT_SIZES, '>')}  # why: 配置只许收紧，比通用下限松的值报错
 PROJECT_CONFIG_KEYS = ('edge-tol', 'empty-band', 'face-area', 'face-contrast', 'tap-min', 'tap-floor', 'max-font-sizes')
 

@@ -9,10 +9,15 @@
                  theme.fixedAllow 里列出的特例路径（正则）不算
   偏好记忆       theme.storageKey、family.langKey 和它们的取值在源码里都出现
   家族导航       family.home 有一个链到它的链接；family.links 每个地址都出现；有 aria-current
-  「无条件」的判法：写入包在带 matchMedia、prefers-color-scheme、getItem( 的 if 块、if 行内、三元或 && 之后才算有条件；
-  只在同一行里读了偏好、if 块已经关上、写在 else 里、守卫只出现在注释或写入之后，都照报。
-它判不了运行时的行为（读了存储键却没生效），也判不了守卫写在函数外面的形态（例如 if (!saved) return 写在调用方、
-变量先存下 matchMedia 的结果再 if、条件跨多行、字符串或模板字面量里带花括号），这几种上线前照 references/family.md 第 4 节点一遍。
+  「无条件」的判法：写入包在守卫之后才算有条件，守卫是带 prefers-color-scheme 的 matchMedia，或键等于 theme.storageKey 的 getItem(
+  （没有配置就不限键）；位置是 if 块、if 行内、三元或 && 之前。被取反的读不算守卫：!x、!(x)、=== null、== undefined、matches === false。
+  只在同一行里读了偏好、if 块已经关上、写在 else 里、守卫只出现在注释或写入之后、读了别的键、媒体查询不是 prefers-color-scheme，都照报。
+判不了的形态（上线前照 references/family.md 第 4 节点一遍），两类：
+  误报（其实有守卫，却照报）：读到的偏好或 matchMedia 的结果先存进变量再 if；if 的条件跨多行；守卫写在函数外面（调用方先 if (!saved) return，
+    或 if (守卫) apply()）；getItem 的键写成变量而不是字符串字面量。
+  漏报（没有守卫，却不报）：条件里有 || 且其中一边是守卫；一行里有不成对的引号（正则字面量里的 '、JSX 文本里的撇号）会吞掉后面的 }，
+    把已经关上的守卫块当成还开着。字符串和模板字面量里成对的花括号能正确跳过。
+它也判不了运行时的行为（读了存储键却没生效）。
 
 用法：
   python check_shell.py src [更多源码目录] [--config docs/design/shell.json] [--out 报告目录]
@@ -36,7 +41,38 @@ FORCED = [
 ]
 
 
-GUARD = re.compile(r'matchMedia|prefers-color-scheme|getItem\(')
+MEDIA_CALL = re.compile(r'''matchMedia\(\s*["'`][^"'`]*prefers-color-scheme''')
+NEGATED_MEDIA_TAIL = re.compile(r'''[^"'`]*["'`]\s*\)\s*\.matches\s*===?\s*(?:false|0)''')
+CHAIN_BEFORE = re.compile(r'(?:[\w$]+\??\.)*$')
+
+
+def negated_before(prefix):
+    """调用前面紧挨着的 ! 、!( 的个数是奇数：被取反了。"""
+    prefix = CHAIN_BEFORE.sub('', prefix)
+    run = re.search(r'[!\s(]*$', prefix).group(0)
+    return run.count('!') % 2 == 1
+
+
+def is_guard(cond, key=None):
+    """条件里有没有一个没被取反的、真正读了系统外观或存储偏好的调用。
+    matchMedia 要带 prefers-color-scheme；getItem( 的键要等于配置里的 theme.storageKey（没配置就不限键）；
+    !x、!(x)、x === null、x == undefined、matches === false 都是取反，不算。"""
+    for m in MEDIA_CALL.finditer(cond):
+        if negated_before(cond[:m.start()]):
+            continue
+        if NEGATED_MEDIA_TAIL.match(cond, m.end()):
+            continue
+        return True
+    item = re.compile(r'''getItem\(\s*["'`]''' + (re.escape(key) if key else r'''[^"'`]*''') + r'''["'`]\s*\)''')
+    for m in item.finditer(cond):
+        if negated_before(cond[:m.start()]):
+            continue
+        if re.match(r'\s*===?\s*(?:null|undefined)', cond[m.end():]):
+            continue
+        return True
+    return False
+
+
 COMMENT = re.compile(r'/\*.*?\*/|<!--.*?-->|(?<![:\\])//[^\n]*', re.S)
 
 
@@ -66,7 +102,7 @@ def last_if(seg):
     return None
 
 
-def block_stack(text, end):
+def block_stack(text, end, key=None):
     """text[:end] 末尾还没关上的花括号块，每块一个标记：是不是由带守卫条件的 if 打开的。字符串里的花括号跳过。"""
     stack, quote, line_start = [], '', 0
     for i in range(end):
@@ -79,29 +115,30 @@ def block_stack(text, end):
             quote = c
         elif c == '{':
             cond = last_if(text[line_start:i])
-            stack.append(bool(cond and not cond[1].strip() and GUARD.search(cond[0])))
+            stack.append(bool(cond and not cond[1].strip() and is_guard(cond[0], key)))
         elif c == '}' and stack:
             stack.pop()
     return stack
 
 
-def guarded(text, p):
+def guarded(text, p, key=None):
     """text[p] 处的根主题写入是否真的包在跟随系统或读存储偏好的条件里。
     认的形态：还没关上的带守卫 if 块里；同一行 if (守卫) 后面没有分号、花括号、else 就接着写；守卫 ? 或 守卫 && 之后写；
     上一行是只有条件的 if (守卫)、这一行以写入开头。当前行以 else 开头、if 块已经关上、守卫只出现在条件之后或注释里，都不算。"""
-    if any(block_stack(text, p)):
+    if any(block_stack(text, p, key)):
         return True
     line_start = text.rfind('\n', 0, p) + 1
     seg = re.sub(r'(?:window\.)?document\.$', '', text[line_start:p])
     cond = last_if(seg)
-    if cond and GUARD.search(cond[0]) and not re.search(r'[;{}]|\belse\b', cond[1]):
+    if cond and is_guard(cond[0], key) and not re.search(r'[;{}]|\belse\b', cond[1]):
         return True
-    if re.search(r'(?:matchMedia|prefers-color-scheme|getItem\()[^;{}]*(?:\?|&&)\s*$', seg):
+    op = re.search(r'(?:\?|&&)\s*$', seg)
+    if op and re.search(r'matchMedia|getItem\(', seg) and is_guard(re.sub(r'[;{}]', ' ', seg[:op.start()]), key):
         return True
     if not seg.strip():
         prev = text[:line_start].rstrip('\n').rsplit('\n', 1)[-1]
         cond = last_if(prev)
-        return bool(cond and GUARD.search(cond[0]) and not cond[1].strip() and re.match(r'\s*(else\s+)?if\b', prev))
+        return bool(cond and is_guard(cond[0], key) and not cond[1].strip() and re.match(r'\s*(else\s+)?if\b', prev))
     return False
 
 
@@ -160,7 +197,7 @@ def check(srcs, cfg):
         body = blank_comments(text)
         for pat in FORCED:
             for m in pat.finditer(body):
-                if pat is FORCED[0] or not guarded(body, m.start()):
+                if pat is FORCED[0] or not guarded(body, m.start(), theme.get('storageKey')):
                     forced.append((body.count('\n', 0, m.start()) + 1, f))
     forced = [f'{f}:{n}' for n, f in sorted(set(forced), key=lambda x: (x[1], x[0]))]
     if forced:

@@ -77,3 +77,5 @@ Poteto 的叶子装在同一处 `.grok/skills/`：`principle-sequence-verifiable
 ## 冲突时以谁为准
 
 用户最新确认的意见（`trace.md`）> 主站 PRD > 设计系统 > 技能 > 代码。发现冲突时改低的一方，并在 `docs/requirements/trace.md` 或 `docs/uiue/decisions.md` 记一笔。
+
+上线前以最新的为准一次改完：样式、画板、文档、票都不保留兼容写法，不让新旧两版并存（`trace.md` 第 96 条）。记录当时情况的历史文件（原话、决定记录、评审报告、修订记录）不算并存，不改。上线后要不要兼容，按当时的线上地址和订阅者另定。

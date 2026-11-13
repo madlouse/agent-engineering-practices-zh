@@ -180,6 +180,8 @@ See clearly
 
 ```allowed-phrases
 「本周文章」改叫
+Get strong. See clearly.
+Get strong、See clearly
 也就是说
 （不是阀值）
 搏击等对抗性运动

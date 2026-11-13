@@ -1,6 +1,8 @@
 # 设计系统
 
-**唯一来源**：Claude Design 里的 Velicoach 设计系统 https://claude.ai/artifact/6JqC3pUJ5GjDvXD2sEMZ5w 。仓库里的 `system/README.md` 和 `system/tokens.json` 是它的副本，供 agent 离线读取；改设计语言先改在线的设计系统，再覆盖这两个文件。
+**唯一来源**：Claude Design 里的 Velicoach 设计系统 https://claude.ai/artifact/6JqC3pUJ5GjDvXD2sEMZ5w 。仓库里的 `system/README.md`、`system/tokens.json` 和 `system/canvas.css` 是它的副本，供 agent 离线读取；改设计语言先改在线的设计系统，再覆盖这三个文件，旧版本不留。
+
+**现在的版本：v1.1，2026-11-12 同步。** 画板是在线画布「Velicoach 主站 · UI v1.1」（https://claude.ai/artifact/8Nx35n8NXRebQn4aapiW9L ），18 块，画板文件不进仓库。v1.1 相对 v1.0 改了什么、每条的理由和放弃的方案，见 [decisions.md](decisions.md)「2026-11-12 · 设计 v1.1」；裁决的依据是 [brief.md](brief.md)（设计简报）和 [reviews/2026-11-12-audit/](reviews/2026-11-12-audit/)（两轮独立评审和汇总）。
 
 ## 它管什么
 
@@ -17,5 +19,8 @@ Veli App 和 Veli 网页版（`/body`、`/app`）以 Veli 设计系统为准。�
 
 - [system/README.md](system/README.md)：品牌手册
 - [system/tokens.json](system/tokens.json)：token
+- [system/canvas.css](system/canvas.css)：画板共用的样式表（token 变量、外壳和组件的类；变量部分由 `tokens.json` 生成）
+- [brief.md](brief.md)：v1.1 的设计简报（两份诊断上的裁决，和复评后的第二轮裁决）
+- [coverage.md](coverage.md)：需求 → 画板覆盖表
 - [prototypes/velicoach-motion.html](prototypes/velicoach-motion.html)：动效原型（three.js r180 WebGPURenderer + TSL），首页「叶与网」的参考实现
 - [decisions.md](decisions.md)：设计决定

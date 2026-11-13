@@ -1,11 +1,11 @@
 # 独立设计诊断 · Velicoach 主站 UI v1.0（对照 PRD v2.0）· 评审 A
 
 日期 2026-11-11。只读：仓库 `feature/v1` 新 clone，画板用 `uiue-diag/local/*.dc.html`。
-证据目录（下文简写）：
-- `S/` = `/tmp/claude-0/-home-claude/b9e68665-1a1a-5bba-80a0-e8161ba32ea6/scratchpad/uiue-diag/shots/`（主会话给的浅色整页图）
-- `C/` = `/tmp/claude-0/-home-claude/b9e68665-1a1a-5bba-80a0-e8161ba32ea6/scratchpad/reviewer-a-ci8k/crops/`（整页图按 900px 切段，1 倍）
-- `R/` = `/tmp/claude-0/-home-claude/b9e68665-1a1a-5bba-80a0-e8161ba32ea6/scratchpad/reviewer-a-ci8k/r/`（我自己渲染的：深色、英文、320×568、390×664、1280×720、展开态、四帧动效）
-- `VC` = `/tmp/claude-0/-home-claude/b9e68665-1a1a-5bba-80a0-e8161ba32ea6/scratchpad/reviewer-a-ci8k/vc/verify-canvas.md`（`verify_canvas.py`，6 块画板 × light/dark/pseudo；注意 `--size` 没生效，桌面画板按 390 宽跑，Main 的 151 条里「挤成竖排」「超出画板」大多是这个假象，下文只引 Mind、Article、States 和 Main 里与宽度无关的条目）
+证据目录（下文简写；都是评审时的临时目录，截图没有进仓库）：
+- `S/` = 评审时的临时目录 `uiue-diag/shots/`（主会话给的浅色整页图）
+- `C/` = 评审 A 的临时目录 `crops/`（整页图按 900px 切段，1 倍）
+- `R/` = 评审 A 的临时目录 `r/`（我自己渲染的：深色、英文、320×568、390×664、1280×720、展开态、四帧动效）
+- `VC` = 评审 A 的临时目录 `vc/verify-canvas.md`（`verify_canvas.py`，6 块画板 × light/dark/pseudo；注意 `--size` 没生效，桌面画板按 390 宽跑，Main 的 151 条里「挤成竖排」「超出画板」大多是这个假象，下文只引 Mind、Article、States 和 Main 里与宽度无关的条目）
 
 coverage.md 已列的 9 项要补、8 项要删，下文不重复，除非我有不同意见（第 3 节标「异议」）。
 

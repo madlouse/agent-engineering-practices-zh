@@ -1,4 +1,12 @@
-/* Velicoach design system · tokens and base classes for the design canvas. Generated from tokens.json. */
+/* Velicoach 设计系统 v1.1（2026-11-12）· 画板共用样式表：token 变量、基础类、外壳和组件的类。全部画板只有这一份样式。
+   变量部分由 tokens.json 生成（gen_canvas_vars.py，@tokens:start 到 @tokens:end 之间不手改）；后面的类手写，只引用 token。
+   页面画板只引用这里的类，<helmet> 里只留 body{margin:0} 和真的只属于那一页的版式（类名 vc-<页名>page-…）；外壳的标准片段见 shell.md。
+   类名：块 vc-xxx，子元素 vc-xxx-yyy，状态 is-xxx（is-open、is-closed、is-done、is-offline、is-scrolled、is-bright、is-tight；is-hover、is-press、is-focus 只给画板上静态展示状态用）。
+   下面这几个不带前缀，是 design-bar 检查脚本（verify_canvas.py）和液态玻璃脚本的约定名，改名会让检查失效：
+     .btn（主按钮、次按钮：首屏主操作、按钮高度、按下和悬停的对比度都按它找）、.opt、.icon-btn、.orb（按下和悬停各算一次对比度）、.seg（语言名不随伪语言加长）、
+     .home（站标回首页）、.mono（首屏要读的字不算它）、.kicker、.row-title（词中断行、孤字成行）、.is-hover、.is-press（状态样式）、.lg 和 .lg-*（液态玻璃的模板和 canvas.js）。 */
+/* @tokens:start */
+/* 由 tokens.json 生成（v1.1 · 2026-11-12），不要手改这一段；改 token 后重新生成。 */
 :root {
   color-scheme: light dark;
   --vc-paper:#f4f2ec;
@@ -11,6 +19,9 @@
   --vc-ink:#17150f;
   --vc-ink-surface:#1d1b15;
   --vc-ink-line:#2e2a22;
+  --vc-band-ink:#17150f;
+  --vc-accent-surface:#1d1b15;
+  --vc-accent-line:#2e2a22;
   --vc-on-ink:#efe8da;
   --vc-on-ink-2:#cfc6b4;
   --vc-on-ink-3:#b0a692;
@@ -22,6 +33,8 @@
   --vc-on-moss-2:rgba(255, 253, 248, 0.78);
   --vc-moss-light:#b9d0b3;
   --vc-amber:#ecc39a;
+  --vc-amber-deep:#8a5a1c;
+  --vc-orb-ring:#b9d0b3;
   --vc-action:#1d1c1a;
   --vc-on-action:#fffdf8;
   --vc-focus:#2f5fb3;
@@ -29,17 +42,8 @@
   --vc-state-hover:rgba(127, 127, 127, 0.12);
   --vc-state-selected:rgba(127, 127, 127, 0.16);
   --vc-state-press:rgba(127, 127, 127, 0.24);
-  --vc-error:#9c3b1e;
-  --opacity-disabled:0.45;
-  --text-max-en:612px;
   --vc-seg-selected:#fffdf8;
-  --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.24), 0 16px 40px -16px rgba(0, 0, 0, 0.42);
-  --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 0 0 1px rgba(30, 28, 22, 0.045), 0 12px 32px -16px rgba(30, 28, 22, 0.2);
-  --shadow-bevel:inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -1px 0 rgba(0, 0, 0, 0.32), 0 1px 2px rgba(20, 18, 14, 0.18), 0 6px 14px -6px rgba(20, 18, 14, 0.32);
-  --shadow-bevel-press:inset 0 2px 3px rgba(0, 0, 0, 0.28), inset 0 0 0 1px rgba(0, 0, 0, 0.12);
-  --shadow-pop:0 0 0 1px rgba(20, 18, 14, 0.06), 0 4px 6px -2px rgba(20, 18, 14, 0.2);
-  --shadow-modal:0 0 0 1px rgba(20, 18, 14, 0.06), 0 20px 20px -8px rgba(20, 18, 14, 0.28);
-  --btn-sheen:linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%);
+  --vc-error:#9c3b1e;
   --space-1:4px;
   --space-2:8px;
   --space-3:12px;
@@ -55,13 +59,25 @@
   --radius-lg:20px;
   --radius-xl:24px;
   --radius-pill:999px;
+  --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 0 0 1px rgba(30, 28, 22, 0.045), 0 12px 32px -16px rgba(30, 28, 22, 0.2);
+  --shadow-bevel:inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -1px 0 rgba(0, 0, 0, 0.32), 0 1px 2px rgba(20, 18, 14, 0.18), 0 6px 14px -6px rgba(20, 18, 14, 0.32);
+  --shadow-bevel-press:inset 0 2px 3px rgba(0, 0, 0, 0.28), inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  --shadow-pop:0 0 0 1px rgba(20, 18, 14, 0.06), 0 4px 6px -2px rgba(20, 18, 14, 0.2);
+  --shadow-modal:0 0 0 1px rgba(20, 18, 14, 0.06), 0 20px 20px -8px rgba(20, 18, 14, 0.28);
+  --lg-blur:2px;
+  --lg-blur-scroll:20px;
   --control-height:44px;
   --control-height-lg:50px;
-  --spine-width:56px;
+  --size-tap-min:44px;
   --content-max:1120px;
   --text-max:640px;
+  --text-max-en:580px;
+  --pop-max:560px;
+  --subbar-max:720px;
   --breakpoint-tablet:744px;
   --breakpoint-desktop:1180px;
+  --breakpoint-nav-compact:360px;
+  --breakpoint-fold-half:860px;
   --gutter-phone:16px;
   --gutter-tablet:32px;
   --gutter-desktop:48px;
@@ -71,17 +87,108 @@
   --duration-fast:150ms;
   --duration-exit:160ms;
   --duration-base:240ms;
-  --duration-spring:420ms;
   --duration-lean:600ms;
   --duration-breath:10000ms;
   --ease-out:cubic-bezier(0.2, 0.8, 0.2, 1);
-  --ease-spring:cubic-bezier(0.34, 1.4, 0.64, 1);
   --ease-in:cubic-bezier(0.4, 0, 1, 1);
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Inter Tight", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Inter Tight", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
-  --font-serif: ui-serif, "New York", "Songti SC", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", Georgia, serif;
-  --font-mono: ui-monospace, "SF Mono", "IBM Plex Mono", Menlo, monospace;
+  --leading-latin:1.45;
+  --opacity-disabled:0.45;
+  --font-display:-apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Inter Tight", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+  --font-sans:-apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", "Inter Tight", system-ui, sans-serif;
+  --font-serif:ui-serif, "New York", "Songti SC", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", Georgia, serif;
+  --font-serif-en:ui-serif, "New York", Georgia, "Songti SC", "Noto Serif SC", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
+  --font-mono:"VC Mono", "PingFang SC", "Noto Sans SC", "Noto Sans CJK SC", "Source Han Sans SC", "Microsoft YaHei", ui-monospace, monospace;
+  --type-hero:80px;
+  --leading-hero:1.08;
+  --weight-hero:700;
+  --tracking-hero:-0.025em;
+  --type-title-1:64px;
+  --leading-title-1:1.12;
+  --weight-title-1:700;
+  --tracking-title-1:-0.02em;
+  --type-title-2:40px;
+  --leading-title-2:1.2;
+  --weight-title-2:700;
+  --tracking-title-2:-0.02em;
+  --type-title-3:24px;
+  --leading-title-3:1.3;
+  --weight-title-3:600;
+  --tracking-title-3:0;
+  --type-metric:56px;
+  --leading-metric:1;
+  --weight-metric:700;
+  --tracking-metric:-0.03em;
+  --type-hero-serif:80px;
+  --leading-hero-serif:1.1;
+  --weight-hero-serif:600;
+  --tracking-hero-serif:-0.01em;
+  --type-title-1-serif:64px;
+  --leading-title-1-serif:1.12;
+  --weight-title-1-serif:600;
+  --tracking-title-1-serif:0;
+  --type-title-2-serif:40px;
+  --leading-title-2-serif:1.25;
+  --weight-title-2-serif:600;
+  --tracking-title-2-serif:0;
+  --type-title-3-serif:24px;
+  --leading-title-3-serif:1.35;
+  --weight-title-3-serif:600;
+  --tracking-title-3-serif:0;
+  --type-lead:19px;
+  --leading-lead:1.7;
+  --weight-lead:400;
+  --tracking-lead:0;
+  --type-body-reading:17px;
+  --leading-body-reading:1.8;
+  --weight-body-reading:400;
+  --tracking-body-reading:0;
+  --type-body:16px;
+  --leading-body:1.7;
+  --weight-body:400;
+  --tracking-body:0;
+  --type-footnote:13px;
+  --leading-footnote:1.5;
+  --weight-footnote:400;
+  --tracking-footnote:0;
+  --type-kicker:13px;
+  --leading-kicker:1.4;
+  --weight-kicker:600;
+  --tracking-kicker:0.06em;
+  --type-meta-mono:13px;
+  --leading-meta-mono:1.4;
+  --weight-meta-mono:400;
+  --tracking-meta-mono:0.04em;
 }
+/* 平板档 744–1179px（breakpoint-tablet、breakpoint-desktop） */
+@media (min-width: 744px) and (max-width: 1179px) { :root {
+  --type-hero:64px;
+  --leading-hero:1.1;
+  --type-hero-serif:64px;
+  --leading-hero-serif:1.1;
+} }
+/* 手机档 < 744px（breakpoint-tablet） */
+@media (max-width: 743px) { :root {
+  --type-hero:44px;
+  --leading-hero:1.15;
+  --type-hero-serif:44px;
+  --leading-hero-serif:1.15;
+  --type-title-1:36px;
+  --leading-title-1:1.2;
+  --type-title-1-serif:36px;
+  --leading-title-1-serif:1.2;
+  --type-title-2:28px;
+  --leading-title-2:1.3;
+  --type-title-2-serif:28px;
+  --leading-title-2-serif:1.3;
+  --type-title-3:20px;
+  --leading-title-3:1.4;
+  --type-title-3-serif:20px;
+  --leading-title-3-serif:1.4;
+  --type-lead:17px;
+  --leading-lead:1.7;
+  --type-metric:40px;
+  --leading-metric:1;
+} }
 /* 主题写在页面里层的 data-theme 上时，:root 也跟着换（:has），body 的背景才不会露出另一套颜色 */
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not(:has([data-theme="light"])) {
   --vc-paper:#121310;
@@ -91,26 +198,17 @@
   --vc-text-2:#c8c6bc;
   --vc-text-3:#9d9b90;
   --vc-moss:#b2cbb6;
-  --vc-ink:#17150f;
-  --vc-ink-surface:#1d1b15;
-  --vc-ink-line:#2e2a22;
-  --vc-on-ink:#efe8da;
-  --vc-on-ink-2:#cfc6b4;
-  --vc-on-ink-3:#b0a692;
-  --vc-cinnabar:#e0784f;
+  --vc-band-ink:#2e2b24;
+  --vc-accent-surface:#2c2d27;
+  --vc-accent-line:#4b4c43;
   --vc-cinnabar-deep:#e0784f;
-  --vc-hero-body:#33302a;
-  --vc-moss-hero:#263b2e;
-  --vc-on-moss:#fffdf8;
-  --vc-on-moss-2:rgba(255, 253, 248, 0.78);
-  --vc-moss-light:#b9d0b3;
-  --vc-amber:#ecc39a;
+  --vc-hero-body:#48443b;
+  --vc-amber-deep:#ecc39a;
   --vc-action:#eeece7;
   --vc-on-action:#191816;
   --vc-focus:#86a9f2;
-  --vc-error:#e0784f;
   --vc-seg-selected:#464740;
-  --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+  --vc-error:#e0784f;
   --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 32px -18px rgba(0, 0, 0, 0.6);
   --shadow-bevel:inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(0, 0, 0, 0.16), 0 1px 2px rgba(0, 0, 0, 0.45), 0 6px 14px -6px rgba(0, 0, 0, 0.6);
   --shadow-bevel-press:inset 0 2px 3px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
@@ -125,149 +223,1012 @@
   --vc-text-2:#c8c6bc;
   --vc-text-3:#9d9b90;
   --vc-moss:#b2cbb6;
-  --vc-ink:#17150f;
-  --vc-ink-surface:#1d1b15;
-  --vc-ink-line:#2e2a22;
-  --vc-on-ink:#efe8da;
-  --vc-on-ink-2:#cfc6b4;
-  --vc-on-ink-3:#b0a692;
-  --vc-cinnabar:#e0784f;
+  --vc-band-ink:#2e2b24;
+  --vc-accent-surface:#2c2d27;
+  --vc-accent-line:#4b4c43;
   --vc-cinnabar-deep:#e0784f;
-  --vc-hero-body:#33302a;
-  --vc-moss-hero:#263b2e;
-  --vc-on-moss:#fffdf8;
-  --vc-on-moss-2:rgba(255, 253, 248, 0.78);
-  --vc-moss-light:#b9d0b3;
-  --vc-amber:#ecc39a;
+  --vc-hero-body:#48443b;
+  --vc-amber-deep:#ecc39a;
   --vc-action:#eeece7;
   --vc-on-action:#191816;
   --vc-focus:#86a9f2;
-  --vc-error:#e0784f;
   --vc-seg-selected:#464740;
-  --shadow-glass:inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px -16px rgba(0, 0, 0, 0.6);
+  --vc-error:#e0784f;
   --shadow-card:inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 32px -18px rgba(0, 0, 0, 0.6);
   --shadow-bevel:inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(0, 0, 0, 0.16), 0 1px 2px rgba(0, 0, 0, 0.45), 0 6px 14px -6px rgba(0, 0, 0, 0.6);
   --shadow-bevel-press:inset 0 2px 3px rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(0, 0, 0, 0.1);
   --shadow-pop:0 0 0 1px rgba(204, 204, 204, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
   --shadow-modal:0 0 0 1px rgba(204, 204, 204, 0.08), 0 20px 20px -8px rgba(0, 0, 0, 0.6);
 }
+/* @tokens:end */
+
+/* ───────── 1. 随版式变的变量（三档：手机 < 744、平板 744–1179、桌面 ≥ 1180；断点来自 breakpoint-tablet、breakpoint-desktop） ───────── */
+:root {
+  --gutter: var(--gutter-desktop);                 /* 当前版式的页面边距 */
+  --vc-edge: max(var(--gutter), calc((100vw - var(--content-max)) / 2)); /* 统一栅格：内容左、右边缘到视口边的距离 */
+  --section-gap: var(--space-9);                   /* 区块之间 */
+  --vc-nav-top: var(--space-4);                    /* 胶囊导航到视口顶的距离 */
+  --vc-sticky-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-2)); /* 吸在导航下面的东西（时代段头、时代索引）的 top */
+  --vc-year-unit: var(--space-2);                  /* 时间线刻度：1 年 = 8px */
+  --font-serif-zh: var(--font-serif);              /* 中文的衬线字体栈；英文内容换成 font-serif-en（见「2. 基础」） */
+  --btn-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 55%);
+}
+@media (max-width: 1179px) { :root { --gutter: var(--gutter-tablet); --section-gap: var(--space-8); } }
+@media (max-width: 743px) { :root { --gutter: var(--gutter-phone); --vc-nav-top: var(--space-2); } }
+/* 随底色变的别名：组件里写 --vc-sub（次要文字）、--vc-faint（辅助文字）、--vc-line（分隔线）、--vc-accent（链接悬停和「当前所在」的强调色）、
+   --vc-leaf（站标叶子）、--vc-status（状态点）、--vc-focus-ctx（焦点圈）、--vc-error-ctx（错误色）、--vc-seg-on 和 --vc-seg-on-text（分段控件选中的一项），放到墨底、苔绿底、强调面上自动换成那一套；
+   再放回纸面（订阅条、展开卡片、纸底导航、卡片）时自动换回来。token 本身（--vc-focus、--vc-error……）不被改写 */
+:root, [data-theme] {
+  --vc-sub: var(--vc-text-2); --vc-faint: var(--vc-text-3); --vc-line: var(--vc-paper-line); --vc-accent: var(--vc-cinnabar-deep);
+  --vc-leaf: var(--vc-moss); --vc-leaf-vein: var(--vc-paper-surface); --vc-status: var(--vc-moss);
+  --vc-focus-ctx: var(--vc-focus); --vc-error-ctx: var(--vc-error);
+  --vc-seg-on: var(--vc-seg-selected); --vc-seg-on-text: var(--vc-text);
+}
+/* 深色底：墨色、苔绿、强调面。焦点换浅的一档（浅色主题下也 ≥ 3:1），错误色换亮朱砂 */
+.vc-band-ink, .vc-nav-ink, .vc-half-mind, .vc-video-frame, .vc-feature, .vc-station-mind, .lg-on-dark {
+  --vc-focus-ctx: var(--vc-focus-on-dark); --vc-error-ctx: var(--vc-cinnabar);
+  --vc-sub: var(--vc-on-ink-2); --vc-faint: var(--vc-on-ink-3); --vc-line: var(--vc-ink-line); --vc-accent: var(--vc-cinnabar);
+  --vc-leaf: var(--vc-moss-light); --vc-leaf-vein: var(--vc-ink-surface); --vc-status: var(--vc-cinnabar);
+}
+.vc-band-moss, .vc-nav-moss, .vc-station-build {
+  --vc-focus-ctx: var(--vc-focus-on-dark); --vc-error-ctx: var(--vc-amber);
+  --vc-sub: var(--vc-on-moss-2); --vc-faint: var(--vc-on-moss-2); --vc-line: color-mix(in srgb, var(--vc-on-moss) 18%, transparent); --vc-accent: var(--vc-amber);
+  --vc-leaf: var(--vc-moss-light); --vc-leaf-vein: var(--vc-moss-hero); --vc-status: var(--vc-amber);
+  --vc-seg-on: var(--vc-on-moss); --vc-seg-on-text: var(--vc-moss-hero);   /* 深色主题下 vc-seg-selected 和苔绿几乎一样（1.0:1），苔绿底上选中的一项用苔绿主按钮的配色，两种主题都是 9.2:1 */
+}
+/* 纸面：深色底上的实色浮层、卡片和玻璃导航，换回纸底那一套 */
+.vc-surface-solid, .vc-pop, .vc-nav-paper, .vc-nav.lg, .vc-card, .vc-station-body, .vc-notice {
+  --vc-sub: var(--vc-text-2); --vc-faint: var(--vc-text-3); --vc-line: var(--vc-paper-line); --vc-accent: var(--vc-cinnabar-deep);
+  --vc-leaf: var(--vc-moss); --vc-leaf-vein: var(--vc-paper-surface); --vc-status: var(--vc-moss);
+  --vc-focus-ctx: var(--vc-focus); --vc-error-ctx: var(--vc-error);
+  --vc-seg-on: var(--vc-seg-selected); --vc-seg-on-text: var(--vc-text);
+}
+
+/* ───────── 2. 基础 ───────── */
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--vc-paper); color: var(--vc-text); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; }
-.navlink { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; min-height: var(--control-height); min-width: var(--control-height); padding: 0 12px; border-radius: var(--radius-pill); text-decoration: none; font-size: 15px; transition: background var(--duration-fast) var(--ease-out); }
-.navlink[aria-current="page"] { background: var(--vc-state-selected); font-weight: 600; }
-.btn { --btn-face: none; display: inline-flex; align-items: center; justify-content: center; gap: 10px; white-space: nowrap; min-height: var(--control-height-lg); padding: 0 24px; border: 0; border-radius: var(--radius-pill); font: inherit; font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer; transition: box-shadow var(--duration-press) var(--ease-out); }
-.btn-action { background-color: var(--vc-action); color: var(--vc-on-action); }
-.btn-on-ink { background-color: var(--vc-on-ink); color: var(--vc-ink); }
-.btn-on-moss { background-color: var(--vc-on-moss); color: var(--vc-moss-hero); }
-/* 实色按钮的边缘光（Polaris 的 bevel 做法）：顶边一道细高光、底边一道暗线、贴身的短影子；按下改成内凹 */
-.btn-action, .btn-on-ink, .btn-on-moss { --btn-face: var(--btn-sheen); background-image: var(--btn-face); box-shadow: var(--shadow-bevel); }
-.btn-quiet { background: transparent; color: inherit; box-shadow: inset 0 0 0 1px currentColor; }
-.opt { display: flex; align-items: center; justify-content: center; min-height: 48px; border-radius: var(--radius); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line); text-decoration: none; font-size: 15px; font-weight: 500; transition: background var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out); }
-.quick { display: inline-flex; align-items: center; min-height: var(--control-height); font-size: 15px; text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 5px; text-decoration-thickness: 1px; }
-.row-link { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: var(--space-5); align-items: baseline; padding: 18px 0; border-top: 1px solid var(--vc-paper-line); text-decoration: none; }
+/* 页面根节点（每块页面画板的最外层，带 data-theme 和 lang）。吸顶只用 sticky，不用 fixed。--seam 是首页首屏接缝的位置（百分比），倾斜时 62 或 38 */
+.vc-page { --seam-n: 50; --seam: calc(var(--seam-n) * 1%); position: relative; width: 100%; background: var(--vc-paper); color: var(--vc-text); font-family: var(--font-sans); font-size: var(--type-body); line-height: var(--leading-body); }
+.vc-page:lang(en) { line-height: var(--leading-latin); }
+/* 只给读屏的文字（表单标签、跳到正文） */
+.vc-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* 等宽字体只排数字、拉丁字母和符号：font-mono 的第一项 "VC Mono" 用 unicode-range 限定到这些字符（不含空格和间隔号），
+   等宽元素里的中文、空格、间隔号落到后面的正文无衬线字体；中文页里等宽元素不加字距（--vc-mono-track），英文页照 tracking-meta-mono */
+@font-face { font-family: "VC Mono"; src: local("SF Mono"), local("SFMono-Regular"), local("Menlo"), local("IBM Plex Mono"), local("Consolas"), local("Roboto Mono"), local("Droid Sans Mono"), local("DejaVu Sans Mono"), local("Liberation Mono"); unicode-range: U+0021-007E, U+00A1-00B6, U+00B8-024F, U+2010-2015, U+2212; }
+:root, :lang(en) { --vc-mono-track: var(--tracking-meta-mono); }
+:lang(zh-CN) { --vc-mono-track: 0em; }
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-.kicker { font-size: 13px; letter-spacing: .06em; font-weight: 500; }
-.seg { display: inline-flex; padding: 0; border-radius: var(--radius-pill); background: var(--vc-state-hover); }
-.seg a, .seg button { display: inline-flex; align-items: center; justify-content: center; min-height: var(--control-height); min-width: var(--control-height); padding: 0 12px; border: 3px solid transparent; background-clip: padding-box; border-radius: var(--radius-pill); background-color: transparent; color: inherit; font: inherit; font-size: 14px; text-decoration: none; cursor: pointer; }
-.seg [aria-current="true"], .seg [aria-pressed="true"] { background-color: var(--vc-seg-selected); color: var(--vc-text); font-weight: 600; }
-.seg-on-ink { background: var(--vc-state-hover); }
-.icon-btn { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); border: 0; border-radius: var(--radius-pill); color: inherit; cursor: pointer; }
-.icon-btn:not(.lg):not([class*="surface"]) { background-color: transparent; }
-.field { min-height: var(--control-height); min-width: 0; padding: 0 16px; border: 1px solid var(--vc-paper-line); border-radius: var(--radius-pill); background: var(--vc-paper-surface); color: var(--vc-text); font: inherit; font-size: 16px; }
-.field::placeholder { color: var(--vc-text-3); }
-.field[aria-invalid="true"] { border-color: var(--vc-error); }
-.msg-error { color: var(--vc-error); font-size: 14px; }
-.notice { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line); font-size: 15px; }
-.skeleton { display: block; border-radius: var(--radius-sm); background: var(--vc-state-selected); }
+.vc-serif { font-family: var(--font-serif); }
+/* 不拆开的一小段（脚注编号和它前面的词） */
+.vc-nowrap { white-space: nowrap; }
+/* 英文内容：衬线换成西文衬线在前的一组（font-serif-en）；轮到中文字体来画西文时，弯引号、撇号用比例宽度的字形，不占一个汉字宽。
+   英文页里的中文内容（lang="zh-CN"，例如暂无英文版的正文）换回中文的一组 */
+:lang(en) { --font-serif: var(--font-serif-en); font-variant-east-asian: proportional-width; }
+:root :lang(zh-CN) { --font-serif: var(--font-serif-zh); font-variant-east-asian: normal; }
 
-/* 交互状态（设计系统「状态」）：悬停叠一层 state-hover，按下叠 state-press、内容下移 1px（不缩放），焦点是 2px 焦点色外圈。
+/* ───────── 3. 统一栅格 ─────────
+   .vc-container：所有页面的内容容器，放在通栏的块上（色带、区块、页脚），左右内边距 = max(gutter, (100vw − content-max) / 2)。
+   1440 宽时内容左边缘在 160px，1180 宽 48px，820 宽 32px，390 宽 16px；各画板不另写边距。 */
+.vc-container { padding-inline: var(--vc-edge); }
+/* 首页首屏两半对到同一条栅格：左半内容的左边缘 = 容器左边缘；右半内容的左边缘 = 接缝右侧一个 gutter（Main、Tablet、Fold 的两半用） */
+.vc-half-start { padding-inline: var(--vc-edge) var(--gutter); }
+.vc-half-end { padding-inline: var(--gutter) var(--vc-edge); }
+/* 区块：上下留 section-gap（桌面 96、平板和手机 64）。同一页里论点、证据这类不同分量的区块用 .vc-section-tight 收一档 */
+.vc-section { padding-block: var(--section-gap); }
+.vc-section-tight { padding-block: var(--space-7); }
+/* 紧接着下一个区块、中间不再留一段：加 .vc-section-flush 去掉下内边距 */
+.vc-section-flush { padding-bottom: 0; }
+/* 正文加右栏（看清的时代索引）：.vc-with-aside > 正文 + aside。桌面右栏 240px，拉到和正文一样高（里面的索引才吸得住）；平板和手机只剩一列，右栏收起 */
+.vc-with-aside { display: grid; grid-template-columns: minmax(0, 1fr) var(--sidenote-width); gap: var(--space-8); align-items: start; }
+.vc-with-aside > aside { align-self: stretch; }
+@media (max-width: 1179px) { .vc-with-aside { grid-template-columns: minmax(0, 1fr); } .vc-with-aside > aside { display: none; } }
+
+/* ───────── 4. 字号阶梯：8 级加 metric，类名 = vc-type- 加 token 名；手机、平板档由变量自动切换 ─────────
+   80 hero · 64 title-1 · 40 title-2 · 24 title-3 · 19 lead · 17 body-reading · 16 body · 13 footnote / kicker / meta-mono；metric 56。
+   手机 44 · 36 · 28 · 20 · 17 · 17 · 16 · 13，metric 40；平板只有 hero 降到 64。阶梯以外的字号不出现。 */
+:is(.vc-type-hero, .vc-type-hero-serif, .vc-type-title-1, .vc-type-title-1-serif, .vc-type-title-2, .vc-type-title-2-serif, .vc-type-title-3, .vc-type-title-3-serif) { margin: 0; text-wrap: balance; }
+.vc-type-hero { font-family: var(--font-display); font-size: var(--type-hero); line-height: var(--leading-hero); font-weight: var(--weight-hero); letter-spacing: var(--tracking-hero); }
+.vc-type-hero-serif { font-family: var(--font-serif); font-size: var(--type-hero-serif); line-height: var(--leading-hero-serif); font-weight: var(--weight-hero-serif); letter-spacing: var(--tracking-hero-serif); }
+.vc-type-title-1 { font-family: var(--font-display); font-size: var(--type-title-1); line-height: var(--leading-title-1); font-weight: var(--weight-title-1); letter-spacing: var(--tracking-title-1); }
+.vc-type-title-1-serif { font-family: var(--font-serif); font-size: var(--type-title-1-serif); line-height: var(--leading-title-1-serif); font-weight: var(--weight-title-1-serif); }
+.vc-type-title-2 { font-family: var(--font-display); font-size: var(--type-title-2); line-height: var(--leading-title-2); font-weight: var(--weight-title-2); letter-spacing: var(--tracking-title-2); }
+.vc-type-title-2-serif { font-family: var(--font-serif); font-size: var(--type-title-2-serif); line-height: var(--leading-title-2-serif); font-weight: var(--weight-title-2-serif); }
+.vc-type-title-3 { font-family: var(--font-display); font-size: var(--type-title-3); line-height: var(--leading-title-3); font-weight: var(--weight-title-3); }
+.vc-type-title-3-serif { font-family: var(--font-serif); font-size: var(--type-title-3-serif); line-height: var(--leading-title-3-serif); font-weight: var(--weight-title-3-serif); }
+/* 数字卡的大字：无衬线、等宽数字，不用等宽字体（等宽字体会把中文字距拉开） */
+.vc-type-metric { margin: 0; font-family: var(--font-display); font-size: var(--type-metric); line-height: var(--leading-metric); font-weight: var(--weight-metric); letter-spacing: var(--tracking-metric); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vc-type-lead { margin: 0; font-size: var(--type-lead); line-height: var(--leading-lead); text-wrap: pretty; }
+.vc-type-body-reading { margin: 0; font-size: var(--type-body-reading); line-height: var(--leading-body-reading); text-wrap: pretty; }
+.vc-type-body { margin: 0; font-size: var(--type-body); line-height: var(--leading-body); text-wrap: pretty; }
+.vc-type-footnote { margin: 0; font-size: var(--type-footnote); line-height: var(--leading-footnote); }
+/* 眉标 .kicker、等宽元信息 .vc-type-meta-mono：和脚注同号（13），靠字重、字体和字距区分。眉标一屏最多一行 */
+.kicker { margin: 0; font-size: var(--type-kicker); line-height: var(--leading-kicker); font-weight: var(--weight-kicker); letter-spacing: var(--tracking-kicker); }
+.vc-type-meta-mono { margin: 0; font-family: var(--font-mono); font-size: var(--type-meta-mono); line-height: var(--leading-meta-mono); letter-spacing: var(--vc-mono-track); font-variant-numeric: tabular-nums; }
+:is(.vc-type-lead, .vc-type-body-reading, .vc-type-body):lang(en) { line-height: var(--leading-latin); }
+.vc-sub { color: var(--vc-sub); }
+.vc-faint { color: var(--vc-faint); }
+
+/* ───────── 5. 首屏色带（三站的身份）：分站首屏用，里面放 .vc-container。上内边距给胶囊导航让出位置 ─────────
+   纸 .vc-band-paper（站稳、404、关于）、墨 .vc-band-ink（看清首页、学习路径）、苔绿 .vc-band-moss（动手、项目页）。文章页和单条开发日志没有色带，首屏是纸底 */
+.vc-band { position: relative; padding-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-8)); padding-bottom: var(--space-7); }
+.vc-band-paper { background: var(--vc-hero-body); color: var(--vc-text); }
+.vc-band-ink { --vc-line: var(--vc-accent-line); background: var(--vc-band-ink); color: var(--vc-on-ink); }
+.vc-band-moss { background: var(--vc-moss-hero); color: var(--vc-on-moss); }
+/* 深色主题下墨色、苔绿的色带要和页面底色分得开：墨色色带高一档（vc-band-ink 对页面底 1.32:1；vc-ink 只有 1.02:1），里面的分隔线跟着换成 vc-accent-line；
+   两种色带底边都加 1px vc-accent-line（对页面底 2.1:1）。浅色主题下 vc-band-ink 就是 vc-ink，vc-accent-line 就是 vc-ink-line，看上去没有变化 */
+.vc-band-ink, .vc-band-moss, .vc-hero { box-shadow: inset 0 -1px 0 var(--vc-accent-line); } /* 首页首屏的墨色一半在深色下和页面底几乎同色，和色带一样靠底边这条线分开 */
+/* 色带里的内容块：.vc-container.vc-band-body，子元素竖排、间距 16。
+   子元素按这个顺序取用：[nav.vc-crumb] + [p.kicker] + h1 + p.vc-type-lead（最宽 text-max，英文 text-max-en）+ [.vc-band-switch | dl.vc-facts | a.btn] + [这一页的数据图]。
+   主按钮不拉满（手机上整宽）；面包屑上下各收回一点，它 44px 的点按高度不把标题推远 */
+.vc-band-body { display: grid; gap: var(--space-4); }
+.vc-band-body > .vc-type-lead { max-width: var(--text-max); }
+.vc-band-body > .vc-type-lead:lang(en) { max-width: var(--text-max-en); }
+.vc-band-body > .kicker { color: var(--vc-sub); }
+.vc-band-body > .btn { justify-self: start; }
+.vc-band-body > .vc-crumb { margin: calc(-1 * var(--space-3)) 0 calc(-1 * var(--space-2)); }
+/* 色带里的一行控件（内容线的分段控件，旁边可以放一个文字入口）：.vc-band-switch > .seg.vc-seg-tabs + [a.vc-quick] */
+.vc-band-switch { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); padding-top: var(--space-4); }
+/* 网络断开的提示（首页以外的页面）：导航下方一条实色提示，吸在导航下面、隔 16px，不挤版面；它下面的色带加 .is-offline，多留一段给它。
+   .vc-offline > p.vc-notice[role=status]（图标 + 一句话），放在导航后面、色带前面。首页的提示在首屏里（.vc-hero-notice） */
+.vc-offline { position: sticky; top: calc(var(--vc-sticky-top) + var(--space-2)); z-index: 20; display: flex; justify-content: center; height: 0; padding-inline: var(--gutter); }
+.vc-offline .vc-notice { align-self: flex-start; margin: 0; max-width: var(--subbar-max); box-shadow: 0 0 0 1px var(--vc-paper-line), var(--shadow-pop); }
+.vc-band.is-offline { padding-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-8) + var(--space-8) + var(--space-2)); }
+@media (max-width: 743px) {
+  .vc-band { padding-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-6)); padding-bottom: var(--space-6); }
+  .vc-band.is-offline { padding-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-6) + var(--space-10) + var(--space-2)); }
+  .vc-band-body > .btn { justify-self: stretch; }
+}
+
+/* ───────── 6. 控件 ───────── */
+/* 导航项 a.vc-nav-link：44px 高，当前页 aria-current="page" */
+.vc-nav-link { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; min-height: var(--control-height); min-width: var(--control-height); padding: 0 var(--space-3); border-radius: var(--radius-pill); text-decoration: none; font-size: var(--type-body); transition: background var(--duration-fast) var(--ease-out); }
+.vc-nav-link[aria-current="page"] { background: var(--vc-state-selected); font-weight: 600; }
+/* 主按钮三种（一个区域一个）：纸底 .vc-btn-action、墨底和强调面 .vc-btn-on-ink、苔绿底 .vc-btn-on-moss；次按钮 .vc-btn-quiet（描边，订阅条的「订阅」、和主按钮并排的第二选择）。都写成 class="btn vc-btn-…"，50px 高，文字一行 */
+.btn { --btn-face: none; display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); white-space: nowrap; min-height: var(--control-height-lg); padding: 0 var(--space-5); border: 0; border-radius: var(--radius-pill); font: inherit; font-size: var(--type-body); line-height: 1; font-weight: 600; text-decoration: none; cursor: pointer; transition: box-shadow var(--duration-press) var(--ease-out); }
+.vc-btn-action { background-color: var(--vc-action); color: var(--vc-on-action); }
+.vc-btn-on-ink { background-color: var(--vc-on-ink); color: var(--vc-ink); }
+.vc-btn-on-moss { background-color: var(--vc-on-moss); color: var(--vc-moss-hero); }
+/* 实色按钮的边缘光（Polaris 的 bevel 做法）：顶边一道细高光、底边一道暗线、贴身的短影子；按下改成内凹 */
+.vc-btn-action, .vc-btn-on-ink, .vc-btn-on-moss { --btn-face: var(--btn-sheen); background-image: var(--btn-face); box-shadow: var(--shadow-bevel); }
+.vc-btn-quiet { background: transparent; color: inherit; box-shadow: inset 0 0 0 1px currentColor; }
+/* 文字入口 a.vc-quick：快捷入口、页内跳转、行尾的「读原文」。下划线文字，44px 高、至少 44px 宽；13px 的加 .vc-quick-small */
+.vc-quick { display: inline-flex; align-items: center; min-height: var(--size-tap-min); min-width: var(--size-tap-min); font-size: var(--type-body); text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 5px; text-decoration-thickness: 1px; }
+.vc-quick-small { font-size: var(--type-footnote); }
+/* 分段控件 .seg：语言、外观（13px）；内容线切换加 .vc-seg-tabs（16px）。里面是 a 或 button。
+   选中的一项标 aria-current="true|page"、aria-pressed="true" 或 aria-selected="true"，实色面加粗；面的颜色随底色变（--vc-seg-on） */
+.seg { display: inline-flex; padding: 0; border-radius: var(--radius-pill); background: var(--vc-state-hover); font-size: var(--type-footnote); }
+.seg a, .seg button { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; min-height: var(--control-height); min-width: var(--control-height); padding: 0 var(--space-3); border: 3px solid transparent; background-clip: padding-box; border-radius: var(--radius-pill); background-color: transparent; color: inherit; font: inherit; font-size: inherit; font-weight: 500; line-height: 1; text-decoration: none; cursor: pointer; }
+.seg :is([aria-current="true"], [aria-current="page"], [aria-pressed="true"], [aria-selected="true"]) { background-color: var(--vc-seg-on); color: var(--vc-seg-on-text); font-weight: 600; }
+.vc-seg-tabs { font-size: var(--type-body); }
+.vc-seg-tabs a, .vc-seg-tabs button { padding: 0 var(--space-4); }
+/* 手机上内容线切换整宽、两项等分；最长的语言一行放不下时折成两行，不裁字（内容线的两项用 <a>，地址跟着变） */
+@media (max-width: 743px) {
+  .vc-seg-tabs { display: flex; width: 100%; }
+  .vc-seg-tabs a, .vc-seg-tabs button { flex: 1 1 0; min-width: 0; padding: var(--space-1) var(--space-2); white-space: normal; text-align: center; line-height: 1.2; }
+}
+/* 图标按钮 button.icon-btn：只给通行图标（暂停、播放、关闭），44×44，必须有 aria-label */
+.icon-btn { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); padding: 0; border: 0; border-radius: var(--radius-pill); color: inherit; cursor: pointer; }
+.icon-btn:not(.lg):not([class*="surface"]) { background-color: transparent; }
+/* 输入框 input.vc-field、错误说明 p.vc-error、提示条 .vc-notice（图标 + 一句话；两种排法见「9. 内容组件」）、骨架块 span.vc-skeleton（宽高写在 style 里） */
+.vc-field { min-height: var(--control-height); min-width: 0; padding: 0 var(--space-4); border: 1px solid var(--vc-paper-line); border-radius: var(--radius-pill); background: var(--vc-paper-surface); color: var(--vc-text); font: inherit; font-size: var(--type-body); }
+.vc-field::placeholder { color: var(--vc-text-3); }
+.vc-field[aria-invalid="true"] { border-color: var(--vc-error-ctx); }
+.vc-error { margin: 0; color: var(--vc-error-ctx); font-size: var(--type-footnote); line-height: var(--leading-footnote); }
+.vc-notice { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line); font-size: var(--type-body); }
+.vc-skeleton { display: block; border-radius: var(--radius-sm); background: var(--vc-state-selected); }
+/* 实色浮层面：订阅条、RSS 行、原地展开的卡片、纸底导航用 vc-surface-solid；压在平涂墨色上的浮动控件（暂停按钮）用 vc-surface-ink（V5：平涂底色上不用玻璃） */
+.vc-surface-solid { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line), var(--shadow-pop); }
+.vc-surface-ink { background-color: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-ink-line); }
+/* 「动手」圆（Main、Tablet、Mobile、Fold）：实色苔绿主按钮加一圈 1px 亮边 vc-orb-ring，背后是两块平涂，不用玻璃。尺寸、位置各页自己定。
+   亮边对墨色 11:1、对深色的暗纸 5.9:1；没有它圆对墨色只有 1.5:1 */
+.orb { --orb-lift: linear-gradient(rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.14)); background-color: var(--vc-moss-hero); color: var(--vc-on-moss); box-shadow: inset 0 0 0 1px var(--vc-orb-ring), var(--shadow-bevel); text-decoration: none; padding: 0; transition: box-shadow var(--duration-press) var(--ease-out), left var(--duration-lean) var(--ease-out); }
+/* 原地展开的卡片（「开始训练」）：挂在触发按钮外面一层 .vc-pop-anchor 上，叠在上面不挤版面；默认在按钮下方，下方会压到别的入口时由宿主改位置（首页首屏在按钮右边同一行展开）。
+   必须的子结构：.vc-pop[data-pop] > .vc-pop-opts > a.opt …，可加一行 .vc-pop-note。选项始终在 DOM 里，每个是真链接；收起时加 .is-closed（只是不显示） */
+.vc-pop-anchor { position: relative; display: inline-flex; }
+.vc-pop { position: absolute; left: 0; top: calc(100% + var(--space-2)); z-index: 40; display: grid; gap: var(--space-3); width: max-content; max-width: min(var(--pop-max), calc(100vw - 2 * var(--gutter))); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line), var(--shadow-modal); }
+.vc-pop.is-closed { display: none; }
+.vc-pop-opts { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--space-2); }
+.vc-pop-note { margin: 0; font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-text-2); text-wrap: pretty; }
+@media (max-width: 743px) { .vc-pop-opts { grid-auto-flow: row; } }
+/* 选项（展开卡片里的一项，或触屏上直接摆出的去处）：48px 高，写「方式 + 结果」（「用 Google 开始训练」） */
+.opt { display: flex; align-items: center; justify-content: center; white-space: nowrap; min-height: var(--space-7); padding: 0 var(--space-4); border-radius: var(--radius); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line); text-decoration: none; font-size: var(--type-body); font-weight: 500; transition: background var(--duration-fast) var(--ease-out); }
+/* 状态点加文字（项目的「开发中」）：胶囊只给真正的状态，这里是一个点加字，不只靠颜色 */
+.vc-status { display: inline-flex; align-items: center; gap: var(--space-2); margin: 0; font-size: var(--type-footnote); line-height: var(--leading-footnote); font-weight: 600; }
+.vc-status::before { content: ""; width: var(--space-2); height: var(--space-2); border-radius: 50%; background: var(--vc-status); }
+
+/* ───────── 7. 外壳：导航 ─────────
+   每个页面顶部只有这一条。结构：.vc-nav-wrap（.vc-page 的直接子元素，吸顶）> header.vc-nav.vc-nav-{paper|ink|moss}
+     > a.home（叶子 svg + .vc-wordmark）+ nav.vc-nav-links > a.vc-nav-link ×3 + .seg.vc-nav-lang + a.vc-lang-one
+   材质：在首屏（背后是平涂色带）用实色：纸底 .vc-nav-paper、墨底 .vc-nav-ink、苔绿底 .vc-nav-moss；滚过首屏、压过正文时换成吸顶玻璃一档：
+     class="vc-nav lg" data-backdrop="scroll" data-lens（深色主题自动换深色玻璃）。
+   窄屏：< 744 收起 Velicoach 字样，只留叶子（叶子仍是回首页的链接，320 宽也不收）；< 360 语言分段控件收成一个按钮「中 / EN」。不用汉堡菜单 */
+.vc-nav-wrap { position: sticky; top: 0; z-index: 30; display: flex; justify-content: center; height: calc(var(--nav-height) + var(--vc-nav-top)); margin-bottom: calc(-1 * (var(--nav-height) + var(--vc-nav-top))); padding: var(--vc-nav-top) var(--gutter) 0; pointer-events: none; }
+.vc-nav { pointer-events: auto; display: flex; align-items: center; gap: var(--space-1); max-width: 100%; height: var(--nav-height); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border-radius: var(--radius-pill); white-space: nowrap; }
+.vc-nav-paper { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line), var(--shadow-pop); }
+.vc-nav-ink { background: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-accent-line), var(--shadow-pop); }
+/* 苔绿实色导航：背后是平涂苔绿，提亮一层（叠 8% 白）和首屏分开。苔绿玻璃超过约 50% 就是实色，不做苔绿玻璃 */
+.vc-nav-moss { background-color: var(--vc-moss-hero); background-image: linear-gradient(rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.08)); color: var(--vc-on-moss); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--shadow-pop); }
+.vc-nav .home { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--control-height); min-width: var(--control-height); padding-right: var(--space-2); text-decoration: none; color: inherit; }
+.vc-wordmark { font-family: var(--font-display); font-size: var(--type-body); font-weight: 700; letter-spacing: -0.01em; }
+.vc-leaf-body { fill: var(--vc-leaf); }
+.vc-leaf-vein { stroke: var(--vc-leaf-vein); }
+.vc-nav-links { display: flex; gap: 2px; }
+.vc-lang-one { display: none; align-items: center; justify-content: center; gap: var(--space-1); min-height: var(--control-height); min-width: var(--control-height); padding: 0 var(--space-2); border: 0; border-radius: var(--radius-pill); background-color: var(--vc-state-hover); color: inherit; font: inherit; font-size: var(--type-footnote); text-decoration: none; cursor: pointer; }
+@media (max-width: 743px) {
+  .vc-nav { padding: var(--space-1); gap: 0; }
+  .vc-nav-lang a { padding: 0 var(--space-2); }   /* 手机上语言控件收紧，文字加长 35% 时导航在 390 宽里也放得下 */
+  .vc-wordmark { display: none; }
+  .vc-nav .home { padding-right: 0; }
+  .vc-nav .vc-nav-link { padding: 0 var(--space-2); }
+}
+/* breakpoint-nav-compact 360px */
+@media (max-width: 359px) {
+  .vc-nav-lang { display: none; }
+  .vc-lang-one { display: inline-flex; }
+  .vc-nav .vc-nav-link { padding: 0 6px; }
+}
+
+/* ───────── 8. 外壳：页脚、页底订阅、订阅条、RSS 行 ───────── */
+/* 页脚（每页同一个）：footer.vc-footer.vc-container > nav.vc-footer-links > a ×8（关于、联系、版权与转载、隐私政策、健康数据政策、健康免责、服务条款、RSS）
+     + .vc-footer-tools > .seg（外观：自动 / 浅色 / 深色）+ .seg（语言：中文 / EN）+ p.vc-footer-note（最后一行「威利不是医生……」）。
+   桌面：链接一行在左、两个分段控件在右；平板：链接折行，控件另起一行；手机：链接排两列、每行 44px，两个控件各占一行、整宽 */
+.vc-footer { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-4) var(--space-6); align-items: start; padding-top: var(--space-6); padding-bottom: var(--space-8); border-top: 1px solid var(--vc-paper-line); color: var(--vc-text-2); font-size: var(--type-footnote); line-height: var(--leading-footnote); }
+.vc-footer-links { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); }
+/* 链接之间的间距统一 24px；短的链接（「关于」）靠伪元素把点按区域左右各撑 12px，到 44px 以上，相邻两个的点按区域刚好相接、不重叠 */
+.vc-footer-links a { position: relative; display: inline-flex; align-items: center; min-height: var(--size-tap-min); text-decoration: none; }
+.vc-footer-links a::after { content: ""; position: absolute; inset: 0 calc(-1 * var(--space-3)); }
+.vc-footer-tools { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.vc-footer-note { grid-column: 1 / -1; margin: 0; color: var(--vc-text-3); text-wrap: balance; }
+@media (max-width: 1179px) { .vc-footer { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 743px) {
+  .vc-footer-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--space-4); }
+  .vc-footer-links a::after { inset: 0; }
+  .vc-footer-tools { display: grid; gap: var(--space-2); }
+  .vc-footer-tools .seg { display: flex; width: 100%; }
+  .vc-footer-tools .seg :is(a, button) { flex: 1 1 0; }
+}
+/* 订阅的告知：全站同一句，带隐私政策链接。「每周日一封：一读、一练、一个项目。可一键退订。隐私政策」 */
+.vc-sub-note { margin: 0; color: var(--vc-sub); text-wrap: pretty; }
+.vc-sub-note a { color: inherit; white-space: nowrap; }
+/* 句子里的链接（订阅告知里的隐私政策、导语里的「直接告诉我们」、文末小字里的原文和引用地址）：上下各加 6px 内边距，点按区域 ≥ 24px 高（WCAG 2.2 的 2.5.8），行高不变 */
+.vc-sub-note a, .vc-intro a, .vc-colophon p a:not(.vc-quick) { padding-block: calc(var(--space-1) * 1.5); }
+/* 订阅表单（页底订阅和订阅条共用）：form.vc-sub-form > label.vc-sr-only + input.vc-field + button.btn + [p.vc-error]。
+   提交中：按钮文字「正在订阅」并禁用、宽度不变；失败：input 加 aria-invalid="true"，下面一行 .vc-error 说原因，邮箱不清空 */
+.vc-sub-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2) var(--space-3); margin: 0; }
+.vc-sub-form .vc-field { min-height: var(--control-height-lg); }
+.vc-sub-form .vc-error { grid-column: 1 / -1; }
+/* 订阅成功：原位换成这一行（role="status"）：「已订阅，每周日见」 */
+.vc-sub-done { display: flex; align-items: center; gap: var(--space-2); min-height: var(--control-height-lg); margin: 0; font-weight: 600; color: var(--vc-text); }
+/* 页底订阅（订阅的上线开关开着时每页都有，放在页脚前面；关着时整块不渲染）：
+   section.vc-subscribe.vc-container > .vc-subscribe-text（h2.vc-type-title-3 + p.vc-sub-note）+ form.vc-sub-form（主按钮 .vc-btn-action）。桌面、平板两栏，手机单列、输入框和按钮整宽 */
+.vc-subscribe { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-5) var(--space-8); align-items: center; padding-block: var(--space-8); border-top: 1px solid var(--vc-paper-line); }
+.vc-subscribe-text { display: grid; gap: var(--space-2); }
+@media (max-width: 743px) {
+  .vc-subscribe { grid-template-columns: minmax(0, 1fr); padding-block: var(--space-7); }
+  .vc-subscribe .vc-sub-form { grid-template-columns: minmax(0, 1fr); }
+  /* 出错的说明贴在输入框下面、按钮上面（错误靠近出错的字段） */
+  .vc-subscribe .vc-sub-form .vc-error { order: 1; }
+  .vc-subscribe .vc-sub-form .btn { order: 2; }
+}
+/* 订阅条（首页首屏底部一行；开关开着时）：实色面，贴底放、向上展开，不挤版面。
+   收起：.vc-subbar.vc-surface-solid > p.vc-sub-note + button.btn.vc-btn-quiet[aria-expanded="false"]（「订阅」）
+   展开：.vc-subbar.vc-surface-solid.is-open > p.vc-sub-note + button.icon-btn（收起）+ form.vc-sub-form（提交按钮也用 .vc-btn-quiet：首屏的实色主按钮只有两半各一个）
+   成功：.vc-subbar.vc-surface-solid.is-done > p.vc-sub-done。宽度最多 subbar-max，手机上整宽、告知折两行 */
+.vc-subbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-2) var(--space-4); width: fit-content; max-width: min(100%, var(--subbar-max)); min-height: var(--nav-height); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-5); border-radius: var(--radius-xl); font-size: var(--type-footnote); line-height: var(--leading-footnote); }
+.vc-subbar .btn { min-height: var(--control-height); padding: 0 var(--space-4); }
+.vc-subbar.is-open { width: min(100%, var(--subbar-max)); padding: var(--space-2) var(--space-2) var(--space-4) var(--space-5); }
+.vc-subbar.is-open .vc-sub-form { grid-column: 1 / -1; padding-right: var(--space-3); }
+.vc-subbar.is-open .vc-sub-form .vc-field { min-height: var(--control-height); }
+.vc-subbar.is-done { padding: var(--space-1) var(--space-5); }
+.vc-subbar .vc-sub-done { min-height: var(--control-height); }
+@media (max-width: 743px) { .vc-subbar { width: 100%; padding-left: var(--space-4); } .vc-subbar.is-open { padding-left: var(--space-4); } }
+/* 订阅条、RSS 行的槽位：高度固定，条贴底、向上长，展开和换行都不挤动版面。.vc-subbar-slot > .vc-subbar 或 a.vc-rss-row。
+   宿主在槽位上方留出展开后的高度（约 128px），展开的条不压标题、主按钮和快捷入口 */
+.vc-subbar-slot { display: flex; justify-content: center; align-items: flex-end; min-width: 0; height: var(--nav-height); }
+@media (max-width: 743px) { .vc-subbar-slot { height: calc(var(--space-8) + var(--space-2)); } }
+/* RSS 行（订阅的上线开关关着时，首页首屏底部订阅条的位置换成它；和收起的订阅条同高，开关切换时版面不跳）：a.vc-rss-row.vc-surface-solid > svg + 文字「用 RSS 订阅更新」 */
+.vc-rss-row { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--nav-height); padding: 0 var(--space-5); border-radius: var(--radius-xl); font-size: var(--type-body); text-decoration: none; }
+
+/* ───────── 9. 内容组件 ───────── */
+/* 区块标题加导语：.vc-head > h2（或 h3）.vc-type-title-* + [p.vc-type-body]。导语最宽 text-max；下面留 32（手机 24） */
+.vc-head { display: grid; gap: var(--space-3); margin-bottom: var(--space-6); }
+.vc-head p { max-width: var(--text-max); color: var(--vc-sub); }
+@media (max-width: 743px) { .vc-head { margin-bottom: var(--space-5); } }
+/* 独立成段的导语（列表上方的一段说明）：p.vc-type-lead.vc-intro，最宽 text-max，下面留 48 */
+.vc-intro { max-width: var(--text-max); margin: 0 0 var(--space-7); color: var(--vc-sub); }
+.vc-intro a { color: var(--vc-text); }
+/* 通用纸面卡片：.vc-card 只管面（纸面色、20 圆角、24 内边距、卡片影子），里面怎么排由组件自己的类定：
+   数字卡 article.vc-card.vc-study、项目卡 article.vc-card.vc-project、整张可点的卡 a.vc-card.vc-card-link */
+.vc-card { padding: var(--space-5); border-radius: var(--radius-lg); background-color: var(--vc-paper-surface); color: var(--vc-text); box-shadow: var(--shadow-card); }
+/* 事实一行（项目页首屏的状态和产品地址）：dl.vc-facts > div ×n > dt（可以只给读屏：.vc-sr-only）+ dd。每项 44px 高，放不下就折行 */
+.vc-facts { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-5); margin: 0; }
+.vc-facts > div { display: flex; align-items: center; gap: var(--space-2); min-height: var(--size-tap-min); }
+.vc-facts dt { font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-sub); }
+.vc-facts dd { margin: 0; }
+/* 定义列表（项目页「和智能体怎么分工」、关于页「谁在维护」）：dl.vc-deflist > div ×n > dt + dd，每项上面一条线；桌面、平板名称在左（--vc-deflist-term，默认 128px，英文 160px）、说明在右，手机上下排。
+   带序号的加 .vc-deflist-numbered：div > span.vc-deflist-n.mono[aria-hidden] + dt + dd，序号一栏 64px，名称和说明在右栏上下排；名称 19px、说明用阅读正文的字号和版心 */
+.vc-deflist { margin: 0; display: grid; border-bottom: 1px solid var(--vc-line); }
+.vc-deflist > div { display: grid; grid-template-columns: var(--vc-deflist-term, 128px) minmax(0, 1fr); gap: var(--space-1) var(--space-5); padding-block: var(--space-4); border-top: 1px solid var(--vc-line); }
+.vc-deflist:lang(en) { --vc-deflist-term: 160px; }
+.vc-deflist dt { font-weight: 600; }
+.vc-deflist dd { margin: 0; color: var(--vc-sub); text-wrap: pretty; }
+.vc-deflist-numbered { margin-top: var(--space-4); border-bottom: 0; }
+.vc-deflist-numbered > div, .vc-deflist-numbered:lang(en) > div { grid-template-columns: var(--space-8) minmax(0, 1fr); }
+.vc-deflist-n { grid-row: 1 / span 2; font-size: var(--type-meta-mono); line-height: var(--leading-lead); letter-spacing: var(--vc-mono-track); color: var(--vc-accent); }
+.vc-deflist-numbered dt { font-size: var(--type-lead); line-height: 1.45; }
+.vc-deflist-numbered dd { max-width: var(--text-max); font-size: var(--type-body-reading); line-height: var(--leading-body-reading); }
+.vc-deflist-numbered dd:lang(en) { max-width: var(--text-max-en); line-height: var(--leading-latin); }
+@media (max-width: 743px) {
+  .vc-deflist > div, .vc-deflist-numbered > div, .vc-deflist-numbered:lang(en) > div { grid-template-columns: minmax(0, 1fr); }
+  .vc-deflist-n { grid-row: auto; }
+}
+/* 空状态（列表还没有内容）：.vc-empty > p.vc-type-body（发生了什么）+ a.vc-quick（接下来能做什么）。上下各一条线（quality-terms U12） */
+.vc-empty { display: grid; gap: var(--space-2); justify-items: start; padding-block: var(--space-5); border-block: 1px solid var(--vc-line); }
+.vc-empty p { margin: 0; color: var(--vc-sub); }
+/* 编号步骤（动手页首屏「怎么做：四步」）：section.vc-howto > h2.kicker.vc-howto-title + ol.vc-howto-steps > li.vc-howto-step ×4
+     > span.vc-howto-n[aria-hidden]（大数字）+ h3.vc-type-title-3 + p.vc-type-body + [a.vc-quick.vc-quick-small]（对应的开发日志，有才放）
+   桌面一条横线贯穿、四步并排；平板两行两列；手机竖排，数字在左、文字在右。数字是色带里的构图，不另加装饰 */
+.vc-howto { margin-top: var(--space-7); }
+.vc-howto-title { color: var(--vc-sub); }
+.vc-howto-steps { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: var(--space-6); border-top: 1px solid var(--vc-line); }
+.vc-howto-step { display: grid; align-content: start; gap: var(--space-1); padding-top: var(--space-3); min-width: 0; }
+.vc-howto-n { font-family: var(--font-display); font-size: var(--type-title-2); line-height: var(--leading-title-2); font-weight: 400; letter-spacing: var(--tracking-title-2); font-variant-numeric: tabular-nums; color: var(--vc-accent); }
+.vc-howto-step p { margin: 0; color: var(--vc-sub); text-wrap: pretty; }
+.vc-howto-step .vc-quick { justify-self: start; }
+@media (max-width: 1179px) { .vc-howto-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-5); } }
+@media (max-width: 743px) {
+  .vc-howto { margin-top: var(--space-6); }
+  .vc-howto-steps { grid-template-columns: minmax(0, 1fr); row-gap: 0; border-top: 0; }
+  .vc-howto-step { grid-template-columns: var(--space-7) minmax(0, 1fr); column-gap: var(--space-3); padding-block: var(--space-3); border-top: 1px solid var(--vc-line); }
+  .vc-howto-n { grid-row: 1 / span 3; }
+  .vc-howto-step > :not(.vc-howto-n) { grid-column: 2; }
+}
+/* 面包屑（文章页、项目页、学习路径回 /mind）：nav.vc-crumb > a + span[aria-hidden]（/）+ a 或 span（当前所在，不是链接）。
+   每个链接 44px 高；宽度靠左右各 12px 的内边距撑到 ≥ 44px，再用等量的负外边距收回，文字和斜线之间只隔 8px，不因为点按区域多出一段空 */
+.vc-crumb { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-2); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-sub); }
+.vc-crumb a { display: inline-flex; align-items: center; min-height: var(--size-tap-min); margin-inline: calc(-1 * var(--space-3)); padding-inline: var(--space-3); text-decoration: underline; text-decoration-thickness: 1px; }
+
+/* 数字卡（研究卡，首页「证据」一幕，三张：防摔、长寿、情绪）。读法从上到下：主题 → 大数字 → 一句结论（数字在句首）→ 出处 → 研究类型、样本量、证据可信度、产品负责人看过的日期。
+   .vc-study-grid > article.vc-card.vc-study ×3，每张五个子元素，顺序固定（靠 subgrid 让三张的每一行对齐、等高、没有空洞）：
+     h3.vc-study-topic + p.vc-type-metric + p.vc-study-claim + p.vc-study-src（年份 · 期刊或机构 + a.vc-quick「读原文」）+ dl.vc-study-meta > div ×4 > dt + dd（证据可信度只写一个词：高、中、低、很低；看过的日期用 <time datetime>）
+   桌面三列；平板一列三张通栏，每张数字在左、结论和出处在右；手机单列。卡片下面一行 p.vc-study-foot：「这些是人群研究的平均结果，不是对每个人的保证。有伤病或疼痛，先问医生。」 */
+.vc-study-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 var(--space-4); }
+.vc-study { display: grid; grid-row: span 5; grid-template-rows: subgrid; row-gap: 0; }
+.vc-study-topic { margin: 0 0 var(--space-4); font-size: var(--type-kicker); line-height: var(--leading-kicker); font-weight: var(--weight-kicker); letter-spacing: var(--tracking-kicker); color: var(--vc-moss); }
+.vc-study .vc-type-metric { margin-bottom: var(--space-3); color: var(--vc-text); }
+.vc-study-claim { margin: 0 0 var(--space-4); font-size: var(--type-body); line-height: var(--leading-body); text-wrap: pretty; }
+.vc-study-claim:lang(en) { line-height: var(--leading-latin); }
+.vc-study-src { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 var(--space-3); margin: 0; padding-top: var(--space-2); border-top: 1px solid var(--vc-paper-line); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-text-2); }
+.vc-study-src .vc-quick { font-size: var(--type-footnote); color: var(--vc-text); }
+.vc-study-meta { display: grid; gap: var(--space-1); margin: 0; padding-top: var(--space-2); border-top: 1px solid var(--vc-paper-line); font-size: var(--type-footnote); line-height: var(--leading-footnote); }
+.vc-study-meta > div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: var(--space-2); }
+.vc-study-meta:lang(en) > div { grid-template-columns: 8em minmax(0, 1fr); }
+.vc-study-meta dt { color: var(--vc-text-3); }
+.vc-study-meta dd { margin: 0; color: var(--vc-text-2); text-wrap: pretty; }
+.vc-study-foot { margin: var(--space-4) 0 0; font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-text-3); text-wrap: pretty; }
+@media (min-width: 744px) and (max-width: 1179px) {
+  .vc-study-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
+  .vc-study { grid-row: auto; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-rows: auto auto auto 1fr; column-gap: var(--space-6); }
+  .vc-study-topic, .vc-study .vc-type-metric { grid-column: 1; }
+  .vc-study .vc-type-metric { grid-row: 2 / -1; }
+  .vc-study-claim { grid-column: 2; grid-row: 1 / span 2; }
+  .vc-study-src, .vc-study-meta { grid-column: 2; }
+}
+@media (max-width: 743px) { .vc-study-grid { grid-template-columns: minmax(0, 1fr); } .vc-study + .vc-study { margin-top: var(--space-4); } }
+
+/* 整行可点的行（里程碑、开发日志共用）：li.vc-row > a.vc-row-main[aria-labelledby=标题的 id]（整行是一个链接，≥ 44px 高；读屏只读标题一次）
+     > .vc-row-lead（年份；日期用 <time datetime="YYYY-MM-DD">，等宽）+ div.vc-row-body > p.vc-row-kind（类型或项目）+ h3.row-title[id]（标题元素，级别跟着页面：区块 h2、条目 h3；衬线的加 .vc-serif）
+       + p.vc-row-line ×n（每行开头可放 <b> 小标）+ p.vc-row-foot（最后核对 <time>、去处）
+   行里要放第二个去处（学习路径步骤、站内讲解、PR）时，放在链接外面的 p.vc-row-more > a.vc-quick，不套在 a 里；行里提到去处的字用 span.vc-row-go（带下划线，不是链接）。
+   桌面、平板：年份一栏在左（--vc-row-lead，默认 72px；带年份的日期用 112px）；手机：年份在标题上方一行 */
+.vc-rows { list-style: none; margin: 0; padding: 0; }
+.vc-row { border-top: 1px solid var(--vc-line); }
+.vc-row-main { display: grid; grid-template-columns: var(--vc-row-lead, 72px) minmax(0, 1fr); gap: var(--space-1) var(--space-5); min-height: var(--size-tap-min); margin-inline: calc(-1 * var(--space-3)); padding: var(--space-4) var(--space-3); border-radius: var(--radius); text-decoration: none; }
+.vc-row-lead { align-self: start; white-space: nowrap; font-family: var(--font-mono); font-size: var(--type-meta-mono); line-height: var(--leading-lead); letter-spacing: var(--vc-mono-track); font-variant-numeric: tabular-nums; color: var(--vc-accent); }
+.vc-row-body { display: grid; gap: var(--space-1); min-width: 0; }
+.vc-row-body > * { margin: 0; }
+.vc-row-kind { margin: 0; font-family: var(--font-mono); font-size: var(--type-meta-mono); line-height: var(--leading-meta-mono); letter-spacing: var(--vc-mono-track); color: var(--vc-faint); }
+.row-title { margin: 0; font-size: var(--type-lead); line-height: 1.45; font-weight: 600; text-wrap: balance; }
+.row-title:lang(en) { line-height: 1.3; }
+.vc-row-line { font-size: var(--type-body); line-height: var(--leading-body); color: var(--vc-sub); text-wrap: pretty; }
+.vc-row-line:lang(en) { line-height: var(--leading-latin); }
+.vc-row-line b { margin-right: var(--space-2); font-weight: 600; color: var(--vc-text); }
+:is(.vc-band-ink, .vc-band-moss, .vc-half-mind) .vc-row-line b { color: inherit; }
+.vc-row-foot { padding-top: var(--space-1); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-faint); }
+.vc-row-go { text-decoration: underline; text-underline-offset: 4px; color: var(--vc-sub); }
+.vc-row-more { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); margin: calc(-1 * var(--space-2)) 0 var(--space-2); padding-left: calc(var(--vc-row-lead, 72px) + var(--space-5)); }
+.vc-row-more .vc-quick { font-size: var(--type-footnote); }
+@media (max-width: 743px) {
+  .vc-row-main { grid-template-columns: minmax(0, 1fr); }
+  .vc-row-more { padding-left: 0; }
+}
+
+/* 时间线（看清首页的 AI 发展史，按五个时代分段）。不加动效。
+   .vc-timeline > section.vc-era[id] ×5 > .vc-era-bar（h2.vc-era-name + p.vc-era-years + a.vc-quick.vc-quick-small.vc-era-up 回到时代索引，只在没有右栏的手机和平板上显示）
+     + p.vc-era-route（这个时代的路线，一句）+ ol.vc-era-list > li.vc-ms[id=slug] …
+   里程碑默认只有一到两行：li.vc-ms > details.vc-ms-fold[data-expand="inline"] > summary.vc-ms-sum（span.vc-row-lead 年份 + h3.row-title[.vc-serif] 谁、什么 + span.vc-ms-what 一句话）
+     + div.vc-ms-more（p.vc-row-line 为什么是转折 + p.vc-row-foot 类型、最后核对 <time> + p.vc-ms-links > a.vc-quick.vc-quick-small 读原文、跟着学）。
+   整行是开关（summary，键盘可达，≥ 44px 高）；原文和学习路径的链接是真链接，收起时也在 DOM 里。展开把下面的行推开，所以写 data-expand="inline"。
+   刻度：.vc-era-list 左边一条竖线，每个里程碑一个点；li 上写 style="--vc-gap-years: N"（N = 和上一条相差的年数，同一年写 0，每个时代的第一条不写），
+     行前按 1 年 8px 留出间隔、最多 96px。收起的行约 72px 高，相差 10 年的两条点距是相差 1 年的 1.5 倍以上：隔得越久，空得越多，后面的年份挤在一起，读列表也看得出路线在加速。
+   时代段头 .vc-era-bar 不吸顶（同一时刻只有一条吸顶栏，docs/uiue/decisions.md 2026-11-05）；桌面右栏是 nav.vc-era-index（吸附，当前时代 aria-current="true"），手机和平板换成时间尺下面的 nav.vc-era-jump */
+.vc-timeline { display: grid; gap: var(--space-8); }
+.vc-era { display: grid; gap: var(--space-3); scroll-margin-top: var(--vc-sticky-top); }
+.vc-era-bar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-4); padding-block: var(--space-2); border-top: 2px solid var(--vc-text); background: var(--vc-paper); }
+.vc-era-name { margin: 0; font-family: var(--font-serif); font-size: var(--type-title-3-serif); line-height: var(--leading-title-3-serif); font-weight: var(--weight-title-3-serif); }
+.vc-era-years { margin: 0; font-family: var(--font-mono); font-size: var(--type-meta-mono); letter-spacing: var(--vc-mono-track); font-variant-numeric: tabular-nums; color: var(--vc-accent); }
+.vc-era-up { display: none; margin-left: auto; }
+.vc-era-route { margin: 0; max-width: var(--text-max); font-size: var(--type-body); line-height: var(--leading-body); color: var(--vc-sub); text-wrap: pretty; }
+.vc-era-route:lang(en) { line-height: var(--leading-latin); }
+.vc-era-list { list-style: none; margin: 0 0 0 var(--space-1); padding: 0 0 0 var(--space-5); border-left: 1px solid var(--vc-line); }
+.vc-ms { position: relative; margin-top: min(calc(var(--vc-gap-years, 0) * var(--vc-year-unit)), var(--space-9)); scroll-margin-top: calc(var(--vc-sticky-top) + var(--space-8)); }
+.vc-ms::before { content: ""; position: absolute; left: calc(-1 * var(--space-5) - 4px); top: calc(var(--space-2) + 0.55em); width: 7px; height: 7px; border-radius: 50%; background: var(--vc-accent); }
+.vc-ms-sum { display: grid; grid-template-columns: var(--vc-row-lead, 72px) minmax(0, 1fr) auto; align-items: start; gap: 0 var(--space-5); min-height: var(--size-tap-min); margin-inline: calc(-1 * var(--space-3)); padding: var(--space-2) var(--space-3); border-radius: var(--radius); list-style: none; cursor: pointer; }
+.vc-ms-sum::-webkit-details-marker { display: none; }
+.vc-ms-sum::after { content: ""; grid-column: 3; grid-row: 1; width: var(--space-2); height: var(--space-2); margin: var(--space-2) var(--space-1) 0 0; border-right: 2px solid var(--vc-faint); border-bottom: 2px solid var(--vc-faint); transform: rotate(45deg); }
+.vc-ms-fold[open] > .vc-ms-sum::after { margin-top: var(--space-3); transform: rotate(-135deg); }
+.vc-ms-sum > .row-title { grid-column: 2; grid-row: 1; }
+.vc-ms-what { grid-column: 2; grid-row: 2; padding-top: 2px; font-size: var(--type-body); line-height: var(--leading-body); color: var(--vc-sub); text-wrap: pretty; }
+.vc-ms-what:lang(en) { line-height: var(--leading-latin); }
+.vc-ms-more { display: grid; gap: var(--space-1); padding: var(--space-1) var(--space-6) var(--space-3) calc(var(--vc-row-lead, 72px) + var(--space-5)); max-width: calc(var(--text-max) + var(--vc-row-lead, 72px) + var(--space-5) + var(--space-6)); }
+.vc-ms-more > * { margin: 0; }
+.vc-ms-links { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); }
+@media (max-width: 1179px) { .vc-era-up { display: inline-flex; } }
+/* breakpoint-nav-compact 360px：最窄的屏上折角不占一栏，标题多出一栏的宽度 */
+@media (max-width: 359px) { .vc-ms-sum { grid-template-columns: var(--vc-row-lead, 72px) minmax(0, 1fr); } .vc-ms-sum::after { display: none; } }
+@media (max-width: 743px) {
+  .vc-ms { --vc-row-lead: var(--space-6); }
+  .vc-era-list { padding-left: var(--space-4); }
+  .vc-ms::before { left: calc(-1 * var(--space-4) - 4px); }
+  .vc-ms-sum { gap: 0 var(--space-3); }
+  /* 手机上收起的行只留年份和「谁、什么」（一到两行），那一句话收进展开的部分：整页控制在 6 屏以内（390×844） */
+  .vc-ms-fold:not([open]) .vc-ms-what { display: none; }
+  .vc-ms-more { padding-left: calc(var(--vc-row-lead) + var(--space-3)); padding-right: 0; }
+}
+/* 时代索引（桌面右栏）：nav.vc-era-index > a ×5 > span（时代名）+ span.mono（起止年份）。每项 44px 高，当前时代 aria-current="true" */
+.vc-era-index { position: sticky; top: var(--vc-sticky-top); display: grid; gap: 2px; }
+.vc-era-index a { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: var(--size-tap-min); padding: 0 var(--space-3); border-radius: var(--radius-sm); text-decoration: none; color: var(--vc-sub); }
+.vc-era-index .mono { font-size: var(--type-meta-mono); color: var(--vc-faint); white-space: nowrap; }
+.vc-era-index a[aria-current="true"] { background: var(--vc-state-selected); color: var(--vc-text); font-weight: 600; }
+.vc-era-index a[aria-current="true"] .mono { color: var(--vc-accent); }
+/* 时代的跳转行（时间尺下面，只在没有右栏的手机和平板上显示，id="eras"，每个时代段头的「时代索引 ↑」回到这里）：nav.vc-era-jump > a ×5。
+   每个是一枚描边的胶囊（44px 高），看得出是能点的一组，不像一段文字；放不下就折行，不横向滚动。桌面用右栏的时代索引 */
+.vc-era-jump { display: none; flex-wrap: wrap; gap: var(--space-2); scroll-margin-top: var(--vc-sticky-top); }
+.vc-era-jump a { display: inline-flex; align-items: center; min-height: var(--size-tap-min); padding: 0 var(--space-4); border-radius: var(--radius-pill); box-shadow: inset 0 0 0 1px var(--vc-line); text-decoration: none; font-size: var(--type-body); }
+@media (max-width: 1179px) { .vc-era-jump { display: flex; } }
+
+/* 数据图（时间尺、套叠图）：只用 token 颜色，不可点，不加动效；整张图是一个 role="img"，aria-label 写出图里的全部信息（文字等价物），里面的元素 aria-hidden。图下一行 p.vc-type-footnote 说怎么读 */
+/* 时间尺（看清首页墨色色带底部，AI 发展史一段）：五格按年数分宽度，圆点是里程碑，看得出路线在加速。
+   .vc-ruler > div[role=img][aria-label] > .vc-ruler-bar > span.vc-ruler-seg ×5（style="flex: 年数 0 0"）> i.vc-ruler-dot ×n（style="left: 百分比"）
+     + .vc-ruler-years > span ×5（起始年份；手机上后两格放不下，加 .is-tight 藏起来，只留前三格的年份）
+   + p.vc-type-footnote.vc-ruler-note + nav.vc-era-jump */
+.vc-ruler { display: grid; gap: var(--space-3); padding-top: var(--space-7); }
+.vc-ruler-bar, .vc-ruler-years { display: flex; gap: 2px; }
+.vc-ruler-bar { height: var(--space-5); }
+.vc-ruler-seg { position: relative; min-width: 0; background: color-mix(in srgb, var(--vc-on-ink) 14%, transparent); }
+.vc-ruler-seg:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.vc-ruler-dot { position: absolute; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: var(--vc-accent); }
+.vc-ruler-years { position: relative; padding-top: var(--space-2); font-size: var(--type-meta-mono); line-height: var(--leading-meta-mono); letter-spacing: var(--vc-mono-track); color: var(--vc-faint); white-space: nowrap; }
+.vc-ruler-years > span { min-width: 0; }
+.vc-ruler-note { max-width: var(--text-max); text-wrap: pretty; }
+@media (max-width: 743px) {
+  .vc-ruler { padding-top: var(--space-6); }
+  .vc-ruler-years .is-tight { visibility: hidden; overflow: hidden; }
+}
+/* 套叠图（看清首页墨色色带底部，人机协作一段）：五层范式，后一层把前一层包在里面，最里面是最早的一层。每层一行：名称在左、出现时间在右。
+   .vc-nest > div.vc-nest-ring[role=img][aria-label] > div.vc-nest-ring ×3（一层套一层）> p.vc-nest-core（最里层）+ p.vc-nest-row …（每行 span + span.mono）；+ p.vc-type-footnote */
+.vc-nest { display: grid; gap: var(--space-3); padding-top: var(--space-7); max-width: var(--text-max); }
+.vc-nest-ring { display: grid; gap: var(--space-1); padding: var(--space-1); border: 1px solid color-mix(in srgb, var(--vc-on-ink) 30%, transparent); border-radius: var(--radius); }
+.vc-nest-ring .vc-nest-ring { border-radius: var(--radius-sm); }
+.vc-nest-row, .vc-nest-core { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 var(--space-3); margin: 0; padding: 0 var(--space-2) 2px; font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-sub); }
+.vc-nest-row .mono, .vc-nest-core .mono { font-size: var(--type-meta-mono); letter-spacing: var(--vc-mono-track); color: var(--vc-faint); }
+.vc-nest-core { padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--vc-on-ink) 14%, transparent); color: var(--vc-on-ink); font-weight: 600; }
+.vc-nest-core .mono { font-weight: 400; color: var(--vc-sub); }
+@media (max-width: 743px) { .vc-nest { padding-top: var(--space-6); } }
+
+/* 分层的内容（看清「人机协作」：工程、团队与组织、个人）：section.vc-layer ×n，层和层之间隔 96（平板、手机 64）；层的标题用 .vc-head。
+   范式行：section.vc-paradigm[id] > .vc-paradigm-head（[p.vc-paradigm-when 出现时间] + h3.vc-era-name 或 h2 + p.vc-paradigm-problem 它解决什么问题 + [p > a.vc-quick.vc-quick-small]）+ ul.vc-card-grid
+   上面一道 2px 的线；桌面左栏讲问题、右栏是卡片，平板和手机上下排 */
+.vc-layer + .vc-layer { margin-top: var(--space-9); }
+.vc-paradigm { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-4) var(--space-6); padding-block: var(--space-5) var(--space-7); border-top: 2px solid var(--vc-text); scroll-margin-top: var(--vc-sticky-top); }
+.vc-paradigm:last-child { padding-bottom: 0; }
+.vc-paradigm-head { display: grid; align-content: start; gap: var(--space-2); }
+.vc-paradigm-head > * { margin: 0; }
+.vc-paradigm-when { font-family: var(--font-mono); font-size: var(--type-meta-mono); line-height: var(--leading-meta-mono); letter-spacing: var(--vc-mono-track); color: var(--vc-accent); }
+.vc-paradigm-problem { color: var(--vc-sub); text-wrap: pretty; }
+@media (max-width: 1179px) {
+  .vc-layer + .vc-layer { margin-top: var(--space-8); }
+  .vc-paradigm { grid-template-columns: minmax(0, 1fr); padding-block: var(--space-4) var(--space-6); }
+}
+/* 整张可点的卡（看清「人机协作」的文章、工具、技能）：ul.vc-card-grid > li[id=slug] > a.vc-card.vc-card-link[aria-labelledby=标题的 id]
+     > p.vc-row-kind（类型 · 语言 · 有没有 3 分钟视频）+ h3|h4.row-title + p.vc-row-line（文章的一句话）或 dl.vc-card-facts > div ×3 > dt + dd（工具、技能：是什么、怎么用、适合谁）+ p.vc-row-foot
+   桌面、平板两列，手机单列；同一行的卡等高，最后一行贴底 */
+.vc-card-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); align-content: start; }
+.vc-card-grid > li { display: grid; scroll-margin-top: var(--vc-sticky-top); }
+/* 一行只有一张卡时占满两列，不留半边空 */
+.vc-card-grid > li:only-child { grid-column: 1 / -1; }
+.vc-card-link { display: grid; align-content: start; gap: var(--space-2); text-decoration: none; }
+.vc-card-link > * { margin: 0; }
+.vc-card-link .vc-row-foot { align-self: end; }
+.vc-card-facts { display: grid; gap: var(--space-2); padding-top: var(--space-1); font-size: var(--type-body); line-height: var(--leading-body); }
+.vc-card-facts:lang(en) { line-height: var(--leading-latin); }
+.vc-card-facts > div { display: grid; gap: 2px; }
+.vc-card-facts dt { font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-faint); }
+.vc-card-facts dd { margin: 0; color: var(--vc-sub); text-wrap: pretty; word-break: normal; }
+@media (max-width: 743px) { .vc-card-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* 学习路径步骤块（/mind/learn）：section.vc-level[id=level-N] > .vc-level-head（h2.vc-level-name + p.vc-level-goal「学完能做到」）+ ol.vc-steps > li.vc-step[id=slug]
+   li.vc-step > .vc-step-head（span.vc-step-n 序号 + h3.vc-step-name > a 名称，链到课程 + p.vc-step-facts 来源 · 形式 · 大概时间）
+     + dl.vc-step-body > div ×3 > dt + dd（为什么学、学到什么程度、怎么检验）+ p.vc-step-foot（相关里程碑的链接、最后核对 <time datetime>）
+   桌面、平板：能扫读的行，左栏名称和事实、右栏三问；手机：每步一块，上下排，不横向滚动 */
+.vc-level { display: grid; gap: var(--space-2); scroll-margin-top: var(--vc-sticky-top); }
+.vc-level + .vc-level { margin-top: var(--space-8); }
+.vc-level-head { display: grid; gap: var(--space-1); padding-bottom: var(--space-3); border-bottom: 2px solid var(--vc-text); }
+.vc-level-name { margin: 0; font-family: var(--font-serif); font-size: var(--type-title-3-serif); line-height: var(--leading-title-3-serif); font-weight: var(--weight-title-3-serif); }
+.vc-level-goal { margin: 0; color: var(--vc-sub); text-wrap: pretty; }
+.vc-steps { list-style: none; margin: 0; padding: 0; }
+.vc-step { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--space-2) var(--space-6); padding-block: var(--space-5); border-bottom: 1px solid var(--vc-line); scroll-margin-top: var(--vc-sticky-top); }
+.vc-step-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 var(--space-3); align-content: start; }
+.vc-step-n { align-self: start; white-space: nowrap; padding-top: 0.7em; font-family: var(--font-mono); font-size: var(--type-meta-mono); line-height: var(--leading-lead); font-variant-numeric: tabular-nums; color: var(--vc-accent); }
+.vc-step-name { margin: 0; font-size: var(--type-lead); line-height: 1.45; font-weight: 600; text-wrap: balance; }
+.vc-step-name a { display: inline-flex; align-items: center; min-height: var(--size-tap-min); min-width: var(--size-tap-min); text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: var(--vc-accent); }
+.vc-step-facts { grid-column: 2; margin: 0; text-wrap: pretty; font-family: var(--font-mono); font-size: var(--type-meta-mono); line-height: var(--leading-footnote); letter-spacing: var(--vc-mono-track); color: var(--vc-faint); }
+.vc-step-body { display: grid; gap: var(--space-2); margin: 0; padding-top: var(--space-2); }
+.vc-step-body > div { display: grid; grid-template-columns: 7em minmax(0, 1fr); gap: var(--space-3); }
+.vc-step-body:lang(en) > div { grid-template-columns: 9em minmax(0, 1fr); }
+.vc-step-body dt { font-weight: 600; }
+.vc-step-body dd { margin: 0; color: var(--vc-sub); text-wrap: pretty; }
+.vc-step-foot { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-4); margin: 0; font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-faint); }
+.vc-step-foot .vc-quick { font-size: var(--type-footnote); color: var(--vc-sub); }
+@media (max-width: 743px) {
+  .vc-step { grid-template-columns: minmax(0, 1fr); }
+  .vc-step-foot { grid-column: 1; }
+  .vc-step-body > div, .vc-step-body:lang(en) > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  /* 手机上三问的小标在内容上面，用小一号的辅助色，不和内容抢 */
+  .vc-step-body dt { font-size: var(--type-footnote); line-height: var(--leading-footnote); font-weight: 400; color: var(--vc-faint); }
+}
+
+/* 四级的路（学习路径页墨色色带底部）：一条线上四个站，每站链到本页的 #level-N，同时是本页的索引。
+   nav.vc-path[aria-label] > a ×4 > span.mono（第几级）+ span.vc-path-name（级名）+ span.vc-path-count（几项）。桌面、平板一行四站，手机两行两列。只用 token 颜色，不加动效 */
+.vc-path { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: var(--space-7); border-top: 1px solid var(--vc-line); }
+.vc-path a { position: relative; display: grid; align-content: start; gap: 2px; min-height: var(--size-tap-min); padding: var(--space-4) var(--space-3) var(--space-2) 0; text-decoration: none; }
+.vc-path a::before { content: ""; position: absolute; top: -4px; left: 0; width: 7px; height: 7px; border-radius: 50%; background: var(--vc-accent); }
+.vc-path .mono { font-size: var(--type-meta-mono); line-height: var(--leading-meta-mono); letter-spacing: var(--vc-mono-track); color: var(--vc-accent); }
+.vc-path-name { font-family: var(--font-serif); font-size: var(--type-title-3-serif); line-height: var(--leading-title-3-serif); font-weight: var(--weight-title-3-serif); overflow-wrap: anywhere; }
+.vc-path-count { font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-faint); }
+@media (max-width: 743px) {
+  .vc-path { margin-top: var(--space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-3); border-top: 0; }
+  .vc-path a { border-top: 1px solid var(--vc-line); }
+}
+/* 开发日志的行（动手页 #devlog、项目页；同一个组件）：li.vc-row.vc-log，结构同「整行可点的行」：日期带年份（2026-11-04）、项目、做了什么（.row-title）、
+   .vc-row-line「分工」「下一步」；PR 或提交的链接放在 p.vc-row-more */
+.vc-log { --vc-row-lead: 112px; }
+
+/* 项目卡（动手页「在做的项目」）：article.vc-card.vc-project > p.vc-status（开发中）+ h3.vc-type-title-3 + p（一句话说明）+ p.vc-project-links > a.vc-quick ×2（看开发日志、打开产品）。
+   .vc-project-grid：桌面三列、平板两列、手机单列 */
+.vc-project-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+.vc-project { display: grid; align-content: start; gap: var(--space-3); }
+.vc-project p { margin: 0; text-wrap: pretty; }
+.vc-project-links { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); }
+@media (max-width: 1179px) { .vc-project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 743px) { .vc-project-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* 强调卡（首页「最新」一幕的最新文章，一页最多一张）：article.vc-feature > p.kicker（最新文章）+ h3.vc-type-title-2-serif + p.vc-type-lead + .vc-feature-actions > a.btn.vc-btn-on-ink（读最新文章）+ p.vc-type-meta-mono（时长 · 3 分钟视频）
+   面用 vc-accent-surface：浅色下是墨色面；深色下比页面底高一档（≥ 1.3:1）并加 1px vc-accent-line 描边 */
+.vc-feature { display: grid; align-content: start; gap: var(--space-4); padding: var(--space-7); border-radius: var(--radius-xl); background: var(--vc-accent-surface); color: var(--vc-on-ink); box-shadow: inset 0 0 0 1px var(--vc-accent-line); }
+.vc-feature .kicker { color: var(--vc-cinnabar); }
+.vc-feature .vc-type-lead { color: var(--vc-on-ink-2); }
+.vc-feature-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); padding-top: var(--space-2); }
+.vc-feature-actions .vc-type-meta-mono { color: var(--vc-on-ink-3); }
+@media (max-width: 743px) { .vc-feature { padding: var(--space-5); } .vc-feature-actions .btn { width: 100%; } }
+
+/* 三站入口小色带（404 用）：.vc-stations > a.vc-station.vc-station-{body|mind|build} > span.vc-station-name + span.vc-station-line。
+   三块就是首页的三种底色；桌面、平板三列，手机上下排。看清、动手两块加 1px vc-accent-line，深色页面上也有边。文章末尾「接着读」的两个去处、关于页的「从哪里开始」也用它 */
+.vc-stations { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+.vc-station { display: grid; align-content: end; gap: var(--space-2); min-height: calc(var(--space-10) + var(--space-6)); padding: var(--space-5); border-radius: var(--radius-lg); text-decoration: none; }
+.vc-station-body { background: var(--vc-hero-body); color: var(--vc-text); box-shadow: inset 0 0 0 1px var(--vc-paper-line), var(--shadow-card); }
+.vc-station-mind { background: var(--vc-ink); color: var(--vc-on-ink); box-shadow: inset 0 0 0 1px var(--vc-accent-line); }
+.vc-station-build { background: var(--vc-moss-hero); color: var(--vc-on-moss); box-shadow: inset 0 0 0 1px var(--vc-accent-line); }
+.vc-station-name { font-family: var(--font-display); font-size: var(--type-title-3); line-height: var(--leading-title-3); font-weight: var(--weight-title-3); }
+.vc-station-mind .vc-station-name { font-family: var(--font-serif); }
+.vc-station-line { font-size: var(--type-body); line-height: var(--leading-body); color: var(--vc-sub); }
+.vc-station-body .vc-station-line { color: var(--vc-text-2); }
+@media (max-width: 743px) { .vc-stations { grid-template-columns: minmax(0, 1fr); } .vc-station { min-height: var(--space-9); } }
+
+/* 阅读页骨架（文章页、单条开发日志、关于页共用；这几页首屏是纸底，导航用纸色一档）：main.vc-container.vc-read > article。
+   正文左边缘 = 容器左边缘。.vc-read-col 是正文版心（中文 640、英文 580），.vc-read-wide 是正文加侧注的宽度（视频、元信息、接着读用），窄屏上都跟着容器收。
+   上面没有色带时自己给导航让出位置；接在纸色色带后面（关于页）时上内边距和下内边距一样。.is-scrolled：画板上模拟滚到正文中段（标题区不画，吸顶的玻璃导航压在正文上） */
+.vc-read { padding-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-7)); padding-bottom: var(--space-8); }
+.vc-band + .vc-read { padding-top: var(--space-8); }
+.vc-read.is-scrolled { padding-top: 0; }
+.vc-read.is-scrolled .vc-read-body { margin-top: 0; }
+.vc-read-col { max-width: var(--text-max); }
+.vc-read-col:lang(en) { max-width: var(--text-max-en); }
+.vc-read-wide { max-width: calc(var(--text-max) + var(--space-7) + var(--sidenote-width)); }
+/* 标题区：header.vc-read-head > h1.vc-type-title-2[-serif]（最宽 18em）+ p.vc-type-lead.vc-read-col（导语）+ div.vc-meta.vc-read-wide；正文 div.vc-prose.vc-read-body 在它下面 48 */
+.vc-read-head { display: grid; gap: var(--space-3); margin-top: var(--space-2); }
+.vc-read-head h1 { max-width: 18em; }
+.vc-read-head .vc-type-lead { color: var(--vc-sub); }
+.vc-read-body { margin-top: var(--space-7); }
+/* 元信息（文章分两组，各一行；单条开发日志一组）：div.vc-meta > dl.vc-meta-row[aria-label] ×n > div > dt + dd，日期用 <time datetime>（等宽）。
+   文章第一组「谁写的、什么时候」：作者、原文日期（带「读原文」）、发布日期；第二组「我们核对了什么」：最后核对、适用于、授权状态、时长。
+   里面的链接见下面「不在句子里的小字链接」 */
+.vc-meta { margin-top: var(--space-3); border-block: 1px solid var(--vc-line); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-sub); }
+.vc-meta-row { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); margin: 0; padding-block: var(--space-2); }
+.vc-meta-row + .vc-meta-row { border-top: 1px solid var(--vc-line); }
+.vc-meta-row > div { display: flex; align-items: baseline; gap: var(--space-2); padding-block: var(--space-1); }
+.vc-meta dt { color: var(--vc-faint); white-space: nowrap; }
+.vc-meta dd { margin: 0; }
+.vc-meta time, .vc-meta .mono { font-family: var(--font-mono); letter-spacing: var(--vc-mono-track); font-variant-numeric: tabular-nums; }
+.vc-meta a { color: var(--vc-accent); }
+/* 不在句子里的小字链接（元信息行里的「读原文」、项目名、PR；正文列表里排在行首的链接；脚注末尾的「回到正文」）：文字和版式不变，
+   点按区域用伪元素撑大，伪元素是链接自己的一部分，点得到。前两种 44px 高、左右各多 8px；脚注的回到正文在句子末尾，撑到 24×24 以上（WCAG 2.2 的 2.5.8） */
+.vc-meta a, .vc-prose li > a, .vc-footnotes a { position: relative; }
+.vc-meta a::after, .vc-prose li > a::after, .vc-footnotes a::after { content: ""; position: absolute; top: 50%; left: calc(-1 * var(--space-2)); right: calc(-1 * var(--space-2)); height: var(--size-tap-min); transform: translateY(-50%); }
+.vc-footnotes a::after { height: var(--space-5); }
+/* 正文里的脚注编号：数字只有 7px 宽，点按区域用伪元素撑到 24×24 以上 */
+.vc-prose sup a::after { content: ""; position: absolute; top: 50%; left: 50%; width: var(--space-5); height: var(--space-5); transform: translate(-50%, -50%); }
+/* 判断块（文章开头「我们的判断」）：section.vc-take.vc-read-col > h2.kicker + p.vc-type-body-reading。左侧 2px 强调色竖线，和引用同一种记号 */
+.vc-take { display: grid; gap: var(--space-2); margin-top: var(--space-6); padding-left: var(--space-4); border-left: 2px solid var(--vc-accent); }
+.vc-take .kicker, .vc-practice .kicker { color: var(--vc-accent); }
+/* 3 分钟视频：figure.vc-video.vc-read-wide > div.vc-video-frame[data-video]（16:9；真实页面里 .vc-video-shot 的位置是 <video>）
+     > div.vc-video-shot（封面：p.kicker + p.vc-video-title；最亮的一帧加 .is-bright）+ span.vc-video-scrim + div.vc-playbar.lg.lg-on-dark[data-backdrop="video"][data-lens]
+   + figcaption（谁的声音、多长）+ details.vc-fold.vc-read-col#transcript（文字稿）。
+   播放条是玻璃（背后是视频画面）：button.icon-btn.vc-playbar-play + span.vc-playbar-label + span.mono（时长）+ span.vc-playbar-space + button.vc-quick.vc-quick-small.vc-playbar-cc（字幕）。
+   播放条下面压暗一段：视频读不出像素，最亮的一帧上白字也够 4.5:1（liquid-glass.md §4） */
+.vc-video { margin: var(--space-6) 0 0; }
+.vc-video-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-lg); background: var(--vc-ink); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-accent-line); }
+.vc-video-shot { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: var(--space-3); padding: 0 var(--space-7) var(--space-8); text-align: center; }
+.vc-video-shot .kicker { color: var(--vc-cinnabar); }
+.vc-video-title { margin: 0; font-family: var(--font-serif); font-size: var(--type-title-2-serif); line-height: var(--leading-title-2-serif); font-weight: var(--weight-title-2-serif); text-wrap: balance; }
+.vc-video-shot.is-bright { background: var(--vc-on-ink); color: var(--vc-ink); }
+.vc-video-shot.is-bright .kicker { color: var(--vc-cinnabar-deep); }
+.vc-video-scrim { position: absolute; inset: auto 0 0 0; height: 45%; pointer-events: none; background: linear-gradient(to top, color-mix(in srgb, var(--vc-ink) 72%, transparent), transparent); }
+.vc-video-frame .vc-playbar { --lg-density: 1; position: absolute; z-index: 1; left: var(--space-4); right: var(--space-4); bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-3); min-height: var(--nav-height); padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1); border-radius: var(--radius-pill); color: var(--vc-on-ink); font-size: var(--type-footnote); line-height: var(--leading-footnote); white-space: nowrap; }
+.vc-playbar .icon-btn.vc-playbar-play { background-color: var(--vc-on-ink); color: var(--vc-ink); }
+.vc-playbar-label { font-weight: 600; }
+.vc-playbar-space { flex: 1; }
+.vc-playbar .vc-playbar-cc { justify-content: center; padding: 0 var(--space-2); border: 0; background: none; color: inherit; font-family: inherit; cursor: pointer; }
+.vc-video figcaption { margin-top: var(--space-2); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-faint); }
+/* 收起的块（目录、文字稿）：details.vc-fold[data-expand="inline"] > summary（44px 高，右侧一个折角）+ 内容。
+   目录 details.vc-fold.vc-toc > summary + nav > ol > li > a（每项 44px 高）；文字稿的内容 div.vc-transcript > p ×n > b（第几幕）+ 文字。
+   视频无法播放时文字稿直接展开：section.vc-transcript-open.vc-read-col > h2.kicker + div.vc-transcript */
+.vc-fold { margin-top: var(--space-1); }
+.vc-fold > summary { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--size-tap-min); list-style: none; cursor: pointer; font-size: var(--type-body); font-weight: 600; border-radius: var(--radius-sm); }
+.vc-fold > summary::-webkit-details-marker { display: none; }
+.vc-fold > summary::after { content: ""; width: var(--space-2); height: var(--space-2); border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.vc-fold[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
+.vc-toc { margin-top: var(--space-2); }
+.vc-toc ol { list-style: none; margin: 0; padding: 0 0 var(--space-2); display: grid; }
+.vc-toc li a { display: flex; align-items: center; min-height: var(--size-tap-min); }
+.vc-transcript { display: grid; gap: var(--space-3); padding-block: var(--space-1) var(--space-3); color: var(--vc-sub); }
+.vc-transcript p { margin: 0; text-wrap: pretty; }
+.vc-transcript b { margin-right: .5em; font-weight: 600; color: var(--vc-text); }
+.vc-transcript-open { display: grid; gap: var(--space-2); margin-top: var(--space-5); }
+/* 文末各段（阅读页正文以后的每一段）：.vc-part 和上一段隔 64（手机 48）；上面要一道 2px 线的加 .vc-part-rule。文章的顺序：练习 → 接着读 → 更新记录、版权和法务小字。
+   练习：section.vc-part.vc-part-rule.vc-practice.vc-read-col#practice > p.kicker + h2.vc-type-title-3-serif + p.vc-type-body-reading
+   接着读：nav.vc-part.vc-next.vc-read-wide > h2.vc-type-title-3 + ol.vc-rows（相关的一篇）+ p.vc-row-more（这条线的全部）+ div.vc-next-go > a.vc-station ×2（今天的训练、去动手一站）；关于页的「从哪里开始」是 h2 + .vc-stations
+   联系：section.vc-part.vc-contact.vc-read-col#contact > h2 + p.vc-type-body-reading + a.btn.vc-btn-action（手机上整宽）
+   文末小字：section.vc-part.vc-colophon.vc-read-col > h2.vc-sr-only + h3 + ul > li（time.mono + span）+ p …+ p.vc-colophon-report（报告错误：一句话 + a.vc-quick.vc-quick-small） */
+.vc-part { margin-top: var(--space-8); }
+.vc-part-rule { padding-top: var(--space-5); border-top: 2px solid var(--vc-text); }
+.vc-practice { display: grid; gap: var(--space-3); }
+.vc-next > h2 { margin-bottom: var(--space-3); }
+.vc-next > .vc-stations { margin-top: var(--space-4); }
+.vc-next .vc-rows { border-bottom: 1px solid var(--vc-line); }
+.vc-next .vc-row-more { margin: 0; padding-left: 0; }
+.vc-next-go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin-top: var(--space-5); }
+.vc-contact { display: grid; justify-items: start; gap: var(--space-3); scroll-margin-top: var(--vc-sticky-top); }
+.vc-contact p { color: var(--vc-sub); }
+.vc-colophon { display: grid; gap: var(--space-3); padding-top: var(--space-5); border-top: 1px solid var(--vc-line); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-sub); }
+.vc-colophon :is(h3, p, ul) { margin: 0; }
+.vc-colophon h2 { font-size: inherit; }
+.vc-colophon h3 { font-size: inherit; line-height: inherit; font-weight: 600; color: var(--vc-text); }
+.vc-colophon h3:not(:first-of-type) { margin-top: var(--space-2); }
+.vc-colophon ul { list-style: none; padding: 0; display: grid; gap: var(--space-1); }
+.vc-colophon li { display: flex; gap: var(--space-3); }
+.vc-colophon time { flex: none; }
+.vc-colophon p { overflow-wrap: anywhere; text-wrap: pretty; }
+.vc-colophon p a:not(.vc-quick) { color: var(--vc-accent); }
+.vc-colophon-report { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-3); }
+/* 加载中的占位（保持版式，不转圈）：div.vc-loading[aria-hidden] > span.vc-skeleton ×n（宽高写在 style 里，只用 token）。
+   列表页的占位加 .vc-loading-rows：> span.vc-skeleton + div.vc-loading-row ×n > span.vc-skeleton + span.vc-loading-row-body > span.vc-skeleton ×2。
+   超过 10 秒：占位上方一行 div.vc-loading-slow[role=status] > p（正在加载什么）+ button.btn.vc-btn-quiet（重试） */
+.vc-loading { display: grid; gap: var(--space-3); padding-top: var(--space-3); }
+.vc-loading-rows { gap: var(--space-5); padding-top: 0; }
+.vc-loading-row { display: grid; grid-template-columns: var(--space-8) minmax(0, 1fr); gap: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--vc-line); }
+.vc-loading-row-body { display: grid; gap: var(--space-3); }
+.vc-loading-slow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin: var(--space-3) 0; }
+.vc-loading-slow p { margin: 0; font-weight: 600; }
+@media (max-width: 743px) {
+  .vc-read { padding-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-5)); padding-bottom: var(--space-7); }
+  .vc-loading-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+  .vc-band + .vc-read { padding-top: var(--space-7); }
+  .vc-video-shot { padding: 0 var(--space-4) var(--space-8); gap: var(--space-2); }
+  .vc-video-title { font-size: var(--type-title-3-serif); line-height: var(--leading-title-3-serif); }
+  .vc-video-frame .vc-playbar { left: var(--space-2); right: var(--space-2); bottom: var(--space-2); gap: var(--space-2); padding-right: var(--space-1); }
+  .vc-playbar-label { display: none; }
+  .vc-next-go { grid-template-columns: minmax(0, 1fr); }
+  .vc-part { margin-top: var(--space-7); }
+  .vc-contact .btn { width: 100%; }
+}
+/* 阅读版式（文章、单条开发日志、关于页的正文）：.vc-prose 套在正文外面，里面直接写 h2、h3、p、ul、ol、blockquote、pre、figure、table。
+   中文 17px、行高 1.8、版心 640px（每行约 37 字）；英文 17px、行高 1.45、版心 580px（每行约 68 个字符）。段距 24px；标题上方的距离是下方的两倍 */
+.vc-prose { max-width: var(--text-max); font-size: var(--type-body-reading); line-height: var(--leading-body-reading); }
+.vc-prose:lang(en) { max-width: var(--text-max-en); line-height: var(--leading-latin); }
+.vc-prose > * { margin: 0; }
+.vc-prose > * + * { margin-top: var(--space-5); }
+.vc-prose p { text-wrap: pretty; }
+.vc-prose h2 { font-family: var(--font-serif); font-size: var(--type-title-3-serif); line-height: var(--leading-title-3-serif); font-weight: 600; text-wrap: balance; scroll-margin-top: var(--vc-sticky-top); }
+.vc-prose h3 { font-size: var(--type-lead); line-height: 1.45; font-weight: 600; text-wrap: balance; scroll-margin-top: var(--vc-sticky-top); }
+.vc-prose > * + h2 { margin-top: var(--space-7); }
+.vc-prose > * + h3 { margin-top: var(--space-6); }
+.vc-prose > h3 + * { margin-top: var(--space-4); }
+.vc-prose a { color: var(--vc-accent); text-decoration: underline; text-decoration-thickness: 1px; }
+.vc-prose strong, .vc-prose b { font-weight: 600; }
+.vc-prose ul, .vc-prose ol { padding-left: 1.4em; }
+.vc-prose li + li { margin-top: var(--space-2); }
+.vc-prose blockquote { padding-left: var(--space-4); border-left: 2px solid var(--vc-accent); color: var(--vc-sub); }
+.vc-prose code { font-family: var(--font-mono); font-size: var(--type-body); padding: 0 var(--space-1); border-radius: var(--space-1); background: var(--vc-state-hover); }
+.vc-prose pre { overflow-x: auto; padding: var(--space-4); border-radius: var(--radius); background: var(--vc-paper-surface); box-shadow: 0 0 0 1px var(--vc-paper-line); font-family: var(--font-mono); font-size: var(--type-meta-mono); line-height: 1.6; white-space: pre; }
+.vc-prose pre code { padding: 0; background: none; font-size: inherit; }
+.vc-prose figure img, .vc-prose figure svg { display: block; max-width: 100%; height: auto; }
+.vc-prose figcaption { margin-top: var(--space-2); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-faint); }
+.vc-prose table { width: 100%; border-collapse: collapse; font-size: var(--type-body); line-height: var(--leading-footnote); }
+.vc-prose th, .vc-prose td { padding: var(--space-3) var(--space-4) var(--space-3) 0; border-bottom: 1px solid var(--vc-line); text-align: left; vertical-align: top; }
+.vc-prose th { font-weight: 600; }
+/* 侧注和文末脚注：同一条注写两处。桌面（≥ 1180）显示 aside.vc-sidenote[id=sn-N]（写在它注的那一段前面，浮在正文右侧，宽 sidenote-width，和正文隔 space-7；开头 span.mono 是编号）；
+   手机和平板显示文末的 ol.vc-footnotes > li[id=fn-N] > span（注的文字 + 末尾一个回到正文的链接 a[href="#ref-N"][aria-label]）。
+   正文里的编号写两个链接，哪个版式显示哪个：<sup id="ref-N"><a class="vc-ref-side" href="#sn-N">N</a><a class="vc-ref-foot" href="#fn-N">N</a></sup>，桌面指向侧注，手机和平板指向文末脚注。
+   用侧注的正文外面要留出右侧 288px（.vc-container 里够） */
+.vc-sidenote { float: right; clear: right; width: var(--sidenote-width); margin-right: calc(-1 * (var(--sidenote-width) + var(--space-7))); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-sub); scroll-margin-top: var(--vc-sticky-top); }
+.vc-sidenote .mono { margin-right: var(--space-1); color: var(--vc-accent); }
+.vc-footnotes { display: none; padding-top: var(--space-4); border-top: 1px solid var(--vc-line); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-sub); }
+.vc-prose sup { font-size: var(--type-footnote); line-height: 0; scroll-margin-top: var(--vc-sticky-top); }
+.vc-footnotes li + li { margin-top: var(--space-2); }
+.vc-footnotes li { scroll-margin-top: var(--vc-sticky-top); }
+.vc-prose sup a { position: relative; text-decoration: none; padding: 0 2px; }
+.vc-ref-foot { display: none; }
+@media (max-width: 1179px) { .vc-sidenote, .vc-ref-side { display: none; } .vc-prose .vc-footnotes { display: block; } .vc-ref-foot { display: inline; } }
+
+/* 提示条的两种排法。
+   提示加一个动作（视频无法播放、文章暂无英文版）：div.vc-notice.vc-notice-action[role=alert|note] > p（strong 说发生了什么 + 接下来能做什么）+ a 或 button.btn；文字在左、按钮在右，放不下时按钮折到下一行，手机上按钮整宽。
+   整块的提示（内容加载失败）：div.vc-notice.vc-notice-block[role=alert] > h1|h3.vc-type-title-3 + p.vc-sub + div.vc-notice-actions > button.btn.vc-btn-action（重试）+ a.vc-quick（另一条出路） */
+.vc-notice svg { flex: none; }
+.vc-notice-action { flex-wrap: wrap; justify-content: space-between; padding: var(--space-4) var(--space-5); }
+.vc-notice-action p { margin: 0; flex: 1 1 16em; text-wrap: pretty; }
+.vc-notice-action strong { font-weight: 600; }
+.vc-notice-block { flex-direction: column; align-items: flex-start; padding: var(--space-5); }
+.vc-notice-block :is(h1, h2, h3, p) { margin: 0; text-wrap: pretty; }
+.vc-notice-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); }
+.vc-crumb + .vc-notice-action { margin-top: var(--space-3); }
+.vc-crumb + .vc-notice-block { margin-top: var(--space-5); }
+/* 提示条和下面的标题区隔 32px（一个组间距），不贴着标题 */
+.vc-notice + .vc-read-head { margin-top: var(--space-6); }
+@media (max-width: 743px) { .vc-notice-action .btn { width: 100%; } }
+
+/* ───────── 9b. 首页 ───────── */
+/* 首屏：纸墨对开（Main、Tablet、Mobile、Fold 是同一份标记）。接缝的位置是一个变量 --seam，导航、定位句、「动手」圆、订阅条、叶与网都跟着它。
+   section.vc-hero[data-first-screen]（断网时加 .is-offline）
+     > div.vc-hero-paper + div.vc-hero-ink（两块底色）+ h1.vc-hero-tag（定位句）+ div.vc-hero-stage（动效区）
+     + div.vc-half.vc-half-body.vc-half-start + div.vc-half.vc-half-mind.vc-half-end（两半）+ div.vc-hero-seam > a.orb + [div.vc-notice.vc-hero-notice] + div.vc-hero-sub > .vc-subbar-slot
+   每一半：[p.kicker.vc-hero-station 站名小标，只有英文版有] + h2.vc-type-hero[-serif].vc-hero-title + p.vc-type-lead.vc-hero-lead + div.vc-hero-actions + p.vc-hero-quick > a.vc-quick …
+   站稳一半的主操作 div.vc-hero-actions > div.vc-pop-anchor（a.btn.vc-btn-action + div.vc-pop）+ p.vc-hero-fact（一行事实）
+     + div.vc-hero-direct[role=group] > a.btn.vc-btn-action + a.btn.vc-btn-quiet（触屏和平板直接摆出的两个去处：第一个实心、第二个描边）
+   看清一半的说明写两份：p.vc-hero-lead.vc-hero-lead-full（桌面、平板）和 p.vc-hero-lead.vc-hero-lead-short（手机上只留受众那半句），同一时刻只显示一份
+   断点 743px、1179px、359px 来自 breakpoint-tablet、breakpoint-desktop、breakpoint-nav-compact；959px 是平板档里两半各自放得下一行两个选项的宽度 */
+.vc-hero { --tag-h: calc(var(--type-lead) * var(--leading-lead)); --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-4) + var(--tag-h) + var(--space-2)); --hero-foot: calc(var(--space-5) + var(--space-10) + var(--space-6)); --stage-max: calc(var(--space-10) * 2.5); --title-box: calc(var(--type-hero) * var(--leading-hero-serif)); position: relative; display: grid; grid-template-columns: var(--seam) minmax(0, 1fr); grid-template-rows: minmax(var(--space-8), 1fr) auto; min-height: clamp(640px, 100svh, 960px); padding-top: var(--hero-top); overflow: clip; transition: grid-template-columns var(--duration-lean) var(--ease-out); }
+.vc-hero-paper, .vc-hero-ink { position: absolute; inset: calc(-1 * var(--hero-top)) 0 0 0; grid-row: 1 / -1; }
+.vc-hero-paper { grid-column: 1 / 2; background: var(--vc-hero-body); }
+.vc-hero-ink { grid-column: 2 / 3; background: var(--vc-ink); }
+/* 定位句：h1.vc-hero-tag.vc-type-lead[data-edge="free"] > span.vc-hero-tag-paper + span.vc-hero-tag-ink[aria-hidden]。正文字体、导语字号（19，手机 17）、正文的墨色，自己占一行：
+   桌面和平板在导航下面隔 16px，骑在接缝上居中（有意不对栅格，data-edge 是给检查脚本的声明），左半按纸面取色、右半按墨面取色（同一行字写两遍，各裁一半；第二遍不给读屏）；
+   手机上在纸色一半里、标题上方，和标题同一条左边缘，上面隔 24px、下面隔 4px，是标题组的第一行 */
+.vc-hero-tag { position: absolute; z-index: 3; top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-4)); left: var(--seam); transform: translateX(-50%); margin: 0; font-family: var(--font-sans); font-weight: 500; white-space: nowrap; transition: left var(--duration-lean) var(--ease-out); }
+.vc-hero-tag span { display: block; }
+.vc-hero-tag-paper { color: var(--vc-text); clip-path: inset(0 50% 0 0); }
+.vc-hero-tag-ink { position: absolute; inset: 0; color: var(--vc-on-ink); clip-path: inset(0 0 0 50%); }
+/* 两半：内容在同一行栅格里，标题、说明、主操作、快捷入口各自落在同一条水平线上 */
+.vc-half { position: relative; z-index: 2; grid-row: 2; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; padding-bottom: var(--hero-foot); }
+.vc-half-body { grid-column: 1; background: var(--vc-hero-body); }
+.vc-half-mind { grid-column: 2; background: var(--vc-ink); color: var(--vc-on-ink); }
+/* 站名小标（只有英文版：导航写 Body、Mind、Build，口号写 Get strong、See clearly、Then build，小标让两处对得上；中文的站名就是口号里的词，不加） */
+.vc-hero-station { margin: 0 0 var(--space-1); color: var(--vc-sub); }
+.vc-hero-title { display: flex; align-items: flex-end; height: var(--title-box); white-space: nowrap; transition: font-size var(--duration-lean) var(--ease-out); }
+.vc-hero-lead { margin-top: var(--space-5); min-height: 2lh; max-width: 26em; color: var(--vc-sub); transition: opacity var(--duration-base) var(--ease-out); }
+.vc-hero-lead-short { display: none; }
+.vc-hero-actions { align-self: stretch; display: flex; align-items: center; gap: var(--space-2) var(--space-4); min-height: var(--control-height-lg); margin-top: var(--space-6); }
+.vc-hero-fact { margin: 0; color: var(--vc-sub); white-space: nowrap; }
+.vc-hero-direct { display: none; }
+.vc-hero-quick { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); margin: var(--space-2) 0 0; }
+.vc-hero-pause { margin-left: auto; }
+/* 「开始训练」的选项（有悬停的桌面）：在按钮右边、和按钮同一行展开（.vc-pop，收起时加 .is-closed），占的是那行事实的位置，事实写进卡片的说明里；
+   卡片顶边比按钮高 24px，离上面的说明 ≥ 8px，不压标题、说明、快捷入口和订阅条。两个去处上下排，右侧 svg.vc-start-code 是在手机上打开的码 */
+.vc-hero .vc-pop { left: calc(100% + var(--space-3)); top: calc(-1 * var(--space-5)); grid-template-columns: auto auto; align-items: start; gap: var(--space-2) var(--space-3); padding: var(--space-3); }
+.vc-hero .vc-pop-opts { grid-auto-flow: row; }
+.vc-hero .vc-pop-note { grid-column: 1 / -1; max-width: 24em; }
+.vc-start-code { width: calc(var(--space-9) + var(--space-2)); height: calc(var(--space-9) + var(--space-2)); padding: var(--space-1); border-radius: var(--radius-sm); background: var(--vc-paper-surface); box-shadow: 0 0 0 1px var(--vc-paper-line); color: var(--vc-text); }
+/* 接缝上的一层：「动手」圆在叶和网中间，尺寸跟着动效区的高度走。a.orb > [span.vc-orb-station 英文版的站名] + span.vc-orb-title + span.vc-orb-sub > span.vc-orb-long + span.vc-orb-short（圆小的时候换短的一句） */
+.vc-hero-seam, .vc-hero-stage { grid-row: 1; grid-column: 1 / -1; position: relative; min-height: 0; container-type: size; pointer-events: none; }
+.vc-hero-seam { z-index: 3; }
+.vc-hero-stage { z-index: 1; }
+.vc-hero-seam > *, .vc-hero-stage > * { --orb: clamp(88px, 56cqh, 168px); --inset: calc(var(--orb) / 2 + var(--space-5) + var(--gutter)); --s: min(100cqh - var(--space-4), var(--seam-n) * 1cqw - var(--inset), var(--stage-max)); --net-h: min(100cqh - var(--space-4), ((100 - var(--seam-n)) * 1cqw - var(--inset)) / 1.5, var(--stage-max)); }
+.vc-hero .orb { position: absolute; left: var(--seam); top: 50%; transform: translate(-50%, -50%); width: var(--orb); height: var(--orb); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1); text-align: center; pointer-events: auto; }
+.vc-orb-station { display: none; font-size: var(--type-kicker); line-height: var(--leading-kicker); font-weight: var(--weight-kicker); letter-spacing: var(--tracking-kicker); color: var(--vc-on-moss-2); }
+.vc-orb-title { font-family: var(--font-display); font-size: var(--type-body); line-height: var(--leading-title-3); font-weight: 700; }
+.vc-orb-sub { font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-on-moss-2); }
+.vc-orb-long { display: none; }
+@container (min-height: 230px) { .vc-orb-title { font-size: var(--type-title-3); } .vc-orb-long { display: inline; } .vc-orb-short { display: none; } .vc-orb-station { display: block; } }
+/* 动效区和静态线稿（叶与网）：div.vc-hero-stage[aria-hidden] > canvas.vc-hero-gl + svg.vc-still.vc-still-leaf + svg.vc-still.vc-still-net（里面的节点 path.vc-still-nodes）。
+   画布铺满动效区；静态线稿是同一构图，动效画出第一帧以后（data-live）藏起来，位置仍由它定，画布读它的矩形。无动效、减弱动态效果、无 WebGL 时只有线稿 */
+.vc-hero-gl { position: absolute; inset: 0; width: 100%; height: 100%; }
+.vc-still { position: absolute; top: 50%; transform: translateY(-50%); overflow: visible; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: left var(--duration-lean) var(--ease-out), right var(--duration-lean) var(--ease-out), width var(--duration-lean) var(--ease-out), height var(--duration-lean) var(--ease-out); }
+.vc-still path { vector-effect: non-scaling-stroke; }
+.vc-still-leaf { right: calc(100% - var(--seam) + var(--orb) / 2 + var(--space-5)); width: var(--s); height: var(--s); stroke: var(--vc-moss); }
+.vc-still-net { left: calc(var(--seam) + var(--orb) / 2 + var(--space-5)); height: var(--net-h); aspect-ratio: 3 / 2; stroke: var(--vc-cinnabar); }
+.vc-still-net .vc-still-nodes { fill: var(--vc-cinnabar); stroke: none; }
+.vc-hero-stage[data-live] .vc-still { visibility: hidden; }
+/* 订阅条（或 RSS 行）：贴着首屏底、跨在接缝上，向上展开；两半的下内边距给它留了位置 */
+.vc-hero-sub { position: absolute; z-index: 4; left: var(--seam); bottom: var(--space-5); transform: translateX(-50%); width: min(100% - 2 * var(--gutter), var(--subbar-max)); transition: left var(--duration-lean) var(--ease-out); }
+/* 断网提示：导航下面隔 16px；这时定位句只留给读屏，首屏多让出提示的高度 */
+.vc-hero-notice { position: absolute; z-index: 5; top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-4)); left: var(--seam); transform: translateX(-50%); width: max-content; max-width: calc(100% - 2 * var(--gutter)); transition: left var(--duration-lean) var(--ease-out); }
+.vc-hero.is-offline { --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-8) + var(--space-4)); }
+.vc-hero.is-offline .vc-hero-tag { clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; }
+.vc-page > .vc-nav-wrap .vc-nav { transition: transform var(--duration-lean) var(--ease-out); }
+
+/* 桌面（≥ 1180，有悬停和精确指针时由脚本写 data-lean）：倾斜 62:38。收起的一侧标题缩一档、说明淡出，位置不动 */
+@media (min-width: 1180px) {
+  .vc-page[data-lean="body"] { --seam-n: 62; }
+  .vc-page[data-lean="mind"] { --seam-n: 38; }
+  .vc-page[data-lean="body"] > .vc-nav-wrap .vc-nav { transform: translateX(12vw); }
+  .vc-page[data-lean="mind"] > .vc-nav-wrap .vc-nav { transform: translateX(-12vw); }
+  .vc-page[data-lean="mind"] .vc-half-body .vc-hero-title, .vc-page[data-lean="body"] .vc-half-mind .vc-hero-title { font-size: var(--type-title-1); }
+  .vc-page[data-lean="mind"] .vc-half-body .vc-hero-lead, .vc-page[data-lean="body"] .vc-half-mind .vc-hero-lead { opacity: 0; max-height: 2lh; overflow: hidden; }
+}
+/* 触屏和平板：不倾斜；去 Veli 的两个去处直接摆在按钮的位置，上面一行事实。第一个是实心主按钮，第二个描边：每一半一个实心按钮 */
+@media (max-width: 1179px), (hover: none) {
+  .vc-hero .vc-pop-anchor { display: none; }
+  .vc-half-body .vc-hero-actions { flex-direction: column; align-items: stretch; }
+  .vc-hero-direct { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--space-2); max-width: 26em; }
+}
+@media (min-width: 744px) and (max-width: 959px) {
+  .vc-hero-direct { grid-auto-flow: row; }
+  .vc-hero-title:lang(en) { height: calc(var(--title-box) * 2); white-space: normal; }
+}
+/* 手机：上下拼接，接缝是一条横线。从上到下：定位句、「先站稳」一半、叶（纸色一半里，接缝上方）、接缝和「动手」圆（靠右）、网（墨色一半里，接缝下方）、「再看清」一半、订阅条。
+   叶和网在同一条竖轴上居中：叶从接缝往上长（可以伸进快捷入口那一行右边的空处），网从接缝往下长；动效区的高度按 3:5 分给接缝上、下。
+   整屏只有一个实心主按钮（站稳的第一个去处），「读最新文章」降成描边；看清的说明只留受众那半句。首屏放不下时按这个顺序收：两句说明和那行事实（高度 < 700）、叶与网（动效区 < 96px）、定位句（高度 ≤ 600），不收入口 */
+@media (max-width: 743px) {
+  .vc-hero { --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-5) + var(--tag-h) + var(--space-1)); grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 3fr) minmax(0, 5fr) auto auto; min-height: clamp(560px, 100svh, 844px); }
+  .vc-hero-paper { grid-column: 1 / 2; grid-row: 1 / 3; }
+  .vc-hero-ink { grid-column: 1 / 2; grid-row: 3 / 6; top: 0; }
+  .vc-half { padding-bottom: 0; }
+  .vc-half-body { grid-row: 1; grid-column: 1; }
+  .vc-half-mind { grid-row: 4; grid-column: 1; }
+  .vc-hero-seam, .vc-hero-stage { grid-row: 2 / 4; grid-column: 1; }
+  .vc-hero-tag { top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-5)); left: var(--gutter); transform: none; }
+  .vc-hero-tag .vc-hero-tag-paper { clip-path: none; }
+  .vc-hero-tag .vc-hero-tag-ink { display: none; }
+  .vc-hero-lead { display: none; min-height: 0; margin-top: var(--space-2); }
+  .vc-hero-actions { margin-top: var(--space-3); }
+  .vc-hero-direct { grid-auto-flow: row; max-width: none; }
+  .vc-hero-quick { margin-top: var(--space-1); }
+  .vc-half-mind .btn.vc-btn-on-ink { background-color: transparent; background-image: none; color: inherit; box-shadow: inset 0 0 0 1px currentColor; }
+  .vc-half-mind .btn.vc-btn-on-ink:hover, .vc-half-mind .btn.vc-btn-on-ink.is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
+  .vc-half-mind .btn.vc-btn-on-ink:active, .vc-half-mind .btn.vc-btn-on-ink.is-press { background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); box-shadow: inset 0 0 0 1px currentColor; }
+  /* 叶和网要伸到两半的底色上面（叶伸进快捷入口那一行右边的空处），这一层排在两半之上；它不接收点按 */
+  .vc-hero-stage { z-index: 3; }
+  .vc-hero-seam > *, .vc-hero-stage > * { --orb: calc(var(--space-8) + var(--space-4)); --s: min(37.5cqh + var(--space-7) - var(--space-3), var(--space-9)); --net-h: min(62.5cqh - var(--space-4), var(--space-9)); }
+  /* 英文版的站名小标放到标题那一行的右端，不另占一行 */
+  .vc-hero-station { position: absolute; right: var(--gutter); top: calc(var(--title-box) - 2lh); margin: 0; }
+  .vc-hero .orb { left: auto; right: var(--gutter); top: 37.5%; transform: translateY(-50%); gap: 0; }
+  .vc-orb-title { font-size: var(--type-footnote); line-height: var(--leading-footnote); white-space: nowrap; }
+  .vc-hero-gl { top: calc(-1 * var(--space-7)); height: calc(100% + var(--space-7)); }
+  .vc-still-leaf { top: auto; right: auto; bottom: calc(62.5% + var(--space-2)); left: calc(50% - var(--s) / 2); transform: none; }
+  .vc-still-net { top: calc(37.5% + var(--space-2)); left: calc(50% - var(--net-h) * 0.75); transform: none; }
+  .vc-hero-sub { position: static; grid-row: 5; grid-column: 1; z-index: 2; transform: none; width: auto; padding: var(--space-2) var(--gutter); }
+  /* 手机上订阅条向下展开：它在首屏最后一行，上面的入口都不动，也不会被盖住 */
+  .vc-hero-sub .vc-subbar-slot { height: auto; min-height: var(--nav-height); }
+  /* 展开时首屏不长高（邮箱框和按钮要留在一屏里）：多出来的 48px（带错误说明 72px）从动效区里让出来，叶与网跟着缩，缩到放不下就先收起 */
+  .vc-hero.is-offline { --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-9)); }
+  @container (max-height: 95px) { .vc-still, .vc-hero-gl { display: none; } }
+}
+@container (max-height: 47px) { .vc-still, .vc-hero-gl { display: none; } }
+@media (max-width: 743px) and (min-height: 700px) { .vc-hero-lead { display: block; } .vc-half-mind .vc-hero-lead-full { display: none; } }
+@media (max-width: 743px) and (max-height: 699px) { .vc-hero-fact { display: none; } }
+@media (max-width: 743px) and (max-height: 600px) {
+  .vc-hero { --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-3)); }
+  .vc-hero-tag { clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; }
+}
+@media (max-width: 743px) and (max-height: 600px), (max-width: 359px) {
+  .vc-hero { --title-box: calc(var(--type-title-1) * var(--leading-hero-serif)); }
+  .vc-hero-title { font-size: var(--type-title-1); }
+}
+@media (max-width: 359px) { .vc-hero-quick .vc-quick:lang(en) { font-size: var(--type-footnote); } }
+@media (prefers-reduced-motion: reduce) { .vc-hero, .vc-hero *, .vc-page > .vc-nav-wrap .vc-nav { transition: none; } }
+
+/* 论点三行（首页第一幕）：一句大字，下面三件事各一行，整行可点；不是三张卡。
+   h2.vc-type-title-2.vc-claim-title + ol.vc-claim-list > li.vc-row > a.vc-row-main.vc-claim-link[aria-labelledby]
+     > h3.vc-type-title-3.row-title.vc-claim-name（span.vc-claim-chip.vc-claim-chip-{body|mind|build}[aria-hidden] 实心圆点，各用本站的强调色：苔绿、朱砂、琥珀，浅色深色都是实心 + span 站名）+ p.vc-type-lead.vc-claim-line + span.vc-claim-go > span.vc-row-go */
+.vc-claim-title { max-width: 15em; }
+.vc-claim-list { list-style: none; margin: var(--space-8) 0 0; padding: 0; border-bottom: 1px solid var(--vc-line); }
+.vc-claim-link.vc-row-main { grid-template-columns: minmax(0, 3fr) minmax(0, 7fr) auto; align-items: baseline; gap: var(--space-2) var(--space-6); padding-block: var(--space-5); }
+.vc-claim-name { display: flex; align-items: baseline; gap: var(--space-3); margin: 0; }
+.vc-claim-chip { flex: none; width: var(--space-3); height: var(--space-3); border-radius: 50%; }
+.vc-claim-chip-body { background: var(--vc-moss); }
+.vc-claim-chip-mind { background: var(--vc-cinnabar-deep); }
+.vc-claim-chip-build { background: var(--vc-amber-deep); }
+.vc-claim-line { margin: 0; color: var(--vc-sub); }
+.vc-claim-go { white-space: nowrap; font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-sub); }
+/* 最新（首页第三幕，区块标题「最新」）：左边一张强调卡，右边一条日志，轻。h2.vc-type-title-3.vc-week-title + div.vc-week > article.vc-feature + div.vc-week-log > p.vc-type-footnote.vc-week-label + ol.vc-rows > li.vc-row.vc-log + p.vc-row-more */
+.vc-week { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-7); align-items: start; }
+.vc-week-title { margin-bottom: var(--space-5); }
+.vc-week-label { margin: 0 0 var(--space-2); font-weight: 600; color: var(--vc-sub); }
+.vc-week-log .vc-rows { border-bottom: 1px solid var(--vc-line); }
+.vc-week-log .vc-row-main { grid-template-columns: minmax(0, 1fr); }
+.vc-week-log .vc-row-more { margin-top: var(--space-2); padding-left: 0; }
+@media (max-width: 1179px) {
+  .vc-claim-link.vc-row-main { grid-template-columns: minmax(0, 1fr) auto; }
+  .vc-claim-line { grid-column: 1 / -1; grid-row: 2; }
+  .vc-claim-go { grid-column: 2; grid-row: 1; }
+}
+@media (max-width: 743px) {
+  .vc-claim-list { margin-top: var(--space-6); }
+  .vc-claim-link.vc-row-main { padding-block: var(--space-4); }
+  .vc-week { grid-template-columns: minmax(0, 1fr); gap: var(--space-6); }
+}
+
+/* ───────── 10. 状态（设计系统「状态」）─────────
+   悬停叠一层 state-hover，按下叠 state-press、内容下移 1px（不缩放），焦点是 2px 焦点色外圈。
    .is-hover / .is-press / .is-focus 只给画板上静态展示状态用，实现里用伪类。 */
-.navlink:hover, .navlink.is-hover, .seg :not([aria-current="true"]):not([aria-pressed="true"]):hover, .seg .is-hover { background-color: var(--vc-state-hover); }
-.navlink[aria-current="page"]:hover, .navlink[aria-current="page"].is-hover, .navlink:active, .navlink.is-press, .seg a:active, .seg button:active, .seg .is-press { background-color: var(--vc-state-press); }
-.spine:hover, .spine.is-hover, .icon-btn:hover, .icon-btn.is-hover, .switch:hover .switch-track, .switch.is-hover .switch-track { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
+.vc-nav-link:hover, .vc-nav-link.is-hover, .seg :not([aria-current="true"]):not([aria-current="page"]):not([aria-pressed="true"]):not([aria-selected="true"]):hover, .seg .is-hover { background-color: var(--vc-state-hover); }
+.vc-nav-link[aria-current="page"]:hover, .vc-nav-link[aria-current="page"].is-hover, .vc-nav-link:active, .vc-nav-link.is-press, .seg a:active, .seg button:active, .seg .is-press { background-color: var(--vc-state-press); }
+.icon-btn:hover, .icon-btn.is-hover, .vc-lang-one:hover, .vc-lang-one.is-hover, .vc-rss-row:hover, .vc-rss-row.is-hover, .vc-row-main:hover, .vc-row-main.is-hover, .vc-ms-sum:hover, .vc-ms-sum.is-hover, .vc-era-jump a:hover, .vc-era-jump a.is-hover, .vc-era-index a:hover, .vc-era-index a.is-hover, .vc-card-link:hover, .vc-card-link.is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
+.icon-btn:active, .icon-btn.is-press, .vc-lang-one:active, .vc-lang-one.is-press, .vc-rss-row:active, .vc-rss-row.is-press, .vc-row-main:active, .vc-row-main.is-press, .vc-ms-sum:active, .vc-ms-sum.is-press, .vc-era-jump a:active, .vc-era-jump a.is-press, .vc-era-index a:active, .vc-era-index a.is-press, .vc-card-link:active, .vc-card-link.is-press, .vc-path a:active, .vc-path a.is-press { background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
 .btn:hover, .btn.is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)), var(--btn-face); }
 /* 按下：叠一层 state-press，内容下移 1px，阴影从凸起改成内凹；不缩放（缩放会让文字发虚） */
 .btn:active, .btn.is-press { padding-top: 2px; padding-bottom: 0; background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
-.btn-action:active, .btn-action.is-press, .btn-on-ink:active, .btn-on-ink.is-press, .btn-on-moss:active, .btn-on-moss.is-press { box-shadow: var(--shadow-bevel-press); }
-.icon-btn:active, .icon-btn.is-press { background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
-.switch:active .switch-thumb, .switch.is-press .switch-thumb { width: 33px; }
-.switch[aria-checked="true"]:active .switch-thumb, .switch[aria-checked="true"].is-press .switch-thumb { transform: translateX(14px); }
+.vc-btn-action:active, .vc-btn-action.is-press, .vc-btn-on-ink:active, .vc-btn-on-ink.is-press, .vc-btn-on-moss:active, .vc-btn-on-moss.is-press { box-shadow: var(--shadow-bevel-press); }
 .opt:hover, .opt.is-hover { background-color: var(--vc-action); color: var(--vc-on-action); }
 .opt:active, .opt.is-press { padding-top: 2px; background-color: var(--vc-action); background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); color: var(--vc-on-action); }
-.quick:hover, .quick.is-hover, .row-link:hover .row-title, .row-link.is-hover .row-title { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-cinnabar-deep); }
-.quick:active, .quick.is-press { opacity: .72; }
-/* 每个能点的东西都有悬停和按下（verify 23）。同一类只写一处：
-   文字链接（没有类的 a、步骤名、做成链接的条目标题）和快捷入口一样：悬停加粗下划线，按下变淡 */
-:is(a[href]:not([class]), a.step-name, a.row-title):hover, :is(a[href]:not([class]), a.step-name, a.row-title).is-hover { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-cinnabar-deep); }
-:is(a[href]:not([class]), a.step-name, a.row-title):active, :is(a[href]:not([class]), a.step-name, a.row-title).is-press { opacity: .72; }
+/* 文字链接（快捷入口、面包屑、页脚链接、步骤名、正文里的注释编号、没有类的 a）：悬停下划线加粗到 2px、换成强调色，按下变淡 */
+:is(a[href]:not([class]), .vc-quick, .vc-crumb a, .vc-footer-links a, .vc-step-name a, .vc-sub-note a, .vc-prose sup a):hover, :is(a[href]:not([class]), .vc-quick, .vc-crumb a, .vc-footer-links a, .vc-step-name a, .vc-sub-note a, .vc-prose sup a).is-hover { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-accent); }
+:is(a[href]:not([class]), .vc-quick, .vc-crumb a, .vc-footer-links a, .vc-step-name a, .vc-sub-note a, .vc-prose sup a):active, :is(a[href]:not([class]), .vc-quick, .vc-crumb a, .vc-footer-links a, .vc-step-name a, .vc-sub-note a, .vc-prose sup a).is-press { opacity: .72; }
+/* 整行可点的行、四级的路的一站：悬停时标题下划线加粗（行另叠一层）；按下整块再深一档 */
+.vc-row-main:hover .row-title, .vc-row-main.is-hover .row-title, .vc-ms-sum:hover .row-title, .vc-ms-sum.is-hover .row-title, .vc-path a:hover .vc-path-name, .vc-path a.is-hover .vc-path-name { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-accent); text-underline-offset: 5px; }
+/* 收起的块的开关：悬停换强调色，按下变淡 */
+.vc-fold > summary:hover, .vc-fold > summary.is-hover { color: var(--vc-accent); }
+.vc-fold > summary:active, .vc-fold > summary.is-press { opacity: .72; }
 /* 站标（叶子 + 名字）：悬停、按下只变淡，不加下划线 */
-:is(.brand, .home, .lt-name):hover, :is(.brand, .home, .lt-name).is-hover { opacity: .8; }
-:is(.brand, .home, .lt-name):active, :is(.brand, .home, .lt-name).is-press { opacity: .64; }
-/* 整行、整卡的链接：悬停沿用各自的标题下划线；没有标题的行悬停给整行下划线。按下整块变淡，不缩放 */
-.row-link:not(:has(.row-title)):hover, .row-link.is-hover:not(:has(.row-title)) { text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--vc-cinnabar-deep); }
-.card-link:hover, .card-link.is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
-:is(.row-link, .card-link, .station):active, :is(.row-link, .card-link, .station).is-press { opacity: .72; }
-/* 书脊、菜单行、语言按钮：和图标按钮一样叠状态层 */
-:is(.menu-row, .lang-one):hover, :is(.menu-row, .lang-one).is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
-:is(.spine, .menu-row, .lang-one):active, :is(.spine, .menu-row, .lang-one).is-press { background-image: linear-gradient(var(--vc-state-press), var(--vc-state-press)); }
-:focus-visible, .is-focus { outline: 2px solid var(--vc-focus); outline-offset: 2px; }
-.field:focus-visible, .field.is-focus { outline-offset: 0; border-color: var(--vc-focus); }
+.home:hover, .home.is-hover { opacity: .8; }
+.home:active, .home.is-press { opacity: .64; }
+/* 三站入口色带：悬停叠一层，按下变淡 */
+.vc-station:hover, .vc-station.is-hover { background-image: linear-gradient(var(--vc-state-hover), var(--vc-state-hover)); }
+.vc-station:active, .vc-station.is-press { opacity: .72; }
+:focus-visible, .is-focus { outline: 2px solid var(--vc-focus-ctx, var(--vc-focus)); outline-offset: 2px; }
+.vc-field:focus-visible, .vc-field.is-focus { outline-offset: 0; border-color: var(--vc-focus-ctx); }
 /* 出错的输入框获得焦点：错误描边留在里面，焦点外圈向外偏 2px，两个都看得见 */
-.field[aria-invalid="true"]:focus-visible, .field[aria-invalid="true"].is-focus { border-color: var(--vc-error); outline-offset: 2px; }
+.vc-field[aria-invalid="true"]:focus-visible, .vc-field[aria-invalid="true"].is-focus { border-color: var(--vc-error-ctx); outline-offset: 2px; }
 :disabled, [aria-disabled="true"] { opacity: var(--opacity-disabled); cursor: not-allowed; transform: none; background-image: none; }
-/* 「动手」圆：背后是两块平涂，用实色苔绿主按钮，不用玻璃。悬停提亮约 14%，按下内容下移 1px、换内凹阴影，不缩放（尺寸、位置各页自己定） */
-.orb { background-color: var(--vc-moss-hero); color: var(--vc-on-moss); box-shadow: var(--shadow-bevel); text-decoration: none; padding: 0; transition: box-shadow var(--duration-press) var(--ease-out), left var(--duration-lean) var(--ease-out); }
-/* 提亮用一层 14% 的白叠在苔绿上（等于苔绿 86% 混白 14%），不用灰色状态层 */
-.orb { --orb-lift: linear-gradient(rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.14)); }
+/* 「动手」圆：悬停提亮约 14%（一层 14% 的白叠在苔绿上，不用灰色状态层），按下内容下移 1px、换内凹阴影，不缩放 */
 .orb:hover, .orb.is-hover { background-image: var(--orb-lift); }
-.orb:active, .orb.is-press { background-image: none; box-shadow: var(--shadow-bevel-press); padding-top: 2px; }
-/* 圆骑在接缝上，一侧纸色、一侧墨色：焦点用两色圈。贴着圆的一圈墨上白、外面一圈焦点蓝，哪一侧都有一圈 ≥ 3:1（浅色主题：蓝在纸上 5.5:1，白在墨上 17.6:1） */
-.orb:focus-visible, .orb.is-focus { outline: 2px solid var(--vc-focus); outline-offset: 3px; box-shadow: var(--shadow-bevel), 0 0 0 3px var(--vc-on-ink); }
-/* 深色底上（墨色一半、苔绿、书脊）焦点色换成浅的一档，浅色主题下也保证 ≥ 3:1 */
-.on-dark, .spine-mind, .lg-on-dark { --vc-focus: var(--vc-focus-on-dark); --vc-error: var(--vc-cinnabar); }
-.on-dark .quick:hover, .on-dark .quick.is-hover, .on-dark .row-link:hover .row-title, .on-dark .row-link.is-hover .row-title, .on-dark :is(a[href]:not([class]), a.step-name, a.row-title):hover, .on-dark .row-link:not(:has(.row-title)):hover { text-decoration-color: var(--vc-cinnabar); }
-.on-dark .opt:hover, .on-dark .opt.is-hover, .on-dark .opt:active, .on-dark .opt.is-press { background-color: var(--vc-on-ink); color: var(--vc-ink); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]):not(:has([data-theme="light"])) .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); } }
-[data-theme="dark"] .spine-mind { box-shadow: inset 1px 0 0 var(--vc-on-ink-3); }
+.orb:active, .orb.is-press { background-image: none; box-shadow: inset 0 0 0 1px var(--vc-orb-ring), var(--shadow-bevel-press); padding-top: 2px; }
+/* 圆骑在接缝上，一侧纸色、一侧墨色：焦点用两色圈。贴着圆的一圈墨上白、外面一圈焦点蓝，哪一侧都有一圈 ≥ 3:1 */
+.orb:focus-visible, .orb.is-focus { outline: 2px solid var(--vc-focus); outline-offset: 3px; box-shadow: inset 0 0 0 1px var(--vc-orb-ring), var(--shadow-bevel), 0 0 0 3px var(--vc-on-ink); }
+/* 墨底上的选项卡片：悬停、按下换成墨底主按钮的配色 */
+:is(.vc-band-ink, .vc-half-mind) .opt:hover, :is(.vc-band-ink, .vc-half-mind) .opt.is-hover, :is(.vc-band-ink, .vc-half-mind) .opt:active, :is(.vc-band-ink, .vc-half-mind) .opt.is-press { background-color: var(--vc-on-ink); color: var(--vc-ink); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-/* 书脊：进入一站后，另一站收成右侧 56px 的竖条，点它直接换过去（设计系统「三种版式」） */
-.spine { position: absolute; top: 0; right: 0; bottom: 0; z-index: 15; width: var(--spine-width); display: flex; align-items: center; justify-content: center; gap: 12px; writing-mode: vertical-rl; text-decoration: none; font-size: 15px; letter-spacing: 0.12em; transition: background var(--duration-fast) var(--ease-out); }
-.spine-body { background-color: var(--vc-hero-body); color: var(--vc-text); box-shadow: inset 1px 0 0 var(--vc-paper-line); }
-.spine-mind { background-color: var(--vc-ink); color: var(--vc-on-ink); box-shadow: inset 1px 0 0 var(--vc-ink-line); }
-.spine .mono { font-size: 12px; letter-spacing: 0.08em; }
-/* 书脊的站名贴着视口顶部（导航下方）走，任何滚动位置、包括第一屏都看得到（U5）；纸底页面上的站稳书脊加一档底色和纸面分开 */
-.spine { justify-content: flex-start; }
-.spine-label { position: sticky; top: calc(var(--nav-height) + 48px); display: inline-flex; align-items: center; gap: 12px; padding: 24px 0; }
-.spine-body { background-color: var(--vc-paper-line); }
-
-/* 英文正文（设计系统「阅读版式」）：18px、行高 1.45、版心 612px，每行约 68 个字符；中文 17px、行高 1.8、版心 640px，每行约 37 字 */
-.prose:lang(en) { max-width: var(--text-max-en); }
-.prose:lang(en) p, .prose:lang(en) ol, .prose:lang(en) ul { font-size: 18px; line-height: 1.45; }
-
-/* 实色浮层面：原地展开的卡片、展开成表单的订阅条（V5：跨底色的浮层用实色，不用玻璃） */
-/* 墨色实色面：压在平涂墨色上的浮动控件（暂停按钮） */
-.surface-ink { background-color: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-ink-line); }
-.surface-solid{background:var(--vc-paper-surface);color:var(--vc-text);box-shadow:0 0 0 1px var(--vc-paper-line),var(--shadow-glass)}
-/* 开关：已登录时的订阅开关这类一步就生效的设置；点按区 60×44，轨道 51×31 */
-.switch{display:inline-flex;align-items:center;justify-content:center;width:60px;height:var(--control-height);padding:0;border:0;border-radius:var(--radius-pill);background:transparent;cursor:pointer;flex:none}
-.switch-track{position:relative;width:51px;height:31px;border-radius:var(--radius-pill);background:var(--vc-state-press);box-shadow:inset 0 0 0 1.5px var(--vc-text-3);transition:background var(--duration-fast) var(--ease-out)}
-.switch-thumb{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:var(--vc-paper-surface);box-shadow:var(--shadow-card);transition:transform var(--duration-fast) var(--ease-out)}
-.switch[aria-checked="true"] .switch-track{background:var(--vc-moss);box-shadow:none}
-.switch[aria-checked="true"] .switch-thumb{transform:translateX(20px)}
-
+/* ───────── 11. 中文排版 ───────── */
 /* 中文的标题、链接、按钮、标签不把一个词拆到两行（V9「词中断行」）；放不下时仍可在任意处折行，不会撑破版面。正文段落照中文习惯在字间断行 */
-:lang(zh-CN) :is(h1,h2,h3,h4,a,button,dt,th,.row-title,.kicker,.who,.src,.meta,.card-meta){word-break:keep-all;overflow-wrap:anywhere}
+:lang(zh-CN) :is(h1, h2, h3, h4, a, button, dt, th, .row-title, .kicker) { word-break: keep-all; overflow-wrap: anywhere; }
+/* 整块是链接的行和卡片里，正文照中文习惯断行，否则标点会被挤到行首；段落里的链接也照正文断 */
+:lang(zh-CN) a :is(p, .vc-row-line, .vc-row-foot, .vc-station-line, .vc-type-lead), :lang(zh-CN) :is(p, li, dd) a { word-break: normal; }
 
-
-/* 整块是链接的卡片里，正文照中文习惯断行，否则标点会被挤到行首 */
-:lang(zh-CN) a :is(p, .row-line, .card-body, .lead) { word-break: normal; }
-/* 研究卡片的元信息：研究类型、样本量、证据可信度各占一行（首页、站稳同一种写法） */
-.meta-part { display: block; text-wrap: balance; word-break: normal; }
-
-/* 液态玻璃 token 模板（references/liquid-glass.md）。
-   接入时把 --lg-* 映射到项目自己的 token；表面只加 .lg 和一个状态类，标记不动。
+/* ───────── 12. 液态玻璃（design-bar 的模板 references/liquid-glass.md，数值不改；模糊的两档 lg-blur、lg-blur-scroll 在 token 里） ─────────
+   本站只有两处玻璃：视频播放条（.vc-playbar.lg.lg-on-dark，data-backdrop="video"）、吸顶时压过正文的导航（.vc-nav.lg，data-backdrop="scroll"）。
+   表面只加 .lg 和一个状态类，标记不动；模板里本站用不到的部分（玻璃上的墨色类、悬停提浓、高亮行）没有带进来。
    状态：.lg-light（浅色玻璃、深色字，默认）、.lg-on-dark（浅色模式压在暗处、浅色字）、.lg-dark（深色模式）。
    liquid-glass.js 会按背后的内容改 --lg-density（0 薄 – 1 浓）和 --lg-sat，按需切换状态类。 */
 
@@ -281,7 +1242,6 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 :root {
   --lg-tint-scale-light: 1;  /* 设计内部的总旋钮：浅色主题整体浓度，默认 1；不做用户设置 */
   --lg-tint-scale-dark: 1;   /* 设计内部的总旋钮：深色主题整体浓度，默认 1 */
-  --lg-blur: 2px;
 }
 
 .lg {
@@ -343,20 +1303,6 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   box-shadow: inset 0 1px 6px rgb(255 255 255 / 0.45), inset 1px 0 6px rgb(255 255 255 / 0.3), inset 0 -2px 6px rgb(0 0 0 / 0.08);
 }
 
-/* 墨色：玻璃上画的一切用同一种颜色、固定几档；图标用不透明色画再整体降 opacity */
-.lg-ink, .lg-ink-2 { mix-blend-mode: var(--lg-blend); }
-.lg-ink { color: var(--lg-ink); }
-.lg-ink-2 { color: var(--lg-ink-2); }
-
-/* 悬停提亮底色约 14%，不加大影子 */
-.lg.lg-hoverable:hover { --lg-density: calc(var(--lg-base-density, 0.5) + 0.14); }
-
-/* 高亮行：更浅的一层玻璃，不用灰色蒙层 */
-.lg-row:hover { background: rgb(255 255 255 / 0.42); }
-.lg-row[aria-selected="true"], .lg-row[aria-current="true"] { background: rgb(255 255 255 / 0.76); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.9); }
-:is(.lg-dark, [data-theme="dark"] .lg) .lg-row:hover, .lg-on-dark .lg-row:hover { background: rgb(255 255 255 / 0.12); }
-:is(.lg-dark, [data-theme="dark"] .lg) .lg-row[aria-selected="true"], .lg-on-dark .lg-row[aria-selected="true"] { background: rgb(255 255 255 / 0.22); }
-
 /* 退路：降低透明度、强制颜色、不支持背景滤镜 → 同色不透明实色面，去掉透镜和内光 */
 @media (prefers-reduced-transparency: reduce) {
   .lg { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--lg-solid, rgb(244 244 246)); }
@@ -366,7 +1312,6 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 @media (forced-colors: active) {
   .lg { -webkit-backdrop-filter: none; backdrop-filter: none; background: Canvas; color: CanvasText; box-shadow: none; border: 1px solid CanvasText; }
   .lg::before { display: none; }
-  .lg-ink, .lg-ink-2 { mix-blend-mode: normal; color: CanvasText; }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .lg { background: var(--lg-solid, rgb(244 244 246)); }
@@ -374,32 +1319,13 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 }
 
 /* —— Velicoach 接入（design-bar 的液态玻璃，references/liquid-glass.md）——
-   只给背后会变的表面：视频播放条（data-backdrop="video"）、吸顶时压过正文的导航和本站栏（scroll）。
-   边缘透镜由 liquid-glass.js 挂到有 data-lens 的表面上（只在 Chromium）。平涂底色上的东西用实色：「然后动手」圆是 .orb，浮动控件用 surface-solid、surface-ink。 */
+   只给背后会变的表面：视频播放条（data-backdrop="video"）、吸顶时压过正文的导航（scroll）。
+   边缘透镜由 liquid-glass.js 挂到有 data-lens 的表面上（只在 Chromium）。平涂底色上的东西用实色：「然后动手」圆是 .orb，浮动控件用 .vc-surface-solid、.vc-surface-ink。 */
 :root { --lg-solid: var(--vc-paper-surface); --lg-solid-dark: var(--vc-ink-surface); }
 @media (prefers-color-scheme: dark) { :root:not(:has([data-theme="light"])) .lg:not(.lg-on-dark) {
   --lg-tint-scale: var(--lg-tint-scale-dark);
   --lg-tint: rgb(20 20 24 / calc((0.16 + 0.22 * var(--lg-density)) * var(--lg-tint-scale)));
   --lg-filter: blur(var(--lg-blur)) saturate(calc(160% * var(--lg-sat))) brightness(calc(1 - 0.2 * min(var(--lg-tint-scale), 1)));
   --lg-light: 0.33; --lg-ink: rgb(255 255 255 / 0.94); --lg-ink-2: rgb(235 235 245 / 0.64); --lg-blend: plus-lighter; } }
-/* 苔绿实色导航：「动手」页首屏背后是平涂苔绿，导航提亮一层（叠 8% 白）好和首屏分开，浅色字。苔绿玻璃超过约 50% 就是实色，不再做 lg-moss */
-.nav-moss { background-color: var(--vc-moss-hero); background-image: linear-gradient(rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.08)); color: var(--vc-on-moss); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--shadow-pop); }
-/* 吸顶玻璃：背后滚过的是正文，2px 挡不住字形，换成导航一档的 20px */
-:root { --lg-blur-scroll: 20px; }
+/* 吸顶玻璃：背后滚过的是正文，2px 挡不住字形，换成导航一档的 20px（lg-blur-scroll）。同一时刻只有这一层玻璃 */
 .lg[data-backdrop="scroll"] { --lg-blur: var(--lg-blur-scroll); }
-/* 整宽吸顶栏：纸色底、不加内光、只留底边一道 0.5px 分隔线（大面积的内光在浅色里发白、深色里是一块灰斑）。
-   :not(#\_) 只为压过深色主题的玻璃选择器，不匹配任何元素 */
-.lg.lg-bar:not(#\_) {
-  --lg-tint: color-mix(in srgb, var(--vc-paper) 72%, transparent);
-  --lg-filter: blur(var(--lg-blur)) saturate(120%);
-  --lg-edge: 0 0.5px 0 0 var(--vc-paper-line);
-  --lg-light: 0;
-  --lg-ink: var(--vc-text);
-}
-
-/* 研究卡的数字：写在结论句的开头，等宽、加粗、和正文同号，不做大号数字（2026-11-04 决定）。卡片读法：含数字的结论 → 出处 → 研究类型、样本量、可信度 */
-.metric { font-family: var(--font-mono); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--vc-text); white-space: nowrap; }
-
-/* 进度条：「读到一半」这类状态用一条细条表示，不写成文字（C10：能用图形说清的不加说明）。宽度由内层的 width 给出 */
-.progress { display: block; width: 120px; height: 4px; border-radius: var(--radius-pill); background: color-mix(in srgb, currentColor 24%, transparent); overflow: hidden; }
-.progress > span { display: block; height: 100%; border-radius: inherit; background: currentColor; }

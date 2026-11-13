@@ -2,6 +2,13 @@
 
 新的在上面。每条写清：决定、理由、改了哪里。产品层面的决定同时记在 `docs/prd/decisions.md`。
 
+## 2026-11-13 · 同步 design-bar 到上游 f912ced，本站色面门槛进项目配置
+
+- **决定**：`design-bar` 技能同步到上游 f912ced；加载态骨架被判成首屏空白带的误报在本仓库先修（上游 madlouse/skills 仍有这个问题，经 thin-muscle-coach 渠道回灌）；本站的色面门槛 1.8:1 从命令参数改成项目配置 `docs/uiue/design-bar.json`，`verify_canvas.py` 向上查找后自动采用，命令不再带 `--face-contrast 1.8`。
+- **理由**：同一类问题（本站参数只写在文档、命令里漏带）已出现三次，写成配置才不会再漏（`docs/delivery/lessons.md` 2026-11-12「同一类第三次」）。
+- **验证**：浏览器里跑 `selftest.py` 通过；`rebuild.sh --verify` 报告开头写明「阈值取自项目配置」，骨架误报消失（States.dc.html 通过）。页面画板 2 条、设备画板 4 条，全部是孤字成行，来自两处文字：首页「12 分钟 · 附 3 分钟视频」（320×568）、看清英文「taken 15 so far.」（390×844）。这是设计问题，留给关口三 a 的补评。
+- **改了哪里**：`.grok/skills/design-bar/`、`docs/uiue/design-bar.json`、`docs/standards/pipeline.md` §2.1 和 §7、`docs/uiue/prototypes/v1.1/tools/verify_all.sh` 和 `README.md`、`docs/uiue/bar-sheet.md`（`gate.py` 的说法）、`docs/delivery/roadmap.md` §6。
+
 ## 2026-11-12 · 设计 v1.1：首屏以下重做，看清按时代，统一栅格和字号，复评后的第二轮裁决
 
 - **依据**：`docs/requirements/trace.md` 第 93–96 条；设计简报 `docs/uiue/brief.md`（第 0–9 节是两份诊断上的裁决，第 10 节是复评后的第二轮）；两轮评审和汇总在 `docs/uiue/reviews/2026-11-12-audit/`。这些是体验类决定，由主会话定，产品负责人有意见再改；要他定的几件列在本节最后。

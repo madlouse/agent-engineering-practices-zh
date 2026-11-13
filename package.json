@@ -24,7 +24,7 @@
     "check:issue-refs": "node scripts/check-issue-refs.mjs",
     "check:ticket-table": "node scripts/check-ticket-table.mjs",
     "check:vague": "node scripts/check-vague.mjs",
-    "check:research-metric": "node scripts/check-research-metric.mjs",
+    "check:research-metric": "node scripts/check-research-metric.mjs src docs/uiue/prototypes/v1.1/boards",
     "check:voice": "node scripts/check-voice.mjs",
     "format": "prettier --write ."
   },

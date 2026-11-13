@@ -158,10 +158,10 @@ body{margin:0}
     </div>
     <div class="vc-study-set">
     <sc-for list="{{studiesLead}}" as="st" hint-placeholder-count="1">
-      <article class="vc-card vc-study">
+      <article class="vc-card vc-study" data-research-card data-credibility="high">
         <div class="vc-study-key">
           <h3 class="vc-study-topic">{{st.topic}}</h3>
-          <p class="vc-type-metric">{{st.metric}}</p>
+          <p class="vc-type-metric" data-research-metric>{{st.metric}}</p>
           <p class="vc-grade" data-grade="{{st.grade}}"><span class="vc-grade-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>{{st.gradeText}}</span></p>
         </div>
         <div class="vc-study-body">
@@ -177,7 +177,7 @@ body{margin:0}
     </sc-for>
     <ol class="vc-rows vc-study-rows">
       <sc-for list="{{studiesRows}}" as="st" hint-placeholder-count="2">
-        <li class="vc-row vc-study-row">
+        <li class="vc-row vc-study-row" data-research-card data-credibility="{{st.credibility}}">
           <div class="vc-study-key">
             <h3 class="vc-study-topic">{{st.topic}}</h3>
             <p class="vc-grade" data-grade="{{st.grade}}"><span class="vc-grade-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>{{st.gradeText}}</span></p>
@@ -596,7 +596,7 @@ class Component extends DCLogic {
       else this.setState({ lean: who });
     };
     const studies = c.studies.map((x) => ({
-      ...x, hasMetric: !!x.metric,
+      ...x, hasMetric: !!x.metric, credibility: ['very-low', 'low', 'moderate', 'high'][x.grade - 1],
       gradeText: c.metaCertainty + (v.en ? ': ' + x.certainty.toLowerCase() : '：' + x.certainty),
       method: [x.type, x.sample, x.effect && c.metaEffect + ' ' + x.effect].filter(Boolean).join(' · '),
       seenText: v.en ? new Date(x.seen + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : x.seen,

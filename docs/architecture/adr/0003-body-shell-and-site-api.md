@@ -1,6 +1,6 @@
 # 0003 /body 的导航约定和主站服务端接口路径
 
-- 状态：已采纳；**(b) 于 2026-11-11 修订：撤掉外壳包，改成导航约定**（产品负责人确认，`docs/requirements/timeline.md` 第 89 条；依据 `docs/prd/reviews/2026-11-10-vision-review.md` 10.2 A）（原记录：产品负责人 2026-11-09 确认；(c) 分流按关口三 b 冷审 P1-5 补；研究卡随外壳包发、(c) 补 Veli 的静态资源和切换票，按关口三 b 第二轮冷审 P1-2、P1-3 改；代理目标、Veli 生产分支、`/manual`、`/v2` 按第三轮冷审 P1-C、P2-2、P2-5 补）
+- 状态：已采纳；**(b) 于 2026-11-13 再修订：第 3 条约定加偏好 cookie**；**(b) 于 2026-11-11 修订：撤掉外壳包，改成导航约定**（产品负责人确认，`docs/requirements/timeline.md` 第 89 条；依据 `docs/prd/reviews/2026-11-10-vision-review.md` 10.2 A）（原记录：产品负责人 2026-11-09 确认；(c) 分流按关口三 b 冷审 P1-5 补；研究卡随外壳包发、(c) 补 Veli 的静态资源和切换票，按关口三 b 第二轮冷审 P1-2、P1-3 改；代理目标、Veli 生产分支、`/manual`、`/v2` 按第三轮冷审 P1-C、P2-2、P2-5 补）
 - 关联：ADR-0001（同域名、按路径分流）、Veli 仓库 ADR-0032（路由表）、主站 PRD v2.0 F09（修订前依据 PRD v1.2：冷审第二轮 P1-2、P1-4，第三轮 P1-1、P1-2、P2-4、P2-6）、`quality-terms` U10
 
 ## 背景
@@ -31,9 +31,9 @@ Veli 的 `/api/*` 规则排除这个前缀。Vercel rewrites 按顺序匹配，�
 
 1. **站标回首页**：/body 导航左上角的站标链到 `/`（英文页链到 `/en/`）。
 2. **三站的链接**：导航里有站稳、看清、动手三个链接，地址是 `/body`、`/mind`、`/build`（英文加 `/en`），当前所在的站高亮。
-3. **语言和外观的记忆共用**：两边在同一个域名下，语言和外观的选择读写同一组 localStorage 键 `vc-lang`、`vc-theme`，取值和主站一致（`zh` / `en`；`auto` / `light` / `dark`）。
+3. **语言和外观的记忆共用**：两边在同一个域名下，语言和外观的选择读写同一组 localStorage 键 `vc-lang`、`vc-theme`，取值和主站一致（`zh` / `en`；`auto` / `light` / `dark`）。（2026-11-13 修订，需求第 103 条）同时写 `.velicoach.com` 的 cookie，让子域名上的家族产品（WordS）读得到：属性 `Domain=.velicoach.com; Path=/; SameSite=Lax; Max-Age=31536000`，不加 `Secure`，和共享约定一致（条文在 madlouse/skills PR 15 的 `family.md`）；读的顺序是 cookie、本机存储、系统偏好。依据 `docs/uiue/decisions.md`「2026-11-13 · M1 规格的决定」的偏好 cookie 一条。
 
-主站的上线测试（关口四）打开 /body 和 /en/body，逐条检查这三件事；不通过不切换域名。
+主站的上线测试（关口四）打开 /body 和 /en/body，逐条检查这三件事（第 3 条的 cookie 在真实域名上查，见 `launch-runbook.md` 切换后第 13 步）；不通过不切换域名。
 
 「为什么是肌肉」的研究卡只放在主站首页，/body 不放，研究卡数据不跨仓库共用，主站也不再出 `/data/research.json`。订阅条只在主站的页面上。搜索在 v1 不做，`/?q=` 的约定随之取消。
 

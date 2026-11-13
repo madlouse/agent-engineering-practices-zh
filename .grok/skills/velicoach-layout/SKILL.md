@@ -138,7 +138,7 @@ description: Velicoach 主站的页面排版与布局规范：页面骨架、手
 ## 9. 浅色与深色
 
 - 全站默认跟随系统（`prefers-color-scheme`），系统切换时立刻跟着变；读不到时用浅色。
-- 页脚里有「自动 / 浅色 / 深色」（账号菜单里的同一组是 v2；v1 只在页脚切换）；按设备记住（本机键名 `vc-theme`，语言是 `vc-lang`，和 /body 共用），`<head>` 里在绘制前设好主题，刷新不闪；设 `color-scheme` 和按主题的 `theme-color`。
+- 页脚里有「自动 / 浅色 / 深色」（账号菜单里的同一组是 v2；v1 只在页脚切换）；按设备记住（本机键名 `vc-theme`，语言是 `vc-lang`，同时写进作用域为 `.velicoach.com` 的 cookie，读时 cookie 优先；本机存储和 /body 共用，cookie 让子域名上的 WordS 读得到），`<head>` 里在绘制前设好主题，刷新不闪；设 `color-scheme` 和按主题的 `theme-color`。
 - 品牌色带（首页两半、看清和动手的首屏）保持各站颜色，深色下降亮度或提一档，不换色相；色带以下的阅读区、列表、卡片、表单都跟随主题。深色下相邻的大色面要分得开：品牌两半 ≥ 1.8:1，墨色色带和强调面对页面底 ≥ 1.3:1 并加 1px 描边（数值和 token 见设计系统「浅色与深色」）。
 - 颜色只用带浅色、深色两个值的 token；每个页面截浅色、深色两套图，两套都过 WCAG 2.2 AA。
 
@@ -175,11 +175,12 @@ description: Velicoach 主站的页面排版与布局规范：页面骨架、手
    - 动效和玻璃的证据（标杆卡 P4）：`capture_motion.py <首页画板> <输出.png> --state '{"lean":"body"}' --hover <x,y> --blob <id>=<文件>`，四帧：倾向站稳（叶）、倾向看清（网）、`--reduced-motion` 静止帧、`--no-webgl` 兜底（加 `--expect <兜底元素的选择器>`，证明兜底画出来了）；每个声明 `motion` 的玻璃加一次 `--probe`。吸顶玻璃截「正文一行字正好从导航文字后面滚过」的那一张（画板用属性把内容往上移，`liquid-glass.md` §7），在图上量对比度。
    - 内容模型的字段都画出来了：`coverage.py --canvas <画板目录> --data <研究卡数据.json> --skip-fields id,topic`。
 3. **去 AI 味**：按 `unslop` 的信号清单过一遍；和设计系统冲突时以设计系统为准。
-4. **状态与降级**：加载中、空、出错、离线；关闭动效、降低透明度、减弱动态效果、无 WebGPU。
-5. **性能**：手机 75 分位 LCP ≤ 2.5 秒、INP ≤ 200 毫秒、CLS ≤ 0.1。
-6. **步数**：按 PRD 的步数表逐个场景数一遍，每步标意图步或可删步（v1 只数未登录；登录后的一列是 v2）。
-7. **真机**：iPhone、iPad、Mac Safari、一台中端 Android 手机各走一遍关键路径。
-8. 报告放进 `docs/uiue/reviews/<日期-主题>/`；交付时说明做了哪些体验决定和理由，记进 `docs/uiue/decisions.md`。
+4. **偏好 cookie**：写入的字符串（`vc-theme`、`vc-lang` 各一个，`Domain=.velicoach.com; Path=/; SameSite=Lax; Max-Age=31536000`、不带 `Secure`）和读取顺序（cookie、本机存储、系统偏好）用单元测试（`node --test`）查，不依赖域名，上线前就能跑；预览部署在 `*.vercel.app` 下，浏览器不接受这个 cookie，预览上查不了 cookie，只查本机存储和 /body 的来回切换；cookie 本身在真实域名上查，步骤写在 `docs/delivery/launch-runbook.md` 切换后第 13 步。票的验收照这条写。
+5. **状态与降级**：加载中、空、出错、离线；关闭动效、降低透明度、减弱动态效果、无 WebGPU。
+6. **性能**：手机 75 分位 LCP ≤ 2.5 秒、INP ≤ 200 毫秒、CLS ≤ 0.1。
+7. **步数**：按 PRD 的步数表逐个场景数一遍，每步标意图步或可删步（v1 只数未登录；登录后的一列是 v2）。
+8. **真机**：iPhone、iPad、Mac Safari、一台中端 Android 手机各走一遍关键路径。
+9. 报告放进 `docs/uiue/reviews/<日期-主题>/`；交付时说明做了哪些体验决定和理由，记进 `docs/uiue/decisions.md`。
 
 ## 14. 改进规范
 

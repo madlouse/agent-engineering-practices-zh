@@ -26,7 +26,7 @@
 4a. **导航约定检查**（ADR-0003 (b)，PRD F09）：主站不打包导航和页脚给 Veli，/body 的导航由 Veli 自己做。主会话用 Playwright 从主站预览打开 `/body` 和 `/en/body`，逐条检查三件事，结果贴 #66：
    - 站标回首页：左上角站标的链接是 `/`（英文页是 `/en/`）；
    - 三站的链接：导航里有站稳、看清、动手三个链接，地址是 `/body`、`/mind`、`/build`（英文加 `/en`），站稳高亮；
-   - 语言和外观的记忆共用：在主站把语言切到英文、外观切到深色，本机的 `vc-lang` 是 `en`、`vc-theme` 是 `dark`，再打开 /body 是英文、深色；在 /body 切回去，回到主站也跟着变。取值只有 `zh` / `en` 和 `auto` / `light` / `dark`。
+   - 语言和外观的记忆共用：在主站把语言切到英文、外观切到深色，本机的 `vc-lang` 是 `en`、`vc-theme` 是 `dark`；取值只有 `zh` / `en` 和 `auto` / `light` / `dark`。再打开 /body 是英文、深色；在 /body 切回去，回到主站也跟着变。预览部署在 `*.vercel.app` 下，浏览器不接受 `Domain=.velicoach.com` 的 cookie，两边读不到 cookie，按「cookie、本机存储、系统偏好」的顺序落到同一个源下的本机存储，所以这一条在预览上查得了；只有 cookie 本身（属性、清掉本机存储以后仍按 cookie 显示）要等真实域名，见切换后第 13 步。
    有一条不过就不切换域名：在 thin-muscle-coach#185 写明哪一条，等 Veli 改完重查。
 4b. **订阅的上线开关默认关**：核对生产配置里开关的值是关；`SITE_DB_URL`、`RESEND_API_KEY`、`RESEND_WEBHOOK_SECRET`、`MAIL_TICKET_READ_TOKEN` 里已经配了的，范围都只有 Production（只看变量名和范围，不打印值）；律师对「授权与确认」表和法务页的书面意见已经回来、没有未处理的项，#98 已关闭（产品负责人 2026-11-11 定：拿到意见再上线，需求第 91 条）；四项条件（见下面「订阅的上线开关」）到齐以前不打开。开关关着不挡上线。预览上开关恒为开，订阅的全流程在预览上照常验（`subscribe` 事件也在预览上触发，PRD F29）。
 5. 产品负责人在 #66 回复「确认上线」。
@@ -46,7 +46,7 @@
 ## 切换后（60 分钟内做完）
 
 12. 主会话用核对脚本对 `velicoach.com` 跑一遍路由表每一行；迁入的 5 篇文章 `/mind/<slug>` 和它们的中英旁白都返回 200（#32 的清单）。
-13. Playwright 经 `velicoach.com` 打开 `/`、`/body`、`/en/body`、`/app`：页面发出的请求里 4xx、5xx 为 0；首页「为什么是肌肉」的研究卡锚点在（研究卡只在首页，/body 不放）；第 4a 步的导航约定三件事在 `velicoach.com` 上再查一遍。
+13. Playwright 经 `velicoach.com` 打开 `/`、`/body`、`/en/body`、`/app`：页面发出的请求里 4xx、5xx 为 0；首页「为什么是肌肉」的研究卡锚点在（研究卡只在首页，/body 不放）；第 4a 步的导航约定三件事在 `velicoach.com` 上再查一遍，其中只能在真实域名上查的 cookie 部分（需求第 103 条）：在 `velicoach.com` 把语言切到英文、外观切到深色，浏览器里有 `vc-lang=en`、`vc-theme=dark` 两个 cookie，属性是 `Domain=.velicoach.com; Path=/; SameSite=Lax; Max-Age=31536000`、不带 `Secure`；清掉本机存储以后刷新，页面仍按 cookie 显示；再打开 `/body`，也是英文、深色。
 13a. 订阅的上线开关关着时：首页和各页没有订阅条和页底订阅，首屏底部是 RSS 链接；`POST https://velicoach.com/api/site/subscribe` 返回 404，订阅库里没有新增的行。开关已经打开的，改做下面「订阅的上线开关」第 4 步的验证。
 14. `pipeline.md` §2.3「切换后」清单逐项做完，结果贴 #66。
 15. 任何一项不过：按下面的回退步骤恢复，在 #66 写明哪一项、原因、下一次上线前要改什么。

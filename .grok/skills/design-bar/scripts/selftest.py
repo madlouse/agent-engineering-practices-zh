@@ -181,6 +181,12 @@ def lint_tokens_checks():
         code, txt = lint('--exclude', 'src/keep')
         if 'keep/c.css' in txt or 'skip/a.css' not in txt:
             failures.append('lint_tokens.py：命令行给了 --exclude 就只用命令行的，配置的排除不叠加：' + txt[-200:])
+        code, txt = lint('--no-project-config', paths=('src/missing',))
+        if code != 2 or '没有检查任何文件' not in txt or gone in txt:
+            failures.append('lint_tokens.py：扫描路径下一个文件也没检查（路径写错）要报错退出，不能输出「没有发现」：' + txt[-300:])
+        code, txt = lint('--no-project-config', paths=('src/keep/c.css',))
+        if code != 1 or 'keep/c.css' not in txt:
+            failures.append('lint_tokens.py：扫描路径直接写文件时照常检查：' + txt[-200:])
         write(os.path.join(root, 'design-bar.json'), json.dumps({'lint-tokens': {'excludes': ['src/skip']}}))
         code, txt = lint()
         if code == 0 or '可用的键' not in txt or 'lint-tokens-ignore' in txt or gone in txt or 'keep/c.css' in txt:
@@ -319,7 +325,7 @@ def main():
         if failures:
             print('selftest --static 不通过：\n  ' + '\n  '.join(failures))
             sys.exit(1)
-        print('selftest --static 通过：gate.py（填全的、做坏的、没填的模板）、check_shell.py（做对的、做坏的、守卫形态的反例、不给配置）、stale_terms.py 的通用词汇表、项目配置（design-bar.json，含顶层键校验）、lint_tokens.py 的排除（命令行、配置、仓库根、盖住扫描路径报错）都对')
+        print('selftest --static 通过：gate.py（填全的、做坏的、没填的模板）、check_shell.py（做对的、做坏的、守卫形态的反例、不给配置）、stale_terms.py 的通用词汇表、项目配置（design-bar.json，含顶层键校验）、lint_tokens.py 的排除（命令行、配置、仓库根、盖住扫描路径报错、一个文件也没检查到报错）都对')
         return
     out = tempfile.mkdtemp(prefix='verify-selftest-')
     subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), '--no-project-config', FIXTURES, '--out', out, '--size', 'SelftestProps.dc.html=320x600'],

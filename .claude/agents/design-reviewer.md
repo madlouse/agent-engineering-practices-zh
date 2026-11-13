@@ -1,7 +1,7 @@
 ---
 name: design-reviewer
-description: 独立设计评审人之一（默认 Fable；评画板时派活换成 Opus，pipeline.md §3「评审的模型」）。关口三 a（UI/UE 对抗评审）、里程碑关口、关口四上线前用；和 design-reviewer-b 各自独立评审、互相看不到，只交问题清单。合并、修改、写报告由派活的主会话做。
-model: fable
+description: 独立设计评审人之一（Opus，整体把关；pipeline.md §3「评审的模型」）。关口三 a（UI/UE 对抗评审）、里程碑关口、关口四上线前用；和 design-reviewer-b 各自独立评审、互相看不到，只交问题清单。合并、修改、写报告由派活的主会话做。
+model: opus
 effort: medium
 ---
 

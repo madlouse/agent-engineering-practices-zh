@@ -143,7 +143,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 
 产品负责人：「让用户确认其实要有一套对应的规则，不是什么都要用户去合并。」照 Veli `agent-gitflow.md` §5.3、§5.4 改（§9）。合并进集成分支一律用合并脚本；脚本判定 base、类别、要几份评审（`merge-gates.mjs`、`review-markers.mjs`，测试在两份 `.test.mjs`），合并前在「PR + 最新目标分支」上重跑 `npm test`、`check:terms`、`check:vague`（命令取自目标分支）。任何 PR 都不能关 #13（`PROTECTED_ISSUES`）。
 
-表里的「预览 READY」指 PR 头提交的预览部署。只改文档的提交 Vercel 不出预览（`docs/deploy.md`），合并脚本对此放行两种情况：整个 PR 相对目标分支只改了文档，不要求预览；或者声明 PR 里更早一个提交的 READY 预览，从它到头提交只改了文档。「只改文档」用目标分支上的 `scripts/preview-skip.mjs` 判定（路径按 `-z` 原样读、关掉改名检测，判法见 `docs/deploy.md`），目标分支上没有这个脚本时仍要头提交的预览；这个脚本和 `vercel.json` 是门槛文件。这一条是 2026-11-13 主频道定的，在单独一个提交里，可以单独撤回。
+本节的「预览 READY」（含上面一段和下表）指 PR 头提交的预览部署。只改文档的提交 Vercel 不出预览（`docs/deploy.md`），合并脚本对此放行两种情况：整个 PR 相对目标分支只改了文档，不要求预览；或者声明 PR 里更早一个提交的 READY 预览，从它到头提交只改了文档。「只改文档」用目标分支上的 `scripts/preview-skip.mjs` 判定（路径按 `-z` 原样读、关掉改名检测，判法见 `docs/deploy.md`），目标分支上没有这个脚本时仍要头提交的预览；这个脚本是门槛文件，`vercel.json` 里的 `ignoreCommand`、`buildCommand`、`installCommand` 三个字段也算门槛（`merge-gates.mjs` 的 `VERCEL_GATE_FIELDS`），`rewrites` 这类分流配置票可以改。这一条是 2026-11-13 主频道定的；要撤回时，还原 `scripts/merge-ticket-pr.sh` 里「预览部署」那一段和兜底提示里的 `preview_basis`，并删掉本段。
 
 | PR | 合并条件 | 谁合并 |
 |---|---|---|

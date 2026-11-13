@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { docsOnly, decide, splitPaths } from "./preview-skip.mjs";
@@ -36,8 +36,9 @@ test("eslint 会查的脚本要构建，画板目录 eslint 不查", () => {
   assert.equal(docsOnly(["docs/tools/x.mjs"]), false);
   assert.equal(docsOnly(["docs/uiue/prototypes/v1.1/src/pages/article.js"]), true);
 });
-test("中文文件名和改名都按原路径判", () => {
+test("中文文件名和改名都按原路径判", (t) => {
   const dir = mkdtempSync(join(tmpdir(), "preview-skip-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
   const git = (...a) => execFileSync("git", ["-C", dir, ...a], { encoding: "utf8" });
   git("init", "-q");
   git("config", "user.email", "t@t");

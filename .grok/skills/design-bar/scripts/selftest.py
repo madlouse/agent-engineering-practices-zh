@@ -113,6 +113,13 @@ def project_config_checks():
             except SystemExit as e:
                 if key not in str(e.code) or '通用下限' not in str(e.code):
                     failures.append(f'项目配置：{key} 放宽的报错要说清哪个阈值、下限多少：{e.code}')
+        for bad_value in ('NaN', 'Infinity', '-Infinity'):
+            write(os.path.join(root, 'c', 'design-bar.json'), '{"thresholds": {"face-contrast": %s}}' % bad_value)
+            try:
+                vc.apply_project_config(parser(), [os.path.join(root, 'c', 'boards')])
+                failures.append(f'项目配置：face-contrast 写 {bad_value} 要报错退出')
+            except SystemExit:
+                pass
         write(os.path.join(root, 'c', 'design-bar.json'), '{"thresholds": {"face-contrast": 1.3, "tap-min": 44}}')
         if not vc.apply_project_config(parser(), [os.path.join(root, 'c', 'boards')]):
             failures.append('项目配置：等于通用下限的值照收')
@@ -169,7 +176,7 @@ def static_checks():
     if code != 1 or '根元素写死主题' not in txt.split('## 过')[0]:
         failures.append('check_shell.py：顶层无条件 classList.add(\'dark\') 应该报根元素写死主题')
 
-    must = {'negated-getitem', 'negated-bare-matchmedia', 'negated-null', 'other-key', 'other-media', 'not-equal-value', 'null-on-left', 'wrapped-typeof', 'wrapped-string', 'wrapped-default'}
+    must = {'negated-getitem', 'negated-bare-matchmedia', 'negated-null', 'other-key', 'other-media', 'not-equal-value', 'null-on-left', 'wrapped-typeof', 'wrapped-string', 'wrapped-default', 'wrapped-or-default'}
     if not must <= set(os.listdir(os.path.join(shell, 'bad-guard'))):
         failures.append(f'check_shell.py：bad-guard 缺夹具 {"、".join(sorted(must - set(os.listdir(os.path.join(shell, "bad-guard")))))}')
     for name in sorted(os.listdir(os.path.join(shell, 'bad-guard'))):

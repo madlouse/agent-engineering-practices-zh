@@ -195,12 +195,16 @@ export function riskHigh({ fork, head, git }) {
   return reasons;
 }
 
-export function mergeConflicts({ base, head, git }) {
+export function mergeConflicts({ base, head, git, warn = console.log }) {
   try {
-    git("merge-tree", "--write-tree", "--name-only", base, head);
+    git("-c", "core.quotePath=false", "merge-tree", "--write-tree", "--name-only", base, head);
     return [];
   } catch (e) {
-    if (e.status !== 1) return [];
+    if (e.status !== 1) {
+      const why = String(e.stderr ?? "").split("\n").find(Boolean) ?? `退出码 ${e.status}`;
+      warn(`冲突检查没跑成（${why.trim()}），先放行；合并时 git merge 有冲突会失败`);
+      return [];
+    }
     const files = String(e.stdout ?? "").split("\n\n")[0].split("\n").slice(1).filter(Boolean);
     return [`和目标分支冲突：${files.slice(0, 5).join("、") || "合并不了"}`];
   }

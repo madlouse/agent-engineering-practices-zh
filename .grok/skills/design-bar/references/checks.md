@@ -72,7 +72,7 @@
 
 ## `check_shell.py`（外壳）
 
-`python scripts/check_shell.py <源码目录…> --config <设计目录>/shell.json --out <报告目录>`。读源码文本，不渲染：有深色主题却没有 `prefers-color-scheme`、根元素写死主题（`theme.fixedAllow` 里的特例路径除外）、约定的存储键和取值没出现、家族首页和同级链接没出现、没有 `aria-current`。不给 `--config` 只查前两项。它判不了「读了存储键是否生效」，上线前照 `family.md` 第 4 节点一遍。
+`python scripts/check_shell.py <源码目录…> --config <设计目录>/shell.json --out <报告目录>`。读源码文本，不渲染：有深色主题却没有 `prefers-color-scheme`、根元素写死主题（`theme.fixedAllow` 里的特例路径除外）、约定的存储键和取值没出现、家族首页和同级链接没出现、没有 `aria-current`。不给 `--config` 只查前两项。它判不了「读了存储键是否生效」，上线前由项目的外壳验收在运行时兜底，见 `family.md` 第 4 节。
 
 ## `gate.py`（定稿门槛）
 

@@ -5,7 +5,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, renameSync, rmSync } from "node:
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { checkBase, classifyBranch, declaredCategory } from "./merge-gates.mjs";
+import { checkBase, classifyBranch, declaredCategory, mergeConflicts } from "./merge-gates.mjs";
 
 // scripts/merge-gates.mjs：合并脚本替票的 PR 把的「改动范围」关（pipeline.md §5、§8 第 0 阶段）
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), "merge-gates.mjs");
@@ -532,4 +532,12 @@ test("PR 头和目标分支合并冲突：拒绝并提示先合并目标分支�
     const ok = r.run(r.commit("clean"), "chore/clean", "类别：a");
     assert.equal(ok.status, 0, ok.stdout);
   } finally { r.cleanup(); }
+});
+
+test("冲突检查没跑成（git 太旧或命令出错）：放行，但打印一行提示", () => {
+  const lines = [];
+  const git = () => { throw Object.assign(new Error("x"), { status: 129, stderr: "usage: git merge-tree [<options>]\nmore" }); };
+  assert.deepEqual(mergeConflicts({ base: "a", head: "b", git, warn: (l) => lines.push(l) }), []);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /冲突检查没跑成（usage: git merge-tree/);
 });

@@ -100,6 +100,7 @@
 import argparse
 import glob
 import json
+import math
 import os
 import re
 import sys
@@ -188,7 +189,9 @@ def apply_project_config(ap, argv):
         sys.exit(f'{path}：不认识的阈值 {"、".join(bad)}，可用：{"、".join(PROJECT_CONFIG_KEYS)}')
     for k, v in th.items():
         limit, loose = PROJECT_CONFIG_LOOSER[k]
-        if not isinstance(v, (int, float)) or isinstance(v, bool) or (v > limit if loose == '>' else v < limit):
+        if not isinstance(v, (int, float)) or isinstance(v, bool) or not math.isfinite(v):
+            sys.exit(f'{path}：{k} 是 {v}，要写成有限的数字')
+        if (v > limit if loose == '>' else v < limit):
             sys.exit(f'{path}：{k} 是 {v}，通用下限是{"不超过" if loose == ">" else "不低于"} {limit:g}：项目配置只能收紧，放宽只能在命令行用参数临时调')
     actions = {act.dest: act for act in ap._actions}
     for k, v in th.items():

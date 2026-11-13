@@ -199,7 +199,7 @@ def main():
                         findings.append(("未定义变量 " + v, f, i, s[:120]))
 
     if checked == 0:
-        print(f"没有检查任何文件（扫描路径 {'、'.join(a.paths)} 下没有可检查的文件，或全被排除）：路径可能写错，这样「没有问题」不算数。", file=sys.stderr)
+        print(f"没有检查任何文件（扫描路径 {'、'.join(a.paths)} 下没有可检查的文件，只剩 --tokens 指向的那个文件，或全被排除）：路径可能写错，这样「没有问题」不算数。", file=sys.stderr)
         return 2
     if excludes:
         print(f"已排除 {skipped} 个文件（前缀：{'、'.join(given)}）。")

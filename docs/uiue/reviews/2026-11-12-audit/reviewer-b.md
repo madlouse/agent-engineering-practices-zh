@@ -1,6 +1,6 @@
 # 独立设计诊断（评审 B，重心在「用」）
 
-范围：feature/v1，画板「Velicoach 主站 · UI v1.0」，对照 PRD v2.0。只读。证据：`uiue-diag/shots/*.png`（简称「原图」），以及我自己渲染的 `revB/r/*.png`（简称「我渲染」）、`revB/r/*.html`（测量用）。目录前缀均为 /tmp/claude-0/-home-claude/b9e68665-1a1a-5bba-80a0-e8161ba32ea6/scratchpad/。
+范围：feature/v1，画板「Velicoach 主站 · UI v1.0」，对照 PRD v2.0。只读。证据：`uiue-diag/shots/*.png`（简称「原图」），以及我自己渲染的 `revB/r/*.png`（简称「我渲染」）、`revB/r/*.html`（测量用）。这些都是评审时的临时目录，截图没有进仓库。
 不重复 `coverage.md` 已列的缺口（Mind 的五个时代、类型筛选、学习路径页、Body 研究卡、手机只画了首屏）。
 
 ## 0. 结论先行

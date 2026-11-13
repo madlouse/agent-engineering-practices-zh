@@ -50,3 +50,17 @@ test("目录递归并只看指定扩展名", () => {
   assert.equal(r.lines.length, 1);
   assert.match(r.lines[0], /x\.html:2:/);
 });
+test("属性里的 JSX 表达式含 > 时不提前结束标签", () => {
+  const jsx = `<section data-research-card data-credibility="低"><p title={n > 1 ? "more" : "less"} data-research-metric>23%</p></section>`;
+  assert.equal(findProblems(jsx).length, 1);
+  const nested = `<section data-research-card data-credibility="很低"><p style={{ a: b > c ? "}" : "{" }} data-research-metric>23%</p></section>`;
+  assert.equal(findProblems(nested).length, 1);
+});
+test("可信度写成 JSX 字符串字面量也认", () => {
+  assert.deepEqual(findProblems(`<section data-research-card data-credibility={"高"}><p data-research-metric>1</p></section>`), []);
+  assert.equal(findProblems(`<section data-research-card data-credibility={"低"}><p data-research-metric>1</p></section>`).length, 1);
+  assert.match(findProblems(`<section data-research-card data-credibility={level}><p data-research-metric>1</p></section>`)[0].why, /不合法/);
+});
+test("表达式里的单词不算属性", () => {
+  assert.deepEqual(findProblems(`<p title={"data-research-metric"}>x</p>`), []);
+});

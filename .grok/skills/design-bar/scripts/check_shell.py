@@ -9,7 +9,10 @@
                  theme.fixedAllow 里列出的特例路径（正则）不算
   偏好记忆       theme.storageKey、family.langKey 和它们的取值在源码里都出现
   家族导航       family.home 有一个链到它的链接；family.links 每个地址都出现；有 aria-current
-它判不了运行时的行为（例如读了存储键却没生效），上线前照 references/family.md 第 4 节点一遍。
+  「无条件」的判法：写入包在带 matchMedia、prefers-color-scheme、getItem( 的 if 块、if 行内、三元或 && 之后才算有条件；
+  只在同一行里读了偏好、if 块已经关上、写在 else 里、守卫只出现在注释或写入之后，都照报。
+它判不了运行时的行为（读了存储键却没生效），也判不了守卫写在函数外面的形态（例如 if (!saved) return 写在调用方、
+变量先存下 matchMedia 的结果再 if、条件跨多行、字符串或模板字面量里带花括号），这几种上线前照 references/family.md 第 4 节点一遍。
 
 用法：
   python check_shell.py src [更多源码目录] [--config docs/design/shell.json] [--out 报告目录]
@@ -33,11 +36,73 @@ FORCED = [
 ]
 
 
-def guarded(lines, i, guard):
-    """这一行是否只在跟随系统或读到存储的偏好时才写根主题：同一行带条件，或前两行里有带条件的 if。"""
-    if guard.search(lines[i]):
+GUARD = re.compile(r'matchMedia|prefers-color-scheme|getItem\(')
+COMMENT = re.compile(r'/\*.*?\*/|<!--.*?-->|(?<![:\\])//[^\n]*', re.S)
+
+
+def blank_comments(text):
+    return COMMENT.sub(lambda m: re.sub(r'[^\n]', ' ', m.group(0)), text)
+
+
+def last_if(seg):
+    """seg 里最后一个 if (…)：返回（括号里的条件，括号后的剩余文本），括号没配平就返回 None。"""
+    starts = [m.start() for m in re.finditer(r'\bif\s*\(', seg)]
+    if not starts:
+        return None
+    i = seg.index('(', starts[-1])
+    depth, quote = 0, ''
+    for j in range(i, len(seg)):
+        c = seg[j]
+        if quote:
+            quote = '' if c == quote else quote
+        elif c in '\'"`':
+            quote = c
+        elif c == '(':
+            depth += 1
+        elif c == ')':
+            depth -= 1
+            if depth == 0:
+                return seg[i + 1:j], seg[j + 1:]
+    return None
+
+
+def block_stack(text, end):
+    """text[:end] 末尾还没关上的花括号块，每块一个标记：是不是由带守卫条件的 if 打开的。字符串里的花括号跳过。"""
+    stack, quote, line_start = [], '', 0
+    for i in range(end):
+        c = text[i]
+        if c == '\n':
+            line_start, quote = i + 1, '' if quote != '`' else quote
+        elif quote:
+            quote = '' if c == quote else quote
+        elif c in '\'"`':
+            quote = c
+        elif c == '{':
+            cond = last_if(text[line_start:i])
+            stack.append(bool(cond and not cond[1].strip() and GUARD.search(cond[0])))
+        elif c == '}' and stack:
+            stack.pop()
+    return stack
+
+
+def guarded(text, p):
+    """text[p] 处的根主题写入是否真的包在跟随系统或读存储偏好的条件里。
+    认的形态：还没关上的带守卫 if 块里；同一行 if (守卫) 后面没有分号、花括号、else 就接着写；守卫 ? 或 守卫 && 之后写；
+    上一行是只有条件的 if (守卫)、这一行以写入开头。当前行以 else 开头、if 块已经关上、守卫只出现在条件之后或注释里，都不算。"""
+    if any(block_stack(text, p)):
         return True
-    return any(re.search(r'\bif\s*\(', x) and guard.search(x) for x in lines[max(0, i - 2):i])
+    line_start = text.rfind('\n', 0, p) + 1
+    seg = re.sub(r'(?:window\.)?document\.$', '', text[line_start:p])
+    cond = last_if(seg)
+    if cond and GUARD.search(cond[0]) and not re.search(r'[;{}]|\belse\b', cond[1]):
+        return True
+    if re.search(r'(?:matchMedia|prefers-color-scheme|getItem\()[^;{}]*(?:\?|&&)\s*$', seg):
+        return True
+    if not seg.strip():
+        prev = text[:line_start].rstrip('\n').rsplit('\n', 1)[-1]
+        cond = last_if(prev)
+        return bool(cond and GUARD.search(cond[0]) and not cond[1].strip() and re.match(r'\s*(else\s+)?if\b', prev))
+    return False
 
 
 def load_sources(paths):
@@ -88,15 +153,16 @@ def check(srcs, cfg):
     else:
         passes.append(('主题跟随系统', '没有深色主题，不适用'))
 
-    guard = re.compile(r'matchMedia|prefers-color-scheme|getItem|' + re.escape(theme.get('storageKey') or '\0'))
     forced = []
     for f, text in srcs.items():
         if any(a.search(f) for a in allow):
             continue
-        lines = text.split('\n')
-        for n, line in enumerate(lines, 1):
-            if any(p.search(line) for p in FORCED) and not guarded(lines, n - 1, guard):
-                forced.append(f'{f}:{n}')
+        body = blank_comments(text)
+        for pat in FORCED:
+            for m in pat.finditer(body):
+                if pat is FORCED[0] or not guarded(body, m.start()):
+                    forced.append((body.count('\n', 0, m.start()) + 1, f))
+    forced = [f'{f}:{n}' for n, f in sorted(set(forced), key=lambda x: (x[1], x[0]))]
     if forced:
         fails.append(('根元素写死主题', '、'.join(forced[:5]) + '（特例屏写进 shell.json 的 theme.fixedAllow）'))
     else:

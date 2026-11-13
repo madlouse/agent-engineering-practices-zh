@@ -21,6 +21,7 @@ export const GATE_FILES = [
   /^\.claude\/agents\//,
   /^\.claude\/settings[^/]*\.json$/,
   /^docs\/standards\/(pipeline|observer|quality-terms)\.md$/,
+  /^docs\/uiue\/(design-bar|shell)\.json$/,
   /^docs\/delivery\/loops\//,
   /^docs\/GLOSSARY\.md$/,
   /(?:^|\/)(?:AGENTS[^/]*|CLAUDE)\.md$/,

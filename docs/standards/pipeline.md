@@ -24,7 +24,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 复用 `design-bar` 第 5 步和 Veli 的两人走查（不同模型、互相看不到）。
 
 0. **标杆卡**：`docs/uiue/bar-sheet.md`（2026-11-04 已写），标杆原则 P1–P5 由 `docs/standards/quality-terms.md` 的规则判定。它是体验类决定，由主会话定、记进 `docs/uiue/decisions.md`，产品负责人有意见再改。没有它，评审打不了分，停止条件也判不了。
-1. **只读验证**：`verify_canvas.py <画板目录> --out docs/uiue/reviews/<日期>-ui-v1 --themes light,dark,pseudo`，结论只有 `done` 或 `needs_work`，修到 `done`（本站的色面门槛在 `docs/uiue/design-bar.json`，脚本向上找到后自动采用，见 §7「画板」一行）。画板引用的共享样式表在 `/_blob/` 上，加 `--blob <id>=<本地文件>` 指过去（`design-bar` 2026-11-04 加的参数）。
+1. **只读验证**：`verify_canvas.py <画板目录> --out docs/uiue/reviews/<日期>-ui-v1 --themes light,dark,pseudo --project-config docs/uiue/design-bar.json`，结论只有 `done` 或 `needs_work`，修到 `done`（本站的色面门槛在 `docs/uiue/design-bar.json`，画板在仓库外的工作目录时脚本找不到它，所以命令带上；见 §7「画板」一行）。画板引用的共享样式表在 `/_blob/` 上，加 `--blob <id>=<本地文件>` 指过去（`design-bar` 2026-11-04 加的参数）。
 2. **两份独立评审**：`design-reviewer`（Opus）和 `design-reviewer-b`（Sonnet）各派一个新的，互相看不到。只给它们：三种版式 × 两种主题的截图、PRD（第 4 节功能表、步数预算、页面状态，当作 brief）、标杆卡 `docs/uiue/bar-sheet.md` 和规则原文 `docs/standards/quality-terms.md`、设计系统 README、`velicoach-layout` 技能、`design-bar` 的 `references/rubric.md` 和 `anti-patterns.md`，以及上一轮的问题清单。不给制作过程。规则里写明由内容评审查的（C1、C2、C6、T1、T6、T7 等），同时派一个 `content-reviewer` 审画板上的文字，结论并进同一份清单。
 3. **合并与修**：主会话把两份清单去重，按「影响 × 修复成本」排序，每轮修前 3 项，再派新的评审核对。停止条件见 `bar-sheet.md` §7：P1–P5 都 ≥ 4 分且底线全过才算通过；一轮没有提升或已经 3 轮还没通过，就在 #13 上报，不算通过。
 4. **需求覆盖**：PRD 每个 v1 功能都在画板上有状态，或在覆盖表里写明为什么没有界面。
@@ -225,7 +225,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖 | `reviewer` 用 Vercel 连接器看构建日志 |
 | 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180 --project-config docs/uiue/design-bar.json`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |
 | token | `python .grok/skills/design-bar/scripts/lint_tokens.py src --tokens <token 文件>` | `reviewer`（界面票） |
-| 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo`（`--out` 必填；本站把相邻大色面的最低对比从技能通用的 1.3:1 提到 1.8:1，写在 `docs/uiue/design-bar.json`，脚本向上查找、自动采用，`--no-project-config` 可跳过；依据是设计系统「浅色与深色」：深色下品牌两半 ≥ 1.8:1。深色下有意只隔约 1.3:1 的两处，墨色色带和强调面对页面底，都带 1px 描边，边界画出来的面检查不报） | 关口三 a；改了画板的票 |
+| 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo --project-config docs/uiue/design-bar.json`（`--out` 必填；本站把相邻大色面的最低对比从技能通用的 1.3:1 提到 1.8:1，写在 `docs/uiue/design-bar.json`；配置只许收紧，比通用下限松的值脚本报错退出；`docs/uiue/design-bar.json` 和 `docs/uiue/shell.json` 是门槛文件，和本节命令一样：票的 PR 不能改，其他 PR 改了按 b 类要两份评审（`scripts/merge-gates.mjs` 的 `GATE_FILES`）；依据是设计系统「浅色与深色」：深色下品牌两半 ≥ 1.8:1。深色下有意只隔约 1.3:1 的两处，墨色色带和强调面对页面底，都带 1px 描边，边界画出来的面检查不报） | 关口三 a；改了画板的票 |
 | 内容 | 出处逐条打开核对；授权状态；`velicoach-content` 的审核清单；中英两版都在。研究卡另查：出处链到论文原文，措辞和研究类型相符（`npm run check:research`，站点票 #52 交付；交付前逐张人工核对） | `content-reviewer` |
 
 ## 8. 先慢后快

@@ -54,7 +54,7 @@ def project_config_checks():
     try:
         os.chdir(root)  # 当前目录也在查找范围里，换到临时目录免得读到别处的配置
         write(os.path.join(root, 'a', '.git', 'HEAD'), '')
-        write(os.path.join(root, 'a', 'docs', 'design-bar.json'), '{"thresholds": {"face-contrast": 1.8, "edge-tol": 3}}')
+        write(os.path.join(root, 'a', 'docs', 'design-bar.json'), '{"thresholds": {"face-contrast": 1.8, "edge-tol": 1}}')
         write(os.path.join(root, 'a', 'docs', 'boards', 'x.dc.html'), '')
         board = os.path.join(root, 'a', 'docs', 'boards')
         ap = parser()
@@ -95,6 +95,17 @@ def project_config_checks():
             failures.append('项目配置：写错阈值名要报错，不能悄悄忽略')
         except SystemExit:
             pass
+        for key, val in (('face-contrast', 1.0), ('tap-min', 40), ('edge-tol', 5), ('empty-band', 0.5), ('max-font-sizes', 12)):
+            write(os.path.join(root, 'c', 'design-bar.json'), json.dumps({'thresholds': {key: val}}))
+            try:
+                vc.apply_project_config(parser(), [os.path.join(root, 'c', 'boards')])
+                failures.append(f'项目配置：{key} 定成 {val}，比通用下限松，要报错退出')
+            except SystemExit as e:
+                if key not in str(e.code) or '通用下限' not in str(e.code):
+                    failures.append(f'项目配置：{key} 放宽的报错要说清哪个阈值、下限多少：{e.code}')
+        write(os.path.join(root, 'c', 'design-bar.json'), '{"thresholds": {"face-contrast": 1.3, "tap-min": 44}}')
+        if not vc.apply_project_config(parser(), [os.path.join(root, 'c', 'boards')]):
+            failures.append('项目配置：等于通用下限的值照收')
     finally:
         os.chdir(cwd)
         shutil.rmtree(root, ignore_errors=True)
@@ -148,6 +159,13 @@ def static_checks():
     if code != 1 or '根元素写死主题' not in txt.split('## 过')[0]:
         failures.append('check_shell.py：顶层无条件 classList.add(\'dark\') 应该报根元素写死主题')
 
+    for name in sorted(os.listdir(os.path.join(shell, 'bad-guard'))):
+        sub = os.path.join(shell, 'bad-guard', name)
+        extra = ('--config', os.path.join(sub, 'shell.json')) if os.path.isfile(os.path.join(sub, 'shell.json')) else ()
+        code, txt = run('check_shell.py', sub, *extra)
+        if code != 1 or '| 根元素写死主题 |' not in txt.split('## 过')[0]:
+            failures.append(f'check_shell.py：bad-guard/{name} 无条件写死根主题，应该报根元素写死主题，实际 {code}')
+
     failures += project_config_checks()
 
     d = tempfile.mkdtemp(prefix='stale-selftest-')
@@ -172,7 +190,7 @@ def main():
         if failures:
             print('selftest --static 不通过：\n  ' + '\n  '.join(failures))
             sys.exit(1)
-        print('selftest --static 通过：gate.py（填全的、做坏的、没填的模板）、check_shell.py（做对的、做坏的、不给配置）、stale_terms.py 的通用词汇表、项目配置（design-bar.json）都对')
+        print('selftest --static 通过：gate.py（填全的、做坏的、没填的模板）、check_shell.py（做对的、做坏的、守卫形态的反例、不给配置）、stale_terms.py 的通用词汇表、项目配置（design-bar.json）都对')
         return
     out = tempfile.mkdtemp(prefix='verify-selftest-')
     subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), '--no-project-config', FIXTURES, '--out', out, '--size', 'SelftestProps.dc.html=320x600'],

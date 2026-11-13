@@ -142,6 +142,8 @@ PROSE_MIN_CHARS = 12    # 5：块里链接以外的字数达到它，行内链�
 # 格式：{"thresholds": {"face-contrast": 1.8}}，键就是上面那些阈值的同名命令行参数（去掉 --）。--project-config <文件> 指定，--no-project-config 不读。
 PROJECT_CONFIG_NAME = 'design-bar.json'
 PROJECT_CONFIG_DEST_ALIASES = {'tap-min': 'min_target'}  # check_page.py 把同一个阈值叫 --min-target
+PROJECT_CONFIG_LOOSER = {'edge-tol': (EDGE_TOL, '>'), 'empty-band': (EMPTY_BAND_MAX, '>'), 'face-area': (FACE_MIN_AREA, '<'), 'face-contrast': (FACE_MIN_CONTRAST, '<'),
+                         'tap-min': (TAP_MIN, '<'), 'tap-floor': (TAP_FLOOR, '<'), 'max-font-sizes': (MAX_FONT_SIZES, '>')}  # why: 配置只许收紧，比通用下限松的值报错
 PROJECT_CONFIG_KEYS = ('edge-tol', 'empty-band', 'face-area', 'face-contrast', 'tap-min', 'tap-floor', 'max-font-sizes')
 
 
@@ -184,6 +186,10 @@ def apply_project_config(ap, argv):
     bad = sorted(set(th) - set(PROJECT_CONFIG_KEYS))
     if bad:
         sys.exit(f'{path}：不认识的阈值 {"、".join(bad)}，可用：{"、".join(PROJECT_CONFIG_KEYS)}')
+    for k, v in th.items():
+        limit, loose = PROJECT_CONFIG_LOOSER[k]
+        if not isinstance(v, (int, float)) or isinstance(v, bool) or (v > limit if loose == '>' else v < limit):
+            sys.exit(f'{path}：{k} 是 {v}，通用下限是{"不超过" if loose == ">" else "不低于"} {limit:g}：项目配置只能收紧，放宽只能在命令行用参数临时调')
     actions = {act.dest: act for act in ap._actions}
     for k, v in th.items():
         dest = k.replace('-', '_')
@@ -1181,7 +1187,7 @@ def main():
     verdict = 'done' if total == 0 else 'needs_work'
     lines = [f'# 画板验证报告', '', f'**结论：{verdict}**（{total} 个问题，{len(files)} 块画板，主题：{a.themes}）', '',
              '只报能判对错的问题，每条给出位置和量出的数：会让用户看错、点不到、看不清的，以及带阈值的版面量度（首屏空白带、相邻色面、跨画板左边缘、字号种类）。构图和审美交给评审。', '',
-             f'阈值：相邻色面 ≥ {a.face_contrast:g}:1（' + ('通用的下限，项目定了更高的门槛用 --face-contrast 调高' if a.face_contrast == FACE_MIN_CONTRAST else f'项目的门槛，高于通用的下限 {FACE_MIN_CONTRAST:g}:1') + f'）；首屏空白带 ≤ 视口的 {a.empty_band:.0%}；左边缘容差 {a.edge_tol:g}px；字号 ≤ {a.max_font_sizes} 种；点按区域 {a.tap_min:g} / {a.tap_floor:g}px。' + (f'阈值取自项目配置 {os.path.relpath(cfg_path)}，命令行参数优先。' if cfg_path else ''), '',
+             f'阈值：相邻色面 ≥ {a.face_contrast:g}:1（' + ('通用的下限，项目定了更高的门槛用 --face-contrast 调高' if a.face_contrast == FACE_MIN_CONTRAST else f'项目的门槛，高于通用的下限 {FACE_MIN_CONTRAST:g}:1' if a.face_contrast > FACE_MIN_CONTRAST else f'命令行放宽到低于通用的下限 {FACE_MIN_CONTRAST:g}:1') + f'）；首屏空白带 ≤ 视口的 {a.empty_band:.0%}；左边缘容差 {a.edge_tol:g}px；字号 ≤ {a.max_font_sizes} 种；点按区域 {a.tap_min:g} / {a.tap_floor:g}px。' + (f'阈值取自项目配置 {os.path.relpath(cfg_path)}，命令行参数优先。' if cfg_path else ''), '',
              '按说明文档跳过触控、首屏、空白带、色面、字号种类、左边缘的画板：' + ('；'.join(f'{n}（{inf["doc_why"]}）' for n, *_, inf in report if inf.get('doc')) or '没有') + '。', '']
     for name, items, hints, notices, info in report:
         lines.append(f'## {name}' + ('（通过）' if not items else f'（{len(items)}）'))

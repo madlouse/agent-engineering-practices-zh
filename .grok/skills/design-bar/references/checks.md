@@ -36,7 +36,7 @@
 - 颜色用 `oklab()`、`color-mix()` 这些写法也能算（画到画布上取像素）；真算不了会报「颜色算不了」，不会悄悄拿外层背景顶替。
 - 画板的 `renderVals()` 在浏览器里执行一次（props 取 `data-props` 的默认值），`<sc-for>` 可以嵌套；`componentDidMount` 这类生命周期不执行，所以 WebGL、计时器、透镜画的东西截不到，用下面的 `capture_motion.py`。
 
-阈值写在报告开头。它们都是可配的常量，有同名参数：`--edge-tol 2`、`--empty-band 0.30`、`--face-area 0.20`、`--face-contrast 1.3`、`--tap-min 44`、`--tap-floor 24`、`--max-font-sizes 8`。项目的设计系统定了更严的门槛（例如品牌的两块主色面要 ≥ 1.8:1）时，写进项目配置 `design-bar.json`（`{"thresholds": {"face-contrast": 1.8}}`，键是上面同名参数去掉 `--`），命令不带参数也生效，不改脚本的默认值。`verify_canvas.py` 和 `check_page.py` 从命令行给出的路径往上找，再从当前目录往上找，每层看 `design-bar.json` 和 `design/design-bar.json`，到仓库根为止；命令行参数优先于配置；`--project-config <文件>` 指定，`--no-project-config` 不读。读到配置时报告开头的「阈值」一行写明取自哪个文件。
+阈值写在报告开头。它们都是可配的常量，有同名参数：`--edge-tol 2`、`--empty-band 0.30`、`--face-area 0.20`、`--face-contrast 1.3`、`--tap-min 44`、`--tap-floor 24`、`--max-font-sizes 8`。项目的设计系统定了更严的门槛（例如品牌的两块主色面要 ≥ 1.8:1）时，写进项目配置 `design-bar.json`（`{"thresholds": {"face-contrast": 1.8}}`，键是上面同名参数去掉 `--`），命令不带参数也生效，不改脚本的默认值。`verify_canvas.py` 和 `check_page.py` 从命令行给出的路径往上找，再从当前目录往上找，每层看 `design-bar.json` 和 `design/design-bar.json`，到仓库根为止；命令行参数优先于配置；`--project-config <文件>` 指定，`--no-project-config` 不读。配置键 `tap-min` 在 `check_page.py` 里对应 `--min-target`。目标是预览地址（URL）时没有路径可往上找，只能靠当前目录往上找；配置放在别处的项目要传 `--project-config <文件>`。读到配置时报告开头的「阈值」一行写明取自哪个文件。
 
 它量不到的，评审时人看：两块色面之间只隔一条细线算不算分得开；首屏里有一个小元素把空带切成两段时的「空」；元素之间的构图关系；动效画的是什么。
 

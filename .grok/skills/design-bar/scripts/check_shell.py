@@ -33,6 +33,13 @@ FORCED = [
 ]
 
 
+def guarded(lines, i, guard):
+    """这一行是否只在跟随系统或读到存储的偏好时才写根主题：同一行带条件，或前两行里有带条件的 if。"""
+    if guard.search(lines[i]):
+        return True
+    return any(re.search(r'\bif\s*\(', x) and guard.search(x) for x in lines[max(0, i - 2):i])
+
+
 def load_sources(paths):
     files = []
     for p in paths:
@@ -81,12 +88,14 @@ def check(srcs, cfg):
     else:
         passes.append(('主题跟随系统', '没有深色主题，不适用'))
 
+    guard = re.compile(r'matchMedia|prefers-color-scheme|getItem|' + re.escape(theme.get('storageKey') or '\0'))
     forced = []
     for f, text in srcs.items():
         if any(a.search(f) for a in allow):
             continue
-        for n, line in enumerate(text.split('\n'), 1):
-            if any(p.search(line) for p in FORCED):
+        lines = text.split('\n')
+        for n, line in enumerate(lines, 1):
+            if any(p.search(line) for p in FORCED) and not guarded(lines, n - 1, guard):
                 forced.append(f'{f}:{n}')
     if forced:
         fails.append(('根元素写死主题', '、'.join(forced[:5]) + '（特例屏写进 shell.json 的 theme.fixedAllow）'))

@@ -131,7 +131,7 @@
 | 规则 | 适用 | 怎么查（谁） | 出处 |
 |---|---|---|---|
 | A1 文字对比度 ≥ 4.5:1，控件和图形 ≥ 3:1，浅色深色都测 | 全站 | 文字：`check_page.py`、`verify_canvas.py`；控件和图形、标「需人工」的：设计评审在截图上取色计算 | [WCAG 2.2](https://www.w3.org/TR/WCAG22/) 1.4.3、1.4.11 |
-| A2 可点区域 ≥ 44px，三种版式都是 | 全站 | 画板：`verify_canvas.py`；页面：`check_page.py --targets-up-to 1180` | 设计系统 `control-height`；Apple 44pt；WCAG 2.5.8 的 AA 是 24px，我们取更严的 |
+| A2 可点区域 ≥ 44px，三种版式都是 | 全站 | 画板：`verify_canvas.py`；页面：`check_page.py --targets-up-to 1180 --project-config docs/uiue/design-bar.json` | 设计系统 `control-height`；Apple 44pt；WCAG 2.5.8 的 AA 是 24px，我们取更严的 |
 | A3 320px 宽不横向滚动；文字放大到 200% 不丢内容；按 WCAG 1.4.12 加大行距和字距后页面不坏 | 全站 | `check_page.py --widths 320,…`；手工放大（设计评审） | WCAG 1.4.10、1.4.4、1.4.12 |
 | A4 动效不让人晕、能停：系统减弱动态效果时只留一帧；自动播放超过 5 秒的动效能暂停，滚出视野就停；有声媒体不自动播放 | 全站 | 打开系统设置看；找暂停入口（设计评审） | WCAG 2.2.2、1.4.2；[web.dev](https://web.dev/articles/prefers-reduced-motion)；HIG：位移改成淡入淡出 |
 | A5 不打扰：首次访问不弹遮挡内容的弹窗；订阅只在页内原地展开；不自动轮播 | 全站 | 清空浏览器数据后打开（设计评审） | [Google 侵入式弹窗](https://developers.google.com/search/docs/appearance/avoid-intrusive-interstitials)；[Nielsen 十大界面烦恼](https://www.uxtigers.com/post/ui-annoyances) |

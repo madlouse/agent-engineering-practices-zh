@@ -61,6 +61,14 @@ def project_config_checks():
         found = vc.apply_project_config(ap, [board, '--out', 'o'])
         if not found or ap.parse_args([]).face_contrast != 1.8:
             failures.append('项目配置：从画板目录往上找到 design-bar.json，face-contrast 应该是 1.8（不带命令行参数）')
+        mt = argparse.ArgumentParser()
+        mt.add_argument('--min-target', type=float, default=44)
+        vc.add_project_config_args(mt)
+        write(os.path.join(root, 'd', 'design-bar.json'), '{"thresholds": {"tap-min": 56}}')
+        write(os.path.join(root, 'd', 'x.html'), '')
+        vc.apply_project_config(mt, ['--project-config', os.path.join(root, 'd', 'design-bar.json')])
+        if mt.parse_args([]).min_target != 56:
+            failures.append('项目配置：tap-min 要落到 check_page.py 的 --min-target 上')
         if ap.parse_args([]).tap_min != vc.TAP_MIN:
             failures.append('项目配置：没写的阈值保持默认')
         if ap.parse_args(['--face-contrast', '1.5']).face_contrast != 1.5:
@@ -116,6 +124,11 @@ def static_checks():
     if code != 1:
         failures.append('gate.py：没填的模板不该过')
 
+    for name, want in (('no-sign', '缺「动效原型：签名时刻」'), ('no-entry', '缺「动效原型：入口第一屏」'), ('blank-reviewer', '没写评审人')):
+        code, txt = run('gate.py', os.path.join(gate, name + '.md'))
+        if code != 1 or want not in txt:
+            failures.append(f'gate.py：{name}.md 应该不过并报「{want}」，实际 {code}')
+
     shell = os.path.join(FIXTURES, 'shell')
     cfg = os.path.join(shell, 'shell.json')
     code, txt = run('check_shell.py', os.path.join(shell, 'good'), '--config', cfg)
@@ -130,6 +143,10 @@ def static_checks():
     code, _ = run('check_shell.py', os.path.join(shell, 'bad'))
     if code != 1:
         failures.append('check_shell.py：不给配置时也要查主题跟随系统和根元素写死主题')
+
+    code, txt = run('check_shell.py', os.path.join(shell, 'bad-classlist'))
+    if code != 1 or '根元素写死主题' not in txt.split('## 过')[0]:
+        failures.append('check_shell.py：顶层无条件 classList.add(\'dark\') 应该报根元素写死主题')
 
     failures += project_config_checks()
 

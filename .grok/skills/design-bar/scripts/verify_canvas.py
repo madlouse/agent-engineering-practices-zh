@@ -141,6 +141,7 @@ PROSE_MIN_CHARS = 12    # 5：块里链接以外的字数达到它，行内链�
 # 查找：从命令行里给出的路径（画板目录、页面文件）往上，再从当前目录往上，每层看 design-bar.json 和 design/design-bar.json，到仓库根（有 .git）为止。
 # 格式：{"thresholds": {"face-contrast": 1.8}}，键就是上面那些阈值的同名命令行参数（去掉 --）。--project-config <文件> 指定，--no-project-config 不读。
 PROJECT_CONFIG_NAME = 'design-bar.json'
+PROJECT_CONFIG_DEST_ALIASES = {'tap-min': 'min_target'}  # check_page.py 把同一个阈值叫 --min-target
 PROJECT_CONFIG_KEYS = ('edge-tol', 'empty-band', 'face-area', 'face-contrast', 'tap-min', 'tap-floor', 'max-font-sizes')
 
 
@@ -186,6 +187,8 @@ def apply_project_config(ap, argv):
     actions = {act.dest: act for act in ap._actions}
     for k, v in th.items():
         dest = k.replace('-', '_')
+        if dest not in actions:
+            dest = PROJECT_CONFIG_DEST_ALIASES.get(k, dest)
         if dest in actions:  # 这个脚本没有的阈值（check_page.py 没有 --edge-tol）跳过
             ap.set_defaults(**{dest: actions[dest].type(v)})
     return path

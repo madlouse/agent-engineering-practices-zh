@@ -8,6 +8,7 @@
 - **理由**：同一类问题（本站参数只写在文档、命令里漏带）已出现三次，写成配置才不会再漏（`docs/delivery/lessons.md` 2026-11-12「同一类第三次」）。
 - **验证**：浏览器里跑 `selftest.py` 通过；`rebuild.sh --verify` 报告开头写明「阈值取自项目配置」，骨架误报消失（States.dc.html 通过）。页面画板 2 条、设备画板 4 条，全部是孤字成行，来自两处文字：首页「12 分钟 · 附 3 分钟视频」（320×568）、看清英文「taken 15 so far.」（390×844）。这是设计问题，留给关口三 a 的补评。
 - **改了哪里**：`.grok/skills/design-bar/`、`docs/uiue/design-bar.json`、`docs/standards/pipeline.md` §2.1 和 §7、`docs/uiue/prototypes/v1.1/tools/verify_all.sh` 和 `README.md`、`docs/uiue/bar-sheet.md`（`gate.py` 的说法）、`docs/delivery/roadmap.md` §6。
+- **本地补的五处修复（待回上游 madlouse/skills）**：`tap-min` 在 `check_page.py` 里落到 `--min-target`；预览地址找不到项目配置，本站命令统一带 `--project-config docs/uiue/design-bar.json`；`gate.py` 的交付物按「签名时刻」「入口第一屏」「操作视频」「无障碍实测报告」四行逐项校验；`check_shell.py` 只报无条件写死的根主题，跟随系统和读存储偏好的初始化不报；`gate.py` 的「评审人」留空不再读到下一行。每处都有 `selftest.py --static` 用例。
 
 ## 2026-11-12 · 设计 v1.1：首屏以下重做，看清按时代，统一栅格和字号，复评后的第二轮裁决
 

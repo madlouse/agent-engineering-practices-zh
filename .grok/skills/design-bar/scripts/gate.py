@@ -19,7 +19,7 @@ import sys
 
 DIMENSIONS = ('Delight', 'Inclusivity', 'Innovation', 'Interaction', 'Social Impact', 'Visuals')
 GRADES = {'弱': 0, '中': 1, '强': 2}
-DELIVERABLES = ('动效原型', '操作视频', '无障碍实测报告')
+DELIVERABLES = ('动效原型：签名时刻', '动效原型：入口第一屏', '操作视频', '无障碍实测报告')
 MEASURED = re.compile(r'(原型|真机)实测')
 
 
@@ -51,7 +51,7 @@ def section(tabs, keyword):
 
 
 def field(text, name):
-    m = re.search(rf'^{name}[：:]\s*(.*)$', text, re.M)
+    m = re.search(rf'^{name}[：:][ \t]*(.*)$', text, re.M)
     return m.group(1).strip() if m else ''
 
 
@@ -99,7 +99,7 @@ def check(path, root, core_budget, other_budget):
 
     drows = section(tabs, '交付物') or []
     for name in DELIVERABLES:
-        hits = [r for r in drows if name in r[0]]
+        hits = [r for r in drows if name in re.sub(r'\s*[:：]\s*', '：', r[0])]
         if not hits:
             fails.append(('交付物', f'缺「{name}」这一行'))
             continue

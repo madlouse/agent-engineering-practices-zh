@@ -81,7 +81,7 @@ python <本技能目录>/scripts/init_project.py <项目根目录> \
 2. 画板之间用链接串成流程，状态用 `data-props` 开关切换，让用户能点一遍。
 3. 安装设计系统（画布的 `designSystems` 记录和 `project/ds/<folder>/tokens.json`），样式只引用 token；稿子里需要设计系统没有的值时，先补进设计系统。
 3.6 **生成前清单**：每块画板交出前按 `references/preflight.md` 对一遍（首屏、交互与状态、外壳与主题、版式与视口、语言、颜色与材质、内容与 Agent 可用、证据）。
-4. 每改一轮，先跑只读验证：`python scripts/verify_canvas.py <画板目录> --out <设计目录>/reviews/<日期-主题> --themes light,dark,pseudo`，修到 `done` 再给人看。**先核对报告里每块画板「查的视口」，再信结论**。查哪些项、参数、哪些证据要用 `capture_motion.py`、`render_dc.py` 另截，项目自己的阈值写进 `<设计目录>/design-bar.json`，命令不带参数也生效。见 `references/checks.md`。
+4. 每改一轮，先跑只读验证：`python scripts/verify_canvas.py <画板目录> --out <设计目录>/reviews/<日期-主题> --themes light,dark,pseudo`，修到 `done` 再给人看。**先核对报告里每块画板「查的视口」，再信结论**。查哪些项、参数、哪些证据要用 `capture_motion.py`、`render_dc.py` 另截，项目自己的阈值写进 `<设计目录>/design-bar.json`，命令不带参数也生效；目标是预览地址时只靠当前目录往上找配置，配置放在别处的项目要传 `--project-config`。见 `references/checks.md`。
 5. 画板标题和生成脚本里不要手写「N 个场景」这类计数，会过时；需要时由脚本算。
 5.5 卡片、播放条、工具栏、菜单、浮层要做「液态玻璃」时，先读 `references/liquid-glass.md`：先盘点哪些表面压在图片、视频、动效上（平涂底色上不用玻璃），材质做进 token（`assets/liquid-glass.css`），边缘透镜和按背景自适应用 `scripts/liquid-glass.js`；`verify_canvas.py` 会报「玻璃压在平涂底色上」。
 5.6 一批画板分给几个 Agent 并行画时，按 `references/production.md`：小批、先探活、随写随存、`watch_workers.py` 盯进度、每块交回就提交。

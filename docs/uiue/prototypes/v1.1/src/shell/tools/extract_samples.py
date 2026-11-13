@@ -19,7 +19,7 @@ WANT = {
     'notice_action': ('Article', {'media': '视频无法播放'}, '.vc-notice-action'), 'notice_block': ('Mind', {'load': '加载失败'}, '.vc-notice-block'),
     'howto': ('Build', {}, '.vc-howto'), 'facts': ('Project', {}, '.vc-facts'), 'deflist': ('Project', {}, '.vc-deflist'),
     'empty': ('Project', {'devlog': '还没有日志'}, '.vc-empty'), 'deflist_numbered': ('About', {}, '.vc-deflist-numbered'),
-    'study': ('Main', {}, '.vc-study-grid'), 'era_origins': ('Mind', {}, '#era-origins'), 'era_llm_open': ('Mind', {'expand': '展开一条'}, '#era-llm'), 'era_index': ('Mind', {}, '.vc-era-index'),
+    'study': ('Main', {}, '.vc-study-set'), 'era_origins': ('Mind', {}, '#era-origins'), 'era_llm_open': ('Mind', {'expand': '展开一条'}, '#era-llm'), 'era_index': ('Mind', {}, '.vc-era-index'),
     'tag': ('Main', {}, '.vc-hero-tag'), 'claim_title': ('Main', {}, '.vc-claim-title'), 'claim': ('Main', {}, '.vc-claim-list'),
 }
 out, cache = {}, {}

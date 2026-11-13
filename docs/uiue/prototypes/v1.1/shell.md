@@ -144,7 +144,7 @@ function shellVals(self, station, path) {
 
 ```html
 <div class="vc-nav-wrap">
-  <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+  <header class="{{navClass}}" data-backdrop="scroll">
     <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
       <span class="vc-wordmark">Velicoach</span>
@@ -163,9 +163,9 @@ function shellVals(self, station, path) {
 </div>
 ```
 
-- `navClass` 在首屏是 `vc-nav vc-nav-paper`、`vc-nav vc-nav-ink` 或 `vc-nav vc-nav-moss`（看这页首屏的底色），吸顶时是 `vc-nav lg`。`data-backdrop="scroll"` 和 `data-lens` 一直写着，只有带 `lg` 时起作用。
+- `navClass` 在首屏是 `vc-nav vc-nav-paper`、`vc-nav vc-nav-ink` 或 `vc-nav vc-nav-moss`（看这页首屏的底色），吸顶时是 `vc-nav lg`。`data-backdrop="scroll"` 一直写着，只有带 `lg` 时起作用；导航不写 `data-lens`（吸顶条不挂透镜）。实色换玻璃的时刻：首屏色带的底边滚过导航下沿时（没有色带的页面是标题区的底边），过渡用 `duration-base`、`ease-out`，样式表已经写好。
 - 当前所在的站在对应的 `vc-nav-link` 上写 `aria-current="page"`（上面的例子是看清）；首页、关于、页面状态三个都不写。
-- 首页桌面版式的导航跨在接缝上、跟着接缝走（样式表 9b「首页」里按 `data-lean` 平移 `.vc-nav`），不改 `.vc-nav` 里面的结构。
+- 首页的导航和别的页面一样居中，首屏倾斜时不动（它是全站唯一的固定参照）。
 - 窄屏的收法样式表已经写好：< 744 只留叶子；< 360 语言分段控件换成 `.vc-lang-one`。两个语言控件都保留在标记里。
 - 色带顶上给导航留位置：`.vc-band` 自带上内边距；不用 `.vc-band` 的首屏自己留 `calc(var(--nav-height) + var(--vc-nav-top) + …)`。
 
@@ -201,7 +201,7 @@ function shellVals(self, station, path) {
   </sc-if>
   <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
     <div class="vc-subbar vc-surface-solid is-done">
-      <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+      <p class="vc-sub-done" role="status"><svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg><span>{{t.subDone}}</span></p>
     </div>
   </sc-if>
 </div>
@@ -231,7 +231,7 @@ function shellVals(self, station, path) {
       </form>
     </sc-if>
     <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
-      <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+      <p class="vc-sub-done" role="status"><svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg><span>{{t.subDone}}</span></p>
     </sc-if>
   </section>
 </sc-if>

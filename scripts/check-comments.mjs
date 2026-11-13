@@ -9,7 +9,8 @@ export const DIRECTIVES =
 
 const C_LIKE = /\.(?:[cm]?[jt]sx?|css|scss)$/;
 const SQL = /\.sql$/;
-const HASH = /\.(?:sh|bash|py|ya?ml|toml)$/;
+const PY = /\.py$/;
+const HASH = /\.(?:sh|bash|ya?ml|toml)$/;
 
 const stripStrings = (line) => line.replace(/(["'`])(?:\\.|(?!\1).)*\1/g, '""');
 
@@ -35,7 +36,7 @@ function cLikeComments(lines) {
 
 export function commentsOf(path, lines) {
   if (C_LIKE.test(path)) return cLikeComments(lines);
-  const pattern = SQL.test(path) ? /--(.*)$/ : HASH.test(path) ? /^\s*#(.*)$/ : null;
+  const pattern = SQL.test(path) ? /--(.*)$/ : PY.test(path) ? /#(.*)$/ : HASH.test(path) ? /(?:^|\s)#(.*)$/ : null;
   return lines.map((l) => {
     const m = pattern && pattern.exec(stripStrings(l.text));
     return m ? { text: m[1].trim(), multi: false } : null;

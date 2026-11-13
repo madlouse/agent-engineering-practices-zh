@@ -1,5 +1,5 @@
 /* ───────── 12. 液态玻璃（design-bar 的模板 references/liquid-glass.md，材质的数值不改；模糊的两档 lg-blur、lg-blur-scroll 在 token 里；过渡的时长和缓动用本站的 token：duration-base、ease-out，ease-out 的值和模板相同，模板里浓度旋钮的 400ms 并到 duration-base） ─────────
-   本站只有两处玻璃：视频播放条（.vc-playbar.lg.lg-on-dark，data-backdrop="video"）、吸顶时压过正文的导航（.vc-nav.lg，data-backdrop="scroll"；压在视频上时加 .lg-on-dark）。
+   本站只有两处玻璃：视频播放条（.vc-playbar.lg.lg-on-dark，data-backdrop="video"）、吸顶时压过正文的导航（.vc-nav.lg，data-backdrop="scroll"；浅色主题下压在视频上时加 .lg-on-dark）。
    表面只加 .lg 和一个状态类，标记不动；模板里本站用不到的部分（玻璃上的墨色类、悬停提浓、高亮行）没有带进来。
    状态：.lg-light（浅色玻璃、深色字，默认）、.lg-on-dark（浅色模式压在暗处、浅色字）、.lg-dark（深色模式）。
    liquid-glass.js 会按背后的内容改 --lg-density（0 薄 – 1 浓）和 --lg-sat，按需切换状态类。 */

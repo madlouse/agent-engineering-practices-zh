@@ -30,7 +30,7 @@
   --vc-focus-ctx: var(--vc-focus); --vc-error-ctx: var(--vc-error);
   --vc-seg-on: var(--vc-seg-selected); --vc-seg-on-text: var(--vc-text);
 }
-/* 深色底：墨色、苔绿、强调面。焦点换浅的一档（浅色主题下也 ≥ 3:1），错误色换亮朱砂。吸顶导航压在视频上时（.vc-nav.lg.lg-on-dark）也用这一套，要压过下面「纸面」一条里的 .vc-nav.lg */
+/* 深色底：墨色、苔绿、强调面。焦点换浅的一档（浅色主题下也 ≥ 3:1），错误色换亮朱砂。浅色主题下吸顶导航压在视频上时（.vc-nav.lg.lg-on-dark）也用这一套，要压过下面「纸面」一条里的 .vc-nav.lg */
 .vc-band-ink, .vc-nav-ink, .vc-half-mind, .vc-video-frame, .vc-feature, .vc-station-mind, .lg-on-dark, .vc-nav.lg.lg-on-dark {
   --vc-focus-ctx: var(--vc-focus-on-dark); --vc-error-ctx: var(--vc-cinnabar);
   --vc-sub: var(--vc-on-ink-2); --vc-faint: var(--vc-on-ink-3); --vc-line: var(--vc-ink-line); --vc-accent: var(--vc-cinnabar);

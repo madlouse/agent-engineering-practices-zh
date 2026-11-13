@@ -124,7 +124,7 @@ description: Velicoach 主站的页面排版与布局规范：页面骨架、手
 ## 8. 玻璃
 
 - 玻璃只给背后会变的那一层（动效、视频、吸顶时滚过的正文）；背后是平涂底色时用实色面（`surface-solid`、`surface-ink`），玻璃在那里只是一块灰。正文和卡片不用玻璃，主按钮不用玻璃。
-- 做法用 `design-bar` 的液态玻璃：表面只加 `lg` 和一个状态类（`lg-on-dark` 浅色字；玻璃背后是暗画面时浅色主题也用它，例如吸顶导航压在视频上），写上 `data-backdrop`（motion、video、scroll）说明背后是什么，要透镜的加 `data-lens`；吸顶的导航不挂透镜。本站哪些表面用、哪些不用，见设计系统「玻璃材质」表；做法和数值见 `design-bar/references/liquid-glass.md`。
+- 做法用 `design-bar` 的液态玻璃：表面只加 `lg` 和一个状态类（`lg-on-dark` 浅色字；玻璃背后是暗画面时浅色主题也用它，例如吸顶导航压在视频上；深色主题不加），写上 `data-backdrop`（motion、video、scroll）说明背后是什么，要透镜的加 `data-lens`；吸顶的导航不挂透镜。本站哪些表面用、哪些不用，见设计系统「玻璃材质」表；做法和数值见 `design-bar/references/liquid-glass.md`。
 - **声明要真**：`motion` 只给动效的粒子真会从后面经过的表面；跟着接缝移动的圆、导航、订阅条背后比例不变，用实色面。`scroll` 只给吸顶的导航。拿不准时用 `capture_motion.py --probe <表面>` 量一下。
 - **不做苔绿玻璃**：品牌色玻璃要浓到 50% 以上字才读得清，那就是实色。动手页首屏的导航用苔绿实色 `nav-moss`，滚到纸色正文上换成普通的 `lg`。
 - **骑在接缝上的控件用两色焦点圈**：一侧纸色、一侧墨色时，贴着控件一圈墨上白、外面一圈焦点蓝，哪一侧都有一圈 ≥ 3:1（`.orb:focus-visible`）。

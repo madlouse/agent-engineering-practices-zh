@@ -16,6 +16,8 @@ export const GATE_FILES = [
   /^scripts\/check-(?:doc-first|comments)\.mjs$/,
   /^\.velicoach-checks\.json$/,
   /^scripts\/merge-gates(\.test)?\.mjs$/,
+  /^scripts\/preview-skip(\.test)?\.mjs$/,
+  /^vercel\.json$/,
   /^scripts\/review-markers(\.test)?\.mjs$/,
   /^scripts\/(check-terms|check-vague|vague-terms|check-owner-brief|check-voice|voice-terms)\.mjs$/,
   /^eslint\.config\.mjs$/,

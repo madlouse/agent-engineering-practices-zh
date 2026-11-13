@@ -2,12 +2,20 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const DOC_PATHS = [/^docs\//, /^\.grok\//, /^\.claude\//, /^attachments\//, /^screenshots\//, /^[^/]+\.md$/];
+const DOC_PATHS = [/^docs\//, /^\.grok\/(?:skills|references)\//, /^\.claude\/(?:skills|agents)\//, /^attachments\//, /^screenshots\//, /^[^/]+\.md$/];
+const LINTED = /\.(?:[cm]?[jt]sx?)$/;
+const LINT_IGNORED = [/^docs\/uiue\/prototypes\//];
 const ALWAYS_BUILD = new Set(["site", "feature/v1"]);
 
+const isDoc = (f) => DOC_PATHS.some((re) => re.test(f)) && (!LINTED.test(f) || LINT_IGNORED.some((re) => re.test(f)));
+
 export function docsOnly(files) {
-  const list = files.map((f) => f.trim()).filter(Boolean);
-  return list.length > 0 && list.every((f) => DOC_PATHS.some((re) => re.test(f)));
+  const list = files.filter((f) => f.length > 0);
+  return list.length > 0 && list.every(isDoc);
+}
+
+export function splitPaths(text) {
+  return text.includes("\0") ? text.split("\0") : text.split("\n").map((f) => f.trim());
 }
 
 export function decide({ branch, previousSha, files }) {
@@ -21,7 +29,7 @@ export function decide({ branch, previousSha, files }) {
 function changedSince(sha) {
   try {
     execFileSync("git", ["cat-file", "-e", `${sha}^{commit}`], { stdio: "ignore" });
-    return execFileSync("git", ["diff", "--name-only", sha, "HEAD"], { encoding: "utf8" }).split("\n").filter(Boolean);
+    return splitPaths(execFileSync("git", ["diff", "-z", "--no-renames", "--name-only", sha, "HEAD"], { encoding: "utf8" })).filter(Boolean);
   } catch {
     return null;
   }
@@ -29,7 +37,7 @@ function changedSince(sha) {
 
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   if (process.argv.includes("--stdin")) {
-    process.exit(docsOnly(readFileSync(0, "utf8").split("\n")) ? 0 : 1);
+    process.exit(docsOnly(splitPaths(readFileSync(0, "utf8"))) ? 0 : 1);
   }
   const branch = process.env.VERCEL_GIT_COMMIT_REF ?? "";
   const previousSha = process.env.VERCEL_GIT_PREVIOUS_SHA ?? "";

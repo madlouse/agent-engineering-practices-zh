@@ -114,10 +114,10 @@ if [ "$preview_ready" != "$sha" ]; then
   skip_js="$lib_dir/preview-skip.mjs"
   if ! git show "$tgt:scripts/preview-skip.mjs" > "$skip_js" 2>/dev/null; then
     fail "没有确认 PR 头 ${sha:0:7} 的 Vercel 预览部署 READY（先查，再用 PREVIEW_READY_SHA=$sha 调用）"
-  elif git diff --name-only "$tgt...$sha" | node "$skip_js" --stdin; then
+  elif git diff -z --no-renames --name-only "$tgt...$sha" | node "$skip_js" --stdin; then
     echo "▶ 整个 PR 只改文档，Vercel 不出预览，不要求预览 READY"
   elif [[ "$preview_ready" =~ ^[0-9a-f]{40}$ ]] && git merge-base --is-ancestor "$preview_ready" "$sha" 2>/dev/null \
-       && ! git merge-base --is-ancestor "$preview_ready" "$tgt" && git diff --name-only "$preview_ready" "$sha" | node "$skip_js" --stdin; then
+       && ! git merge-base --is-ancestor "$preview_ready" "$tgt" && git diff -z --no-renames --name-only "$preview_ready" "$sha" | node "$skip_js" --stdin; then
     echo "▶ 用 ${preview_ready:0:7} 的预览：从它到头提交 ${sha:0:7} 只改了文档"
   else
     fail "没有确认 PR 头 ${sha:0:7} 的 Vercel 预览部署 READY；头提交只改了文档时，声明最近一个改了文档以外文件的提交（PREVIEW_READY_SHA=<它的完整 sha>），从它到头提交必须只改文档"

@@ -6,8 +6,8 @@
 
 - **决定**：`design-bar` 技能同步到上游 f912ced；加载态骨架被判成首屏空白带的误报在本仓库先修（上游 madlouse/skills 仍有这个问题，经 thin-muscle-coach 渠道回灌）；本站的色面门槛 1.8:1 从命令参数改成项目配置 `docs/uiue/design-bar.json`，`verify_canvas.py` 向上查找后自动采用，命令不再带 `--face-contrast 1.8`。
 - **理由**：同一类问题（本站参数只写在文档、命令里漏带）已出现三次，写成配置才不会再漏（`docs/delivery/lessons.md` 2026-11-12「同一类第三次」）。
-- **验证**：浏览器里跑 `selftest.py` 通过；`rebuild.sh --verify` 报告开头写明「阈值取自项目配置」，骨架误报消失（States.dc.html 通过）。页面画板 2 条、设备画板 4 条，全部是孤字成行，来自两处文字：首页「12 分钟 · 附 3 分钟视频」（320×568）、看清英文「taken 15 so far.」（390×844）。这是设计问题，留给关口三 a 的补评。
-- **改了哪里**：`.grok/skills/design-bar/`、`docs/uiue/design-bar.json`、`docs/standards/pipeline.md` §2.1 和 §7、`docs/uiue/prototypes/v1.1/tools/verify_all.sh` 和 `README.md`、`docs/uiue/bar-sheet.md`（`gate.py` 的说法）、`docs/delivery/roadmap.md` §6。
+- **验证**：`selftest.py --static` 的项目配置用例证明：只靠 `docs/uiue/design-bar.json`、命令不带参数，色面门槛就是 1.8:1。浏览器里跑 `rebuild.sh --verify`（提交 7667e6a）只证明骨架误报消失（States.dc.html 通过）和下面的孤字成行；那一次 `verify_all.sh` 的命令行还带着 `--face-contrast 1.8`，而报告的「阈值取自项目配置」一行只要找到配置就会打印、不管命令行有没有覆盖，所以那次运行不能证明单靠配置就是 1.8:1。页面画板 2 条、设备画板 4 条，全部是孤字成行，来自两处文字：首页「12 分钟 · 附 3 分钟视频」（320×568）、看清英文「taken 15 so far.」（390×844）。这是设计问题，留给关口三 a 的补评。
+- **改了哪里**：`.grok/skills/design-bar/`、`docs/uiue/design-bar.json`、`docs/standards/pipeline.md` §2.1 和 §7、`docs/uiue/prototypes/v1.1/tools/verify_all.sh` 和 `README.md`、`docs/delivery/roadmap.md` §6。
 - **本地补的五处修复（待回上游 madlouse/skills）**：`tap-min` 在 `check_page.py` 里落到 `--min-target`；预览地址找不到项目配置，本站命令统一带 `--project-config docs/uiue/design-bar.json`；`gate.py` 的交付物按「签名时刻」「入口第一屏」「操作视频」「无障碍实测报告」四行逐项校验；`check_shell.py` 只报无条件写死的根主题，跟随系统和读存储偏好的初始化不报；`gate.py` 的「评审人」留空不再读到下一行。每处都有 `selftest.py --static` 用例。
 
 ## 2026-11-12 · 设计 v1.1：首屏以下重做，看清按时代，统一栅格和字号，复评后的第二轮裁决

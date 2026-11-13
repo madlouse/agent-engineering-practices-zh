@@ -24,6 +24,6 @@ Veli App 和 Veli 网页版（`/body`、`/app`）以 Veli 设计系统为准。�
 - [brief.md](brief.md)：v1.1 的设计简报（两份诊断上的裁决，和复评后的第二轮裁决）
 - [coverage.md](coverage.md)：需求 → 画板覆盖表
 - [prototypes/velicoach-motion.html](prototypes/velicoach-motion.html)：动效原型（three.js r180 WebGPURenderer + TSL），首页「叶与网」的参考实现
-- [shell.json](shell.json)：主站外壳约定（`vc-theme` 取 `auto`、`light`、`dark`，`vc-lang` 取 `zh`、`en`，站标回 `/`，导航 `/body`、`/mind`、`/build`；依据 ADR-0003 (b)、PRD F05、F06、F09、F24），`check_shell.py` 按它查源码
+- [shell.json](shell.json)：导航约定的机读版（ADR-0003 (b)，术语表「导航约定」；`vc-theme` 取 `auto`、`light`、`dark`，`vc-lang` 取 `zh`、`en`，站标回 `/`，导航 `/body`、`/mind`、`/build`；依据 PRD F05、F06、F09、F24），`check_shell.py` 按它查源码
 - [design-bar.json](design-bar.json)：本站的检查阈值（相邻色面 ≥ 1.8:1），`verify_canvas.py` 不带参数也读
 - [decisions.md](decisions.md)：设计决定

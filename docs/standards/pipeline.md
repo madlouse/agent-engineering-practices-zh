@@ -94,17 +94,17 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 | `observer` | 复用 | Opus · high | 整条流水线和机制本身（`observer.md`） | 观察报告、`docs/quality/` | 产品负责人每周看一次 |
 | 合并脚本、检查脚本 | 复用后改写 | — | 确定性的门 | 退出码 | 观察者看有没有被绕过 |
 
-**评审的模型**（需求第 100、101 条）：评审的模型和被审物作者的模型不同，同一件东西的两份评审彼此也不同，免得盲点重叠。默认搭配：主会话（Opus）写的规格和票由 Fable 冷审；画板由 Fable 做，关口三 a 评画板用 Opus 和 Sonnet（派 `design-reviewer-b` 时用 Agent 的 `model` 参数换成 Sonnet）；实现的页面由 Sonnet 做，里程碑关口只派 Opus 一份做整体把关，关口四上线前加 Fable 一份，按 `design-bar` 的定稿记分卡从 UI/UX 和细节逐项把关。中间阶段不每步都上 Fable；没变的产物不重评。作者不是表里的默认模型时，派评审照这条换，并在评审结论里写明评审用的模型。主会话写的 PR 要 `reviewer` 评时，派成 Fable（b 类的 `reviewer-b` 是 Sonnet，两份要不同）。同一张票返工第 2 轮 `implementer` 换成 Opus 时，`reviewer` 改派 Fable。
+**评审的模型**（需求第 100、101 条；PR 的冷评审由审核线照这条派，§5.1）：评审的模型和被审物作者的模型不同，同一件东西的两份评审彼此也不同，免得盲点重叠。默认搭配：主会话（Opus）写的规格和票由 Fable 冷审；画板由 Fable 做，关口三 a 评画板用 Opus 和 Sonnet（派 `design-reviewer-b` 时用 Agent 的 `model` 参数换成 Sonnet）；实现的页面由 Sonnet 做，里程碑关口只派 Opus 一份做整体把关，关口四上线前加 Fable 一份，按 `design-bar` 的定稿记分卡从 UI/UX 和细节逐项把关。中间阶段不每步都上 Fable；没变的产物不重评。作者不是表里的默认模型时，派评审照这条换，并在评审结论里写明评审用的模型。主会话写的 PR 要 `reviewer` 评时，派成 Fable（b 类的 `reviewer-b` 是 Sonnet，两份要不同）。同一张票返工第 2 轮 `implementer` 换成 Opus 时，`reviewer` 改派 Fable。
 
 **整理文档的模型**：改写、合并、对齐文档这类要判断的整理用 Sonnet；Haiku 只做摘要和机械的事（日报、按清单改字）。
 
-**一共 11 份子 Agent 定义、4 个定时任务**（§4）。平时同一时刻 6 个 Agent 在跑：两条车道各一个主会话 + 一个做事的 + 一个评审的。最多约 11 个：站点车道一次能跑 6 小时，会和观察者（主会话 + `observer` + 它派的 `reviewer`）、日报（主会话 + `digest-writer`）重叠；`risk:high` 的 PR 同时派两个评审。返工第 2 轮的 `implementer` 和 `content-writer` 改用 Opus · medium（同 Veli）。
+**一共 11 份子 Agent 定义、4 个定时任务**（§4）。平时同一时刻 6 个 Agent 在跑：两条车道各一个主会话 + 一个做事的 + 一个评审的。最多约 11 个：站点车道一次能跑 6 小时，会和观察者（主会话 + `observer`）、日报（主会话 + `digest-writer`）重叠；`risk:high` 的 PR 审核线同时派两个评审。返工第 2 轮的 `implementer` 和 `content-writer` 改用 Opus · medium（同 Veli）。
 
 ## 4. 循环（定时任务）
 
 | # | 循环 | 触发 | 做什么 | 刹车 | 交还给人 |
 |---|---|---|---|---|---|
-| ① | **站点票推进器** | 心跳每 2 小时，拉起后连续推进 | 照 Veli `pipeline.md` §7 的 11 步：开工检查和运行锁 → 接棒 → 选票 → 领票 → `implementer` → 证据 → 预览 READY 后派 `reviewer` → 返工 → 合并脚本 → 交接 → 下一张；里程碑开着的票为 0 时做里程碑关口（只等人或外部仓库的票不算，`docs/delivery/loops/site-runner.md` 第 4 步；`check_page.py` 六项 + 只派 `design-reviewer`（Opus）一份，§3「评审的模型」） | 一次最多 8 张或 6 小时；开着的 agent PR ≥ 3 不领新票；评审最多 3 次，第 3 次不过废弃重来并复盘 | 意图不清、要账号：标 `ready-for-human` + 两行说明（要谁做什么、推荐） |
+| ① | **站点票推进器** | 心跳每 2 小时，拉起后连续推进 | 照 Veli `pipeline.md` §7 的 11 步：开工检查和运行锁 → 接棒 → 选票 → 领票 → `implementer` → 证据 → 预览 READY 后交审核线冷评审（推进器不派、不贴，§5.1）→ 按结论返工 → 合并脚本 → 交接 → 下一张；里程碑开着的票为 0 时做里程碑关口（只等人或外部仓库的票不算，`docs/delivery/loops/site-runner.md` 第 4 步；`check_page.py` 六项 + 只派 `design-reviewer`（Opus）一份，§3「评审的模型」） | 一次最多 8 张或 6 小时；开着的 agent PR ≥ 3 不领新票；评审最多 3 次，第 3 次不过废弃重来并复盘 | 意图不清、要账号：标 `ready-for-human` + 两行说明（要谁做什么、推荐） |
 | ② | **内容推进器** | 心跳每天一次；运营期按 PRD 第 6 节的每周节奏 | 阶段一（定框架）：按 #3 的顺序做模块票，`content-writer` 起草选材标准、模板和样稿，`content-reviewer` 冷审，PR 打 `owner:merge` 等产品负责人确认样稿。阶段二（运营）：周一选题、理由写进内容票，周二到周四生产和冷审，周五用合并脚本合并评审通过的内容（合并就是发布）、开邮件票并合并当期邮件文件「订阅邮件第 N 期」、在 #13 发本周摘要，周日由发送任务按那张票的状态发信；每次心跳处理 #13 上的「撤下 <地址>」（§5.1） | 同 ①；质量先于节奏：没有达标的文章这周就不发；研究卡按 `velicoach-content`「研究卡」的规则把关 | 模块样稿等产品负责人合并；每周摘要和邮件票 @ 产品负责人，他不操作就照常发布和发信；社交帖子由他自己发；要向作者取得授权时交给他 |
 | ③ | **日报** | 每天早上 | 覆盖更新状态 issue 正文（§6） | 只读 | 产品负责人每天看 2–5 分钟 |
 | ④ | **观察者** | 每天日报之前；周日加深度 | `docs/standards/observer.md` | 不写票里的代码、不合并票的 PR；可以打 `agent:stop` | 每周机制评审 |
@@ -139,7 +139,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 
 ### 5.1 谁合并
 
-**2026-11-13 起只由主频道合并（产品负责人定，velicoach-mono 工程规范「分支和合并」）：** 下表的合并条件和合并脚本里的检查是合并前要过的关，动手合并的只有主频道；推进器、观察者、主会话和子 Agent 做到评审通过、预览 READY 为止，不调合并脚本、不点合并，接着做不依赖它的事。表里写「产品负责人确认」「产品负责人合并」「`owner:merge`」的，都由主频道代他判断；只有撤不回、花钱、对外发声（含站上内容的发布）三类由主频道去问他。要他定的取舍在 PR 或 issue 评论起一行「待主频道定：」。
+**2026-11-13 起只由主频道合并（产品负责人定，velicoach-mono 工程规范「分支和合并」）：** 下表的合并条件和合并脚本里的检查是合并前要过的关，动手合并的只有主频道；推进器、观察者、主会话和子 Agent 做到预览 READY、交审核线评审为止，不调合并脚本、不点合并，接着做不依赖它的事。冷评审由审核线派出并贴出；PR 作者会话不派、不贴，只按评审结论修改（§7「评审结论评论」）；下表的「冷评审 pass」指审核线贴出的结论。表里写「产品负责人确认」「产品负责人合并」「`owner:merge`」的，都由主频道代他判断；只有撤不回、花钱、对外发声（含站上内容的发布）三类由主频道去问他。要他定的取舍在 PR 或 issue 评论起一行「待主频道定：」。
 
 产品负责人：「让用户确认其实要有一套对应的规则，不是什么都要用户去合并。」照 Veli `agent-gitflow.md` §5.3、§5.4 改（§9）。合并进集成分支一律用合并脚本；脚本判定 base、类别、要几份评审（`merge-gates.mjs`、`review-markers.mjs`，测试在两份 `.test.mjs`），合并前在「PR + 最新目标分支」上重跑 `npm test`、`check:terms`、`check:vague`（命令取自目标分支）。任何 PR 都不能关 #13（`PROTECTED_ISSUES`）。
 
@@ -172,10 +172,10 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 - **类别写在 PR 说明第一行**：`类别：票`、`类别：a`、`类别：b` 或 `类别：内容定稿`（只用于上表「要人定稿的内容」的三种；每周的站上内容和邮件文件写 `类别：票`）。评审核对类别，拿不准按 b。正文为空时不拿标题当类别。不是票的 PR，脚本按 b 处理：没写类别、写的不是 a、改了门槛文件（`GATE_FILES`，含各级 `AGENTS*.md`、`CLAUDE.md`）、改或删了检查脚本（`CHECK_FILES`）或 `package.json` 已有命令、删测试文件、改已有测试时删掉含 `assert` / `expect` 的行或新增提前 `return`（`return;`、`{ return }`、`return 0;` 这类）、新增 `.only` / `.skip` / `.todo` / `.skipIf` / `.runIf`（按条件不跑）/ 关 lint / `@ts-nocheck` / `@ts-ignore` 的写法。路径按原样读（`-z`），中文文件名同样判。base 不是目标分支（上线前 `feature/v1`，上线后 `site`）的，脚本拒绝。
 - **票的 PR**：删测试文件、新增跳过、关 lint、关类型检查的写法，脚本拒绝，提示按原因分开；票写了 `内容定稿`，脚本拒绝（等产品负责人）；这三种内容没有固定的文件位置，脚本只认这一行声明，该写没写由 `content-reviewer` 核对（`content-reviewer.md` 第 7 步）。删断言、加提前 `return` 脚本不拦（实现需求时改测试是正常的），由评审逐条核对（`reviewer.md` 第 5 步）。
 - **`@ts-expect-error`**：只在 `tsc` 检查的目录（`tsconfig.json` 的 `include`：`src/`、`server/`）放行，别处等于 `@ts-ignore`，照样拦。放行的理由：下一行没有类型错误时它自己报错，不会留下压错的空壳；换来的是类型负例测试这类有意的抑制不再被误拒。代价：它压掉的真实错误脚本看不出，靠评审核对。
-- **和 `risk:high` 同效**：改了 `package.json` 的依赖字段（含 `overrides`）、生命周期脚本（`preinstall`、`install`、`postinstall`、`prepare` 等，构建时 `npm install` 会执行）或 `site:migrate`，`package-lock.json`、`.npmrc`、`migrations/site/**` 的 PR，脚本输出 `risk=high`，要 `kind=security` 结论，不论有没有打标签（`riskHigh`）。评审在草稿里写明要打 `risk:high`，由派它的会话补打（§7）。
+- **和 `risk:high` 同效**：改了 `package.json` 的依赖字段（含 `overrides`）、生命周期脚本（`preinstall`、`install`、`postinstall`、`prepare` 等，构建时 `npm install` 会执行）或 `site:migrate`，`package-lock.json`、`.npmrc`、`migrations/site/**` 的 PR，脚本输出 `risk=high`，要 `kind=security` 结论，不论有没有打标签（`riskHigh`）。评审在草稿里写明要打 `risk:high`，由审核线补打（§7）。
 - **改规则的**（`AGENTS.project.md`、`docs/standards/`、技能、角色 md、检查脚本）：照 Veli §5.4 四步（定位、检索、判定、代码化），检索命令和每个命中（已改 / 不用改 + 理由）贴进 PR 说明。
 - **谁返工**：谁提的谁改，按分支前缀认；评审最多 3 次（Veli §7 第 8 步）。
-- **两份评审靠派发保证独立**：脚本只能核对角色行和标记，核对不了「不同模型」「互相看不到」。派发时 `reviewer-b` 不给 `reviewer` 的评论；观察者抽查派发记录里的模型。票和 a 类只有一份评审（Veli 是 Codex 每个 PR 都评），Codex 连接器恢复后可以加回。
+- **两份评审靠派发保证独立**：脚本只能核对角色行和标记，核对不了「不同模型」「互相看不到」。审核线派发时 `reviewer-b` 不给 `reviewer` 的评论；观察者抽查派发记录里的模型。票和 a 类只有一份评审（Veli 是 Codex 每个 PR 都评），Codex 连接器恢复后可以加回。
 
 ### 5.2 要你合并时给什么：决策简报
 
@@ -227,7 +227,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 不写注释 | `node scripts/check-comments.mjs <目标分支> <PR 头>`：新增和改动的代码行不写注释，只许一行 `// why: …` 说明外部原因（velicoach-mono 工程规范「结构和代码」）。两个脚本都是 velicoach-mono 同名脚本的副本，只在那里改，路径在 `.velicoach-checks.json`；合并脚本从目标分支取来跑 | 开 PR 的人；合并脚本 |
 | 票正文里的跨仓库票号 | `npm run check:issue-refs`（只读，用 `gh api` 拉开着的票，只查仓库所有者开的那些的正文，和 `check:terms` 用同一个函数；要连 GitHub，不进 `npm test`）。什么时候跑：改过票或规格的正文之后、重新生成拆票文档的票表之后，要求 0 处 | 改票正文的人（主会话、拆票的 Agent）；`spec-reviewer` 复核时再跑一遍 |
 | 票表和依赖图 | `npm run check:ticket-table`（只读，分页拉开着的票和每张票的原生依赖，和 `docs/delivery/gate-3b-split.md` §3 的表、§4 的图、§1 的数字逐项比对，顺带查依赖没有环；要连 GitHub，不进 `npm test`；加 `-- --write` 重新生成）。什么时候跑：改了票的标题、标签、依赖以后，以及改 `gate-3b-split.md` 的 PR 合并之前，要求 0 处 | 改票的人（主会话、拆票的 Agent）；`reviewer` 评审改这一页的 PR 时再跑一遍 |
-| 评审结论评论 | 评审子 Agent 只写草稿，交回前 `node scripts/check-review-draft.mjs <草稿文件> <种类> <PR 头 sha>`，不通过不交；自己不在 PR、issue 上贴、改、删评论，也不打标签（2026-11-13 主频道定：子 Agent 自己贴过结论，同一结论在 #146 上出现两次）。派它的会话原样贴出、读回比对，贴出后不再编辑（编辑会锁住整个 PR），要改就删掉重贴；草稿写了要打 `risk:high` 的，由派它的会话打 | 四种评审写草稿；派评审的会话贴 |
+| 评审结论评论 | PR 的冷评审由审核线派出并贴出；PR 作者会话不派、不贴，只按评审结论修改（2026-11-13 主频道定）。审核线指主频道审合 PR 的那条线（§5.1）。评审子 Agent 只写草稿，交回前 `node scripts/check-review-draft.mjs <草稿文件> <种类> <PR 头 sha>`，不通过不交；自己不在 PR、issue 上贴、改、删评论，也不打标签（子 Agent 自己贴过结论，同一结论在 #146 上出现两次）。审核线原样贴出、读回比对，贴出后不再编辑（编辑会锁住整个 PR），要改就删掉重贴；草稿写了要打 `risk:high` 的，由审核线打 | 四种评审写草稿；审核线派评审、贴出；PR 作者只按结论修改 |
 | 质量词 | `npm run check:vague`；票和规格的正文先存成临时文件再跑 `node scripts/check-vague.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 口语和转写错误 | `npm run check:voice`（原话只在 `timeline.md`，其余正式文字不带口语标记和登记过的转写错误）；票和规格的正文同样跑 `node scripts/check-voice.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 脚本单元测试 | `npm test`（`check:mail` 合并以后（#112）要给目标分支：`MERGE_TARGET_BRANCH=origin/<目标分支> npm test`，不给就报错，没有默认值；合并脚本自己传核对过的提交号。`scripts/` 下除 grok-pwa 以外的测试，加 `npm run test:pwa`：grok-pwa 插件的测试读当前目录的分享卡配置，要在空临时目录里跑；沙箱契约不许改它的测试文件。PR #68 起。后半段的 `src/lib` 测试要依赖装全。云端会话里 `registry.npmjs.org` 在 `NO_PROXY` 里、直连解析不了，`npm ci` 报 ENOTFOUND；装依赖时让它走代理：`NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 npm ci --no-audit --no-fund`） | `reviewer` |

@@ -129,6 +129,107 @@ def project_config_checks():
     return failures
 
 
+def lint_tokens_checks():
+    """lint_tokens.py 的排除：命令行 --exclude、项目配置的 lint-tokens.exclude、命令行优先、--no-project-config 不读、前缀只中目录边界、
+    相对仓库根、绝对路径、盖住扫描路径报错、写明排除了几个文件、配置键写错报错；项目配置顶层键只许 thresholds 和 lint-tokens。"""
+    failures = []
+    root = tempfile.mkdtemp(prefix='lint-selftest-')
+    bad_css = 'a { color: #ff0000; }\n'
+    gone = '没有发现'
+
+    def write(path, text):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        open(path, 'w', encoding='utf-8').write(text)
+
+    def lint(*args, cwd=root, paths=('src',)):
+        r = subprocess.run([sys.executable, os.path.join(HERE, 'lint_tokens.py'), *paths, '--tokens', 'none.css', *args], cwd=cwd, capture_output=True, text=True)
+        return r.returncode, r.stdout + r.stderr
+
+    try:
+        write(os.path.join(root, '.git', 'HEAD'), '')
+        write(os.path.join(root, 'src', 'skip', 'a.css'), bad_css)
+        write(os.path.join(root, 'src', 'skipper', 'b.css'), bad_css)
+        write(os.path.join(root, 'src', 'keep', 'c.css'), bad_css)
+        code, txt = lint('--no-project-config')
+        if code != 1 or not all(x in txt for x in ('skip/a.css', 'skipper/b.css', 'keep/c.css')):
+            failures.append('lint_tokens.py：不排除时三个目录里的写死颜色都要报：' + txt[-200:])
+        code, txt = lint('--no-project-config', '--exclude', 'src/skip/', '--exclude', 'src/other')
+        if code != 1 or 'skip/a.css' in txt or 'skipper/b.css' not in txt or 'keep/c.css' not in txt or '已排除 1 个文件' not in txt:
+            failures.append('lint_tokens.py：--exclude src/skip/ 只排除 skip 目录（写明排除了 1 个文件），skipper 和 keep 照报：' + txt[-300:])
+        code, txt = lint('--no-project-config', '--exclude', 'src/skip')
+        if 'skip/a.css' in txt or 'skipper/b.css' not in txt:
+            failures.append('lint_tokens.py：前缀不写结尾斜杠也只按目录边界匹配，不能把 skipper 一起排除：' + txt[-200:])
+        code, txt = lint('--no-project-config', '--exclude', os.path.join(root, 'src', 'skip'))
+        if 'skip/a.css' in txt or 'skipper/b.css' not in txt:
+            failures.append('lint_tokens.py：--exclude 写绝对路径也要认：' + txt[-200:])
+        code, txt = lint('--no-project-config', '--exclude', 'src')
+        if code != 2 or '盖住了要检查的路径' not in txt or gone in txt or 'keep/c.css' in txt:
+            failures.append('lint_tokens.py：--exclude src 盖住了扫描路径 src，要报错退出（退出码 2）、不输出检查结果：' + txt[-300:])
+        code, txt = lint('--no-project-config', '--exclude', 'src', paths=('src/keep',))
+        if code != 2 or gone in txt:
+            failures.append('lint_tokens.py：排除前缀包含扫描路径（src 包含 src/keep）也要报错退出：' + txt[-300:])
+        write(os.path.join(root, 'design-bar.json'), json.dumps({'lint-tokens': {'exclude': ['src/skip/', 'src/skipper']}}))
+        code, txt = lint()
+        if code != 1 or 'skip/a.css' in txt or 'skipper/b.css' in txt or 'keep/c.css' not in txt or '已排除 2 个文件' not in txt:
+            failures.append('lint_tokens.py：项目配置的 lint-tokens.exclude 要生效（没有 thresholds 键也行）：' + txt[-300:])
+        code, txt = lint(cwd=os.path.join(root, 'src'), paths=('.',))
+        if 'skip/a.css' in txt or 'skipper/b.css' in txt or 'keep/c.css' not in txt:
+            failures.append('lint_tokens.py：配置里的排除前缀相对仓库根，在子目录里跑也要生效：' + txt[-300:])
+        code, txt = lint('--no-project-config')
+        if 'skip/a.css' not in txt or 'skipper/b.css' not in txt:
+            failures.append('lint_tokens.py：--no-project-config 时不读配置的排除：' + txt[-200:])
+        code, txt = lint('--exclude', 'src/keep')
+        if 'keep/c.css' in txt or 'skip/a.css' not in txt:
+            failures.append('lint_tokens.py：命令行给了 --exclude 就只用命令行的，配置的排除不叠加：' + txt[-200:])
+        write(os.path.join(root, 'design-bar.json'), json.dumps({'lint-tokens': {'excludes': ['src/skip']}}))
+        code, txt = lint()
+        if code == 0 or '可用的键' not in txt or 'lint-tokens-ignore' in txt or gone in txt or 'keep/c.css' in txt:
+            failures.append('lint_tokens.py：配置里键名写错要报错退出（不输出检查结果），不能悄悄忽略：' + txt[-300:])
+        write(os.path.join(root, 'design-bar.json'), json.dumps({'lint-tokens': {'exclude': ['src/skip']}}))
+        sys.path.insert(0, HERE)
+        import argparse
+        import verify_canvas as vc
+
+        def parser():
+            ap = argparse.ArgumentParser()
+            ap.add_argument('--face-contrast', type=float, default=vc.FACE_MIN_CONTRAST)
+            vc.add_project_config_args(ap)
+            return ap
+
+        cwd = os.getcwd()
+        try:
+            os.chdir(root)
+            ap = parser()
+            if not vc.apply_project_config(ap, []) or ap.parse_args([]).face_contrast != vc.FACE_MIN_CONTRAST:
+                failures.append('项目配置：只写 lint-tokens、没有 thresholds 的配置，verify_canvas、check_page 要能读，阈值保持默认')
+            write(os.path.join(root, 'design-bar.json'), json.dumps({'thresholds': {'face-contrast': 1.8}, 'lint-tokens': {'exclude': ['src/skip']}}))
+            ap = parser()
+            if not vc.apply_project_config(ap, []) or ap.parse_args([]).face_contrast != 1.8:
+                failures.append('项目配置：thresholds 和 lint-tokens 同在一个文件里，阈值照读')
+            code, txt = lint()
+            if 'skip/a.css' in txt or 'keep/c.css' not in txt:
+                failures.append('项目配置：thresholds 和 lint-tokens 同在一个文件里，lint_tokens.py 的排除照读：' + txt[-200:])
+            for typo in ('threshold', 'treshholds', 'lint_tokens'):
+                write(os.path.join(root, 'design-bar.json'), json.dumps({'thresholds': {'face-contrast': 1.8}, typo: {'face-contrast': 1.3}}))
+                try:
+                    vc.apply_project_config(parser(), [])
+                    failures.append(f'项目配置：顶层键写成 {typo} 要报错退出，不然门槛会悄悄退回通用下限')
+                except SystemExit as e:
+                    if '顶层键' not in str(e.code) or typo not in str(e.code):
+                        failures.append(f'项目配置：顶层键写错的报错要点名是哪个键：{e.code}')
+            write(os.path.join(root, 'design-bar.json'), json.dumps({'threshold': {'face-contrast': 1.8}}))
+            try:
+                vc.apply_project_config(parser(), [])
+                failures.append('项目配置：只写了写错的顶层键 threshold，要报错退出')
+            except SystemExit:
+                pass
+        finally:
+            os.chdir(cwd)
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+    return failures
+
+
 def static_checks():
     """不用浏览器的检查：gate.py、check_shell.py、stale_terms.py 的通用词汇表。"""
     failures = []
@@ -194,6 +295,7 @@ def static_checks():
             failures.append(f'check_shell.py：good-guard/{name} 的守卫是对的（含 !matchMedia(…).matches 写 light），不该报写死主题，实际 {code}')
 
     failures += project_config_checks()
+    failures += lint_tokens_checks()
 
     d = tempfile.mkdtemp(prefix='stale-selftest-')
     phrase = '不随' + '系统切换'  # 拆开写，免得技能自己的文件命中通用词汇表
@@ -217,7 +319,7 @@ def main():
         if failures:
             print('selftest --static 不通过：\n  ' + '\n  '.join(failures))
             sys.exit(1)
-        print('selftest --static 通过：gate.py（填全的、做坏的、没填的模板）、check_shell.py（做对的、做坏的、守卫形态的反例、不给配置）、stale_terms.py 的通用词汇表、项目配置（design-bar.json）都对')
+        print('selftest --static 通过：gate.py（填全的、做坏的、没填的模板）、check_shell.py（做对的、做坏的、守卫形态的反例、不给配置）、stale_terms.py 的通用词汇表、项目配置（design-bar.json，含顶层键校验）、lint_tokens.py 的排除（命令行、配置、仓库根、盖住扫描路径报错）都对')
         return
     out = tempfile.mkdtemp(prefix='verify-selftest-')
     subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), '--no-project-config', FIXTURES, '--out', out, '--size', 'SelftestProps.dc.html=320x600'],

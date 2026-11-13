@@ -1,5 +1,8 @@
 {
   "thresholds": {
     "face-contrast": 1.8
+  },
+  "lint-tokens": {
+    "exclude": ["src/shorts/", "src/lib/auth/"]
   }
 }

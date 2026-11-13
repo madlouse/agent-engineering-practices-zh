@@ -43,7 +43,11 @@ python3 "$U/tools/audit_classes.py" "$SYS/canvas.css" "$P" --strict
 if [ "${1:-}" = "--verify" ]; then
   OUT=${2:?--verify 后面要给输出目录（放在仓库外面）}
   echo '── 6. verify_canvas.py'
-  bash "$U/tools/verify_all.sh" "$OUT/pages"
-  bash "$U/tools/verify_all.sh" --devices "$OUT/devices"
+  # 两遍都跑完再判：任何一遍结论不是 done 或没出报告，整条命令退出码非 0（verify_all.sh 的退出码说明）
+  rc=0
+  bash "$U/tools/verify_all.sh" "$OUT/pages" || rc=$?
+  r2=0; bash "$U/tools/verify_all.sh" --devices "$OUT/devices" || r2=$?
+  [ $r2 -gt $rc ] && rc=$r2
+  if [ $rc -ne 0 ]; then echo "验证没过（退出码 $rc）：看 $OUT/pages 和 $OUT/devices 的报告与 verify.log" >&2; exit $rc; fi
 fi
 echo '完成'

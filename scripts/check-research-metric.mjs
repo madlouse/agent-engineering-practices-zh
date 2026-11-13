@@ -7,17 +7,87 @@ const PASS = new Set(["高", "中", "high", "moderate"]);
 const KNOWN = new Set(["高", "中", "低", "很低", "high", "moderate", "low", "very-low"]);
 const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
 
+function skipQuoted(text, i) {
+  const q = text[i];
+  for (i++; i < text.length; i++) {
+    if (text[i] === "\\") i++;
+    else if (text[i] === q) return i + 1;
+  }
+  return i;
+}
+
+function skipBraces(text, i) {
+  let depth = 0;
+  while (i < text.length) {
+    const c = text[i];
+    if (c === '"' || c === "'" || c === "`") i = skipQuoted(text, i);
+    else {
+      if (c === "{") depth++;
+      else if (c === "}" && --depth === 0) return i + 1;
+      i++;
+    }
+  }
+  return i;
+}
+
+function parseAttrs(src) {
+  const attrs = new Map();
+  let i = 0;
+  while (i < src.length) {
+    if (src[i] === "{") {
+      i = skipBraces(src, i);
+      continue;
+    }
+    const name = /^[A-Za-z_:][\w:.-]*/.exec(src.slice(i));
+    if (!name) {
+      i++;
+      continue;
+    }
+    i += name[0].length;
+    const eq = /^\s*=\s*/.exec(src.slice(i));
+    let value = "";
+    if (eq) {
+      i += eq[0].length;
+      const c = src[i];
+      if (c === '"' || c === "'") {
+        const end = skipQuoted(src, i);
+        value = src.slice(i + 1, end - 1);
+        i = end;
+      } else if (c === "{") {
+        const end = skipBraces(src, i);
+        const lit = /^\{\s*(?:"([^"]*)"|'([^']*)'|`([^`$]*)`)\s*\}$/.exec(src.slice(i, end));
+        value = lit ? lit[1] ?? lit[2] ?? lit[3] : src.slice(i, end);
+        i = end;
+      } else {
+        const bare = /^[^\s"'>]+/.exec(src.slice(i));
+        value = bare ? bare[0] : "";
+        i += value.length;
+      }
+    }
+    attrs.set(name[0], value);
+  }
+  return attrs;
+}
+
 export function scanTags(text) {
   const tags = [];
-  const re = /<(\/?)([A-Za-z][\w:-]*)((?:"[^"]*"|'[^']*'|[^'">])*?)(\/?)>/g;
+  const open = /<(\/?)([A-Za-z][\w:-]*)/g;
   let m;
-  while ((m = re.exec(text))) {
-    const attrs = new Map();
-    for (const a of m[3].matchAll(/([A-Za-z_:][\w:.-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g)) {
-      attrs.set(a[1], a[2] ?? a[3] ?? a[4] ?? "");
+  while ((m = open.exec(text))) {
+    let i = open.lastIndex;
+    while (i < text.length && text[i] !== ">") {
+      const c = text[i];
+      if (c === '"' || c === "'") i = skipQuoted(text, i);
+      else if (c === "{") i = skipBraces(text, i);
+      else i++;
     }
+    let body = text.slice(open.lastIndex, i);
+    const self = body.trimEnd().endsWith("/");
+    if (self) body = body.trimEnd().slice(0, -1);
+    const name = m[2].toLowerCase();
     const line = text.slice(0, m.index).split("\n").length;
-    tags.push({ close: m[1] === "/", name: m[2].toLowerCase(), attrs, self: m[4] === "/" || VOID.has(m[2].toLowerCase()), line });
+    tags.push({ close: m[1] === "/", name, attrs: parseAttrs(body), self: self || VOID.has(name), line });
+    open.lastIndex = i + 1;
   }
   return tags;
 }

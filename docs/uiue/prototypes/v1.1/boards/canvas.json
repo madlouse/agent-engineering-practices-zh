@@ -1,0 +1,254 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-03T13:58:00Z"
+ },
+ "title": "Velicoach 主站 · UI v1.1",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 3200,
+   "title": "首页 · 桌面（悬停倾斜、原地展开、订阅可试）",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Tablet.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 820,
+   "h": 3780,
+   "title": "首页 · 平板",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Mobile.dc.html": {
+   "x": 2420,
+   "y": 0,
+   "w": 390,
+   "h": 4440,
+   "title": "首页 · 手机",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Fold.dc.html": {
+   "x": 2890,
+   "y": 0,
+   "w": 984,
+   "h": 3660,
+   "title": "首页 · 折叠屏内屏",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Mind.dc.html": {
+   "x": 0,
+   "y": 4960,
+   "w": 1440,
+   "h": 4200,
+   "title": "02 看清 · 站点首页（AI 发展史 / 人机协作，分段控件可切）",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "MindMobile.dc.html": {
+   "x": 1520,
+   "y": 4960,
+   "w": 390,
+   "h": 4320,
+   "title": "02 看清 · 站点首页 · 手机",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Learn.dc.html": {
+   "x": 1990,
+   "y": 4960,
+   "w": 1440,
+   "h": 3920,
+   "title": "02 看清 · 学习路径 /mind/learn",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "LearnMobile.dc.html": {
+   "x": 3510,
+   "y": 4960,
+   "w": 390,
+   "h": 6210,
+   "title": "02 看清 · 学习路径 · 手机",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Article.dc.html": {
+   "x": 3980,
+   "y": 4960,
+   "w": 1440,
+   "h": 3750,
+   "title": "02 看清 · 文章页（属性：内容类型、媒体、英文版、加载、导航吸顶；单条开发日志复用这一页）",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ArticleMobile.dc.html": {
+   "x": 5500,
+   "y": 4960,
+   "w": 390,
+   "h": 4560,
+   "title": "02 看清 · 文章页 · 手机",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Build.dc.html": {
+   "x": 0,
+   "y": 14700,
+   "w": 1440,
+   "h": 2740,
+   "title": "03 动手 · 动手首页 /build",
+   "expand": "fill"
+  },
+  "BuildMobile.dc.html": {
+   "x": 1520,
+   "y": 14700,
+   "w": 390,
+   "h": 4450,
+   "title": "03 动手 · 手机",
+   "expand": "fill"
+  },
+  "Project.dc.html": {
+   "x": 1990,
+   "y": 14700,
+   "w": 1440,
+   "h": 2600,
+   "title": "03 动手 · 项目页 /build/velicoach",
+   "expand": "fill"
+  },
+  "Body.dc.html": {
+   "x": 3510,
+   "y": 14700,
+   "w": 1440,
+   "h": 2240,
+   "title": "01 站稳 · Veli 落地页（参考：由 Veli 仓库实现；「开始训练」可点开）",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "About.dc.html": {
+   "x": 5030,
+   "y": 14700,
+   "w": 1440,
+   "h": 2530,
+   "title": "关于 /about（锚点 #contact）",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "AboutMobile.dc.html": {
+   "x": 6550,
+   "y": 14700,
+   "w": 390,
+   "h": 3350,
+   "title": "关于 · 手机",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "States.dc.html": {
+   "x": 0,
+   "y": 19580,
+   "w": 1440,
+   "h": 1760,
+   "title": "页面状态（属性 page 切换；对应 PRD 的七种状态）",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Controls.dc.html": {
+   "x": 1520,
+   "y": 19580,
+   "w": 1440,
+   "h": 19500,
+   "title": "控件状态和组件样张（默认、悬停、按下、焦点、禁用；纸底、墨底、苔绿底；外壳和内容组件）",
+   "expand": "fill"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Tablet.dc.html",
+  "Mobile.dc.html",
+  "Fold.dc.html",
+  "Mind.dc.html",
+  "MindMobile.dc.html",
+  "Learn.dc.html",
+  "LearnMobile.dc.html",
+  "Article.dc.html",
+  "ArticleMobile.dc.html",
+  "Build.dc.html",
+  "BuildMobile.dc.html",
+  "Project.dc.html",
+  "Body.dc.html",
+  "About.dc.html",
+  "AboutMobile.dc.html",
+  "States.dc.html",
+  "Controls.dc.html"
+ ],
+ "notes": {
+  "t1": {
+   "x": 0,
+   "y": -300,
+   "text": "Velicoach · AGI 路上的陪练 —— 首页（桌面 · 平板 · 手机 · 折叠屏）",
+   "kind": "title1",
+   "maxW": 3900
+  },
+  "t2": {
+   "x": 0,
+   "y": 4660,
+   "text": "看清：AI 发展史 · 学习路径 · 人机协作 · 文章",
+   "kind": "title1",
+   "maxW": 5800
+  },
+  "t3": {
+   "x": 0,
+   "y": 14400,
+   "text": "动手、站稳（参考）、关于",
+   "kind": "title1",
+   "maxW": 5800
+  },
+  "t4": {
+   "x": 0,
+   "y": 19280,
+   "text": "页面状态和控件样张",
+   "kind": "title1",
+   "maxW": 2960
+  },
+  "s1": {
+   "x": 4000,
+   "y": 0,
+   "w": 420,
+   "fill": "orange",
+   "size": "m",
+   "text": "v1.1（2026-11-12）\n\n按 PRD v2.0 和两份独立诊断重做：首屏加定位句「AGI 路上的陪练」，叶与网用起上半；首屏以下三幕（论点、证据、这一周）；研究卡大数字在上。\n\n每个页面一份标记，按宽度自适应；手机、平板、折叠屏画板是同一份标记在对应宽度下的样子。\n\n右侧属性可切：外观、语言、订阅的上线开关（关着时是 RSS 链接）、订阅各状态。"
+  },
+  "s3": {
+   "x": 6000,
+   "y": 4960,
+   "w": 420,
+   "fill": "green",
+   "size": "m",
+   "text": "看清：工程师的书房\n\nAI 发展史按五个时代分段，首屏的时间尺按年数分宽度；学习路径单独一页，每步写清为什么学、学到什么程度、怎么检验；人机协作按五种工程范式。没有动效。"
+  }
+ },
+ "designSystems": [
+  {
+   "title": "Veli",
+   "namespace": "veli",
+   "artifact": "https://claude.ai/artifact/FwJQRUbYUmz1gYipje8rW6",
+   "version": "1793677944-90c9",
+   "copiedAt": "2026-11-03T13:58:00Z"
+  },
+  {
+   "title": "Velicoach",
+   "namespace": "velicoach",
+   "artifact": "https://claude.ai/artifact/6JqC3pUJ5GjDvXD2sEMZ5w",
+   "version": null,
+   "copiedAt": "2026-11-04T08:40:00Z"
+  }
+ ]
+}

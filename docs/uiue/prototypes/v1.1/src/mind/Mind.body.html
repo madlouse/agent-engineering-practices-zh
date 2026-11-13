@@ -1,0 +1,206 @@
+  <sc-if value="{{isOffline}}" hint-placeholder-val="{{ false }}">
+    <div class="vc-offline">
+      <p class="vc-notice" role="status">
+        <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M2.5 7.5 a11 11 0 0 1 15 0 M5.2 10.4 a7 7 0 0 1 9.6 0 M7.9 13.3 a3 3 0 0 1 4.2 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M3 3 L17 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+        <span>{{c.offline}}</span>
+      </p>
+    </div>
+  </sc-if>
+  <section class="vc-band vc-band-ink {{bandClass}}" data-first-screen="">
+    <div class="vc-container vc-band-body">
+      <h1 class="vc-type-title-1-serif">{{t.mind}}</h1>
+      <p class="vc-type-lead vc-sub">{{c.lead}}</p>
+      <div class="vc-band-switch">
+        <div class="seg vc-seg-tabs" role="group" aria-label="{{c.linesLabel}}">
+          <a href="{{c.histHref}}" aria-current="{{histCur}}" onClick="{{showHist}}">{{c.hist}}</a>
+          <a href="{{c.collabHref}}" aria-current="{{collabCur}}" onClick="{{showCollab}}">{{c.collab}}</a>
+        </div>
+        <a class="vc-quick" href="{{c.learnHref}}">{{c.learn}}</a>
+      </div>
+      <sc-if value="{{isHist}}" hint-placeholder-val="{{ true }}">
+        <div class="vc-ruler">
+          <div role="img" aria-label="{{rulerAlt}}">
+            <div class="vc-ruler-bar" aria-hidden="true">
+              <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
+                <span class="vc-ruler-seg" style="flex: {{e.span}} 0 0;"><sc-for list="{{e.dots}}" as="d" hint-placeholder-count="4"><i class="vc-ruler-dot" style="left: {{d.left}};"></i></sc-for></span>
+              </sc-for>
+            </div>
+            <div class="vc-ruler-years" aria-hidden="true">
+              <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
+                <span class="{{e.yearClass}}" style="flex: {{e.span}} 0 0;">{{e.start}}</span>
+              </sc-for>
+            </div>
+          </div>
+          <p class="vc-type-footnote vc-sub vc-ruler-note">{{rulerNote}}</p>
+          <nav class="vc-era-jump" id="eras" aria-label="{{c.jumpLabel}}">
+            <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
+              <a href="#{{e.id}}">{{e.name}}</a>
+            </sc-for>
+          </nav>
+        </div>
+      </sc-if>
+      <sc-if value="{{isCollab}}" hint-placeholder-val="{{ false }}">
+        <div class="vc-nest">
+          <div class="vc-nest-ring" role="img" aria-label="{{c.nestAlt}}">
+            <div class="vc-nest-ring" aria-hidden="true">
+              <div class="vc-nest-ring">
+                <div class="vc-nest-ring">
+                  <p class="vc-nest-core"><span>{{nest.0.name}}</span><span class="mono">{{nest.0.when}}</span></p>
+                  <p class="vc-nest-row"><span>{{nest.1.name}}</span><span class="mono">{{nest.1.when}}</span></p>
+                </div>
+                <p class="vc-nest-row"><span>{{nest.2.name}}</span><span class="mono">{{nest.2.when}}</span></p>
+              </div>
+              <p class="vc-nest-row"><span>{{nest.3.name}}</span><span class="mono">{{nest.3.when}}</span></p>
+            </div>
+            <p class="vc-nest-row" aria-hidden="true"><span>{{nest.4.name}}</span><span class="mono">{{nest.4.when}}</span></p>
+          </div>
+          <p class="vc-type-footnote vc-sub">{{c.nestNote}}</p>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+  <sc-if value="{{isHist}}" hint-placeholder-val="{{ true }}">
+    <main class="vc-container vc-section" aria-label="{{c.hist}}">
+      <p class="vc-type-lead vc-intro">{{c.histIntro}}{{c.checked}}<a href="{{t.contactHref}}">{{c.report}}</a>{{c.checkedEnd}}</p>
+      <div class="vc-with-aside">
+        <div>
+          <sc-if value="{{listLoaded}}" hint-placeholder-val="{{ true }}">
+            <div class="vc-timeline">
+              <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
+                <section class="vc-era" id="{{e.id}}" aria-labelledby="{{e.id}}-name">
+                  <div class="vc-era-bar"><h2 id="{{e.id}}-name" class="vc-era-name">{{e.name}}</h2><p class="vc-era-years">{{e.years}}</p><a class="vc-quick vc-quick-small vc-era-up" href="#eras" aria-label="{{c.toIndexLabel}}">{{c.toIndex}}</a></div>
+                  <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
+                  <ol class="vc-era-list">
+                    <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
+                      <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
+                        <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
+                          <details class="vc-ms-fold" data-expand="inline">
+<!--@MS-->
+                          </details>
+                        </sc-if>
+                        <sc-if value="{{m.open}}" hint-placeholder-val="{{ false }}">
+                          <details class="vc-ms-fold" data-expand="inline" open>
+<!--@MS-->
+                          </details>
+                        </sc-if>
+                      </li>
+                    </sc-for>
+                  </ol>
+                </section>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{listLoading}}" hint-placeholder-val="{{ false }}">
+            <h2 class="vc-sr-only">{{c.hist}}</h2>
+            <sc-if value="{{listSlow}}" hint-placeholder-val="{{ false }}">
+              <div class="vc-loading-slow" role="status"><p>{{c.loading}}</p><button type="button" class="btn vc-btn-quiet">{{c.retry}}</button></div>
+            </sc-if>
+            <sc-if value="{{listQuick}}" hint-placeholder-val="{{ false }}"><p class="vc-sr-only" role="status">{{c.loading}}</p></sc-if>
+            <div class="vc-loading vc-loading-rows" aria-hidden="true">
+              <span class="vc-skeleton" style="width: var(--space-10); height: var(--space-5);"></span>
+              <sc-for list="{{skeletons}}" as="k" hint-placeholder-count="5">
+                <div class="vc-loading-row">
+                  <span class="vc-skeleton" style="width: var(--space-7); height: var(--space-4);"></span>
+                  <span class="vc-loading-row-body">
+                    <span class="vc-skeleton" style="width: {{k.w1}}; height: var(--space-5);"></span>
+                    <span class="vc-skeleton" style="width: {{k.w2}}; height: var(--space-4);"></span>
+                  </span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{listFailed}}" hint-placeholder-val="{{ false }}">
+            <div class="vc-notice vc-notice-block" role="alert">
+              <h2 class="vc-type-title-3">{{c.failTitle}}</h2>
+              <p class="vc-sub">{{c.failBody}}</p>
+              <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{c.retry}}</button><a class="vc-quick" href="{{c.learnHref}}">{{c.toLearn}}</a></div>
+            </div>
+          </sc-if>
+        </div>
+        <aside aria-label="{{c.indexLabel}}">
+          <nav class="vc-era-index" aria-label="{{c.erasLabel}}">
+            <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
+              <a href="#{{e.id}}" aria-current="{{e.current}}"><span>{{e.name}}</span><span class="mono">{{e.years}}</span></a>
+            </sc-for>
+          </nav>
+        </aside>
+      </div>
+    </main>
+  </sc-if>
+  <sc-if value="{{isCollab}}" hint-placeholder-val="{{ false }}">
+    <main class="vc-container vc-section" aria-label="{{c.collab}}">
+      <p class="vc-type-lead vc-intro">{{c.collabIntro}}</p>
+      <section class="vc-layer" aria-labelledby="layer-eng">
+        <div class="vc-head">
+          <h2 id="layer-eng" class="vc-type-title-2-serif">{{c.layers.eng}}</h2>
+          <p class="vc-type-body vc-sub">{{c.layerIntro.eng}}</p>
+        </div>
+        <sc-for list="{{paradigms}}" as="pa" hint-placeholder-count="5">
+          <section class="vc-paradigm" id="{{pa.id}}" aria-labelledby="{{pa.id}}-name">
+            <div class="vc-paradigm-head">
+              <p class="vc-paradigm-when">{{pa.when}}</p>
+              <h3 id="{{pa.id}}-name" class="vc-era-name">{{pa.name}}</h3>
+              <p class="vc-paradigm-problem">{{pa.problem}}</p>
+              <sc-if value="{{pa.hasAlso}}" hint-placeholder-val="{{ false }}">
+                <p><a class="vc-quick vc-quick-small" href="{{pa.alsoHref}}">{{pa.also}}</a></p>
+              </sc-if>
+            </div>
+            <ul class="vc-card-grid">
+              <sc-for list="{{pa.cards}}" as="p" hint-placeholder-count="2">
+                <li id="{{p.slug}}">
+                  <sc-if value="{{p.isPost}}" hint-placeholder-val="{{ true }}">
+                    <a class="vc-card vc-card-link" href="{{p.href}}" aria-labelledby="{{p.slug}}-t">
+                      <p class="vc-row-kind">{{p.meta}}</p>
+                      <h4 id="{{p.slug}}-t" class="row-title vc-serif">{{p.title}}</h4>
+                      <p class="vc-row-line">{{p.dek}}</p>
+                      <p class="vc-row-foot">{{c.published}} <time datetime="{{p.date}}">{{p.dateText}}</time></p>
+                    </a>
+                  </sc-if>
+                  <sc-if value="{{p.isCard}}" hint-placeholder-val="{{ false }}">
+                    <a class="vc-card vc-card-link" href="{{p.href}}" aria-labelledby="{{p.slug}}-t">
+                      <p class="vc-row-kind">{{p.meta}}</p>
+                      <h4 id="{{p.slug}}-t" class="row-title vc-serif">{{p.title}}</h4>
+                      <dl class="vc-card-facts">
+                        <div><dt>{{c.factWhat}}</dt><dd>{{p.what}}</dd></div>
+                        <div><dt>{{c.factHow}}</dt><dd>{{p.how}}</dd></div>
+                        <div><dt>{{c.factWho}}</dt><dd>{{p.who}}</dd></div>
+                      </dl>
+                      <p class="vc-row-foot"><span class="vc-row-go">{{c.source}}</span></p>
+                    </a>
+                  </sc-if>
+                </li>
+              </sc-for>
+            </ul>
+          </section>
+        </sc-for>
+      </section>
+      <sc-for list="{{layers}}" as="g" hint-placeholder-count="2">
+        <section class="vc-layer" aria-labelledby="{{g.id}}">
+          <div class="vc-paradigm">
+            <div class="vc-paradigm-head">
+              <h2 id="{{g.id}}" class="vc-type-title-2-serif">{{g.title}}</h2>
+              <p class="vc-paradigm-problem">{{g.intro}}</p>
+              <sc-if value="{{g.hasUses}}" hint-placeholder-val="{{ false }}">
+                <p><a class="vc-quick vc-quick-small" href="{{g.usesHref}}">{{g.uses}}</a></p>
+              </sc-if>
+              <sc-if value="{{g.hasDevlog}}" hint-placeholder-val="{{ false }}">
+                <p><a class="vc-quick vc-quick-small" href="{{c.devlogHref}}">{{c.devlog}}</a></p>
+              </sc-if>
+            </div>
+            <ul class="vc-card-grid">
+              <sc-for list="{{g.cards}}" as="p" hint-placeholder-count="1">
+                <li id="{{p.slug}}">
+                  <a class="vc-card vc-card-link" href="{{p.href}}" aria-labelledby="{{p.slug}}-t">
+                    <p class="vc-row-kind">{{p.meta}}</p>
+                    <h3 id="{{p.slug}}-t" class="row-title vc-serif">{{p.title}}</h3>
+                    <p class="vc-row-line">{{p.dek}}</p>
+                    <p class="vc-row-foot">{{c.published}} <time datetime="{{p.date}}">{{p.dateText}}</time></p>
+                  </a>
+                </li>
+              </sc-for>
+            </ul>
+          </div>
+        </section>
+      </sc-for>
+    </main>
+  </sc-if>

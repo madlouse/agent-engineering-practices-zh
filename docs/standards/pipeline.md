@@ -225,7 +225,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖 | `reviewer` 用 Vercel 连接器看构建日志 |
 | 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |
 | token | `python .grok/skills/design-bar/scripts/lint_tokens.py src --tokens <token 文件>` | `reviewer`（界面票） |
-| 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo --face-contrast 1.8`（`--out` 必填；`--face-contrast 1.8` 把相邻大色面的最低对比从技能通用的 1.3:1 提到本站的门槛，依据是设计系统「浅色与深色」：深色下品牌两半 ≥ 1.8:1。深色下有意只隔约 1.3:1 的两处，墨色色带和强调面对页面底，都带 1px 描边，边界画出来的面检查不报；2026-11-12 用这个门槛跑过 18 块画板，报了 2 条色面，都是文章页手机版「加载失败」的提示块对页面底 1.10:1，是真问题，见 `docs/uiue/reviews/2026-11-12-audit/summary.md`） | 关口三 a；改了画板的票 |
+| 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo --face-contrast 1.8`（`--out` 必填；`--face-contrast 1.8` 把相邻大色面的最低对比从技能通用的 1.3:1 提到本站的门槛，依据是设计系统「浅色与深色」：深色下品牌两半 ≥ 1.8:1。深色下有意只隔约 1.3:1 的两处，墨色色带和强调面对页面底，都带 1px 描边，边界画出来的面检查不报） | 关口三 a；改了画板的票 |
 | 内容 | 出处逐条打开核对；授权状态；`velicoach-content` 的审核清单；中英两版都在。研究卡另查：出处链到论文原文，措辞和研究类型相符（`npm run check:research`，站点票 #52 交付；交付前逐张人工核对） | `content-reviewer` |
 
 ## 8. 先慢后快

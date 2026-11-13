@@ -1,0 +1,178 @@
+# -*- coding: utf-8 -*-
+from parts import *
+# 站稳页的文案和列表（中英两版）在 body_copy.json 里：T 是文案，L 是列表
+_copy = json.load(open(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)), 'body_copy.json'), encoding='utf-8'))
+T, L = _copy['T'], _copy['L']
+CSS = '''/* 参考画板：站稳页是 Veli 的落地页，由 Veli 仓库实现，主站别的页面不用这些版式，所以留在这一页，不放进共享样式表。外壳、区块标题（.vc-head）、纸面卡片（.vc-card）、原地展开（.vc-pop）用共享的 */
+/* 首屏：左边标题、导语和「开始训练」，右边一周安排的样张 */
+.vc-bodypage-hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
+.vc-bodypage-text { display: grid; gap: var(--space-5); justify-items: start; }
+.vc-bodypage-text .vc-type-lead { max-width: var(--text-max); color: var(--vc-sub); }
+.vc-bodypage-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); }
+.vc-bodypage-direct { display: none; }
+.vc-bodypage-plan { margin: 0; display: grid; gap: var(--space-3); }
+.vc-bodypage-plan > figcaption { color: var(--vc-sub); }
+.vc-bodypage-card { display: grid; gap: var(--space-4); }
+.vc-bodypage-card > * { margin: 0; }
+.vc-bodypage-plan-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--vc-line); }
+.vc-bodypage-plan-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-4); padding: var(--space-3) 0; border-bottom: 1px solid var(--vc-line); }
+.vc-bodypage-plan-kind { color: var(--vc-faint); }
+.vc-bodypage-plan-list .mono { font-size: var(--type-meta-mono); line-height: var(--leading-body); color: var(--vc-status); white-space: nowrap; }
+/* 三栏的行：标签或序号、名称、一句说明 */
+.vc-bodypage-list { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--vc-line); }
+.vc-bodypage-list li { display: grid; grid-template-columns: 96px 200px minmax(0, 1fr); gap: var(--space-1) var(--space-5); align-items: baseline; padding: var(--space-4) 0; border-top: 1px solid var(--vc-line); }
+.vc-bodypage-list .mono { font-size: var(--type-meta-mono); color: var(--vc-status); }
+.vc-bodypage-list h3 { font-family: var(--font-sans); }
+.vc-bodypage-list p { margin: 0; color: var(--vc-sub); text-wrap: pretty; }
+.vc-bodypage-branch { margin: var(--space-4) 0 0; }
+.vc-bodypage-start { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.vc-bodypage-start .opt { padding-inline: var(--space-5); }
+/* breakpoint-desktop 1180px */
+@media (max-width: 1179px) { .vc-bodypage-hero { grid-template-columns: minmax(0, 1fr); gap: var(--space-7); } }
+/* breakpoint-tablet 744px：手机上两个登录方式直接摆出，不再点开（步数预算：没登录过 2 步） */
+@media (max-width: 743px) {
+  .vc-bodypage-toggle { display: none; }
+  .vc-bodypage-direct { display: grid; gap: var(--space-2); width: 100%; }
+  .vc-bodypage-text, .vc-bodypage-actions { justify-items: stretch; }
+  .vc-bodypage-actions { display: grid; width: 100%; }
+  .vc-bodypage-list li { grid-template-columns: minmax(0, 1fr); }
+  .vc-bodypage-start { display: grid; }
+  /* 图缩到手机宽度后，星期的字放大到缩放后约 13px */
+  .vc-bodypage-branch svg { overflow: visible; margin-top: var(--space-4); }
+  .vc-bodypage-branch text { font-size: 40px; }
+}'''
+BODY = '''<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
+''' + indent(nav('body'), 2) + '''
+  <main>
+    <section class="vc-band vc-band-paper" data-first-screen="" aria-labelledby="bo-title">
+      <div class="vc-container vc-bodypage-hero">
+        <div class="vc-bodypage-text">
+          <h1 id="bo-title" class="vc-type-title-1">{{c.h1}}</h1>
+          <p class="vc-type-lead">{{c.lead}}</p>
+          <div class="vc-bodypage-actions">
+            <div class="vc-pop-anchor vc-bodypage-toggle">
+              <button type="button" class="btn vc-btn-action" aria-expanded="{{startExpanded}}" aria-controls="bo-start-options" onClick="{{toggleStart}}">{{c.cta}}<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+              <div id="bo-start-options" class="{{popClass}}" data-pop="" role="group" aria-label="{{c.startGroup}}">
+                <div class="vc-pop-opts"><a class="opt" href="{{a1.href}}">{{a1.label}}</a><a class="opt" href="{{a2.href}}">{{a2.label}}</a></div>
+                <p class="vc-pop-note">{{c.popNote}}</p>
+              </div>
+            </div>
+            <div class="vc-bodypage-direct" role="group" aria-label="{{c.startGroup}}"><a class="btn vc-btn-action" href="{{a1.href}}">{{a1.label}}</a><a class="btn vc-btn-quiet" href="{{a2.href}}">{{a2.label}}</a></div>
+            <a class="vc-quick" href="#how">{{c.how}}</a>
+          </div>
+        </div>
+        <figure class="vc-bodypage-plan">
+          <div class="vc-card vc-bodypage-card">
+            <p class="vc-type-lead">{{c.planIntro}}</p>
+            <ul class="vc-bodypage-plan-list">
+              <sc-for list="{{ plan }}" as="p" hint-placeholder-count="5">
+                <li><span><span class="vc-bodypage-plan-kind">{{ p.kind }} · </span>{{ p.name }}</span><span class="mono">{{ p.dose }}</span></li>
+              </sc-for>
+            </ul>
+          </div>
+          <figcaption class="vc-type-footnote">{{c.planCap}}</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="what" class="vc-container vc-section vc-section-flush" aria-labelledby="bo-what-title">
+      <div class="vc-head">
+        <h2 id="bo-what-title" class="vc-type-title-2">{{c.whatTitle}}</h2>
+        <p class="vc-type-body">{{c.whatLead}}</p>
+      </div>
+      <ol class="vc-bodypage-list">
+        <sc-for list="{{ moves }}" as="m" hint-placeholder-count="3">
+          <li><span class="mono">{{ m.tag }}</span><h3 class="vc-type-lead">{{ m.name }}</h3><p class="vc-type-body">{{ m.line }}</p></li>
+        </sc-for>
+      </ol>
+    </section>
+
+    <section id="how" class="vc-container vc-section vc-section-flush" aria-labelledby="bo-how-title">
+      <div class="vc-head">
+        <h2 id="bo-how-title" class="vc-type-title-2">{{c.how}}</h2>
+        <p class="vc-type-body">{{c.howLead}}</p>
+      </div>
+      <ol class="vc-bodypage-list">
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+          <li><span class="mono" aria-hidden="true">{{ s.n }}</span><h3 class="vc-type-lead">{{ s.title }}</h3><p class="vc-type-body">{{ s.line }}</p></li>
+        </sc-for>
+      </ol>
+      <figure class="vc-card vc-bodypage-card vc-bodypage-branch">
+        <h3 class="vc-type-title-3">{{c.branch}}</h3>
+        <svg viewBox="0 0 980 110" width="100%" role="img" aria-label="{{c.branchAlt}}">
+          <g font-family="var(--font-sans)" font-size="16" fill="var(--vc-text-2)" text-anchor="middle">
+            <text x="70" y="20">{{c.d1}}</text><text x="210" y="20">{{c.d2}}</text><text x="350" y="20">{{c.d3}}</text><text x="490" y="20">{{c.d4}}</text><text x="630" y="20">{{c.d5}}</text><text x="770" y="20">{{c.d6}}</text><text x="910" y="20">{{c.d7}}</text>
+          </g>
+          <line x1="30" y1="88" x2="950" y2="88" stroke="var(--vc-moss)" stroke-width="3" stroke-linecap="round"></line>
+          <path d="M70 88 C 52 74, 54 52, 70 46 C 86 52, 88 74, 70 88 Z" fill="var(--vc-moss)"></path>
+          <circle cx="210" cy="88" r="5" fill="var(--vc-moss)"></circle>
+          <path d="M350 88 C 332 74, 334 52, 350 46 C 366 52, 368 74, 350 88 Z" fill="var(--vc-moss)"></path>
+          <path d="M490 88 C 472 74, 474 52, 490 46 C 506 52, 508 74, 490 88 Z" fill="var(--vc-paper-surface)" stroke="var(--vc-moss)" stroke-width="2"></path>
+          <path d="M630 88 C 612 74, 614 52, 630 46 C 646 52, 648 74, 630 88 Z" fill="var(--vc-moss)"></path>
+          <circle cx="770" cy="88" r="5" fill="var(--vc-moss)"></circle>
+          <path d="M910 88 C 892 74, 894 52, 910 46 C 926 52, 928 74, 910 88 Z" fill="var(--vc-moss)"></path>
+        </svg>
+        <figcaption class="vc-type-body vc-sub">{{c.branchCap}}</figcaption>
+      </figure>
+    </section>
+
+    <section id="start" class="vc-container vc-section" aria-labelledby="bo-start-title">
+      <div class="vc-head">
+        <h2 id="bo-start-title" class="vc-type-title-2">{{c.firstTitle}}</h2>
+        <p class="vc-type-body">{{c.firstLead}}</p>
+      </div>
+      <div class="vc-bodypage-start" role="group" aria-label="{{c.startGroup}}">
+        <a class="opt" href="{{a1.href}}">{{a1.label}}</a>
+        <a class="opt" href="{{a2.href}}">{{a2.label}}</a>
+      </div>
+    </section>
+  </main>
+''' + indent(FOOTER, 2) + '''
+</div>
+</x-dc>
+'''
+P = {k: PROPS[k] for k in ('theme', 'lang', 'nav')}
+P['startMenu'] = {"editor": "enum", "options": ["收起", "展开"], "default": "收起"}
+P['device'] = {"editor": "enum", "options": ["其他", "苹果"], "default": "其他"}
+P['$preview'] = {'width': 1440, 'height': 2700}
+SCRIPT = '''<script type="text/x-dc" data-dc-script data-props='%s'>
+%s
+/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」展开的两个选项是 /auth/google、/auth/apple ── */
+const COPY = %s;
+const LISTS = %s;
+class Component extends DCLogic {
+  componentDidMount() {
+    if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
+    // 展开层打开时，Esc 在页面任何位置都能关上；关上后焦点回到「开始训练」
+    this.onKey = (e) => {
+      if (e.key !== 'Escape' || !this.isOpen()) return;
+      this.setState({ open: false });
+      const btn = document.querySelector('.vc-bodypage-toggle .btn'); if (btn) btn.focus();
+    };
+    document.addEventListener('keydown', this.onKey);
+  }
+  componentWillUnmount() { document.removeEventListener('keydown', this.onKey); }
+  isOpen() { return this.state && this.state.open !== undefined ? this.state.open : (this.props.startMenu ?? '收起') === '展开'; }
+  renderVals() {
+    const v = shellVals(this, 'paper', '/body');
+    const k = v.en ? 'en' : 'zh';
+    const open = this.isOpen();
+    /* 登录方式按设备定主次：苹果设备上「用 Apple」在前，其余设备「用 Google」在前（和首页同一条规则） */
+    const c0 = COPY[k], g = { label: c0.google, href: c0.googleHref }, ap = { label: c0.apple, href: c0.appleHref };
+    const apple = (this.props.device ?? '其他') === '苹果';
+    return {
+      ...v, c: COPY[k], ...LISTS[k], a1: apple ? ap : g, a2: apple ? g : ap,
+      startExpanded: open ? 'true' : 'false', popClass: open ? 'vc-pop' : 'vc-pop is-closed',
+      toggleStart: () => {
+        this.setState({ open: !open });
+        if (!open) setTimeout(() => { const first = document.querySelector('#bo-start-options a'); if (first) first.focus(); }, 0);
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
+''' % (json.dumps(P, ensure_ascii=False, separators=(',', ':')), SHELL_JS, js(T), js(L))
+open(U + '/boards/Body.dc.html', 'w', encoding='utf-8').write(HEAD % ('站稳 · 和威利一起练 · Velicoach', CSS) + BODY + SCRIPT)
+print('ok', sorted(T['zh'].keys()))

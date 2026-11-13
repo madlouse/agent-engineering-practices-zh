@@ -1,0 +1,10 @@
+                            <summary class="vc-ms-sum">
+                              <span class="vc-row-lead">{{m.year}}</span>
+                              <h3 id="{{m.slug}}-t" class="row-title vc-serif">{{m.title}}</h3>
+                              <span class="vc-ms-what">{{m.what}}</span>
+                            </summary>
+                            <div class="vc-ms-more">
+                              <p class="vc-row-line"><b>{{c.whyLabel}}</b>{{m.why}}</p>
+                              <p class="vc-row-foot">{{m.kind}} · {{c.checkedLabel}} <time datetime="{{checkedIso}}">{{checkedText}}</time></p>
+                              <p class="vc-ms-links"><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
+                            </div>

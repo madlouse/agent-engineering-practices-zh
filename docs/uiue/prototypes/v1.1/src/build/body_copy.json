@@ -1,0 +1,192 @@
+{
+ "T": {
+  "zh": {
+   "what": "练什么",
+   "how": "威利怎么陪你",
+   "h1": "做一个强健的人",
+   "lead": "威利是 Veli 里的 AI 力量训练教练，替上班族排好什么时候练、在哪练、练什么。你只管到场。",
+   "cta": "开始训练",
+   "startGroup": "开始训练的方式",
+   "google": "用 Google 开始训练",
+   "apple": "用 Apple 开始训练",
+   "planIntro": "明早 7:10 出门，健身房 6:30 就开了。动作排好了：",
+   "planCap": "威利前一晚发来的第一练：六组动作，加上热身和收尾，12 分钟做完。",
+   "whatTitle": "练什么：先练三个动作",
+   "whatLead": "先把三个基本动作练稳，再慢慢加重量。每个动作都有更容易的做法，从你做得到的那一档开始。",
+   "howLead": "说一次你想要什么，剩下的它来排；练完只说具体哪里变好了。",
+   "branch": "一周一根枝",
+   "branchAlt": "一周七天的枝：周一、周三、周五、周日练了力量，长出实心叶；周四完成了一件小事，长出浅色叶；周二、周六没练，只是节点",
+   "d1": "周一",
+   "d2": "周二",
+   "d3": "周三",
+   "d4": "周四",
+   "d5": "周五",
+   "d6": "周六",
+   "d7": "周日",
+   "branchCap": "练了力量长一片实心叶，完成一件小事长一片浅色叶；没练的日子只是一个节点，不扣分，也不掉叶子。",
+   "firstTitle": "第一练，12 分钟",
+   "firstLead": "告诉威利你想练什么、一周有几天，剩下的它来排。",
+   "googleHref": "/auth/google",
+   "appleHref": "/auth/apple",
+   "popNote": "登录后直接进入今天的安排。第一次来，先确认年龄和数据怎么用，一屏完成。按 Esc 可以收起。"
+  },
+  "en": {
+   "what": "What to train",
+   "how": "How Veli helps",
+   "h1": "Get strong for the long run",
+   "lead": "Veli, an AI strength coach, plans when, where, and what you train around a full-time job. You just show up.",
+   "cta": "Start training",
+   "startGroup": "Ways to start training",
+   "google": "Start training with Google",
+   "apple": "Start training with Apple",
+   "planIntro": "You leave at 7:10 tomorrow and the gym opens at 6:30. Your session is ready:",
+   "planCap": "Sent by Veli the night before. Your first session: six sets plus a warm-up and a cool-down, done in 12 minutes.",
+   "whatTitle": "What to train: three moves first",
+   "whatLead": "Get three basic moves solid, then add weight slowly. Each move has an easier version, so start at the level you can do.",
+   "howLead": "Say what you want once and Veli plans the rest. After each session, it tells you exactly what improved.",
+   "branch": "One branch a week",
+   "branchAlt": "A week as a branch: Monday, Wednesday, Friday, and Sunday had strength sessions and grew solid leaves; Thursday had a small win and grew a light leaf; Tuesday and Saturday are plain nodes",
+   "d1": "Mon",
+   "d2": "Tue",
+   "d3": "Wed",
+   "d4": "Thu",
+   "d5": "Fri",
+   "d6": "Sat",
+   "d7": "Sun",
+   "branchCap": "A strength session grows a solid leaf; a small win grows a light one. Days off are just nodes: no penalty, no lost leaves.",
+   "firstTitle": "Your first session: 12 minutes",
+   "firstLead": "Tell Veli what you want to train and how many days a week. It plans the rest.",
+   "googleHref": "/auth/google",
+   "appleHref": "/auth/apple",
+   "popNote": "Signing in takes you straight to today’s plan. First time? Confirm your age and how your data is used, all on one screen. Press Esc to close."
+  }
+ },
+ "L": {
+  "zh": {
+   "plan": [
+    {
+     "kind": "热身",
+     "name": "动态拉伸",
+     "dose": "2 分钟"
+    },
+    {
+     "kind": "力量",
+     "name": "高脚杯深蹲",
+     "dose": "2 组 × 8 次"
+    },
+    {
+     "kind": "力量",
+     "name": "俯卧撑",
+     "dose": "2 组 × 6 次"
+    },
+    {
+     "kind": "力量",
+     "name": "哑铃划船",
+     "dose": "2 组 × 8 次"
+    },
+    {
+     "kind": "收尾",
+     "name": "拉伸",
+     "dose": "2 分钟"
+    }
+   ],
+   "moves": [
+    {
+     "tag": "下肢",
+     "name": "深蹲",
+     "line": "从徒手深蹲开始，能稳稳做 10 次以后，换成高脚杯深蹲。"
+    },
+    {
+     "tag": "推",
+     "name": "俯卧撑",
+     "line": "先扶着桌边做，再到膝盖着地，最后做标准俯卧撑。"
+    },
+    {
+     "tag": "拉",
+     "name": "划船",
+     "line": "用一只哑铃或一瓶水做单臂划船，后背发力，肩膀放松。"
+    }
+   ],
+   "steps": [
+    {
+     "n": "01",
+     "title": "说出你想要的",
+     "line": "练什么、一周几天、身上有没有旧伤。说一次，威利记住。"
+    },
+    {
+     "n": "02",
+     "title": "威利提前排好",
+     "line": "动作、组数、路线、开门时间，前一晚就放在你手边。不知道的，它会直说不知道。"
+    },
+    {
+     "n": "03",
+     "title": "练完，长一片叶子",
+     "line": "只告诉你具体哪里变好了，比如「比上周多 2 次」。误差内的波动，不算进步。"
+    }
+   ]
+  },
+  "en": {
+   "plan": [
+    {
+     "kind": "Warm-up",
+     "name": "Dynamic stretches",
+     "dose": "2 min"
+    },
+    {
+     "kind": "Strength",
+     "name": "Goblet squat",
+     "dose": "2 × 8"
+    },
+    {
+     "kind": "Strength",
+     "name": "Push-up",
+     "dose": "2 × 6"
+    },
+    {
+     "kind": "Strength",
+     "name": "Dumbbell row",
+     "dose": "2 × 8"
+    },
+    {
+     "kind": "Cool-down",
+     "name": "Stretching",
+     "dose": "2 min"
+    }
+   ],
+   "moves": [
+    {
+     "tag": "Legs",
+     "name": "Squat",
+     "line": "Start with bodyweight squats. Once you can do 10 steady reps, switch to goblet squats."
+    },
+    {
+     "tag": "Push",
+     "name": "Push-up",
+     "line": "Start with your hands on a table edge, then on your knees, then a full push-up."
+    },
+    {
+     "tag": "Pull",
+     "name": "Row",
+     "line": "Do one-arm rows with a dumbbell or a water bottle. Pull with your back and keep your shoulders loose."
+    }
+   ],
+   "steps": [
+    {
+     "n": "01",
+     "title": "Say what you want",
+     "line": "What to train, how many days a week, any old injuries. Say it once and Veli remembers."
+    },
+    {
+     "n": "02",
+     "title": "Veli plans ahead",
+     "line": "Moves, sets, route, and opening hours, ready the night before. When it doesn’t know something, it says so."
+    },
+    {
+     "n": "03",
+     "title": "Finish and grow a leaf",
+     "line": "You hear exactly what improved, such as “2 more reps than last week.” Normal day-to-day swings don’t count as progress."
+    }
+   ]
+  }
+ }
+}

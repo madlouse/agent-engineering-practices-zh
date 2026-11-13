@@ -1,0 +1,37 @@
+<!-- 页面不存在：不属于任何一站，导航里没有当前页；只给三站入口，不放搜索框 -->
+<sc-if value="{{isNotFound}}" hint-placeholder-val="{{ true }}">
+  <section class="vc-band vc-band-paper" data-first-screen="">
+    <div class="vc-container vc-band-body">
+      <h1 class="vc-type-title-1">{{p.nfTitle}}</h1>
+      <p class="vc-type-lead vc-sub">{{p.nfLead}}</p>
+    </div>
+  </section>
+  <main class="vc-container vc-section-tight">
+    <nav class="vc-stations" aria-label="{{t.navLabel}}">
+      <a class="vc-station vc-station-body" href="{{t.bodyHref}}"><span class="vc-station-name">{{t.body}}</span><span class="vc-station-line">{{p.bodyLine}}</span></a>
+      <a class="vc-station vc-station-mind" href="{{t.mindHref}}"><span class="vc-station-name">{{t.mind}}</span><span class="vc-station-line">{{p.mindLine}}</span></a>
+      <a class="vc-station vc-station-build" href="{{t.buildHref}}"><span class="vc-station-name">{{t.build}}</span><span class="vc-station-line">{{p.buildLine}}</span></a>
+    </nav>
+  </main>
+</sc-if>
+
+<!-- 加载中、加载超过 10 秒、内容加载失败、网络断开、订阅失败：就是看清首页本身（mind-out/src/Mind.body.html 的同一份标记，build.py 拼进来），只换状态；不另写一份色带和列表 -->
+<sc-if value="{{inList}}" hint-placeholder-val="{{ false }}">
+<!--@MIND-->
+</sc-if>
+
+<!-- 视频无法播放、文章暂无英文版：文章页的开头一段（整页见文章页画板的同名属性） -->
+<sc-if value="{{inArticle}}" hint-placeholder-val="{{ false }}">
+<main class="vc-container vc-read">
+<article aria-labelledby="art-title">
+<!--@PART:art_crumb-->
+<!--@PART:art_noen-->
+<!--@PART:art_headline-->
+<!--@PART:art_video-->
+  <div class="vc-prose vc-read-body" lang="{{contentLang}}">
+    <p>{{c.p1}}</p>
+    <p>{{c.p1b}}</p>
+  </div>
+</article>
+</main>
+</sc-if>

@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>文章页 · 手机 · Velicoach</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/2d0ccacf7377c5a050e285f270f25ffd">
+<script src="/_blob/26c007f478ecf5fa646eda60cbc23992"></script>
+</head>
+<body>
+<x-dc>
+<!-- 由 Article.dc.html 生成的同一份标记（只改了标题和预览尺寸），不要手改；改 Article 后重新生成 -->
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
+<div class="vc-nav-wrap">
+  <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+    <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
+      <span class="vc-wordmark">Velicoach</span>
+    </a>
+    <nav class="vc-nav-links" aria-label="{{t.navLabel}}">
+      <a class="vc-nav-link" href="{{t.bodyHref}}">{{t.body}}</a>
+      <a class="vc-nav-link" href="{{t.mindHref}}" aria-current="{{curMind}}">{{t.mind}}</a>
+      <a class="vc-nav-link" href="{{t.buildHref}}" aria-current="{{curBuild}}">{{t.build}}</a>
+    </nav>
+    <div class="seg vc-nav-lang" role="group" aria-label="{{t.langLabel}}">
+      <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
+      <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
+    </div>
+    <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+  </header>
+</div>
+<main class="vc-container vc-read {{artClass}}">
+<sc-if value="{{isArticle}}" hint-placeholder-val="{{ true }}">
+<article aria-labelledby="art-title">
+<sc-if value="{{atTop}}" hint-placeholder-val="{{ true }}">
+  <nav class="vc-crumb" aria-label="{{u.crumbLabel}}"><a href="{{t.mindHref}}">{{t.mind}}</a><span aria-hidden="true">/</span><a href="{{u.lineHref}}">{{u.line}}</a><span aria-hidden="true">/</span><span>{{u.layer}}</span></nav>
+  <sc-if value="{{noEnglish}}" hint-placeholder-val="{{ false }}">
+    <div class="vc-notice vc-notice-action vc-read-wide" role="note">
+      <p><strong>{{u.noEnTitle}}</strong>{{u.noEnBody}}</p>
+      <a class="btn vc-btn-action" href="{{u.srcHref}}">{{u.noEnCta}}</a>
+    </div>
+  </sc-if>
+  <header class="vc-read-head">
+    <h1 id="art-title" class="vc-type-title-2-serif" lang="{{contentLang}}">{{c.title}}</h1>
+    <p class="vc-type-lead vc-read-col" lang="{{contentLang}}">{{c.dek}}</p>
+    <div class="vc-meta vc-read-wide">
+      <dl class="vc-meta-row" aria-label="{{u.metaWho}}">
+        <div><dt>{{u.dtAuthor}}</dt><dd>{{u.author}}</dd></div>
+        <div><dt>{{u.dtOriginal}}</dt><dd><time datetime="2026-07-29">{{u.dOriginal}}</time> · <a href="{{u.srcHref}}">{{u.readOriginal}}</a></dd></div>
+        <div><dt>{{u.dtPublished}}</dt><dd><time datetime="2026-10-31">{{u.dPublished}}</time></dd></div>
+      </dl>
+      <dl class="vc-meta-row" aria-label="{{u.metaCheck}}">
+        <div><dt>{{u.dtChecked}}</dt><dd><time datetime="2026-11-04">{{u.dChecked}}</time></dd></div>
+        <div><dt>{{u.dtApplies}}</dt><dd>{{u.applies}}</dd></div>
+        <div><dt>{{u.dtRights}}</dt><dd>{{u.rights}}</dd></div>
+        <div><dt>{{u.dtLength}}</dt><dd>{{length}}</dd></div>
+      </dl>
+    </div>
+  </header>
+  <details class="vc-fold vc-toc" data-expand="inline">
+    <summary>{{u.toc}}</summary>
+    <nav aria-label="{{u.toc}}"><ol lang="{{contentLang}}">
+      <li><a href="#noise">{{c.h2a}}</a></li>
+      <li><a href="#dispatch">{{c.h2b}}</a></li>
+      <li><a href="#six-weeks">{{c.h2c}}</a></li>
+      <li><a href="#practice">{{c.practiceTitle}}</a></li>
+    </ol></nav>
+  </details>
+  <section class="vc-take vc-read-col" aria-labelledby="take-t">
+    <h2 id="take-t" class="kicker">{{u.takeLabel}}</h2>
+    <p class="vc-type-body-reading" lang="{{contentLang}}"><strong>{{c.takeHead}}</strong>{{c.take}}</p>
+  </section>
+  <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
+    <figure class="vc-video vc-read-wide">
+      <div class="vc-video-frame" data-video="">
+        <div class="vc-video-shot {{frameClass}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <span class="vc-video-scrim" aria-hidden="true"></span>
+        <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
+          <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
+          <span class="vc-playbar-label">{{u.video}}</span>
+          <span class="mono">{{videoTime}}</span>
+          <span class="vc-playbar-space"></span>
+          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="false">{{u.capt}}</button>
+        </div>
+      </div>
+      <figcaption>{{voice}}</figcaption>
+      <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
+        <summary>{{u.transcript}}</summary>
+        <div class="vc-transcript">
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+        </div>
+      </details>
+    </figure>
+  </sc-if>
+  <sc-if value="{{videoFailed}}" hint-placeholder-val="{{ false }}">
+    <figure class="vc-video">
+      <div class="vc-notice vc-notice-action vc-read-wide" role="alert">
+        <p><strong>{{u.videoFailTitle}}</strong>{{u.videoFailBody}}</p>
+        <button type="button" class="btn vc-btn-quiet">{{u.retry}}</button>
+      </div>
+      <section class="vc-transcript-open vc-read-col" id="transcript" aria-labelledby="transcript-t">
+        <h2 id="transcript-t" class="kicker">{{u.transcript}}</h2>
+        <div class="vc-transcript">
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+        </div>
+      </section>
+    </figure>
+  </sc-if>
+</sc-if>
+<sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}">
+  <nav class="vc-crumb" aria-label="{{u.crumbLabel}}"><a href="{{t.mindHref}}">{{t.mind}}</a><span aria-hidden="true">/</span><a href="{{u.lineHref}}">{{u.line}}</a><span aria-hidden="true">/</span><span>{{u.layer}}</span></nav>
+  <sc-if value="{{isSlow}}" hint-placeholder-val="{{ false }}">
+    <div class="vc-loading-slow" role="status"><p>{{u.loading}}</p><button type="button" class="btn vc-btn-quiet">{{u.retry}}</button></div>
+  </sc-if>
+  <h1 class="vc-sr-only">{{u.loading}}</h1>
+  <div class="vc-loading" aria-hidden="true">
+    <span class="vc-skeleton" style="width: 62%; height: var(--space-7);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 76%; height: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-wide" style="width: 100%; height: var(--space-8); margin-top: var(--space-3);"></span>
+    <span class="vc-skeleton vc-read-wide" style="width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); margin-top: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-4); margin-top: var(--space-6);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-4);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 64%; height: var(--space-4);"></span>
+  </div>
+</sc-if>
+<sc-if value="{{loadFailed}}" hint-placeholder-val="{{ false }}">
+  <nav class="vc-crumb" aria-label="{{u.crumbLabel}}"><a href="{{t.mindHref}}">{{t.mind}}</a><span aria-hidden="true">/</span><a href="{{u.lineHref}}">{{u.line}}</a><span aria-hidden="true">/</span><span>{{u.layer}}</span></nav>
+  <div class="vc-notice vc-notice-block vc-read-col" role="alert">
+    <h1 class="vc-type-title-3">{{u.failTitle}}</h1>
+    <p class="vc-sub">{{u.failBody}}</p>
+    <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{u.retry}}</button><a class="vc-quick" href="{{u.srcHref}}">{{u.readOriginal}}</a></div>
+  </div>
+</sc-if>
+<sc-if value="{{isLoaded}}" hint-placeholder-val="{{ true }}">
+  <sc-if value="{{scrolled}}" hint-placeholder-val="{{ false }}"><h1 class="vc-sr-only" lang="{{contentLang}}">{{c.title}}</h1></sc-if>
+  <div class="vc-prose vc-read-body" lang="{{contentLang}}">
+    <p>{{c.p1}}</p>
+    <p>{{c.p1b}}</p>
+    <h2 id="noise">{{c.h2a}}</h2>
+    <aside class="vc-sidenote" id="sn-1"><span class="mono">1</span>{{c.n1}}</aside>
+    <p>{{c.p2}}<span class="vc-nowrap">{{c.p2e}}<sup id="ref-1"><a class="vc-ref-side" href="#sn-1">1</a><a class="vc-ref-foot" href="#fn-1">1</a></sup></span></p>
+    <p>{{c.p3}}</p>
+    <h2 id="dispatch">{{c.h2b}}</h2>
+    <p>{{c.p4}}</p>
+    <h2 id="six-weeks">{{c.h2c}}</h2>
+    <aside class="vc-sidenote" id="sn-2"><span class="mono">2</span>{{c.n2}}</aside>
+    <p>{{c.p5}}<span class="vc-nowrap">{{c.p5e}}<sup id="ref-2"><a class="vc-ref-side" href="#sn-2">2</a><a class="vc-ref-foot" href="#fn-2">2</a></sup></span></p>
+    <ol class="vc-footnotes" aria-label="{{u.notesLabel}}">
+      <li id="fn-1"><span>{{c.n1}}&nbsp;<a href="#ref-1" aria-label="{{u.backToText}}">↩</a></span></li>
+      <li id="fn-2"><span>{{c.n2}}&nbsp;<a href="#ref-2" aria-label="{{u.backToText}}">↩</a></span></li>
+    </ol>
+  </div>
+  <section class="vc-part vc-part-rule vc-practice vc-read-col" id="practice" lang="{{contentLang}}" aria-labelledby="practice-t">
+    <p class="kicker">{{c.practiceKicker}}</p>
+    <h2 id="practice-t" class="vc-type-title-3-serif">{{c.practiceTitle}}</h2>
+    <p class="vc-type-body-reading">{{c.practiceBody}}</p>
+  </section>
+  <nav class="vc-part vc-next vc-read-wide" aria-labelledby="next-t">
+    <h2 id="next-t" class="vc-type-title-3">{{u.next}}</h2>
+    <ol class="vc-rows">
+      <li class="vc-row"><a class="vc-row-main" href="{{u.nextHref}}" aria-labelledby="next-1-t"><span class="vc-row-lead">{{u.nextLead}}</span><div class="vc-row-body"><p class="vc-row-kind">{{u.nextKind}}</p><h3 id="next-1-t" class="row-title vc-serif">{{u.nextTitle}}</h3></div></a></li>
+    </ol>
+    <p class="vc-row-more"><a class="vc-quick vc-quick-small" href="{{u.lineHref}}">{{u.allLine}}</a></p>
+    <div class="vc-next-go">
+      <a class="vc-station vc-station-body" href="{{u.workoutHref}}"><span class="vc-station-name">{{u.workout}}</span><span class="vc-station-line">{{u.workoutLine}}</span></a>
+      <a class="vc-station vc-station-build" href="{{t.buildHref}}"><span class="vc-station-name">{{u.toBuild}}</span><span class="vc-station-line">{{u.toBuildLine}}</span></a>
+    </div>
+  </nav>
+  <section class="vc-part vc-colophon vc-read-col" aria-labelledby="colophon-t">
+    <h2 id="colophon-t" class="vc-sr-only">{{u.colophon}}</h2>
+    <h3>{{u.changes}}</h3>
+    <ul>
+      <li><time class="mono" datetime="2026-11-04">2026-11-04</time><span>{{u.change2}}</span></li>
+      <li><time class="mono" datetime="2026-10-31">2026-10-31</time><span>{{u.change1}}</span></li>
+    </ul>
+    <h3>{{u.source}}</h3>
+    <p>{{u.sourcePre}}<a href="{{u.srcHref}}" lang="en">Building an agentic harness that outlasts the model</a>{{u.sourcePost}}</p>
+    <p>{{u.reuse}}</p>
+    <p>{{u.cite}}<a href="{{u.citeHref}}">{{u.citeUrl}}</a></p>
+    <p class="vc-colophon-report"><span>{{u.report}}</span><a class="vc-quick vc-quick-small" href="{{u.reportHref}}">{{u.reportLink}}</a></p>
+  </section>
+</sc-if>
+</article>
+</sc-if>
+<sc-if value="{{isLog}}" hint-placeholder-val="{{ false }}">
+<article aria-labelledby="log-title">
+<sc-if value="{{atTop}}" hint-placeholder-val="{{ true }}">
+  <nav class="vc-crumb" aria-label="{{g.crumbLabel}}"><a href="{{t.buildHref}}">{{t.build}}</a><span aria-hidden="true">/</span><a href="{{g.projectHref}}">{{g.project}}</a></nav>
+  <header class="vc-read-head">
+    <h1 id="log-title" class="vc-type-title-2">{{g.title}}</h1>
+    <p class="vc-type-lead vc-read-col">{{g.dek}}</p>
+    <div class="vc-meta vc-read-wide">
+      <dl class="vc-meta-row" aria-label="{{g.metaLabel}}">
+        <div><dt>{{g.dtDate}}</dt><dd><time datetime="2026-11-04">{{g.dDate}}</time></dd></div>
+        <div><dt>{{g.dtProject}}</dt><dd><a href="{{g.projectHref}}">{{g.project}}</a></dd></div>
+        <div><dt>{{g.dtPr}}</dt><dd><a href="{{g.prHref}}">{{g.pr}}</a></dd></div>
+      </dl>
+    </div>
+  </header>
+</sc-if>
+<sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}">
+  <nav class="vc-crumb" aria-label="{{g.crumbLabel}}"><a href="{{t.buildHref}}">{{t.build}}</a><span aria-hidden="true">/</span><a href="{{g.projectHref}}">{{g.project}}</a></nav>
+  <sc-if value="{{isSlow}}" hint-placeholder-val="{{ false }}">
+    <div class="vc-loading-slow" role="status"><p>{{g.loading}}</p><button type="button" class="btn vc-btn-quiet">{{u.retry}}</button></div>
+  </sc-if>
+  <h1 class="vc-sr-only">{{g.loading}}</h1>
+  <div class="vc-loading" aria-hidden="true">
+    <span class="vc-skeleton" style="width: 62%; height: var(--space-7);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 76%; height: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-wide" style="width: 100%; height: var(--space-8); margin-top: var(--space-3);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-4); margin-top: var(--space-6);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-4);"></span>
+    <span class="vc-skeleton vc-read-col" style="width: 64%; height: var(--space-4);"></span>
+  </div>
+</sc-if>
+<sc-if value="{{loadFailed}}" hint-placeholder-val="{{ false }}">
+  <nav class="vc-crumb" aria-label="{{g.crumbLabel}}"><a href="{{t.buildHref}}">{{t.build}}</a><span aria-hidden="true">/</span><a href="{{g.projectHref}}">{{g.project}}</a></nav>
+  <div class="vc-notice vc-notice-block vc-read-col" role="alert">
+    <h1 class="vc-type-title-3">{{g.failTitle}}</h1>
+    <p class="vc-sub">{{g.failBody}}</p>
+    <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{u.retry}}</button><a class="vc-quick" href="{{g.projectHref}}">{{g.failAlt}}</a></div>
+  </div>
+</sc-if>
+<sc-if value="{{isLoaded}}" hint-placeholder-val="{{ true }}">
+  <sc-if value="{{scrolled}}" hint-placeholder-val="{{ false }}"><h1 class="vc-sr-only">{{g.title}}</h1></sc-if>
+  <div class="vc-prose vc-read-body">
+    <h2 id="did">{{g.hDid}}</h2>
+    <p>{{g.did1}}</p>
+    <p>{{g.did2}}</p>
+    <h2 id="split">{{g.hSplit}}</h2>
+    <p>{{g.split}}</p>
+    <h2 id="next-step">{{g.hNext}}</h2>
+    <p>{{g.nextStep}}</p>
+    <h2 id="links">{{g.hLinks}}</h2>
+    <ul><li><a href="{{g.prHref}}">{{g.pr}}</a>{{g.linkNote}}</li></ul>
+  </div>
+  <nav class="vc-part vc-next vc-read-wide" aria-labelledby="log-next-t">
+    <h2 id="log-next-t" class="vc-type-title-3">{{g.next}}</h2>
+    <ol class="vc-rows">
+      <li class="vc-row vc-log"><a class="vc-row-main" href="{{g.nextHref}}" aria-labelledby="log-next-1-t"><time class="vc-row-lead" datetime="2026-11-04">{{g.nextDate}}</time><div class="vc-row-body"><p class="vc-row-kind">{{g.project}}</p><h3 id="log-next-1-t" class="row-title">{{g.nextTitle}}</h3></div></a></li>
+    </ol>
+    <p class="vc-row-more"><a class="vc-quick vc-quick-small" href="{{g.projectHref}}">{{g.allProject}}</a><a class="vc-quick vc-quick-small" href="{{g.allLogsHref}}">{{g.allLogs}}</a></p>
+  </nav>
+  <section class="vc-part vc-colophon vc-read-col" aria-labelledby="log-colophon-t">
+    <h2 id="log-colophon-t" class="vc-sr-only">{{g.colophon}}</h2>
+    <p class="vc-colophon-report"><span>{{g.report}}</span><a class="vc-quick vc-quick-small" href="{{g.reportHref}}">{{g.reportLink}}</a></p>
+  </section>
+</sc-if>
+</article>
+</sc-if>
+</main>
+<sc-if value="{{subOn}}" hint-placeholder-val="{{ true }}">
+  <section class="vc-subscribe vc-container" aria-labelledby="vc-sub-title">
+    <div class="vc-subscribe-text">
+      <h2 id="vc-sub-title" class="vc-type-title-3">{{t.subTitle}}</h2>
+      <p class="vc-sub-note">{{t.subNote}}<a href="{{t.privacyHref}}">{{t.privacy}}</a></p>
+    </div>
+    <sc-if value="{{formShown}}" hint-placeholder-val="{{ true }}">
+      <form class="vc-sub-form" action="{{t.subAction}}" method="post" novalidate>
+        <label class="vc-sr-only" for="vc-sub-email">{{t.emailLabel}}</label>
+        <input id="vc-sub-email" class="vc-field" type="email" name="email" autocomplete="email" placeholder="{{t.emailPh}}" value="{{subValue}}" aria-invalid="{{subInvalid}}" aria-describedby="vc-sub-error">
+        <button type="submit" class="btn vc-btn-action" aria-disabled="{{subBusy}}">{{subButton}}</button>
+        <sc-if value="{{subHasError}}" hint-placeholder-val="{{ false }}">
+          <p id="vc-sub-error" class="vc-error" role="alert">{{subError}}</p>
+        </sc-if>
+      </form>
+    </sc-if>
+    <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
+      <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+    </sc-if>
+  </section>
+</sc-if>
+<footer class="vc-footer vc-container">
+  <nav class="vc-footer-links" aria-label="{{t.footerLabel}}">
+    <a href="{{t.aboutHref}}">{{t.about}}</a>
+    <a href="{{t.contactHref}}">{{t.contact}}</a>
+    <a href="{{t.copyrightHref}}">{{t.copyright}}</a>
+    <a href="{{t.privacyHref}}">{{t.privacy}}</a>
+    <a href="{{t.healthHref}}">{{t.health}}</a>
+    <a href="{{t.disclaimerHref}}">{{t.disclaimerLink}}</a>
+    <a href="{{t.termsHref}}">{{t.terms}}</a>
+    <a href="{{t.feedHref}}">RSS</a>
+  </nav>
+  <div class="vc-footer-tools">
+    <div class="seg" role="group" aria-label="{{t.appearance}}">
+      <button type="button" aria-pressed="{{themeAuto}}" onClick="{{setAuto}}">{{t.auto}}</button>
+      <button type="button" aria-pressed="{{themeLight}}" onClick="{{setLight}}">{{t.light}}</button>
+      <button type="button" aria-pressed="{{themeDark}}" onClick="{{setDark}}">{{t.dark}}</button>
+    </div>
+    <div class="seg" role="group" aria-label="{{t.langLabel}}">
+      <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
+      <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
+    </div>
+  </div>
+  <p class="vc-footer-note">{{t.disclaimer}}</p>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["文章","开发日志"],"default":"文章"},"media":{"editor":"enum","options":["正常","视频无法播放","没有视频"],"default":"正常"},"frame":{"editor":"enum","options":["封面","最亮一帧","最暗一帧"],"default":"封面"},"english":{"editor":"enum","options":["有英文版","暂无英文版"],"default":"有英文版"},"load":{"editor":"enum","options":["正常","加载中","加载超过 10 秒","加载失败"],"default":"正常"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":4560}}'>
+/* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+const SHELL = {
+  zh: {
+    home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
+    navLabel: '三站', body: '站稳', mind: '看清', build: '动手',
+    langLabel: '语言', langSwitch: '切换到英文，现在是中文', otherLang: 'en',
+    subTitle: '订阅', subNote: '每周日一封：一读、一练、一个项目。可一键退订。', privacy: '隐私政策',
+    subscribe: '订阅', subBusy: '正在订阅', subDone: '已订阅，每周日见', emailLabel: '邮箱', emailPh: '你的邮箱', collapse: '收起',
+    subAction: '/api/site/subscribe', errFormat: '邮箱格式不对', errRate: '提交太频繁，一小时后再试', errDown: '订阅暂时不可用，稍后再试',
+    rssRow: '用 RSS 订阅更新',
+    footerLabel: '页脚', about: '关于', contact: '联系', copyright: '版权与转载', health: '健康数据政策', disclaimerLink: '健康免责', terms: '服务条款',
+    aboutHref: '/about', contactHref: '/about#contact', copyrightHref: '/legal/copyright', privacyHref: '/legal/privacy', healthHref: '/data-usage', disclaimerHref: '/legal/health-disclaimer', termsHref: '/legal/terms', feedHref: '/feed.xml',
+    appearance: '外观', auto: '自动', light: '浅色', dark: '深色',
+    disclaimer: '威利不是医生。有伤病或疼痛，先停下来，问医生。',
+  },
+  en: {
+    home: '/en/', homeLabel: 'Velicoach home', bodyHref: '/en/body', mindHref: '/en/mind', buildHref: '/en/build',
+    navLabel: 'Stations', body: 'Body', mind: 'Mind', build: 'Build',
+    langLabel: 'Language', langSwitch: 'Switch to Chinese, currently English', otherLang: 'zh-CN',
+    subTitle: 'Newsletter', subNote: 'Every Sunday: one read, one workout, one project. One-click unsubscribe. ', privacy: 'Privacy policy',
+    subscribe: 'Subscribe', subBusy: 'Subscribing', subDone: 'Subscribed. See you Sunday.', emailLabel: 'Email', emailPh: 'Your email', collapse: 'Close',
+    subAction: '/api/site/subscribe', errFormat: 'That email doesn’t look right.', errRate: 'Too many tries. Wait an hour.', errDown: 'Sign-up is down. Try again later.',
+    rssRow: 'Follow updates by RSS',
+    footerLabel: 'Footer', about: 'About', contact: 'Contact', copyright: 'Copyright and reuse', health: 'Health data policy', disclaimerLink: 'Health disclaimer', terms: 'Terms',
+    aboutHref: '/en/about', contactHref: '/en/about#contact', copyrightHref: '/en/legal/copyright', privacyHref: '/en/legal/privacy', healthHref: '/en/data-usage', disclaimerHref: '/en/legal/health-disclaimer', termsHref: '/en/legal/terms', feedHref: '/en/feed.xml',
+    appearance: 'Appearance', auto: 'Auto', light: 'Light', dark: 'Dark',
+    disclaimer: 'Veli isn’t a doctor. If you’re injured or in pain, stop and see a doctor.',
+  },
+};
+/* station：这页在首屏用哪种实色导航，'paper' | 'ink' | 'moss'。
+   path：这一页的中文地址（'/'、'/mind'、'/mind/learn'……）；英文版在前面加 /en。语言切换链到本页的另一语言版本，不回首页 */
+function shellVals(self, station, path) {
+  const pick = (k, d) => (self.state && self.state[k]) ?? self.props[k] ?? d;
+  const en = pick('lang', '中文') === 'English';
+  const theme = pick('theme', '自动');
+  const gate = pick('subscribeGate', '开') === '开';
+  const sub = pick('subscribe', '收起');
+  const t = SHELL[en ? 'en' : 'zh'];
+  const err = { '格式不对': t.errFormat, '提交太频繁': t.errRate, '服务不可用': t.errDown }[sub] || '';
+  const zhHref = path, enHref = path === '/' ? '/en/' : '/en' + path;
+  const done = sub === '订阅成功';
+  const busy = sub === '正在订阅';
+  return {
+    t, en, langAttr: en ? 'en' : 'zh-CN',
+    zhHref, enHref, otherHref: en ? zhHref : enHref,
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
+    toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
+    themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',
+    themeAuto: theme === '自动' ? 'true' : 'false', themeLight: theme === '浅色' ? 'true' : 'false', themeDark: theme === '深色' ? 'true' : 'false',
+    setAuto: () => self.setState({ theme: '自动' }), setLight: () => self.setState({ theme: '浅色' }), setDark: () => self.setState({ theme: '深色' }),
+    navClass: pick('nav', '首屏') === '吸顶' ? 'vc-nav lg' : 'vc-nav vc-nav-' + station,
+    subOn: gate, rssRow: !gate,
+    barClosed: gate && sub === '收起', barOpen: gate && sub !== '收起' && !done, barDone: gate && done, formShown: !done,
+    openSub: () => self.setState({ subscribe: '填写邮箱' }), closeSub: () => self.setState({ subscribe: '收起' }),
+    subButton: busy ? t.subBusy : t.subscribe, subBusy: busy ? 'true' : 'false',
+    subHasError: !!err, subError: err, subInvalid: err ? 'true' : 'false',
+    subValue: sub === '格式不对' ? 'name@' : (busy || err) ? 'name@example.com' : '',
+  };
+}
+/* ── 文章页的数据：界面字（随页面语言）、正文（随内容语言）、一条开发日志。Article 和 States 共用，由 pa-out/build.py 写进两块画板 ── */
+const ART_SRC = 'https://shopify.engineering/building-an-agentic-harness-that-outlasts-the-model';
+const ART_UI = {
+  zh: {
+    crumbLabel: '所在位置', lineHref: '/mind/collaboration', line: '人机协作', layer: 'Harness 工程',
+    takeLabel: '我们的判断', shotKicker: '用大白话', sceneLabels: ['用大白话', '容易听错', '一个比喻', '不能译的原件', '一句话'],
+    metaWho: '谁写的、什么时候', metaCheck: '我们核对了什么',
+    dtAuthor: '作者', author: 'Zack Deveau，Shopify Engineering', dtOriginal: '原文', dOriginal: '2026-07-29', readOriginal: '读原文',
+    dtPublished: '发布', dPublished: '2026-10-31', dtChecked: '最后核对', dChecked: '2026-11-04',
+    dtApplies: '适用于', applies: 'Harness 工程，和具体模型无关', dtRights: '授权', rights: '讲解和摘要，不是全文翻译',
+    dtLength: '时长', readTime: '12 分钟', hasVideo: '有 3 分钟视频',
+    toc: '目录', tocPractice: '练习', notesLabel: '注释', backToText: '回到正文',
+    play: '播放 3 分钟视频', video: '3 分钟视频', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
+    videoFailTitle: '视频没能播放。', videoFailBody: '文字稿讲的是同一件事，就在下面。', retry: '重试',
+    loading: '正在加载文章', failTitle: '这篇文章没加载出来', failBody: '可能是网络不稳。页面其余部分不受影响。可以重试，也可以直接读英文原文。',
+    noEnTitle: '', noEnBody: '', noEnCta: '',
+    next: '接着读', nextLead: '下一篇', nextKind: '人机协作 · Harness 工程', nextTitle: 'Claude Code 团队如何做 Code Review', nextHref: '/mind/claude-code-review',
+    allLine: '人机协作的全部文章',
+    workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: '/app',
+    toBuild: '去动手一站', toBuildLine: '把这个练习带过去，和智能体一起做一遍。',
+    colophon: '更新记录和版权', changes: '更新记录', change2: '补充两处数字的来源说明', change1: '发布',
+    source: '原文和授权', sourcePre: '原文：《', sourcePost: '》，Zack Deveau，Shopify Engineering，2026 年 7 月 29 日，英文。',
+    reuse: '授权状态：本页是讲解和摘要，不是原文的译文，原文版权归 Shopify。转述和引用请链到原文；整页转载请先联系我们。',
+    cite: '引用本文：Velicoach 看清，《比模型更耐久的 Harness》，2026 年 10 月 31 日，', citeUrl: 'velicoach.com/mind/shopify-harness', citeHref: '/mind/shopify-harness',
+    report: '发现错误或过时的地方？改正后会记进更新记录。', reportLink: '写信指出', reportSubject: '纠错：https://velicoach.com/mind/shopify-harness',
+  },
+  en: {
+    crumbLabel: 'Breadcrumb', lineHref: '/en/mind/collaboration', line: 'Human–AI collaboration', layer: 'Harness engineering',
+    takeLabel: 'Our take', shotKicker: 'In plain words', sceneLabels: ['In plain words', 'Common misreading', 'An analogy', 'The original figures', 'In one sentence'],
+    metaWho: 'Author and dates', metaCheck: 'What we checked',
+    dtAuthor: 'Author', author: 'Zack Deveau, Shopify Engineering', dtOriginal: 'Original', dOriginal: 'Jul 29, 2026', readOriginal: 'Read the original',
+    dtPublished: 'Published', dPublished: 'Oct 31, 2026', dtChecked: 'Last checked', dChecked: 'Nov 4, 2026',
+    dtApplies: 'Applies to', applies: 'Harness engineering, any model', dtRights: 'Rights', rights: 'Summary and commentary, not a translation',
+    dtLength: 'Length', readTime: '9 min read', hasVideo: '3-minute video',
+    toc: 'Contents', tocPractice: 'Exercise', notesLabel: 'Notes', backToText: 'Back to the text',
+    play: 'Play the 3-minute video', video: '3-minute video', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
+    videoFailTitle: 'The video didn’t play. ', videoFailBody: 'The transcript below covers the same ground.', retry: 'Try again',
+    loading: 'Loading the article', failTitle: 'This article didn’t load', failBody: 'The connection may be unstable. The rest of the page still works. Try again, or read the original post on Shopify Engineering.',
+    noEnTitle: 'This piece is only in Chinese for now. ', noEnBody: 'Our Chinese write-up is below. The original post is in English.', noEnCta: 'Read the original',
+    next: 'Keep reading', nextLead: 'Next', nextKind: 'Human–AI collaboration · Harness engineering', nextTitle: 'How the Claude Code team does code review', nextHref: '/en/mind/claude-code-review',
+    allLine: 'Everything in Human–AI collaboration',
+    workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: '/app',
+    toBuild: 'Go to Build', toBuildLine: 'Take this exercise with you and run it with an agent.',
+    colophon: 'Changes and rights', changes: 'Changes', change2: 'Added sources for two figures', change1: 'Published',
+    source: 'Source and rights', sourcePre: 'Original: “', sourcePost: '” by Zack Deveau, Shopify Engineering, July 29, 2026.',
+    reuse: 'Rights: this page is a summary with commentary, not a translation. The original is copyright Shopify. Quote it with a link to the original, and ask us before republishing the page.',
+    cite: 'Cite as: Velicoach Mind, “A harness that outlasts the model,” October 31, 2026, ', citeUrl: 'velicoach.com/en/mind/shopify-harness', citeHref: '/en/mind/shopify-harness',
+    report: 'Spotted an error or something out of date? We log every fix in the change list.', reportLink: 'Email a correction', reportSubject: 'Correction: https://velicoach.com/en/mind/shopify-harness',
+  },
+};
+/* 正文沿用旧稿，不改；视频第一幕的标题和文字稿来自仓库 src/content/explainers.ts 的 shopify-harness。
+   「我们的判断」、视频封面的眉标、文字稿每一幕的小标是界面字（ART_UI），跟页面语言走，不跟内容语言走：「暂无英文版」的英文页上它们是英文 */
+const ART_CONTENT = {
+  zh: {
+    title: '比模型更耐久的 Harness',
+    dek: 'Shopify 团队用测试证明漏洞，而不是收集模型给出的候选清单。Harness 指套在模型外面的那层软件：工具、权限、检查和脚本。',
+    takeHead: '值得读。', take: '适合在做代码审查、安全扫描自动化的工程师。它讲清了一件容易被忽略的事。换一个更强的模型，可能只带来更多要人确认的候选。真正留得下来的，是能证明结论的那层软件。代价是先要写出能证明问题的测试，前期投入比直接让模型去找大。',
+    shotTitle: '证明不了，就不算发现',
+    scenes: [
+      { say: 'Shopify 应用安全团队做的不是让模型列出可能的漏洞。他们要一张能证明漏洞真的可以被利用的测试。证明不了，就不算发现。理论上的发现不计。模型会换。Harness 留下。' },
+      { say: '更强的模型不等于更少的噪声。他们评估了大约五个月。新模型更能提出候选，也制造更多要确认的东西。有一次审计，三十多个候选，验证之后全部被降级、判成误报，或改记为纵深防御。所以耐久的资产不是当周的模型，而是周围那层软件：循环、工具、分区、证明和确定性脚本。' },
+      { say: '模型像会换的筛网。Harness 是筛子的框、阶段和记录。框比网耐用。Dispatch 是那个轻的 Ruby 编排器。扫描按阶段走：引导测试、写架构、编目、分区、搜寻、验证、后处理、报告、修复。不能用真实集成测试证明可利用性的发现不被接受。' },
+      { say: '原文有一张头图和三张手绘图，图里的英文不译。头图没有图注。一张图题是 DISPATCH，画了 Ruby、sandbox、proxy 和允许的主机。一张画了 PARALLEL 的搜寻和 SEQUENTIAL 的验证。一张画了 shared scope 和 partition scope。阶段名 Test bootstrap、Hunting、Verification 也保留英文。这些图按原文件嵌在正文里。' },
+      { say: '模型会换。留下的是循环、分区、证明和确定性脚本。原文里的六周账是内部估算：八十多个应用，三百多个发现，其中两个按内部严重性会记为 Critical，总价值保守估在超过四十万美元的等值赏金。这不是公开赏金的支付记录，也不是本站复测。' },
+    ],
+    p1: '智能体报出来的漏洞，怎么知道是真的？Shopify 团队的回答是「测试预言」（test oracle）。它用一个测试来判定一条结论是真是假。',
+    p1b: '他们的智能体先在软件里找漏洞，再用真实的集成测试证明漏洞能被利用。之后给出符合 Shopify 代码习惯的修复，最后才交给开发者。',
+    h2a: '更强的模型带来更多噪声',
+    p2: '团队在这套 Harness 里评估安全方向的前沿模型，前后约五个月。新模型比基线更能提出候选发现，但更好的搜索也带来更多要确认的噪声。一次审计中，模型提出了 30 多个候选漏洞。验证之后，没有一个保住原来的级别。它们要么降为中低危，要么判为误报，要么改记为纵深防御。纵深防御是多加的一层防护，本身不算', p2e: '漏洞。',
+    n1: '数字来自原文描述的一次内部审计，不是公开数据集上的结果。',
+    p3: '所以耐久的资产不是当周的模型，而是模型周围那层软件：循环、工具、代码分区、证明和确定性脚本。分区是把同一领域或功能的文件分成一组，每组约占模型上下文窗口的两三成。',
+    h2b: '编排器 Dispatch',
+    p4: '内部的编排器叫 Dispatch，是一个轻量的 Ruby 客户端。写扫描的人可以很快写出专找某一类缺陷的智能体，和通用的智能体一起跑。智能体按固定顺序的几个阶段运行。用真实的集成测试证明不了的发现，要么不接受，要么降成「低」或「中」。',
+    h2c: '六周的账',
+    p5: '到目前为止，团队完整扫描了 80 多个应用。约六周里，扫描跑了数千次，产出 300 多个发现。其中 2 个按 Shopify 内部的严重性分级，会记为「严重」（Critical）。团队保守估计，这批发现相当于超过 40 万美元的漏洞', p5e: '赏金。',
+    n2: '这是原文给出的内部估算，不是公开赏金的支付记录。',
+    practiceKicker: '练习 · 约 1 小时', practiceTitle: '先写证明，再让智能体去找',
+    practiceBody: '在自己的项目里挑一类问题，比如越权访问。先写一个只在问题真实存在时才会失败的集成测试，再让智能体去找。只接受能让这个测试失败的发现。最后数一数：它提出了多少条，有几条真的成立。',
+  },
+  en: {
+    title: 'A harness that outlasts the model',
+    dek: 'Shopify’s team proves vulnerabilities with tests instead of collecting candidate lists from a model. A harness is the software around the model: tools, permissions, checks, and scripts.',
+    takeHead: 'Worth reading. ', take: 'It’s for engineers automating code review or security scanning, and it makes a point that’s easy to miss. A stronger model may only hand you more candidates to confirm; what lasts is the software that proves a finding. The cost comes up front: you write tests that prove a problem exists before the model starts looking.',
+    shotTitle: 'No proof, no finding',
+    scenes: [
+      { say: 'Shopify’s application security team doesn’t ask a model to list possible vulnerabilities. It asks for a test that proves a vulnerability can really be exploited. No proof, no finding. Theoretical findings don’t count. The model will change. The harness stays.' },
+      { say: 'A stronger model doesn’t mean less noise. The team evaluated models for about five months. Newer models proposed more candidates, and left more to confirm. In one audit, more than 30 candidates were all downgraded, ruled false positives, or reclassified as defense in depth once they were validated. So the durable asset isn’t this week’s model. It’s the software around it: loops, tools, partitions, proofs, and deterministic scripts.' },
+      { say: 'Think of the model as the mesh of a sieve, the part you replace. The harness is the frame, the stages, and the records, and the frame outlasts the mesh. Dispatch is the lightweight Ruby orchestrator. A scan moves through stages: test bootstrap, architecture, cataloging, partitioning, hunting, verification, post-processing, reporting, and fixing. A finding that a real integration test can’t prove exploitable is not accepted.' },
+      { say: 'The original has a header image and three hand-drawn diagrams. One is titled DISPATCH and shows Ruby, the sandbox, the proxy, and the allowed hosts. One shows PARALLEL hunting and SEQUENTIAL verification. One shows shared scope and partition scope. They appear in the article as the original files.' },
+      { say: 'The model will change. What stays is the loops, the partitions, the proofs, and the deterministic scripts. The six-week numbers are the post’s own estimate: more than 80 apps, more than 300 findings, two that would rate Critical internally, conservatively valued at more than $400,000 in equivalent bounties. That is not a record of bounties paid, and we did not re-test it.' },
+    ],
+    p1: 'How do you know a vulnerability an agent reports is real? Shopify’s team answers with a test oracle: a test that decides whether a finding is true.',
+    p1b: 'Their agent looks for vulnerabilities, then proves each one is exploitable with a real integration test. Next it proposes a fix that follows Shopify’s conventions. Only then does a developer see it.',
+    h2a: 'Stronger models, more noise',
+    p2: 'The team spent about five months evaluating frontier security models inside this harness. Newer models proposed more candidate findings than the baseline, but better search also produced more noise to confirm. In one audit the model proposed more than 30 candidate vulnerabilities. After validation, none kept its original rating: each was downgraded to low or medium, found to be a false positive, or reclassified as defense in depth, an extra layer of protection rather than a ', p2e: 'vulnerability.',
+    n1: 'The figure comes from one internal audit described in the post, not from a public dataset.',
+    p3: 'So the durable asset isn’t this week’s model. It’s the software around it: loops, tools, code partitions, proofs, and deterministic scripts. A partition groups files from the same domain or feature, sized to about 20–30% of the model’s context window.',
+    h2b: 'Dispatch, the orchestrator',
+    p4: 'The internal orchestrator, Dispatch, is a lightweight Ruby client. Scan authors can quickly build agents that hunt one class of bug, and these run alongside generalist agents. Agents run through stages in a fixed order. Findings that a real integration test can’t prove are either rejected or downgraded to Low or Medium.',
+    h2c: 'Six weeks in numbers',
+    p5: 'So far the team has fully scanned more than 80 apps. In roughly six weeks it ran thousands of scans and produced more than 300 findings. Two would rate Critical on Shopify’s internal severity scale. The team conservatively values the findings at more than $400,000 in equivalent bug ', p5e: 'bounties.',
+    n2: 'This is the post’s internal estimate, not a record of bounties paid.',
+    practiceKicker: 'Exercise · about 1 hour', practiceTitle: 'Write the proof first, then let an agent search',
+    practiceBody: 'Pick one class of bug in your own project, such as broken access control. Write an integration test that fails only when the bug really exists. Then let an agent search, and accept only findings that make the test fail. Count what it proposes and how much of it holds up.',
+  },
+};
+/* 单条开发日志（PRD F19，复用文章页的版式）。这一条的出处是 thin-muscle-coach PR #84（路由表，ADR-0032，2026-11-04 合并）；标题、日期和动手页、项目页的同一条日志（build-out/gen/parts.py 的 one-domain）一致。
+   字段：字段是日期、项目、做了什么、和智能体怎么分工、下一步、PR 或提交链接 */
+const ART_LOG = {
+  zh: {
+    crumbLabel: '所在位置', projectHref: '/build/velicoach', project: 'Velicoach 主站',
+    title: '两个产品共用一个域名：按路径分给主站和 Veli', dek: '主站和 Veli 按路径分一个域名：哪些地址归主站，哪些归 Veli。',
+    metaLabel: '日期、项目和链接', dtDate: '日期', dDate: '2026-11-04', dtProject: '项目', dtPr: 'PR', pr: 'thin-muscle-coach #84', prHref: 'https://github.com/madlouse/thin-muscle-coach/pull/84',
+    hDid: '做了什么',
+    did1: 'velicoach.com 下面有两个产品，各在一个仓库里：主站和 Veli。我们按路径把地址分开。首页、看清、动手和关于归主站。站稳页、Veli 网页版、登录和法务页归 Veli。',
+    did2: '规则按顺序匹配，具体的前缀写在前面。英文路径里站稳页和法务页归 Veli，所以它们的规则写在主站的英文路径前面。',
+    hSplit: '和智能体怎么分工', split: '产品负责人定哪些地址归主站、哪些归 Veli；智能体写路由表和分流规则。',
+    hNext: '下一步', nextStep: '主站接管根域名，其余地址转给 Veli。在那之前，根路径临时跳转到站稳页。',
+    hLinks: 'PR 和提交', linkNote: '：路由表（ADR-0032），在 Veli 的仓库里，已合并。',
+    loading: '正在加载开发日志', failTitle: '这条开发日志没加载出来', failBody: '可能是网络不稳。页面其余部分不受影响。可以重试，也可以先看这个项目的其他日志。', failAlt: '这个项目的全部开发日志',
+    next: '接着读', nextDate: '2026-11-04', nextTitle: '首页的「叶与网」动效回到设计稿里：约 6000 个点在叶子和网之间变形', nextHref: '/build/velicoach/home-motion',
+    allProject: 'Velicoach 主站的全部开发日志', allLogs: '全部项目的开发日志', allLogsHref: '/build#devlog',
+    colophon: '纠错', report: '发现错误或过时的地方？', reportLink: '写信指出', reportSubject: '纠错：https://velicoach.com/build/velicoach/one-domain',
+  },
+  en: {
+    crumbLabel: 'Breadcrumb', projectHref: '/en/build/velicoach', project: 'Velicoach',
+    title: 'Two products now share one domain, split by path between this site and Veli', dek: 'How the main site and Veli split one domain by path, and which URLs belong to which.',
+    metaLabel: 'Date, project, and links', dtDate: 'Date', dDate: 'Nov 4, 2026', dtProject: 'Project', dtPr: 'PR', pr: 'thin-muscle-coach #84', prHref: 'https://github.com/madlouse/thin-muscle-coach/pull/84',
+    hDid: 'What we did',
+    did1: 'velicoach.com hosts two products, each in its own repository: the main site and Veli. We split the URLs by path. The home page, Mind, Build, and About belong to the main site. The Body page, the Veli web app, sign-in, and the legal pages belong to Veli.',
+    did2: 'Rules match in order, so the specific prefixes come first. In English, the Body page and the legal pages still belong to Veli, so their rules sit ahead of the main site’s English paths.',
+    hSplit: 'How we split the work with agents', split: 'The product owner decided which URLs belong to the main site and which to Veli. Agents wrote the routing table and the rewrite rules.',
+    hNext: 'Next', nextStep: 'The main site takes over the root domain and hands every other URL to Veli. Until then, the root path redirects to the Body page.',
+    hLinks: 'Pull requests and commits', linkNote: ': the routing table (ADR-0032), in Veli’s repository, merged.',
+    loading: 'Loading the devlog entry', failTitle: 'This devlog entry didn’t load', failBody: 'The connection may be unstable. The rest of the page still works. Try again, or read the project’s other entries.', failAlt: 'All devlog entries for this project',
+    next: 'Keep reading', nextDate: 'Nov 4, 2026', nextTitle: 'The home page’s leaf-and-web animation is back in the design file: about 6,000 points morph between a leaf and a web', nextHref: '/en/build/velicoach/home-motion',
+    allProject: 'All Velicoach devlog entries', allLogs: 'The devlog for every project', allLogsHref: '/en/build#devlog',
+    colophon: 'Corrections', report: 'Spotted an error or something out of date?', reportLink: 'Email a correction', reportSubject: 'Correction: https://velicoach.com/en/build/velicoach/one-domain',
+  },
+};
+/* v：shellVals() 的结果；o：{ kind, media, english, load, frame, scrolled }。「暂无英文版」时调用方先把页面语言定成英文 */
+function articleVals(v, o) {
+  const L = v.en ? 'en' : 'zh';
+  const isLog = o.kind === '开发日志';
+  const noEnglish = !isLog && o.english === '暂无英文版';
+  const CL = noEnglish ? 'zh' : L;
+  const u = { ...ART_UI[L] };
+  const g = { ...ART_LOG[L] };
+  const mail = (s) => 'mailto:?subject=' + encodeURIComponent(s);
+  u.reportHref = mail(u.reportSubject); g.reportHref = mail(g.reportSubject); u.srcHref = ART_SRC;
+  const media = isLog ? '没有视频' : (o.media || '正常');
+  const hasVideo = media !== '没有视频';
+  const load = o.load || '正常';
+  const loaded = load === '正常';
+  const scrolled = !!o.scrolled && loaded;
+  const frame = o.frame || '封面';
+  const readTime = noEnglish ? '12 min read, in Chinese' : u.readTime;
+  return {
+    u, g, c: ART_CONTENT[CL], contentLang: CL === 'en' ? 'en' : 'zh-CN',
+    scenes: ART_CONTENT[CL].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
+    isArticle: !isLog, isLog, noEnglish,
+    curMind: isLog ? 'false' : 'page', curBuild: isLog ? 'page' : 'false',
+    artClass: scrolled ? 'is-scrolled' : '', atTop: loaded && !scrolled, scrolled,
+    isLoaded: loaded, isLoading: load === '加载中' || load === '加载超过 10 秒', isSlow: load === '加载超过 10 秒', loadFailed: load === '加载失败',
+    videoOk: media === '正常', videoFailed: media === '视频无法播放',
+    length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
+    videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
+    voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
+    frameText: frame !== '最暗一帧', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
+  };
+}
+class Component extends DCLogic {
+  renderVals() {
+    const P = (k, d) => (this.state && this.state[k]) ?? this.props[k] ?? d;
+    const kind = P('kind', '文章');
+    const noEnglish = kind !== '开发日志' && P('english', '有英文版') === '暂无英文版';
+    /* 「暂无英文版」只出现在英文页：页面语言定成英文，正文仍是中文 */
+    const self = noEnglish ? { state: { ...(this.state || {}), lang: 'English' }, props: this.props, setState: (s) => this.setState(s) } : this;
+    /* 语言切换链到本页的另一语言版本：文章是 /mind/<slug>，单条开发日志是 /build/<项目>/<slug> */
+    const v = shellVals(self, 'paper', kind === '开发日志' ? '/build/velicoach/one-domain' : '/mind/shopify-harness');
+    return { ...v, ...articleVals(v, { kind, media: P('media', '正常'), english: noEnglish ? '暂无英文版' : '有英文版', load: P('load', '正常'), frame: P('frame', '封面'), scrolled: P('nav', '首屏') === '吸顶' }) };
+  }
+  componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }
+}
+</script>
+</body>
+</html>

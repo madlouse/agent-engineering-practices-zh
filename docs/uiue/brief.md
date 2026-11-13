@@ -1,7 +1,7 @@
 # Velicoach 主站 · UI 下一版（v1.1）设计简报
 
-> 仓库副本（2026-11-12 随设计 v1.1 同步进来）。这是主会话在两份独立诊断上做的裁决，当时交给画板制作方照做；第 10 节是复评以后的第二轮裁决。现在的设计以设计系统 v1.1（`docs/uiue/system/`）和在线画布为准，每条决定的理由和放弃的方案在 `docs/uiue/decisions.md`「2026-11-12 · 设计 v1.1」；这份简报留作依据，不再更新。
-> 读的时候注意三处：文中的 `<工作目录>`、`<外壳工作目录>` 是制作时的临时目录，里面的生成脚本和源片段没有进仓库，共享文件的上传编号和一个没定过的邮箱地址在这份副本里去掉了；依据写的是 PRD 第 499 版，第 8 节末尾「F30 是否提前到 v1 由产品负责人定」是当时的状态，产品负责人已同意提前（需求第 95 条，PRD 第 505 版）；第 6 节末尾「T8 要改」已在 `docs/standards/quality-terms.md` 第 6 版改了。
+> 仓库副本（2026-11-12 随设计 v1.1 同步进来，第三轮小修后补了第 11 节）。这是主会话在两份独立诊断上做的裁决，当时交给画板制作方照做；第 10 节是复评以后的第二轮裁决，第 11 节是第三轮小修。现在的设计以设计系统 v1.1（`docs/uiue/system/`）和在线画布为准，每条决定的理由和放弃的方案在 `docs/uiue/decisions.md`「2026-11-12 · 设计 v1.1」；这份简报留作依据，不再更新。
+> 读的时候注意三处：文中的 `<工作目录>`、`<外壳工作目录>` 是制作时的临时目录，画板、生成脚本和源片段现在在 `docs/uiue/prototypes/v1.1/`（`<工作目录>/root/project/` 对应那里的 `boards/`，`<外壳工作目录>` 对应 `src/shell/`，目录和重建办法见那里的 README），共享文件的上传编号（写在那份 README 里）和一个没定过的邮箱地址在这份副本里去掉了；依据写的是 PRD 第 499 版，第 8 节末尾「F30 是否提前到 v1 由产品负责人定」是当时的状态，产品负责人已同意提前（需求第 95 条，PRD 第 505 版）；第 6 节末尾「T8 要改」已在 `docs/standards/quality-terms.md` 第 6 版改了。
 
 依据：产品负责人 2026-11-12 的要求（需求第 92 条和其后一条「对设计系统及 UI/UE 做全面检查，必要的可以重新优化或重做，确保达到最好的产品效果，结合产品的愿景目标」）；PRD v2.0 第 499 版（`docs/prd/velicoach.md`）；两份独立诊断：
 
@@ -114,7 +114,7 @@
 | 2 | 等宽只排数字和拉丁字母 | `canvas.head.css`「2. 基础」的 `@font-face "VC Mono"`（unicode-range）和 `--vc-mono-track`；`tokens.json` 的 `type.families.mono`；设计系统「字体和字号阶梯」 |
 | 3 | 定位句是 h1：正文字体、墨色、不小于正文字号，位置放稳 | `.vc-hero-tag`（桌面、平板自己占一行骑在接缝上；手机在标题上方）；`Main.dc.html` 的 h1 改用 `vc-type-lead` |
 | 4 | 「开始训练」展开层不遮说明、离大标题留规范间距；不同时展开订阅层；四帧证据 | `.vc-hero .vc-pop`（在按钮右边同一行展开）；`tools/shots.sh` 的 Main-open（倾斜加展开，只开一个浮层）；`tools/motion_frames.sh`；首页画板属性 `focus` |
-| 5 | 手机首屏：站稳有实心主按钮，读最新文章降为次级；叶在纸色一半、网在墨色一半；两个登录按钮分主次 | `.vc-hero-direct`（第一个实心、第二个描边）；手机档的 `.vc-hero`（3:5 的动效区、叶网同一竖轴）；`Main.dc.html` |
+| 5 | 手机首屏：站稳有实心主按钮，读最新文章降为次级；叶在纸色一半、网在墨色一半；两个登录按钮分主次 | `.vc-hero-direct`（第一个实心、第二个描边；哪个在前按设备定，见第 11 节）；手机档的 `.vc-hero`（3:5 的动效区、叶网同一竖轴）；`Main.dc.html` |
 | 6 | 英文站名：本简报原来没有裁决，按这次的办法：英文首屏每半的大标题上方加站名小标，圆里 Build；不改口号；中文不加 | `.vc-hero-station`、`.vc-orb-station`；`Main.dc.html` 里 `sc-if en` |
 | 7 | 「这一周」改「最新」；站点圆点三站各用站色实心 | `Main.dc.html` 的 `weekTitle`；`.vc-claim-chip-*`；新 token `vc-amber-deep` |
 | 8 | 研究卡 820 宽一列三张通栏 | `.vc-study-grid` 平板档 |
@@ -129,3 +129,7 @@
 | 17 | 站稳样张改成 12 分钟做得完 | `build-out/gen/body_copy.json` 的 `plan`、`planCap` |
 
 这一轮改了工具：`tools/verify_all.sh`、`tools/shots.sh`、`shell-out/tools/extract_samples.py` 改用调优后的技能副本（`tuned-e911`）；新加 `tools/motion_frames.sh`。控件样张里的数字卡和时间线改成从页面画板取（`extract_samples.py`），页面画板的组件结构改了以后要重跑它，再跑 `rebuild.sh`。
+
+## 11. 第三轮小修（2026-11-12）
+
+验证器换成仓库里已合并的那一份（`.grok/skills/design-bar/scripts/`），带 `--face-contrast 1.8`；提示条 `vc-notice` 加 1px `vc-text-3` 描边；学习路径的步骤改成和里程碑同一种默认收起、原地展开的写法（`.vc-step-fold`）；登录方式按设备定主次，首页和站稳画板加属性 `device`；设计系统 README 四处对齐现状。细节的摘要在 `docs/uiue/reviews/2026-11-12-audit/summary.md`「第三轮小修」，理由在 `docs/uiue/decisions.md`「第三轮小修」。

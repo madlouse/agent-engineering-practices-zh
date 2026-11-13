@@ -1,0 +1,14 @@
+                  <summary class="vc-step-sum">
+                    <span class="vc-step-n">{{p.n}}</span>
+                    <h3 class="vc-step-name">{{p.name}}</h3>
+                    <span class="vc-step-facts"><sc-for list="{{p.factList}}" as="f" hint-placeholder-count="3"><span>{{f.t}}</span> </sc-for></span>
+                    <span class="vc-step-why">{{p.why}}</span>
+                  </summary>
+                  <div class="vc-step-more">
+                    <dl class="vc-step-body"><div><dt>{{c.level}}</dt><dd>{{p.level}}</dd></div><div><dt>{{c.check}}</dt><dd>{{p.check}}</dd></div></dl>
+                    <p class="vc-step-foot">
+                      <a class="vc-quick vc-quick-small" href="{{p.url}}" aria-label="{{p.openLabel}}">{{c.openCourse}}</a>
+                      <sc-if value="{{p.hasMs}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{p.msHref}}">{{p.msLabel}}</a></sc-if>
+                      <span>{{c.checkedLabel}} <time datetime="{{checkedIso}}">{{checkedText}}</time></span>
+                    </p>
+                  </div>

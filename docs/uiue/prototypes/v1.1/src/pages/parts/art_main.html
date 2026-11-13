@@ -1,0 +1,141 @@
+<main class="vc-container vc-read {{artClass}}">
+<sc-if value="{{isArticle}}" hint-placeholder-val="{{ true }}">
+<article aria-labelledby="art-title">
+<sc-if value="{{atTop}}" hint-placeholder-val="{{ true }}">
+<!--@PART:art_crumb-->
+<!--@PART:art_noen-->
+<!--@PART:art_headline-->
+  <details class="vc-fold vc-toc" data-expand="inline">
+    <summary>{{u.toc}}</summary>
+    <nav aria-label="{{u.toc}}"><ol lang="{{contentLang}}">
+      <li><a href="#noise">{{c.h2a}}</a></li>
+      <li><a href="#dispatch">{{c.h2b}}</a></li>
+      <li><a href="#six-weeks">{{c.h2c}}</a></li>
+      <li><a href="#practice">{{c.practiceTitle}}</a></li>
+    </ol></nav>
+  </details>
+  <section class="vc-take vc-read-col" aria-labelledby="take-t">
+    <h2 id="take-t" class="kicker">{{u.takeLabel}}</h2>
+    <p class="vc-type-body-reading" lang="{{contentLang}}"><strong>{{c.takeHead}}</strong>{{c.take}}</p>
+  </section>
+<!--@PART:art_video-->
+</sc-if>
+<sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}">
+<!--@PART:art_crumb-->
+<!--@PART:art_loading-->
+</sc-if>
+<sc-if value="{{loadFailed}}" hint-placeholder-val="{{ false }}">
+<!--@PART:art_crumb-->
+  <div class="vc-notice vc-notice-block vc-read-col" role="alert">
+    <h1 class="vc-type-title-3">{{u.failTitle}}</h1>
+    <p class="vc-sub">{{u.failBody}}</p>
+    <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{u.retry}}</button><a class="vc-quick" href="{{u.srcHref}}">{{u.readOriginal}}</a></div>
+  </div>
+</sc-if>
+<sc-if value="{{isLoaded}}" hint-placeholder-val="{{ true }}">
+  <sc-if value="{{scrolled}}" hint-placeholder-val="{{ false }}"><h1 class="vc-sr-only" lang="{{contentLang}}">{{c.title}}</h1></sc-if>
+  <div class="vc-prose vc-read-body" lang="{{contentLang}}">
+    <p>{{c.p1}}</p>
+    <p>{{c.p1b}}</p>
+    <h2 id="noise">{{c.h2a}}</h2>
+    <aside class="vc-sidenote" id="sn-1"><span class="mono">1</span>{{c.n1}}</aside>
+    <p>{{c.p2}}<span class="vc-nowrap">{{c.p2e}}<sup id="ref-1"><a class="vc-ref-side" href="#sn-1">1</a><a class="vc-ref-foot" href="#fn-1">1</a></sup></span></p>
+    <p>{{c.p3}}</p>
+    <h2 id="dispatch">{{c.h2b}}</h2>
+    <p>{{c.p4}}</p>
+    <h2 id="six-weeks">{{c.h2c}}</h2>
+    <aside class="vc-sidenote" id="sn-2"><span class="mono">2</span>{{c.n2}}</aside>
+    <p>{{c.p5}}<span class="vc-nowrap">{{c.p5e}}<sup id="ref-2"><a class="vc-ref-side" href="#sn-2">2</a><a class="vc-ref-foot" href="#fn-2">2</a></sup></span></p>
+    <ol class="vc-footnotes" aria-label="{{u.notesLabel}}">
+      <li id="fn-1"><span>{{c.n1}}&nbsp;<a href="#ref-1" aria-label="{{u.backToText}}">↩</a></span></li>
+      <li id="fn-2"><span>{{c.n2}}&nbsp;<a href="#ref-2" aria-label="{{u.backToText}}">↩</a></span></li>
+    </ol>
+  </div>
+  <section class="vc-part vc-part-rule vc-practice vc-read-col" id="practice" lang="{{contentLang}}" aria-labelledby="practice-t">
+    <p class="kicker">{{c.practiceKicker}}</p>
+    <h2 id="practice-t" class="vc-type-title-3-serif">{{c.practiceTitle}}</h2>
+    <p class="vc-type-body-reading">{{c.practiceBody}}</p>
+  </section>
+  <nav class="vc-part vc-next vc-read-wide" aria-labelledby="next-t">
+    <h2 id="next-t" class="vc-type-title-3">{{u.next}}</h2>
+    <ol class="vc-rows">
+      <li class="vc-row"><a class="vc-row-main" href="{{u.nextHref}}" aria-labelledby="next-1-t"><span class="vc-row-lead">{{u.nextLead}}</span><div class="vc-row-body"><p class="vc-row-kind">{{u.nextKind}}</p><h3 id="next-1-t" class="row-title vc-serif">{{u.nextTitle}}</h3></div></a></li>
+    </ol>
+    <p class="vc-row-more"><a class="vc-quick vc-quick-small" href="{{u.lineHref}}">{{u.allLine}}</a></p>
+    <div class="vc-next-go">
+      <a class="vc-station vc-station-body" href="{{u.workoutHref}}"><span class="vc-station-name">{{u.workout}}</span><span class="vc-station-line">{{u.workoutLine}}</span></a>
+      <a class="vc-station vc-station-build" href="{{t.buildHref}}"><span class="vc-station-name">{{u.toBuild}}</span><span class="vc-station-line">{{u.toBuildLine}}</span></a>
+    </div>
+  </nav>
+  <section class="vc-part vc-colophon vc-read-col" aria-labelledby="colophon-t">
+    <h2 id="colophon-t" class="vc-sr-only">{{u.colophon}}</h2>
+    <h3>{{u.changes}}</h3>
+    <ul>
+      <li><time class="mono" datetime="2026-11-04">2026-11-04</time><span>{{u.change2}}</span></li>
+      <li><time class="mono" datetime="2026-10-31">2026-10-31</time><span>{{u.change1}}</span></li>
+    </ul>
+    <h3>{{u.source}}</h3>
+    <p>{{u.sourcePre}}<a href="{{u.srcHref}}" lang="en">Building an agentic harness that outlasts the model</a>{{u.sourcePost}}</p>
+    <p>{{u.reuse}}</p>
+    <p>{{u.cite}}<a href="{{u.citeHref}}">{{u.citeUrl}}</a></p>
+    <p class="vc-colophon-report"><span>{{u.report}}</span><a class="vc-quick vc-quick-small" href="{{u.reportHref}}">{{u.reportLink}}</a></p>
+  </section>
+</sc-if>
+</article>
+</sc-if>
+<sc-if value="{{isLog}}" hint-placeholder-val="{{ false }}">
+<article aria-labelledby="log-title">
+<sc-if value="{{atTop}}" hint-placeholder-val="{{ true }}">
+<!--@PART:log_crumb-->
+  <header class="vc-read-head">
+    <h1 id="log-title" class="vc-type-title-2">{{g.title}}</h1>
+    <p class="vc-type-lead vc-read-col">{{g.dek}}</p>
+    <div class="vc-meta vc-read-wide">
+      <dl class="vc-meta-row" aria-label="{{g.metaLabel}}">
+        <div><dt>{{g.dtDate}}</dt><dd><time datetime="2026-11-04">{{g.dDate}}</time></dd></div>
+        <div><dt>{{g.dtProject}}</dt><dd><a href="{{g.projectHref}}">{{g.project}}</a></dd></div>
+        <div><dt>{{g.dtPr}}</dt><dd><a href="{{g.prHref}}">{{g.pr}}</a></dd></div>
+      </dl>
+    </div>
+  </header>
+</sc-if>
+<sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}">
+<!--@PART:log_crumb-->
+<!--@PART:log_loading-->
+</sc-if>
+<sc-if value="{{loadFailed}}" hint-placeholder-val="{{ false }}">
+<!--@PART:log_crumb-->
+  <div class="vc-notice vc-notice-block vc-read-col" role="alert">
+    <h1 class="vc-type-title-3">{{g.failTitle}}</h1>
+    <p class="vc-sub">{{g.failBody}}</p>
+    <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{u.retry}}</button><a class="vc-quick" href="{{g.projectHref}}">{{g.failAlt}}</a></div>
+  </div>
+</sc-if>
+<sc-if value="{{isLoaded}}" hint-placeholder-val="{{ true }}">
+  <sc-if value="{{scrolled}}" hint-placeholder-val="{{ false }}"><h1 class="vc-sr-only">{{g.title}}</h1></sc-if>
+  <div class="vc-prose vc-read-body">
+    <h2 id="did">{{g.hDid}}</h2>
+    <p>{{g.did1}}</p>
+    <p>{{g.did2}}</p>
+    <h2 id="split">{{g.hSplit}}</h2>
+    <p>{{g.split}}</p>
+    <h2 id="next-step">{{g.hNext}}</h2>
+    <p>{{g.nextStep}}</p>
+    <h2 id="links">{{g.hLinks}}</h2>
+    <ul><li><a href="{{g.prHref}}">{{g.pr}}</a>{{g.linkNote}}</li></ul>
+  </div>
+  <nav class="vc-part vc-next vc-read-wide" aria-labelledby="log-next-t">
+    <h2 id="log-next-t" class="vc-type-title-3">{{g.next}}</h2>
+    <ol class="vc-rows">
+      <li class="vc-row vc-log"><a class="vc-row-main" href="{{g.nextHref}}" aria-labelledby="log-next-1-t"><time class="vc-row-lead" datetime="2026-11-04">{{g.nextDate}}</time><div class="vc-row-body"><p class="vc-row-kind">{{g.project}}</p><h3 id="log-next-1-t" class="row-title">{{g.nextTitle}}</h3></div></a></li>
+    </ol>
+    <p class="vc-row-more"><a class="vc-quick vc-quick-small" href="{{g.projectHref}}">{{g.allProject}}</a><a class="vc-quick vc-quick-small" href="{{g.allLogsHref}}">{{g.allLogs}}</a></p>
+  </nav>
+  <section class="vc-part vc-colophon vc-read-col" aria-labelledby="log-colophon-t">
+    <h2 id="log-colophon-t" class="vc-sr-only">{{g.colophon}}</h2>
+    <p class="vc-colophon-report"><span>{{g.report}}</span><a class="vc-quick vc-quick-small" href="{{g.reportHref}}">{{g.reportLink}}</a></p>
+  </section>
+</sc-if>
+</article>
+</sc-if>
+</main>

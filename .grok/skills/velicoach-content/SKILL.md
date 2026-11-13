@@ -33,6 +33,8 @@ Velicoach（velicoach.com）是「AGI 路上的陪练」：01 站稳（力量训
 
 「好懂」「可信」「专业」「有深度」这些词的意思以 `docs/standards/quality-terms.md` 为准（规则 C、T）；审核时按条目编号说话。
 
+跨产品的内容底线和生态术语在同级目录的 velicoach-mono/standards/content.md、velicoach-mono/glossary.md；写到 Veli、种星词或生态本身时先对一遍，主站内的写法以本技能为准。
+
 排版规则只作用于可见正文，不改代码、路径、字段名、URL、命令、配置项、引用原文和产品官方写法。
 
 ## 3. 事实来源

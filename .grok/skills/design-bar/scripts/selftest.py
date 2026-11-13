@@ -169,7 +169,7 @@ def static_checks():
     if code != 1 or '根元素写死主题' not in txt.split('## 过')[0]:
         failures.append('check_shell.py：顶层无条件 classList.add(\'dark\') 应该报根元素写死主题')
 
-    must = {'negated-getitem', 'negated-matchmedia', 'negated-bare-matchmedia', 'negated-null', 'other-key', 'other-media'}
+    must = {'negated-getitem', 'negated-bare-matchmedia', 'negated-null', 'other-key', 'other-media', 'not-equal-value', 'null-on-left', 'wrapped-typeof', 'wrapped-string', 'wrapped-default'}
     if not must <= set(os.listdir(os.path.join(shell, 'bad-guard'))):
         failures.append(f'check_shell.py：bad-guard 缺夹具 {"、".join(sorted(must - set(os.listdir(os.path.join(shell, "bad-guard")))))}')
     for name in sorted(os.listdir(os.path.join(shell, 'bad-guard'))):
@@ -178,6 +178,13 @@ def static_checks():
         code, txt = run('check_shell.py', sub, *extra)
         if code != 1 or '| 根元素写死主题 |' not in txt.split('## 过')[0]:
             failures.append(f'check_shell.py：bad-guard/{name} 无条件写死根主题，应该报根元素写死主题，实际 {code}')
+
+    good_guard = os.path.join(shell, 'good-guard')
+    for name in sorted(os.listdir(good_guard)):
+        sub = os.path.join(good_guard, name)
+        code, txt = run('check_shell.py', sub)
+        if code != 0 or '| 根元素写死主题 |' in txt.split('## 过')[0]:
+            failures.append(f'check_shell.py：good-guard/{name} 的守卫是对的（含 !matchMedia(…).matches 写 light），不该报写死主题，实际 {code}')
 
     failures += project_config_checks()
 

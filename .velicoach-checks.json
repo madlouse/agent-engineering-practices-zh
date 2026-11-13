@@ -1,0 +1,12 @@
+{
+  "docFirst": {
+    "code": ["^src/(?!content/)", "^src/content/(?:types|index)\\.ts$", "^server/", "^migrations/"],
+    "docs": ["^docs/prd/", "^docs/requirements/(?:trace|summary)\\.md$", "^docs/architecture/", "^docs/uiue/", "^docs/issues/"],
+    "refs": ["docs/(?:prd|requirements|architecture|uiue|issues)/", "claude\\.ai/artifact/", "\\bADR-?\\d{4}\\b", "PRD\\s*§?\\s*\\d", "第\\s*\\d+\\s*条"]
+  },
+  "comments": {
+    "paths": ["^src/(?!content/.*\\.md$)", "^server/", "^migrations/", "^scripts/"],
+    "exclude": ["\\.md$"],
+    "allow": []
+  }
+}

@@ -13,6 +13,8 @@ import { fileURLToPath } from "node:url";
 // 定义门槛的文件：票的 PR（feat/、fix/、content/）不能动，改名、删除也算。不是票的 PR 改了它们，一律按 b 类（要两份评审）
 export const GATE_FILES = [
   /^scripts\/merge-ticket-pr\.sh$/,
+  /^scripts\/check-(?:doc-first|comments)\.mjs$/,
+  /^\.velicoach-checks\.json$/,
   /^scripts\/merge-gates(\.test)?\.mjs$/,
   /^scripts\/review-markers(\.test)?\.mjs$/,
   /^scripts\/(check-terms|check-vague|vague-terms|check-owner-brief|check-voice|voice-terms)\.mjs$/,
@@ -193,11 +195,23 @@ export function riskHigh({ fork, head, git }) {
   return reasons;
 }
 
+export function mergeConflicts({ base, head, git }) {
+  try {
+    git("merge-tree", "--write-tree", "--name-only", base, head);
+    return [];
+  } catch (e) {
+    if (e.status !== 1) return [];
+    const files = String(e.stdout ?? "").split("\n\n")[0].split("\n").slice(1).filter(Boolean);
+    return [`和目标分支冲突：${files.slice(0, 5).join("、") || "合并不了"}`];
+  }
+}
+
 // 拒绝时的下一步，按原因分开（problems 是给人看的句子，这里按句子开头认原因）
 const HINTS = [
   [/^改了定义门槛的文件|^package\.json 的 scripts\./, "门槛文件和已有命令的改动单独开 chore/ PR，按 b 类两份评审通过后合并（docs/standards/pipeline.md §5.1）。"],
   [/^删了测试文件|^新增了跳过|^新增了关掉/, "恢复测试，去掉跳过、关 lint、@ts-nocheck / @ts-ignore 的写法（src/、server/ 里可以用 @ts-expect-error）；确实要放宽的，单独开 chore/ PR 按 b 类评审。"],
   [/^会关掉|会关掉别的 issue/, "改掉 PR 标题、正文或提交说明里的关闭关键字：票的 PR 只关自己那张票，任何 PR 都不关 #13。"],
+  [/^和目标分支冲突/, "先把最新的目标分支合并进 PR 分支、解掉冲突、重跑检查再推送（docs/delivery/lessons.md 2026-11-13）；不要等评审发现。"],
   [/^base 是|^目标分支只能是/, "把 PR 的 base 改成目标分支（上线前 feature/v1，上线后 site）。"],
   [/^票的分支写了类别/, "PR 说明第一行改成「类别：票」。"],
   [/等产品负责人/, "先补决策简报（docs/standards/pipeline.md §5.2，检查：node scripts/check-owner-brief.mjs <正文文件>），再把简报原样贴给产品负责人。"],
@@ -268,6 +282,7 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
   const problems = [
     ...(target === null ? [] : checkBase(prBase, target)),
     ...cat.problems,
+    ...mergeConflicts({ base, head, git }),
     ...checkGates({ base, head, kind, ticket, text, git }),
   ];
   const fork = git("merge-base", base, head).trim();

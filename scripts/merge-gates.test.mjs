@@ -516,3 +516,20 @@ test("拒绝提示按原因分开；等产品负责人的输出 owner=yes 并提
     assert.match(r.run(r.commit("o"), "obs/2026-11-09-b", "类别：b").stdout, /^owner=yes$/m);
   } finally { r.cleanup(); }
 });
+
+test("PR 头和目标分支合并冲突：拒绝并提示先合并目标分支；不冲突的照常通过", () => {
+  const r = repo();
+  try {
+    r.branch("chore/conflict"); r.write("src/a.ts", "export const a = 2;\n");
+    const head = r.commit("pr");
+    r.git("checkout", "-q", "base"); r.write("src/a.ts", "export const a = 3;\n"); r.commit("moved");
+    const bad = r.run(head, "chore/conflict", "类别：a");
+    assert.equal(bad.status, 1);
+    assert.match(bad.stdout, /和目标分支冲突：src\/a\.ts/);
+    assert.match(bad.stdout, /下一步：先把最新的目标分支合并进 PR 分支/);
+
+    r.git("checkout", "-q", "-b", "chore/clean", "base~1"); r.write("src/b.ts", "export const b = 1;\n");
+    const ok = r.run(r.commit("clean"), "chore/clean", "类别：a");
+    assert.equal(ok.status, 0, ok.stdout);
+  } finally { r.cleanup(); }
+});

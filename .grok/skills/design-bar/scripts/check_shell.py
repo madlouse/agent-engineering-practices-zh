@@ -10,14 +10,16 @@
   偏好记忆       theme.storageKey、family.langKey 和它们的取值在源码里都出现
   家族导航       family.home 有一个链到它的链接；family.links 每个地址都出现；有 aria-current
   「无条件」的判法：写入包在守卫之后才算有条件，守卫是带 prefers-color-scheme 的 matchMedia，或键等于 theme.storageKey 的 getItem(
-  （没有配置就不限键）；位置是 if 块、if 行内、三元或 && 之前。被取反的读不算守卫：!x、!(x)、=== null、== undefined、matches === false。
+  （没有配置就不限键）；位置是 if 块、if 行内、三元或 && 之前。matchMedia 的 .matches 取反（!matchMedia(…).matches、=== false、!== true）仍算守卫，
+  因为 `if (!matchMedia('(prefers-color-scheme: dark)').matches) { 写 'light' }` 是跟随系统的正确写法。不算守卫的：对 matchMedia 函数本身取反（!window.matchMedia，特性检测）；
+  getItem 的读被取反（!x、!(x)、=== null、== undefined、!== 'light'、null === x、'light' !== x）；读的结果包在 typeof、String( 里，或后面带 ?? 、|| '默认值'。!== null 算守卫。
   只在同一行里读了偏好、if 块已经关上、写在 else 里、守卫只出现在注释或写入之后、读了别的键、媒体查询不是 prefers-color-scheme，都照报。
-判不了的形态（上线前照 references/family.md 第 4 节点一遍），两类：
+判不了的形态，两类：
   误报（其实有守卫，却照报）：读到的偏好或 matchMedia 的结果先存进变量再 if；if 的条件跨多行；守卫写在函数外面（调用方先 if (!saved) return，
     或 if (守卫) apply()）；getItem 的键写成变量而不是字符串字面量。
-  漏报（没有守卫，却不报）：条件里有 || 且其中一边是守卫；一行里有不成对的引号（正则字面量里的 '、JSX 文本里的撇号）会吞掉后面的 }，
-    把已经关上的守卫块当成还开着。字符串和模板字面量里成对的花括号能正确跳过。
-它也判不了运行时的行为（读了存储键却没生效）。
+  漏报（没有守卫，却不报）：条件里有 || 且其中一边是守卫；比较的两边都不是常量（getItem(a) === getItem(b)）；包在自己写的函数里（readTheme(getItem(…))）；
+    一行里有不成对的引号（正则字面量里的 '、JSX 文本里的撇号）会吞掉后面的 }，把已经关上的守卫块当成还开着。字符串和模板字面量里成对的花括号能正确跳过。
+运行时的行为（读了存储键却没生效、系统切换主题页面跟不跟着变）它判不了：上线前靠外壳票 #22 的运行时 Playwright 验收（切换系统外观，页面跟着变；写死的默认值过不了）。
 
 用法：
   python check_shell.py src [更多源码目录] [--config docs/design/shell.json] [--out 报告目录]
@@ -42,8 +44,13 @@ FORCED = [
 
 
 MEDIA_CALL = re.compile(r'''matchMedia\(\s*["'`][^"'`]*prefers-color-scheme''')
-NEGATED_MEDIA_TAIL = re.compile(r'''[^"'`]*["'`]\s*\)\s*\.matches\s*===?\s*(?:false|0)''')
+MATCHES_TAIL = re.compile(r'''[^"'`]*["'`]\s*\)\s*\??\.matches''')
 CHAIN_BEFORE = re.compile(r'(?:[\w$]+\??\.)*$')
+WRAPPED_BEFORE = re.compile(r'(?:\btypeof\s+|\bString\(\s*)(?:[\w$]+\??\.)*$')
+WRAPPED_AFTER = re.compile(r'''\s*(?:\?\?|\|\|\s*["'`])''')
+CONST = r'''null|undefined|true|false|\d+|["'`][^"'`]*["'`]'''
+CMP_LEFT = re.compile(r'(' + CONST + r')\s*(===?|!==?)\s*$')
+CMP_RIGHT = re.compile(r'\s*(===?|!==?)\s*(' + CONST + r')')
 
 
 def negated_before(prefix):
@@ -53,23 +60,41 @@ def negated_before(prefix):
     return run.count('!') % 2 == 1
 
 
+def read_is_positive(cond, start, end):
+    """getItem 的读在条件里是不是「读到了偏好才为真」：!x、=== null、!== 'light'、null === x 是反过来的。"""
+    positive = not negated_before(cond[:start])
+    left = CMP_LEFT.search(CHAIN_BEFORE.sub('', cond[:start]).rstrip('!( \t'))
+    right = CMP_RIGHT.match(cond, end)
+    cmp = (left.group(2), left.group(1)) if left else (right.group(1), right.group(2)) if right else None
+    if cmp:
+        op, val = cmp
+        if val in ('null', 'undefined'):
+            if not op.startswith('!'):
+                positive = not positive
+        elif op.startswith('!'):
+            positive = not positive
+    return positive
+
+
 def is_guard(cond, key=None):
-    """条件里有没有一个没被取反的、真正读了系统外观或存储偏好的调用。
-    matchMedia 要带 prefers-color-scheme；getItem( 的键要等于配置里的 theme.storageKey（没配置就不限键）；
-    !x、!(x)、x === null、x == undefined、matches === false 都是取反，不算。"""
+    """条件里有没有一个真正读了系统外观或存储偏好的调用。
+    matchMedia 要带 prefers-color-scheme：它的 .matches 取反、=== false、!== true 仍算守卫（!matchMedia(…).matches 写 light 是跟随系统的正确写法）；
+    对 matchMedia 函数本身取反（特性检测）、没有 .matches 却取反，不算。
+    getItem( 的键要等于配置里的 theme.storageKey（没配置就不限键）；读的结果取反（!x、=== null、!== 'light'、null === x）不算，
+    !== null 算；读的结果包在 typeof、String( 里或带 ?? 、|| '默认值' 的，读不出有没有偏好，不算。"""
     for m in MEDIA_CALL.finditer(cond):
-        if negated_before(cond[:m.start()]):
+        if WRAPPED_BEFORE.search(cond[:m.start()]):
             continue
-        if NEGATED_MEDIA_TAIL.match(cond, m.end()):
-            continue
-        return True
+        if MATCHES_TAIL.match(cond, m.end()):
+            return True
+        if not negated_before(cond[:m.start()]):
+            return True
     item = re.compile(r'''getItem\(\s*["'`]''' + (re.escape(key) if key else r'''[^"'`]*''') + r'''["'`]\s*\)''')
     for m in item.finditer(cond):
-        if negated_before(cond[:m.start()]):
+        if WRAPPED_BEFORE.search(cond[:m.start()]) or WRAPPED_AFTER.match(cond, m.end()):
             continue
-        if re.match(r'\s*===?\s*(?:null|undefined)', cond[m.end():]):
-            continue
-        return True
+        if read_is_positive(cond, m.start(), m.end()):
+            return True
     return False
 
 

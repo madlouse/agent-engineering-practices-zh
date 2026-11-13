@@ -17,6 +17,21 @@
 | 做票、拆票、跑流水线、改协作机制 | [docs/delivery/README.md](docs/delivery/README.md)（开发团队和开发路线的入口：`team-setup.md`、`roadmap.md`）、[docs/standards/pipeline.md](docs/standards/pipeline.md)（关口、角色、循环、车道、复用 Veli 的方式）、[docs/standards/observer.md](docs/standards/observer.md)、[docs/delivery/loops/](docs/delivery/loops/)（定时任务的提示词）、[docs/delivery/lessons.md](docs/delivery/lessons.md)；子 Agent 定义在 `.claude/agents/` |
 | 技术选型、部署、结构变化 | [docs/architecture/overview.md](docs/architecture/overview.md)、[docs/architecture/adr/](docs/architecture/adr/)、[docs/deploy.md](docs/deploy.md)；先写 ADR 再动手 |
 
+## 生态手册
+<!-- velicoach-mono -->
+
+本仓库是 Velicoach 生态的主站，三站入口和看清一站的文章都在这里。跨产品的愿景、产品卡、规范、共享契约和交接协议在 [velicoach-mono](https://github.com/madlouse/velicoach-mono/blob/main/AGENTS.md)，会话里克隆在同级目录 velicoach-mono。主站内的事以本仓库为准，跨产品的事以 velicoach-mono 为准；下面这些事开工前先读那里对应的一份：
+
+| 要做的事 | 先读 |
+|---|---|
+| 改共享契约（账号、路由、设计 token、MCP 工具、反馈库） | velicoach-mono/map/repos.md 的共享契约；主站这边怎么接看 [docs/architecture/overview.md](docs/architecture/overview.md)（账号：v1 不读会话，登录在 Veli）；改完通知相关频道 |
+| 新功能、需求取舍 | velicoach-mono/vision.md 的五问 |
+| 碰到 Veli 或种星词 | velicoach-mono/products/veli.md、velicoach-mono/products/words.md |
+| 派活给 Codex、Antigravity | velicoach-mono/contracts/task.md；合并前由 Claude 做效果评审 |
+| 改跨产品规范、共享检查脚本，或提建议 | velicoach-mono/contracts/spec-change.md：只在那里改，本仓库只指过去 |
+
+界面和对外内容的跨产品底线由 `velicoach-layout`、`velicoach-content` 按需带进来。改站点代码先改 PRD，再改技术方案，再改代码：只改代码的 PR，正文写一行「需求：」引用已有需求，或「免文档：」加类别（重构、依赖、修复、测试、构建）和理由。代码不写注释，只许一行 `// why: …`（中文 `// 为什么：…`）说明外部原因，`eslint-disable` 这类工具指令不算。两条合并脚本都会查（`docs/standards/pipeline.md` §7「文档先行」「不写注释」，规则在 velicoach-mono/standards/engineering.md）。
+
 ## 技能
 
 技能都在 `.grok/skills/`。`.claude/skills/` 里放了指向主站相关技能的链接，Claude Code 能自动发现；新加的技能要在那里也加一个链接。做对应的事情时先加载技能，再动手。

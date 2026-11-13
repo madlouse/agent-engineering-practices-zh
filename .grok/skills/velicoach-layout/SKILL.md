@@ -15,6 +15,7 @@ description: Velicoach 主站的页面排版与布局规范：页面骨架、手
 - 需要新 token 或新规则时，先改设计系统，再同步到代码；不在页面里临时发明。
 - 「好看」「好用」「舒适」「有品味」这些词的意思以 `docs/standards/quality-terms.md` 为准（规则 U、V、A）；设计评审按 `docs/uiue/bar-sheet.md` 的 P1–P5 打分。和本技能冲突时以那里为准，再回来改本技能。
 - 流程沿用 `design-bar` 技能：开工前确认关键信息与标杆，交付前跑检查，评审意见写回设计系统。
+- 三个产品共守的设计底线（Apple 语言、一站一键一秒、token、双语、可达性、儿童档）在同级目录的 velicoach-mono/standards/design.md；改共享外壳、登录或设计 token 前先读它和 velicoach-mono/map/repos.md 的共享契约，改完通知 Veli 和种星词的频道。
 
 ## 2. 开工前回答四个问题
 

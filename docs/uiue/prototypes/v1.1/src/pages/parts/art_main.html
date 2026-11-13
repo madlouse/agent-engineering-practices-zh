@@ -34,6 +34,9 @@
 </sc-if>
 <sc-if value="{{isLoaded}}" hint-placeholder-val="{{ true }}">
   <sc-if value="{{scrolled}}" hint-placeholder-val="{{ false }}"><h1 class="vc-sr-only" lang="{{contentLang}}">{{c.title}}</h1></sc-if>
+  <sc-if value="{{atVideo}}" hint-placeholder-val="{{ false }}">
+<!--@PART:art_video-->
+  </sc-if>
   <div class="vc-prose vc-read-body" lang="{{contentLang}}">
     <p>{{c.p1}}</p>
     <p>{{c.p1b}}</p>

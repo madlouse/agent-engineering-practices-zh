@@ -12,6 +12,7 @@
   --vc-paper:#f4f2ec;
   --vc-paper-surface:#fffdf8;
   --vc-paper-line:#e0dcd1;
+  --vc-solid-line:#e0dcd1;
   --vc-text:#1c1d19;
   --vc-text-2:#4b4c45;
   --vc-text-3:#6b6c63;
@@ -195,6 +196,7 @@
   --vc-paper:#121310;
   --vc-paper-surface:#1b1c18;
   --vc-paper-line:#2f3129;
+  --vc-solid-line:#4b4c43;
   --vc-text:#edebe4;
   --vc-text-2:#c8c6bc;
   --vc-text-3:#9d9b90;
@@ -220,6 +222,7 @@
   --vc-paper:#121310;
   --vc-paper-surface:#1b1c18;
   --vc-paper-line:#2f3129;
+  --vc-solid-line:#4b4c43;
   --vc-text:#edebe4;
   --vc-text-2:#c8c6bc;
   --vc-text-3:#9d9b90;
@@ -432,7 +435,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-skeleton-w-88 { width: 88%; }
 .vc-skeleton-w-90 { width: 90%; }
 /* 实色浮层面：订阅条、RSS 行、原地展开的卡片、纸底导航用 vc-surface-solid；压在平涂墨色上的浮动控件（暂停按钮）用 vc-surface-ink（V5：平涂底色上不用玻璃） */
-.vc-surface-solid { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line), var(--shadow-pop); }
+.vc-surface-solid { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-solid-line), var(--shadow-pop); }
 .vc-surface-ink { background-color: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-ink-line); }
 /* 「动手」圆（Main、Tablet、Mobile、Fold）：实色苔绿主按钮加一圈 1px 亮边 vc-orb-ring，背后是两块平涂，不用玻璃。尺寸、位置各页自己定。
    亮边对墨色 11:1、对深色的暗纸 5.9:1；没有它圆对墨色只有 1.5:1 */
@@ -459,8 +462,8 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
    什么时候换：首屏色带的底边滚过导航下沿的那一刻（没有色带的文章页、单条开发日志是标题区的底边）；底色、字色、边缘用 duration-base、ease-out 过渡，往回滚时同样换回实色。
    窄屏：< 744 收起 Velicoach 字样，只留叶子（叶子仍是回首页的链接，320 宽也不收）；< 360 语言分段控件收成一个按钮「中 / EN」。不用汉堡菜单 */
 .vc-nav-wrap { position: sticky; top: 0; z-index: 30; display: flex; justify-content: center; height: calc(var(--nav-height) + var(--vc-nav-top)); margin-bottom: calc(-1 * (var(--nav-height) + var(--vc-nav-top))); padding: var(--vc-nav-top) var(--gutter) 0; pointer-events: none; }
-.vc-nav { pointer-events: auto; display: flex; align-items: center; gap: var(--space-1); max-width: 100%; height: var(--nav-height); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border-radius: var(--radius-pill); white-space: nowrap; transition: background-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out); }
-.vc-nav-paper { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line), var(--shadow-pop); }
+.vc-nav { pointer-events: auto; display: flex; align-items: center; gap: var(--space-1); max-width: 100%; height: var(--nav-height); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border-radius: var(--radius-pill); white-space: nowrap; transition: background-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), backdrop-filter var(--duration-base) var(--ease-out), -webkit-backdrop-filter var(--duration-base) var(--ease-out); }
+.vc-nav-paper { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-solid-line), var(--shadow-pop); }
 .vc-nav-ink { background: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-accent-line), var(--shadow-pop); }
 /* 苔绿实色导航：背后是平涂苔绿，提亮一层（叠 8% 白）和首屏分开。苔绿玻璃超过约 50% 就是实色，不做苔绿玻璃 */
 .vc-nav-moss { background-color: var(--vc-moss-hero); background-image: linear-gradient(rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.08)); color: var(--vc-on-moss); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--shadow-pop); }

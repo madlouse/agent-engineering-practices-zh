@@ -10,11 +10,11 @@ from pathlib import Path
 
 # 设备画板: (页面画板, 标题, 宽, 高)。宽高和 canvas.json 里这块画板的 w、h 一致
 BOARDS = {
-    'Tablet': ('Main', '首页 · 平板 · Velicoach', 820, 3780),
-    'Mobile': ('Main', '首页 · 手机 · Velicoach', 390, 4440),
-    'Fold': ('Main', '首页 · 折叠屏内屏 · Velicoach', 984, 3660),
+    'Tablet': ('Main', '首页 · 平板 · Velicoach', 820, 3570),
+    'Mobile': ('Main', '首页 · 手机 · Velicoach', 390, 4210),
+    'Fold': ('Main', '首页 · 折叠屏内屏 · Velicoach', 984, 3460),
     'MindMobile': ('Mind', '看清 · 手机 · Velicoach', 390, 4320),
-    'LearnMobile': ('Learn', '学习路径 · 手机 · Velicoach', 390, 3400),
+    'LearnMobile': ('Learn', '学习路径 · 手机 · Velicoach', 390, 3110),
     'ArticleMobile': ('Article', '文章页 · 手机 · Velicoach', 390, 4560),
     'AboutMobile': ('About', '关于 · 手机 · Velicoach', 390, 3350),
     'BuildMobile': ('Build', '动手 · 手机 · Velicoach', 390, 4450),

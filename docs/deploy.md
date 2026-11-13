@@ -21,4 +21,6 @@
 
 ## 代码里已经准备的
 
-`vercel.json` 只指定了安装命令。站点没有写死主机名。
+`vercel.json` 指定了安装命令和 `ignoreCommand`。站点没有写死主机名。
+
+**只改文档的提交不出预览部署**（2026-11-13 主频道定：免费额度一天 100 次，连着挡了 #137、#140、#145 的预览）。`ignoreCommand` 跑 `scripts/preview-skip.mjs`：从这个分支上次部署的提交（`VERCEL_GIT_PREVIOUS_SHA`）到当前提交，改到的文件全在 `docs/`、`.grok/`、`.claude/`、`attachments/`、`screenshots/` 下或者是根目录的 `.md`，就跳过构建；有一个文件不在其中就照常构建。三种情况总是构建：`site` 和 `feature/v1` 两个分支（集成分支变绿要最新提交的预览 READY，生产要每次部署）；分支还没有成功的部署；克隆里找不到上次部署的那个提交。构建不读这几个目录，所以跳过不会让预览和代码对不上。合并脚本怎么对待没有预览的提交，见 `docs/standards/pipeline.md` §5.1。

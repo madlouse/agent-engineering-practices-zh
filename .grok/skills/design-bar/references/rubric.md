@@ -14,9 +14,9 @@
 
 - **Awwwards**：设计 40%、可用性 30%、创意 20%、内容 10%。设计和可用性加起来占七成，炫目但难用的作品拿不到高分。
 - **FWA**：更看重创新和交互体验，偏实验性。
-- **Apple Design Awards**（App）：Delight and Fun、Inclusivity、Innovation、Interaction、Social Impact、Visuals and Graphics。
+- **Apple Design Awards**（App）：Delight and Fun、Inclusivity、Innovation、Interaction、Social Impact、Visuals and Graphics。每维的「中、强」条件和定稿门槛见 `award-bar.md`；这个奖只收 App Store 上的 App，网页把六维当内部标尺。
 
-按项目性质选择参照：商业官网和报告页更接近 Awwwards 的权重，实验性品牌站可以参考 FWA。
+按项目性质选择参照：商业官网和报告页更接近 Awwwards 的权重，实验性品牌站可以参考 FWA，产品（App 和网页里的工具）用 `award-bar.md` 的六维。
 
 ## 通用维度
 

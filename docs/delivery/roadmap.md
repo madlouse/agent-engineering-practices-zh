@@ -22,7 +22,7 @@
 
 | 阶段 | 做什么 | 不做 | 退出标准 | 写作 / 实现 | 评审 |
 |---|---|---|---|---|---|
-| 1 设计收尾 | ① 一个流程 PR 把 `design-bar` 升到新版（定稿记分卡、主题跟随系统、导航约定的机读版 `shell.json` 和检查脚本 `check_shell.py`），修加载态骨架的误报（§6），本站参数 `--face-contrast 1.8` 进项目配置，主站补一份 `shell.json`（PR #130）；评分口径写进 `bar-sheet.md` §8；② 主会话在 Vercel 沙箱里跑 `rebuild.sh --verify`（沙箱能装 Chromium），报告进 `docs/uiue/reviews/`；③ 关口三 a 补评（#94）修一轮、确认一轮；④ 画板冻结，设计系统重发一次，#93、#14 关掉 | 新画板；确认评审之后的任何画板修改（问题进票，在真实页面上改） | 两份评审 P0、P1 为 0，标杆卡 P1–P5 每项 ≥ 4，底线全过（`bar-sheet.md` §7）；`verify_canvas.py` 对 18 块画板结论都是 `done`；`coverage.py` 报「没有着落」的只有 F12、F20；`lint_tokens.py` 报 0 | 主会话（Opus）；画板修改 Fable | 画板 Opus + Sonnet，文字 `content-reviewer`；流程 PR 两份不同模型 |
+| 1 设计收尾 | ① 一个流程 PR 把 `design-bar` 升到新版（定稿记分卡、主题跟随系统、导航约定的机读版 `shell.json` 和检查脚本 `check_shell.py`），修加载态骨架的误报（§6），本站参数 `--face-contrast 1.8` 进项目配置，主站补一份 `shell.json`（PR #133）；评分口径写进 `bar-sheet.md` §8；② 主会话在 Vercel 沙箱里跑 `rebuild.sh --verify`（沙箱能装 Chromium），报告进 `docs/uiue/reviews/`；③ 关口三 a 补评（#94）修一轮、确认一轮；④ 画板冻结，设计系统重发一次，#93、#14 关掉 | 新画板；确认评审之后的任何画板修改（问题进票，在真实页面上改） | 两份评审 P0、P1 为 0，标杆卡 P1–P5 每项 ≥ 4，底线全过（`bar-sheet.md` §7）；`verify_canvas.py` 对 18 块画板结论都是 `done`；`coverage.py` 报「没有着落」的只有 F12、F20；`lint_tokens.py` 报 0 | 主会话（Opus）；画板修改 Fable | 画板 Opus + Sonnet，文字 `content-reviewer`；流程 PR 两份不同模型 |
 | 2 M1 准备 | 只对齐 M1 的 7 张：规格 #17，票 #22–#25、#27、#28（§6 第一条），#22–#25 的验收加「`check_shell.py` 通过」；#92（F30）定在 M2 末尾；对齐票之前，在线 PRD 一个版次改完：交接文档第 8 节第 10、11、17、18 条，需求第 102 条的三处，需求第 103 条的四处（第 3 节信息架构和路由表给 WordS 留入口；F06、F24 和第 4 节「授权与确认」表「记住语言和外观」一行写明偏好另写进作用域为 `.velicoach.com` 的 cookie），导出快照；技术文档跟着改（ADR-0003 (b) 加 cookie 一条、`launch-runbook.md` 第 29 行、设计系统 `docs/uiue/system/README.md`、`velicoach-layout` 第 13 节）；「授权与确认」表这一行改过的版本送律师（#98）；然后 `shell.json` 加上 cookie（等 madlouse/skills PR 15 合并后同步 `design-bar`），#22、#23、#25 的验收加这一条；放行预览访问（#121，已在 2026-11-13 关掉预览的登录保护）；在 #13 发决策简报，请产品负责人回复是否开始实施 | 别的里程碑的票 | 7 张里检索「v44」「UI v1.0」「第 463 版」命中 0；`spec-reviewer` 就绪：是；`check:ticket-table`、`check:issue-refs` 通过；云端会话能对预览部署跑 `check_page.py`；#13 上有他「开始实施」的回复（`pipeline.md` §6 五项） | 主会话（Opus） | `spec-reviewer`（Fable）一轮修、一轮复审 |
 | 3 M1 骨架 | 他回复开始实施以后：#22 token 和首帧主题 → #23 中英路由 → #24 导航 → #25 页脚和关于页 → #27 首页首屏 → #28 叶与网；内容车道同时开（#4、#7 → #5 → #6、#8、#9），免得 M2 等内容 | 入口落点接通、统计上报、订阅、/body 的导航 | §2 M1 一行，加：`check_shell.py` 通过；系统为深色时第一次绘制即深色；`lint_tokens.py src` 报 0；跨 744px、1180px 不重载；手机 Slow 4G 下 LCP ≤ 2.5 秒；里程碑关口对预览上的真实页面 P0、P1 为 0 | `implementer`（Sonnet），同一张票第二轮返工换 Opus；内容 `content-writer`（Sonnet） | 代码 `reviewer`（Opus）；里程碑关口 `design-reviewer`（Opus）一份；内容 `content-reviewer`（Opus） |
 | 4 M2 看清 | 开工前对齐 M2 的票。然后做 §2 M2 一行和 #92 | 套叠图以外的画板工作；长文常驻目录 | §2 M2 一行，加：5 篇和 10 个旁白返回 200；两个 RSS 源过 W3C 校验；`/llms.txt` 里的链接都返回 200；手机长页 ≤ 6 屏 | 同上 | 同上；规格 `spec-reviewer` |
@@ -114,11 +114,10 @@ v2 的范围（主站读登录状态：导航登录、头像和账号菜单、�
 
 **`design-bar` 技能的后续小项**（骨架误报和项目配置两项挡设计收尾，在阶段 1 第一步做；其余都不挡设计，冻结到 M4 前或下次改到这些脚本时；改检查判法时照 `references/checks.md`「改检查的判法时」先做差分表）：
 
-- 加载态的骨架（`aria-busy`、灰块占位）被判成「首屏空白带」，是误报：v1.1 的文章页两个加载状态各报一条。
 - 加一项检查：等宽元素里出现中文（设计系统 v1.1「等宽字体只排数字、拉丁字母和符号」）。
-- 报告开头「阈值」一行把 `--face-contrast` 传进来的值写成了「通用的下限」，读的人会以为通用下限是 1.8（脚本默认 1.3）。
 - `check_page.py` 量完热区以后，影子 DOM 里的滚动容器也要放回原处（现在只放回普通的各层滚动容器）。
-- `selftest.py` 补两条用例：热区「边上缺 6px 照报」「只向一侧撑宽照报」。
 - `check_agent_ready.py` 开头说明里「做了就要对」的清单补上站点地图（下面一行的解释里有，清单里漏了）。
-- 本站的参数（`--face-contrast 1.8`）放进一个项目配置，命令不带也生效（`lessons.md` 2026-11-12「同一类第三次」）。
-
+- `selftest.py` 补两条用例：热区「边上缺 6px 照报」「只向一侧撑宽照报」。
+- 骨架豁免现在是静默的：`aria-busy` 或骨架真的去掉了一条空白带时，报告要写一行提示，点名是哪个元素豁免的（像动效带的提示那样），这样漏在看板根上的 `aria-busy` 才看得见。
+- 提交 2bd992b 的五处本地修复加上骨架误报的修复，要回灌到 madlouse/skills 上游。
+- `check_shell.py` 判不了的形态，实测两类。误报（其实有守卫，却照报）：读到的偏好或 matchMedia 的结果先存进变量再 `if`、条件跨多行、守卫写在函数外面（调用方先 `if (!saved) return` 或 `if (守卫) apply()`）、`getItem` 的键写成变量。漏报（没有守卫，却不报）：条件里有 `||` 且一边是守卫、比较的两边都不是常量（`getItem(a) === getItem(b)`）、读的结果包在自己写的函数里、一行里有不成对的引号（正则字面量里的 `'`、JSX 文本里的撇号）吞掉后面的 `}`；字符串和模板里成对的花括号能正确跳过。已修：`!matchMedia(…).matches` 写 `light` 不再误报（`.matches` 取反仍算守卫，对 `matchMedia` 函数本身、`getItem` 的读取反不算）；`!==`、常量在左（`null === getItem(…)`）、读的结果包在 `typeof`、`String(`、`?? 默认值`、`|| '默认值'` 里，现在都按没有守卫报。运行时的行为（系统切换主题页面跟着变；写死的默认值过不了）靠 M1 外壳票 #22 的运行时 Playwright 验收，不靠手工点一遍；要不要换成解析语法树另议。

@@ -5,7 +5,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, renameSync, rmSync } from "node:
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { checkBase, classifyBranch, declaredCategory } from "./merge-gates.mjs";
+import { checkBase, classifyBranch, declaredCategory, mergeConflicts } from "./merge-gates.mjs";
 
 // scripts/merge-gates.mjs：合并脚本替票的 PR 把的「改动范围」关（pipeline.md §5、§8 第 0 阶段）
 const SCRIPT = join(dirname(fileURLToPath(import.meta.url)), "merge-gates.mjs");
@@ -61,7 +61,7 @@ test("门槛文件：站点票和内容票改源码、内容放行；改门槛�
 
     const gates = [
       "scripts/merge-ticket-pr.sh", "scripts/merge-gates.mjs", "scripts/review-markers.mjs", "scripts/merge-gates.test.mjs",
-      "scripts/check-vague.mjs", "scripts/check-voice.mjs", "scripts/voice-terms.mjs", "docs/standards/pipeline.md", "docs/standards/quality-terms.md", "docs/GLOSSARY.md",
+      "scripts/check-vague.mjs", "scripts/check-voice.mjs", "scripts/voice-terms.mjs", "docs/standards/pipeline.md", "docs/standards/quality-terms.md", "docs/GLOSSARY.md", "docs/uiue/design-bar.json", "docs/uiue/shell.json",
       ".github/workflows/site-db-migrate.yml", ".claude/agents/reviewer.md", ".claude/settings.json", "docs/delivery/loops/site-runner.md",
       "eslint.config.mjs",
     ];
@@ -515,4 +515,29 @@ test("拒绝提示按原因分开；等产品负责人的输出 owner=yes 并提
     r.branch("obs/2026-11-09-b"); r.write("docs/standards/pipeline.md", "# y\n");
     assert.match(r.run(r.commit("o"), "obs/2026-11-09-b", "类别：b").stdout, /^owner=yes$/m);
   } finally { r.cleanup(); }
+});
+
+test("PR 头和目标分支合并冲突：拒绝并提示先合并目标分支；不冲突的照常通过", () => {
+  const r = repo();
+  try {
+    r.branch("chore/conflict"); r.write("src/a.ts", "export const a = 2;\n");
+    const head = r.commit("pr");
+    r.git("checkout", "-q", "base"); r.write("src/a.ts", "export const a = 3;\n"); r.commit("moved");
+    const bad = r.run(head, "chore/conflict", "类别：a");
+    assert.equal(bad.status, 1);
+    assert.match(bad.stdout, /和目标分支冲突：src\/a\.ts/);
+    assert.match(bad.stdout, /下一步：先把最新的目标分支合并进 PR 分支/);
+
+    r.git("checkout", "-q", "-b", "chore/clean", "base~1"); r.write("src/b.ts", "export const b = 1;\n");
+    const ok = r.run(r.commit("clean"), "chore/clean", "类别：a");
+    assert.equal(ok.status, 0, ok.stdout);
+  } finally { r.cleanup(); }
+});
+
+test("冲突检查没跑成（git 太旧或命令出错）：放行，但打印一行提示", () => {
+  const lines = [];
+  const git = () => { throw Object.assign(new Error("x"), { status: 129, stderr: "usage: git merge-tree [<options>]\nmore" }); };
+  assert.deepEqual(mergeConflicts({ base: "a", head: "b", git, warn: (l) => lines.push(l) }), []);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /冲突检查没跑成（usage: git merge-tree/);
 });

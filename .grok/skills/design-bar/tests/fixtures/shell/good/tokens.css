@@ -1,0 +1,3 @@
+:root { --bg: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #111; } }
+[data-theme="dark"] { --bg: #111; }

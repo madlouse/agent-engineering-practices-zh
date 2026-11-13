@@ -36,7 +36,7 @@ from playwright.sync_api import sync_playwright
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from verify_canvas import (EMPTY_BAND_MAX, FACE_MIN_AREA, FACE_MIN_CONTRAST, METRICS_JS, PROSE_MIN_CHARS, TAP_FLOOR,  # noqa: E402
-                           metric_issues, third_party_fonts)
+                           add_project_config_args, apply_project_config, metric_issues, third_party_fonts)
 
 MOBILE_MAX = 480
 
@@ -272,6 +272,8 @@ def main():
     ap.add_argument("--empty-band", type=float, default=EMPTY_BAND_MAX, help=f"首屏空白带上限，占视口高度的比例（默认 {EMPTY_BAND_MAX}）")
     ap.add_argument("--face-contrast", type=float, default=FACE_MIN_CONTRAST, help=f"相邻的大块色面的最低对比（默认 {FACE_MIN_CONTRAST}）")
     ap.add_argument("--face-area", type=float, default=FACE_MIN_AREA, help=f"一块色面至少占视口的比例（默认 {FACE_MIN_AREA}）")
+    add_project_config_args(ap)
+    apply_project_config(ap, sys.argv[1:])
     a = ap.parse_args()
     mopts = {"band": a.empty_band, "face_contrast": a.face_contrast}
 

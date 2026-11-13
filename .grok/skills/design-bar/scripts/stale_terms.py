@@ -8,6 +8,7 @@
   | 废弃说法 | 现在的说法 | 依据 |
   | 灰色预置问题 | 预置问题（输入框上方一行） | PRD J77 |
 「废弃说法」可以是普通文字，也可以写成 /正则/。
+另外每次都会读技能自带的通用词汇表 assets/canon-glossary.md（跨项目都错的说法，例如主题不跟系统），--no-canon 关掉。
 
 不算问题的行：被划掉的（~~）、决策记录和修订历史里的（用 --skip-line 指定，默认跳过以「| J」「| D」「| 1x/xx」开头的表格行和含「原为」「取代」「废弃」「已改」的行）。
 
@@ -21,6 +22,7 @@ import os
 import re
 import sys
 
+CANON = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'canon-glossary.md')
 DEFAULT_SKIP = r'~~|^\| ?[JD]\d+ |^\| \d{1,2}/\d{2} |原为|取代|废弃|已改|改为|旧说法|history|修订记录'
 EXTS = ('.md', '.py', '.html', '.tsx', '.ts', '.jsx', '.js', '.json', '.css')
 
@@ -41,13 +43,14 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('paths', nargs='+')
     ap.add_argument('--glossary', required=True)
+    ap.add_argument('--no-canon', action='store_true', help='不读技能自带的通用词汇表')
     ap.add_argument('--exclude', default=r'archive/|/reviews/|decisions\.md|CHANGELOG|node_modules/|\.git/')
     ap.add_argument('--skip-line', default=DEFAULT_SKIP)
     ap.add_argument('--out', default='', help='报告目录（写 stale-terms.md）或文件')
     a = ap.parse_args()
 
-    rules = load_glossary(a.glossary)
-    gl = os.path.abspath(a.glossary)
+    rules = load_glossary(a.glossary) + ([] if a.no_canon else load_glossary(CANON))
+    glossaries = {os.path.abspath(a.glossary), os.path.abspath(CANON)}
     skip = re.compile(a.skip_line)
     excl = re.compile(a.exclude) if a.exclude else None
     files = []
@@ -59,7 +62,7 @@ def main():
                 files += [os.path.join(d, f) for f in fs if f.endswith(EXTS)]
     hits = []
     for f in files:
-        if os.path.abspath(f) == gl or (excl and excl.search(f.replace(os.sep, '/'))):
+        if os.path.abspath(f) in glossaries or (excl and excl.search(f.replace(os.sep, '/'))):
             continue
         try:
             lines = open(f, encoding='utf-8').read().split('\n')

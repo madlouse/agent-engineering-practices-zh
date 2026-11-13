@@ -1,0 +1,13 @@
+{
+  "theme": {
+    "storageKey": "vc-theme",
+    "values": ["auto", "light", "dark"],
+    "fixedAllow": []
+  },
+  "family": {
+    "home": "/",
+    "links": ["/body", "/mind", "/build"],
+    "langKey": "vc-lang",
+    "langValues": ["zh", "en"]
+  }
+}

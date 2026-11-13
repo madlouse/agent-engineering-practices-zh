@@ -1,0 +1,4 @@
+{
+  "theme": {"storageKey": "fam-theme", "values": ["auto", "light", "dark"], "fixedAllow": ["/train/"]},
+  "family": {"home": "/", "links": ["/a", "/b"], "langKey": "fam-lang", "langValues": ["zh", "en"]}
+}

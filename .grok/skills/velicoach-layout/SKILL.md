@@ -169,9 +169,9 @@ description: Velicoach 主站的页面排版与布局规范：页面骨架、手
 
 1. **多宽度截图**：覆盖三档和各档边界，375、744、820、1024、1180、1440 六个宽度，浅色、深色、伪语言各一套；手机和 iPad 再各截一张横屏。
 2. **设计检查**（`design-bar` 技能的脚本）：
-   - `check_page.py <页面路径或 URL> --out <报告目录> --dark --widths 320,375,744,1180 --targets-up-to 1180`（可点区域三种版式都量，`quality-terms.md` A2）
+   - `check_page.py <页面路径或 URL> --out <报告目录> --dark --widths 320,375,744,1180 --targets-up-to 1180 --project-config docs/uiue/design-bar.json`（可点区域三种版式都量，`quality-terms.md` A2）
    - `lint_tokens.py <源码目录> --tokens <tokens.css>`：不能有写死的颜色、字号、间距、圆角和时长。
-   - 改了画板：`verify_canvas.py <画板目录> --out <报告目录> --themes light,dark,pseudo --face-contrast 1.8`（色面门槛是本站的，`docs/standards/pipeline.md` §7），修到结论为 done；先核对报告里每块画板「查的视口」和画板的设计尺寸对得上（流式页面自动加查 390、320 宽）。
+   - 改了画板：`verify_canvas.py <画板目录> --out <报告目录> --themes light,dark,pseudo --project-config docs/uiue/design-bar.json`（本站的色面门槛 1.8:1 在 `docs/uiue/design-bar.json`，画板在仓库外时脚本找不到它，所以命令带上；`docs/standards/pipeline.md` §7），修到结论为 done；先核对报告里每块画板「查的视口」和画板的设计尺寸对得上（流式页面自动加查 390、320 宽）。
    - 动效和玻璃的证据（标杆卡 P4）：`capture_motion.py <首页画板> <输出.png> --state '{"lean":"body"}' --hover <x,y> --blob <id>=<文件>`，四帧：倾向站稳（叶）、倾向看清（网）、`--reduced-motion` 静止帧、`--no-webgl` 兜底（加 `--expect <兜底元素的选择器>`，证明兜底画出来了）；每个声明 `motion` 的玻璃加一次 `--probe`。吸顶玻璃截「正文一行字正好从导航文字后面滚过」的那一张（画板用属性把内容往上移，`liquid-glass.md` §7），在图上量对比度。
    - 内容模型的字段都画出来了：`coverage.py --canvas <画板目录> --data <研究卡数据.json> --skip-fields id,topic`。
 3. **去 AI 味**：按 `unslop` 的信号清单过一遍；和设计系统冲突时以设计系统为准。

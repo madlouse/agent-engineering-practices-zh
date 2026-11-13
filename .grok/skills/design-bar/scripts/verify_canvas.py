@@ -47,7 +47,8 @@
   29. 跨画板的内容左边缘不一致：同一视口宽度下，各画板第一个 h1（没有就取第一屏第一个标题）的左边缘相差 > 2px，列出每块的值；
       居中这类有意不对齐的标题在它或祖先上写 data-edge="free"
   30. 首屏空白带：入口页的第一屏（标了 data-first-screen 的区域，或流式页面的第一屏；固定尺寸的 App 界面不量）里，
-      连续没有文字、控件、图片的横向空带高度 > 视口的 30%（canvas、video、[data-motion] 盖住的不算空；
+      连续没有文字、控件、图片的横向空带高度 > 视口的 30%（canvas、video、[data-motion] 盖住的不算空；加载态的骨架也不算空：
+      aria-busy="true" 的容器整块、[data-skeleton] 和类名带 skeleton 的占位块；
       只被动效画布盖住的另记一条提示：静态截图看不到它，要用 capture_motion.py 截出动效帧和兜底帧）
   31. 相邻两大块色面分不开：两块各占视口 ≥ 20%、彼此相邻（并排、上下相接或一块套一块）的平涂色面，对比 < 1.3:1（浅色、深色各查）。
       边界已经画出来的面算分开，不报：有一层看得见的柔和阴影（不透明度 > 0.1、模糊 > 0；全透明的不算），或者描边
@@ -99,6 +100,7 @@
 import argparse
 import glob
 import json
+import math
 import os
 import re
 import sys
@@ -134,6 +136,71 @@ TAP_MIN = 44            # 5：独立成行的可点元素
 TAP_FLOOR = 24          # 5：任何可点元素（WCAG 2.2 2.5.8）
 MAX_FONT_SIZES = 8      # 32：字号种类上限
 PROSE_MIN_CHARS = 12    # 5：块里链接以外的字数达到它，行内链接才算「在一句话中间」
+
+
+# 项目配置：项目自己的阈值（例如设计系统定了更严的色面对比）写在 design-bar.json 里，命令不带参数也生效；命令行参数优先。
+# 查找：从命令行里给出的路径（画板目录、页面文件）往上，再从当前目录往上，每层看 design-bar.json 和 design/design-bar.json，到仓库根（有 .git）为止。
+# 格式：{"thresholds": {"face-contrast": 1.8}}，键就是上面那些阈值的同名命令行参数（去掉 --）。--project-config <文件> 指定，--no-project-config 不读。
+PROJECT_CONFIG_NAME = 'design-bar.json'
+PROJECT_CONFIG_DEST_ALIASES = {'tap-min': 'min_target'}  # check_page.py 把同一个阈值叫 --min-target
+PROJECT_CONFIG_LOOSER = {'edge-tol': (EDGE_TOL, '>'), 'empty-band': (EMPTY_BAND_MAX, '>'), 'face-area': (FACE_MIN_AREA, '>'), 'face-contrast': (FACE_MIN_CONTRAST, '<'),
+                         'tap-min': (TAP_MIN, '<'), 'tap-floor': (TAP_FLOOR, '<'), 'max-font-sizes': (MAX_FONT_SIZES, '>')}  # why: 配置只许收紧，比通用下限松的值报错
+PROJECT_CONFIG_KEYS = ('edge-tol', 'empty-band', 'face-area', 'face-contrast', 'tap-min', 'tap-floor', 'max-font-sizes')
+
+
+def find_project_config(starts):
+    for start in starts:
+        d = os.path.abspath(start)
+        if os.path.isfile(d):
+            d = os.path.dirname(d)
+        while True:
+            for cand in (os.path.join(d, PROJECT_CONFIG_NAME), os.path.join(d, 'design', PROJECT_CONFIG_NAME)):
+                if os.path.isfile(cand):
+                    return cand
+            if os.path.exists(os.path.join(d, '.git')) or os.path.dirname(d) == d:
+                break
+            d = os.path.dirname(d)
+    return None
+
+
+def add_project_config_args(ap):
+    ap.add_argument('--project-config', metavar='FILE', help=f'项目配置文件（默认从给出的路径和当前目录往上找 {PROJECT_CONFIG_NAME}），里面的阈值作默认值，命令行参数优先')
+    ap.add_argument('--no-project-config', action='store_true', help='不读项目配置（技能自测用）')
+
+
+def apply_project_config(ap, argv):
+    """把项目配置里的阈值设成 ap 的默认值（命令行参数仍然优先），返回读到的配置文件路径，没有则返回 None。"""
+    pre = argparse.ArgumentParser(add_help=False)
+    pre.add_argument('--project-config')
+    pre.add_argument('--no-project-config', action='store_true')
+    known, _ = pre.parse_known_args(argv)
+    if known.no_project_config:
+        return None
+    path = known.project_config or find_project_config([x for x in argv if not x.startswith('-') and os.path.exists(x)] + [os.getcwd()])
+    if not path:
+        return None
+    try:
+        th = json.load(open(path, encoding='utf-8'))['thresholds']
+        assert isinstance(th, dict)
+    except (OSError, ValueError, KeyError, AssertionError):
+        sys.exit(f'{path}：项目配置要写成 {{"thresholds": {{"face-contrast": 1.8}}}}')
+    bad = sorted(set(th) - set(PROJECT_CONFIG_KEYS))
+    if bad:
+        sys.exit(f'{path}：不认识的阈值 {"、".join(bad)}，可用：{"、".join(PROJECT_CONFIG_KEYS)}')
+    for k, v in th.items():
+        limit, loose = PROJECT_CONFIG_LOOSER[k]
+        if not isinstance(v, (int, float)) or isinstance(v, bool) or not math.isfinite(v):
+            sys.exit(f'{path}：{k} 是 {v}，要写成有限的数字')
+        if (v > limit if loose == '>' else v < limit):
+            sys.exit(f'{path}：{k} 是 {v}，通用下限是{"不超过" if loose == ">" else "不低于"} {limit:g}：项目配置只能收紧，放宽只能在命令行用参数临时调')
+    actions = {act.dest: act for act in ap._actions}
+    for k, v in th.items():
+        dest = k.replace('-', '_')
+        if dest not in actions:
+            dest = PROJECT_CONFIG_DEST_ALIASES.get(k, dest)
+        if dest in actions:  # 这个脚本没有的阈值（check_page.py 没有 --edge-tol）跳过
+            ap.set_defaults(**{dest: actions[dest].type(v)})
+    return path
 FLUID_SIZES = [(390, 844), (320, 568)]  # 流式页面自动加查的窄视口
 FONT_HOSTS = ('fonts.googleapis.com', 'fonts.gstatic.com', 'use.typekit.net', 'p.typekit.net', 'fonts.bunny.net', 'fast.fonts.net',
               'cloud.typography.com', 'use.fontawesome.com', 'fonts.cdnfonts.com', 'fonts.loli.net', 'fonts.font.im')
@@ -610,6 +677,8 @@ METRICS_JS = r"""
     }
     for (const el of root.querySelectorAll('img, picture, video, [data-video], svg, [role="img"], a[href], button, input, select, textarea, [role="button"]')) if (vis(el)) add(solid, el.getBoundingClientRect());
     for (const el of root.querySelectorAll('*')) { const bi = getComputedStyle(el).backgroundImage; if (bi && /url\(/.test(bi) && vis(el)) add(solid, el.getBoundingClientRect()); }
+    // 加载态的骨架不是空白：aria-busy="true" 的容器整块算（它底下的灰块不论怎么画都算），[data-skeleton] 和类名带 skeleton 的占位块各算一块
+    for (const el of root.querySelectorAll('[aria-busy="true"], [data-skeleton], [class*="skeleton" i]')) if (vis(el)) add(solid, el.getBoundingClientRect());
     for (const el of root.querySelectorAll('canvas, [data-motion]')) if (vis(el)) add(motion, el.getBoundingClientRect());
     const gap = ivs => { let best = [0, top0, top0], cur = top0; for (const [a, b] of [...ivs].sort((x, y) => x[0] - y[0])) { if (a - cur > best[0]) best = [a - cur, cur, a]; cur = Math.max(cur, b); } if (bot0 - cur > best[0]) best = [bot0 - cur, cur, bot0]; return best.map(Math.round); };
     out.band = {vh: VH, all: gap(solid.concat(motion)), solid: gap(solid)};
@@ -916,6 +985,8 @@ def main():
     ap.add_argument('--tap-min', type=float, default=TAP_MIN, help=f'独立成行的可点元素的最小边长，px（默认 {TAP_MIN}）')
     ap.add_argument('--tap-floor', type=float, default=TAP_FLOOR, help=f'任何可点元素的最小边长，px（默认 {TAP_FLOOR}）')
     ap.add_argument('--max-font-sizes', type=int, default=MAX_FONT_SIZES, help=f'一块画板里字号种类的上限（默认 {MAX_FONT_SIZES}）')
+    add_project_config_args(ap)
+    cfg_path = apply_project_config(ap, sys.argv[1:])
     a = ap.parse_args()
     opts = {'band': a.empty_band, 'face_contrast': a.face_contrast}
     js_opts = json.dumps({'tapMin': a.tap_min, 'tapFloor': a.tap_floor, 'proseMin': PROSE_MIN_CHARS, 'faceArea': a.face_area, 'faceContrast': a.face_contrast})
@@ -1119,7 +1190,7 @@ def main():
     verdict = 'done' if total == 0 else 'needs_work'
     lines = [f'# 画板验证报告', '', f'**结论：{verdict}**（{total} 个问题，{len(files)} 块画板，主题：{a.themes}）', '',
              '只报能判对错的问题，每条给出位置和量出的数：会让用户看错、点不到、看不清的，以及带阈值的版面量度（首屏空白带、相邻色面、跨画板左边缘、字号种类）。构图和审美交给评审。', '',
-             f'阈值：相邻色面 ≥ {a.face_contrast:g}:1（通用的下限，项目定了更高的门槛用 --face-contrast 调高）；首屏空白带 ≤ 视口的 {a.empty_band:.0%}；左边缘容差 {a.edge_tol:g}px；字号 ≤ {a.max_font_sizes} 种；点按区域 {a.tap_min:g} / {a.tap_floor:g}px。', '',
+             f'阈值：相邻色面 ≥ {a.face_contrast:g}:1（' + ('通用的下限，项目定了更高的门槛用 --face-contrast 调高' if a.face_contrast == FACE_MIN_CONTRAST else f'项目的门槛，高于通用的下限 {FACE_MIN_CONTRAST:g}:1' if a.face_contrast > FACE_MIN_CONTRAST else f'命令行放宽到低于通用的下限 {FACE_MIN_CONTRAST:g}:1') + f'）；首屏空白带 ≤ 视口的 {a.empty_band:.0%}；左边缘容差 {a.edge_tol:g}px；字号 ≤ {a.max_font_sizes} 种；点按区域 {a.tap_min:g} / {a.tap_floor:g}px。' + (f'阈值取自项目配置 {os.path.relpath(cfg_path)}，命令行参数优先。' if cfg_path else ''), '',
              '按说明文档跳过触控、首屏、空白带、色面、字号种类、左边缘的画板：' + ('；'.join(f'{n}（{inf["doc_why"]}）' for n, *_, inf in report if inf.get('doc')) or '没有') + '。', '']
     for name, items, hints, notices, info in report:
         lines.append(f'## {name}' + ('（通过）' if not items else f'（{len(items)}）'))

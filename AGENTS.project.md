@@ -17,6 +17,11 @@
 | 做票、拆票、跑流水线、改协作机制 | [docs/delivery/README.md](docs/delivery/README.md)（开发团队和开发路线的入口：`team-setup.md`、`roadmap.md`）、[docs/standards/pipeline.md](docs/standards/pipeline.md)（关口、角色、循环、车道、复用 Veli 的方式）、[docs/standards/observer.md](docs/standards/observer.md)、[docs/delivery/loops/](docs/delivery/loops/)（定时任务的提示词）、[docs/delivery/lessons.md](docs/delivery/lessons.md)；子 Agent 定义在 `.claude/agents/` |
 | 技术选型、部署、结构变化 | [docs/architecture/overview.md](docs/architecture/overview.md)、[docs/architecture/adr/](docs/architecture/adr/)、[docs/deploy.md](docs/deploy.md)；先写 ADR 再动手 |
 
+## 生态手册
+<!-- velicoach-mono -->
+
+本仓库是 Velicoach 生态的主站，三站入口和看清一站的文章都在这里。跨产品的愿景、仓库地图、共享契约（账号、路由、设计 token、MCP 工具、反馈库）和多 Agent 交接协议在 [velicoach-mono](https://github.com/madlouse/velicoach-mono/blob/main/AGENTS.md)，会话里克隆在同级目录 velicoach-mono。改共享部分前先读那里的契约，改完通知相关频道；派给 Codex、Antigravity 的任务按那里的任务卡写，合并前由 Claude 做效果评审。主站内的事以本仓库为准，跨产品的事以 velicoach-mono 为准。
+
 ## 技能
 
 技能都在 `.grok/skills/`。`.claude/skills/` 里放了指向主站相关技能的链接，Claude Code 能自动发现；新加的技能要在那里也加一个链接。做对应的事情时先加载技能，再动手。

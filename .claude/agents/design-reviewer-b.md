@@ -1,7 +1,7 @@
 ---
 name: design-reviewer-b
-description: 独立设计评审人之二（Sonnet）。和 design-reviewer 做同一件事，换一个模型以免盲点重叠；互相看不到，只交问题清单。
-model: sonnet
+description: 独立设计评审人之二（默认 Opus；评画板时派活换成 Sonnet，pipeline.md §3「评审的模型」）。和 design-reviewer 做同一件事，换一个模型以免盲点重叠；互相看不到，只交问题清单。
+model: opus
 effort: medium
 ---
 

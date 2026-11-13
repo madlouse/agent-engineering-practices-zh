@@ -1,0 +1,54 @@
+# 画板验证（关口三 a 的只读验证，pipeline.md §2.1）：在 GitHub 的 Ubuntu 机器上装 Chromium 和中文字体，跑
+# bash docs/uiue/prototypes/v1.1/rebuild.sh --verify。云端会话里下载不了浏览器，所以放在这里跑。
+# 结论写进本次运行的摘要页；两份报告和完整输出作为构件保存 14 天。工作流文件只由主会话维护，票的 PR 不改 .github/workflows/。
+# 退出码：0 两遍都是 done；1 有一遍结论不是 done；2 验证器没跑完（docs/uiue/prototypes/v1.1/README.md「验证」）。
+name: design-verify
+
+on:
+  pull_request:
+    paths:
+      - "docs/uiue/system/**"
+      - "docs/uiue/prototypes/**"
+      - ".grok/skills/design-bar/scripts/**"
+      - ".github/workflows/design-verify.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: design-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 装验证器的依赖、Chromium 和中文字体
+        run: |
+          python -m pip install --quiet playwright==1.64.1 pillow==12.0.0
+          python -m playwright install --with-deps chromium
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk >/dev/null
+      - name: 重建并验证画板
+        run: bash docs/uiue/prototypes/v1.1/rebuild.sh --verify "$RUNNER_TEMP/verify"
+      - name: 写摘要
+        if: always()
+        run: |
+          for part in pages devices; do
+            f="$RUNNER_TEMP/verify/$part/verify-canvas.md"
+            echo "## $part" >> "$GITHUB_STEP_SUMMARY"
+            if [ -s "$f" ]; then head -c 60000 "$f" >> "$GITHUB_STEP_SUMMARY"; else echo "没有生成报告，看构件里的 verify.log。" >> "$GITHUB_STEP_SUMMARY"; fi
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: design-verify
+          path: |
+            ${{ runner.temp }}/verify/**/verify-canvas.md
+            ${{ runner.temp }}/verify/**/verify.log
+          retention-days: 14

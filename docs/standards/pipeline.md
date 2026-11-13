@@ -25,8 +25,8 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 
 0. **标杆卡**：`docs/uiue/bar-sheet.md`（2026-11-04 已写），标杆原则 P1–P5 由 `docs/standards/quality-terms.md` 的规则判定。它是体验类决定，由主会话定、记进 `docs/uiue/decisions.md`，产品负责人有意见再改。没有它，评审打不了分，停止条件也判不了。
 1. **只读验证**：`verify_canvas.py <画板目录> --out docs/uiue/reviews/<日期>-ui-v1 --themes light,dark,pseudo --face-contrast 1.8`，结论只有 `done` 或 `needs_work`，修到 `done`（`--face-contrast 1.8` 是本站的色面门槛，见 §7「画板」一行）。画板引用的共享样式表在 `/_blob/` 上，加 `--blob <id>=<本地文件>` 指过去（`design-bar` 2026-11-04 加的参数）。
-2. **两份独立评审**：`design-reviewer`（Opus）和 `design-reviewer-b`（Sonnet）各派一个新的，互相看不到。只给它们：三种版式 × 两种主题的截图、PRD（第 4 节功能表、步数预算、页面状态，当作 brief）、标杆卡 `docs/uiue/bar-sheet.md` 和规则原文 `docs/standards/quality-terms.md`、设计系统 README、`velicoach-layout` 技能、`design-bar` 的 `references/rubric.md` 和 `anti-patterns.md`，以及上一轮的问题清单。不给制作过程。规则里写明由内容评审查的（C1、C2、C6、T1、T6、T7 等），同时派一个 `content-reviewer` 审画板上的文字，结论并进同一份清单。
-3. **合并与修**：主会话把两份清单去重，按「影响 × 修复成本」排序，每轮修前 3 项，再派新的评审核对。停止条件见 `bar-sheet.md` §7：P1–P5 都 ≥ 4 分且底线全过才算通过；一轮没有提升或已经 3 轮还没通过，就在 #13 上报，不算通过。
+2. **两份独立评审**：`design-reviewer` 和 `design-reviewer-b` 各派一个新的（模型按 §3「评审的模型」：评画板时用 Opus 和 Sonnet），互相看不到。只给它们：三种版式 × 两种主题的截图、PRD（第 4 节功能表、步数预算、页面状态，当作 brief）、标杆卡 `docs/uiue/bar-sheet.md` 和规则原文 `docs/standards/quality-terms.md`、设计系统 README、`velicoach-layout` 技能、`design-bar` 的 `references/rubric.md` 和 `anti-patterns.md`，以及上一轮的问题清单。不给制作过程。规则里写明由内容评审查的（C1、C2、C6、T1、T6、T7 等），同时派一个 `content-reviewer` 审画板上的文字，结论并进同一份清单。
+3. **合并与修**：主会话把两份清单去重，按「影响 × 修复成本」排序，修一轮（P0、P1 全修，P2 修前 3 项），再派新的评审做一轮确认评审。确认评审之后不再开新一轮：通过就过；没过就把剩下的 P0、P1 在 #13 上报，不算通过；剩下的 P2、P3 写进实现的票，到真实页面上查（`bar-sheet.md` §7，需求第 100 条）。
 4. **需求覆盖**：PRD 每个 v1 功能都在画板上有状态，或在覆盖表里写明为什么没有界面。
 5. **出口**：报告放 `docs/uiue/reviews/<日期>-ui-v1/`。P1–P5 都 ≥ 4 分、底线全过、P0 和 P1 为 0 时，主会话判定 3a 通过，在 #13 写明结论和理由（体验类决定，产品负责人有意见再改；涉及需求的改动另外说清）；没到这条线就按 `bar-sheet.md` §7 上报，不算通过。被接受的修改写回设计系统和 `docs/uiue/decisions.md`。
 
@@ -36,7 +36,8 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 - 内容车道：已有总票 #3 和九个模块票 #4–#12。每张票先补齐验收，标 `ready-for-agent`。
 - 给一个机制（发信、定时任务、工作流这类）写规格和 ADR：先定不变量和最简的规则，定义只写一处，按分得清的东西（比如结果类型）来写；边界情况写成可测的验收，不在 ADR 里预先设计退路。评审指出边界问题时，先问能不能删掉这个机制，再考虑补规则；收尾的 PR 不换设计，发现设计要换就另开票（`docs/delivery/lessons.md` 2026-11-11 一条）。
 - 验收里的质量词和虚词按 `AGENTS.project.md` 第 9 条；票和规格用书面表达和标准术语，不搬原话（第 1 条）。
-- `spec-reviewer` 冷审一批票，结论「就绪：是 / 否」。两轮不过交产品负责人（2026-11-11 关口三 b 的第五、六、七轮连续不过，主会话已告诉产品负责人并在 #13 写明）。冷审通过后主会话判定关口三通过，在 #13 写明拆分和理由，循环开始跑（§8）；拆分里涉及需求取舍的地方（砍范围、改优先级）先向产品负责人说清。
+- 票按里程碑滚动对齐：开工前只对齐（或拆）当前里程碑的票，下一个里程碑的票到它开工时再对齐，不一次对齐全部（需求第 100 条）。
+- `spec-reviewer` 冷审一批票，结论「就绪：是 / 否」。和关口三 a 一样只修一轮、复审一轮：复审还是「否」就把剩下的 P0、P1 交产品负责人，P2 写进票里随实现处理（需求第 100 条）。冷审通过后主会话判定关口三通过，在 #13 写明拆分和理由，循环开始跑（§8）；拆分里涉及需求取舍的地方（砍范围、改优先级）先向产品负责人说清。
 
 ### 2.3 关口四：上线
 
@@ -81,17 +82,21 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 | 主会话 | 和产品负责人对话的会话 | Opus · high | 关口三 a 的合并与修改、规格和拆票、落实产品负责人的决定；把内容票提出的写回（PRD、技能、术语表、画板、`trace.md`）落到对应位置；写合并脚本 | 规格、票、`chore/` 分支的 PR | `spec-reviewer`；观察者 |
 | 站点票推进器 | 定时任务 ① | Sonnet · medium | 选票、派活、合并、交接 | 运行锁、领票评论、交接评论 | 观察者 |
 | 内容推进器 | 定时任务 ② | Sonnet · medium | 同上，只管内容车道 | 同上 | 观察者 |
-| `implementer` | 复用 | Sonnet · medium | 实现一张站点票 + 证据 | PR 和证据表 | `reviewer` |
+| `implementer` | 复用 | Sonnet · medium（同一张票第二轮返工换 Opus） | 实现一张站点票 + 证据 | PR 和证据表 | `reviewer` |
 | `reviewer` | 复用，加主站检查 | Opus · medium | 冷评审一个站点 PR | 一条结论评论（绑定头提交的结论标记） | 观察者抽查复审 |
 | `reviewer-b` | 新增，替 Veli 的 Codex 第二道评审 | Sonnet · high | b 类 PR 的第二份独立冷评审（§5.1） | 一条 `kind=general-b` 结论评论 | 观察者抽查 |
 | `content-writer` | 新增 | Sonnet · medium | 起草一张内容票：选材、成稿、中英两版 | PR 和出处表 | `content-reviewer` |
 | `content-reviewer` | 新增 | Opus · medium | 冷审一个内容 PR：事实、出处、授权、术语、双语 | 一条结论评论（绑定头提交的结论标记） | 观察者抽查 |
-| `design-reviewer` / `design-reviewer-b` | 新增，复用 Veli 两人走查和 `design-bar` 独立评审 | Opus · medium / Sonnet · medium | 关口三 a、里程碑关口和关口四的独立评审 | 各自一份问题清单 | 主会话合并；观察者 |
+| `design-reviewer` / `design-reviewer-b` | 新增，复用 Veli 两人走查和 `design-bar` 独立评审 | 评画板：Opus / Sonnet；评真实页面：Fable / Opus（见下面「评审的模型」） | 关口三 a、里程碑关口和关口四的独立评审 | 各自一份问题清单 | 主会话合并；观察者 |
 | `security-reviewer` | 复用 | Sonnet · high | 带 `risk:high` 的 PR 的独立安全评审：订阅和发信、表单、数据库和行级安全、密钥（PRD 第 8 节「安全」） | 一条 `kind=security` 结论评论 | 观察者全查 |
-| `spec-reviewer` | 复用 | Opus · high | 冷审规格和一批票 | 一条「就绪：是 / 否」评论 | 观察者看下游返工 |
+| `spec-reviewer` | 复用 | Fable · high | 冷审规格和一批票 | 一条「就绪：是 / 否」评论 | 观察者看下游返工 |
 | `digest-writer` | 复用 | Haiku · low | 日报正文 | 状态 issue 正文 | 观察者核对和真实状态一致 |
 | `observer` | 复用 | Opus · high | 整条流水线和机制本身（`observer.md`） | 观察报告、`docs/quality/` | 产品负责人每周看一次 |
 | 合并脚本、检查脚本 | 复用后改写 | — | 确定性的门 | 退出码 | 观察者看有没有被绕过 |
+
+**评审的模型**（需求第 100 条）：评审的模型和被审物作者的模型不同，同一件东西的两份评审彼此也不同，免得盲点重叠。表里是默认搭配：主会话（Opus）写的规格和票由 Fable 冷审；画板由 Fable 做，评画板用 Opus 和 Sonnet；实现的页面由 Sonnet 做，评页面用 Fable 和 Opus（两份设计评审定义里写的默认模型就是这一组，评画板时派活用 Agent 的 `model` 参数换成 Opus 和 Sonnet）。作者不是表里的默认模型时，派评审照这条换，并在评审结论里写明评审用的模型。主会话写的 PR 要 `reviewer` 评时，派成 Fable。
+
+**整理文档的模型**：改写、合并、对齐文档这类要判断的整理用 Sonnet；Haiku 只做摘要和机械的事（日报、按清单改字）。
 
 **一共 11 份子 Agent 定义、4 个定时任务**（§4）。平时同一时刻 6 个 Agent 在跑：两条车道各一个主会话 + 一个做事的 + 一个评审的。最多约 11 个：站点车道一次能跑 6 小时，会和观察者（主会话 + `observer` + 它派的 `reviewer`）、日报（主会话 + `digest-writer`）重叠；`risk:high` 的 PR 同时派两个评审。返工第 2 轮的 `implementer` 和 `content-writer` 改用 Opus · medium（同 Veli）。
 

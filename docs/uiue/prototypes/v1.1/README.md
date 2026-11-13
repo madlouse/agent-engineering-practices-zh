@@ -43,7 +43,7 @@
    bash docs/uiue/prototypes/v1.1/rebuild.sh --verify <输出目录>
    ```
 
-   它在上面五步之后跑两遍 `.grok/skills/design-bar/scripts/verify_canvas.py`：页面画板 10 块（浅色、深色、伪语言，另加 390×844、320×568、820×1180，首页再加四种尺寸）和设备画板 8 块，都带本站的色面门槛 `--face-contrast 1.8`（`docs/standards/pipeline.md` §7「画板」）。报告在 `<输出目录>/pages/verify-canvas.md` 和 `<输出目录>/devices/verify-canvas.md`，换进 `docs/uiue/reviews/<日期>/`。只跑其中一遍：`bash docs/uiue/prototypes/v1.1/tools/verify_all.sh <输出目录>`，设备画板加 `--devices`。结论不是 `done` 时整条命令退出码为 1，验证器没跑完、没生成报告（例如没装浏览器）时为 2，只有两遍都是 `done` 才打印「完成」；完整输出在各自的 `verify.log`。
+   它在上面五步之后跑两遍 `.grok/skills/design-bar/scripts/verify_canvas.py`：页面画板 10 块（浅色、深色、伪语言，另加 390×844、320×568、820×1180，首页再加四种尺寸）和设备画板 8 块，都带本站的色面门槛 `--face-contrast 1.8`（`docs/standards/pipeline.md` §7「画板」）。报告在 `<输出目录>/pages/verify-canvas.md` 和 `<输出目录>/devices/verify-canvas.md`，换进 `docs/uiue/reviews/<日期>/`。只跑其中一遍：`bash docs/uiue/prototypes/v1.1/tools/verify_all.sh <输出目录>`，设备画板加 `--devices`。结论不是 `done` 时整条命令退出码为 1，验证器没跑完、没生成报告（例如没装浏览器）时为 2，只有两遍都是 `done` 才打印「完成」；完整输出在各自的 `verify.log`。云端会话下载不了浏览器时，用 GitHub Actions 的 `design-verify` 工作流跑同一条命令（改了 `docs/uiue/system/`、`docs/uiue/prototypes/` 或验证器的 PR 会自动跑，也能手动触发）：结论在那次运行的摘要页，报告和 `verify.log` 在构件里。
 4. 页面画板里组件的内容或结构改了，控件样张要重新取一次：`python3 docs/uiue/prototypes/v1.1/src/shell/tools/extract_samples.py`（要起浏览器，`rebuild.sh` 不跑这一步），再跑 `rebuild.sh`。
 5. 画板变长或变短：改 `gen_device_boards.py` 表里的高度和 `boards/canvas.json` 里那块画板的 `h`，两处一致。
 

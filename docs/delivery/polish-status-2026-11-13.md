@@ -60,7 +60,7 @@
 ## 5. PRD §8 非功能、§9 里程碑、§11 风险与依赖
 
 - **已定**：性能、可靠性、多端、无障碍、安全、隐私、成本的要求和验收（§8 表）；版本范围（§9）；外部依赖表（§11）。
-- **还缺**：Vercel Pro 升级（#65，挡 #58 自定事件）；主站上线不早于 Veli B1（thin-muscle-coach#72），Veli 的 /body、/auth 票（thin-muscle-coach#185、#101）进度未核对。
+- **还缺**：Vercel Pro 升级（#65，挡 #58 自定事件）；主站上线不早于 Veli B1（thin-muscle-coach#72），Veli 的 /body、/auth 票（thin-muscle-coach#185、thin-muscle-coach#101）进度未核对。
 - **打转**：低。
 - **阻塞**：M4。
 

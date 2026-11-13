@@ -29,7 +29,7 @@ const MIND_COPY = {
     lead: 'For anyone who wants to keep up with AI: how it got here, step by step, and how people and agents can work together.',
     linesLabel: 'Content lines', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration',
     learn: 'Learning path →', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
-    rulerNote: (a, b) => `One block per era, drawn to scale. Each dot is a milestone. The first two eras took ${a} years; the last three have taken ${b} so far.`,
+    rulerNote: (a, b) => `One block per era, drawn to scale. Each dot is a milestone. The first two eras took ${a} years; the last three have taken ${b}\u00a0so\u00a0far.`,
     rulerAlt: (parts) => `Time ruler from 1950 to ${MIND_NOW_YEAR}, five eras drawn to scale: ${parts}.`, rulerPart: (n, y) => `${n}, ${y} years`, rulerSep: '; ',
     histIntro: 'Only the turns: how people worked before, and why they switched after. Open a row to see why it mattered, then read the original paper or post. ',
     checked: 'Found a mistake? ', report: 'Tell us', checkedEnd: '.',
@@ -243,6 +243,6 @@ function mindVals(self, v, o) {
     paradigms, layers, nest: Object.assign({}, paradigms.map((p) => ({ name: p.name, when: p.when }))),
     listLoaded: loaded, listLoading: load === '加载中' || load === '加载超过 10 秒', listSlow: load === '加载超过 10 秒', listQuick: load === '加载中', listFailed: load === '加载失败',
     isOffline: offline, bandClass: offline ? 'is-offline' : '',
-    skeletons: [['62%', '88%'], ['48%', '76%'], ['70%', '84%'], ['40%', '68%'], ['56%', '90%']].map(([w1, w2]) => ({ w1, w2 })),
+    skeletons: [[62, 88], [48, 76], [70, 84], [40, 68], [56, 90]].map(([w1, w2]) => ({ c1: 'vc-skeleton vc-skeleton-w-' + w1, c2: 'vc-skeleton vc-skeleton-w-' + w2 })),
   };
 }

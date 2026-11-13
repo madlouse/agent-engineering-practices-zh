@@ -616,12 +616,12 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 研究卡（首页「证据」一幕，三项：防摔、长寿、情绪）：版式跟着证据可信度走。可信度「高」的做通栏大卡，带大数字；「中」「低」「很低」的降成行，数字只用标题一档。
    没有外行读得懂的数（研究只给出效应量）时不放数字，效应量写进方法一行。遮住文字只看形状，分得出哪条证据最硬。
    可信度刻度：p.vc-grade[data-grade=1–4] > span.vc-grade-dots[aria-hidden] > i ×4 + span（文字「证据可信度：很低」）。四格 8px 方点，实心的个数是 GRADE 的档位（高 4、中 3、低 2、很低 1），不只靠颜色：旁边总有文字。
-   整组：div.vc-study-set > article.vc-card.vc-study（可信度高的）+ ol.vc-rows.vc-study-rows（其余）。
+   整组：div.vc-study-set > article.vc-card.vc-study（可信度高或中、有外行读得懂的数；data-credibility 写死成 high 或 moderate，两组各一个 sc-for）+ ol.vc-rows.vc-study-rows（其余）。
    通栏大卡：article.vc-card.vc-study > div.vc-study-key（h3.vc-study-topic + p.vc-type-metric + p.vc-grade）+ div.vc-study-body（p.vc-type-lead.vc-study-claim + p.vc-study-src + dl.vc-study-meta > div ×3 > dt + dd）。
      桌面、平板数字在左、结论和出处在右；手机上下排。
-   行：ol.vc-rows.vc-study-rows > li.vc-row.vc-study-row > div.vc-study-key（h3.vc-study-topic + p.vc-grade）+ div.vc-study-body（[p.vc-type-title-3.vc-study-figure 有数才放] + p.vc-study-claim + p.vc-study-method + p.vc-study-src）。
+   行：ol.vc-rows.vc-study-rows > li.vc-row.vc-study-row > div.vc-study-key（h3.vc-study-topic + p.vc-grade）+ div.vc-study-body（p.vc-study-claim + p.vc-study-method + p.vc-study-src），行里不放大数字。
      行不是链接（去处只有「读原文」一个，44px 点按区域）；桌面两栏，和上面论点三行的栏宽相同；平板、手机上下排。
-   出处一行 p.vc-study-src：年份 · 期刊或机构 + a.vc-quick「读原文」。方法一行 p.vc-study-method：研究类型 · 样本量 · [效应量] · 产品负责人看过的日期（<time datetime>）。
+   出处一行 p.vc-study-src：年份 · 期刊或机构 + a.vc-quick「读原文」。方法一行 p.vc-study-method：[数] · 研究类型 · 样本量 · [效应量] · 产品负责人看过的日期（<time datetime>）。
    下面一行 p.vc-study-foot：「这些是人群研究的平均结果，不是对每个人的保证。有伤病或疼痛，先问医生。」 */
 .vc-study-set { display: grid; gap: var(--space-5); }
 .vc-study { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-5) var(--space-7); align-items: start; padding: var(--space-6); }
@@ -629,7 +629,6 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-study-key > *, .vc-study-body > * { margin: 0; }
 .vc-study-topic { font-size: var(--type-kicker); line-height: var(--leading-kicker); font-weight: var(--weight-kicker); letter-spacing: var(--tracking-kicker); color: var(--vc-moss); }
 .vc-study .vc-type-metric { color: var(--vc-text); }
-.vc-study-figure { font-variant-numeric: tabular-nums; }
 .vc-study-claim { font-size: var(--type-body); line-height: var(--leading-body); text-wrap: pretty; }
 .vc-study-claim:lang(en) { line-height: var(--leading-latin); }
 .vc-study .vc-study-claim { font-size: var(--type-lead); line-height: var(--leading-lead); }

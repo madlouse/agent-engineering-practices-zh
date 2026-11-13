@@ -158,8 +158,26 @@ body{margin:0}
       <p class="vc-type-body">{{c.proofLead}}</p>
     </div>
     <div class="vc-study-set">
-    <sc-for list="{{studiesLead}}" as="st" hint-placeholder-count="1">
+    <sc-for list="{{studiesHigh}}" as="st" hint-placeholder-count="1">
       <article class="vc-card vc-study" data-research-card data-credibility="high">
+        <div class="vc-study-key">
+          <h3 class="vc-study-topic">{{st.topic}}</h3>
+          <p class="vc-type-metric" data-research-metric>{{st.metric}}</p>
+          <p class="vc-grade" data-grade="{{st.grade}}"><span class="vc-grade-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>{{st.gradeText}}</span></p>
+        </div>
+        <div class="vc-study-body">
+          <p class="vc-study-claim">{{st.claim}}</p>
+          <p class="vc-study-src"><span><time datetime="{{st.year}}">{{st.year}}</time> · {{st.journal}}</span><a class="vc-quick" href="{{st.url}}" aria-label="{{st.linkLabel}}">{{c.readSource}}</a></p>
+          <dl class="vc-study-meta">
+            <div><dt>{{c.metaType}}</dt><dd>{{st.type}}</dd></div>
+            <div><dt>{{c.metaSample}}</dt><dd>{{st.sample}}</dd></div>
+            <div><dt>{{c.metaSeen}}</dt><dd><time datetime="{{st.seen}}">{{st.seenText}}</time></dd></div>
+          </dl>
+        </div>
+      </article>
+    </sc-for>
+    <sc-for list="{{studiesModerate}}" as="st" hint-placeholder-count="0">
+      <article class="vc-card vc-study" data-research-card data-credibility="moderate">
         <div class="vc-study-key">
           <h3 class="vc-study-topic">{{st.topic}}</h3>
           <p class="vc-type-metric" data-research-metric>{{st.metric}}</p>
@@ -184,7 +202,6 @@ body{margin:0}
             <p class="vc-grade" data-grade="{{st.grade}}"><span class="vc-grade-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>{{st.gradeText}}</span></p>
           </div>
           <div class="vc-study-body">
-            <sc-if value="{{st.hasMetric}}" hint-placeholder-val="{{ true }}"><p class="vc-type-title-3 vc-study-figure">{{st.metric}}</p></sc-if>
             <p class="vc-study-claim">{{st.claim}}</p>
             <p class="vc-study-method">{{st.method}} · {{c.metaSeen}} <time datetime="{{st.seen}}">{{st.seenText}}</time></p>
             <p class="vc-study-src"><span><time datetime="{{st.year}}">{{st.year}}</time> · {{st.journal}}</span><a class="vc-quick" href="{{st.url}}" aria-label="{{st.linkLabel}}">{{c.readSource}}</a></p>
@@ -364,7 +381,7 @@ const COPY = {
        版式跟着证据可信度走：grade 是 GRADE 的档位（高 4、中 3、低 2、很低 1），4 的做通栏大卡，其余降成行。metric 只放外行读得懂的数；研究只给出效应量时 metric 留空，效应量写在 effect 里，进方法一行 */
     studies: [
       { topic: '防摔 · 运动', metric: '少 23%', claim: '少 23%：这是 60 岁以上、住在社区的人参加运动项目（以平衡和功能训练为主）以后，跌倒次数的降幅。只做抗阻练习的证据不足。', year: '2019', journal: 'Cochrane 系统综述', url: 'https://doi.org/10.1002/14651858.CD012424.pub2', type: '随机对照试验的系统综述', sample: '59 项试验、12,981 人', certainty: '高', grade: 4, seen: '2026-11-10' },
-      { topic: '长寿 · 力量训练', metric: '低 15%', claim: '低 15%：做肌肉力量训练，与全因死亡风险低这么多有关；每周 30–60 分钟时关联最强。观察性研究，说明不了因果。', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: '队列研究的系统综述（观察性）', sample: '7 项研究、263,058 人', certainty: '很低', grade: 1, seen: '2026-11-10' },
+      { topic: '长寿 · 力量训练', metric: '低 15%', claim: '做肌肉力量训练，可能与全因死亡风险低 15% 有关；每周 30–60 分钟时关联最强。证据可信度很低，观察性研究说明不了因果。', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: '队列研究的系统综述（观察性）', sample: '7 项研究、263,058 人', certainty: '很低', grade: 1, seen: '2026-11-10' },
       { topic: '情绪 · 力量训练', metric: '', effect: 'g = −0.49', claim: '达到重度抑郁诊断标准的人做力量训练，抑郁症状可能比对照组轻，效应量中等。证据可信度很低，结论还可能变。', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: '随机对照试验的网状荟萃分析', sample: '218 项试验、14,170 人', certainty: '很低', grade: 1, seen: '2026-11-10' },
     ],
     weekTitle: '最新', latest: '最新文章',
@@ -397,7 +414,7 @@ const COPY = {
     proofFoot: 'These are averages across groups of people, not a promise for any one person. If you’re injured or in pain, ask a doctor first.',
     studies: [
       { topic: 'Falls · exercise', metric: '23% fewer', claim: '23% fewer falls for people over 60 living at home who joined exercise programs, mostly balance and functional training. For resistance training alone, the evidence is not enough.', year: '2019', journal: 'Cochrane review', url: 'https://doi.org/10.1002/14651858.CD012424.pub2', type: 'Systematic review of randomized trials', sample: '59 trials, 12,981 people', certainty: 'High', grade: 4, seen: '2026-11-10' },
-      { topic: 'Lifespan · strength training', metric: '15% lower', claim: '15% lower risk of death from any cause is linked to muscle-strengthening activity, most strongly at 30–60 minutes a week. Observational, so it cannot show cause.', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: 'Systematic review of cohort studies (observational)', sample: '7 studies, 263,058 people', certainty: 'Very low', grade: 1, seen: '2026-11-10' },
+      { topic: 'Lifespan · strength training', metric: '15% lower', claim: 'Muscle-strengthening activity may be linked to a 15% lower risk of death from any cause, strongest at 30–60 minutes a week. Very low certainty; observational, so not proof of cause.', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: 'Systematic review of cohort studies (observational)', sample: '7 studies, 263,058 people', certainty: 'Very low', grade: 1, seen: '2026-11-10' },
       { topic: 'Mood · strength training', metric: '', effect: 'g = −0.49', claim: 'In people who meet the criteria for major depression, strength training may ease symptoms compared with controls, a moderate effect. Certainty is very low.', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: 'Network meta-analysis of randomized trials', sample: '218 trials, 14,170 people', certainty: 'Very low', grade: 1, seen: '2026-11-10' },
     ],
     weekTitle: 'Latest', latest: 'Latest read',
@@ -597,9 +614,9 @@ class Component extends DCLogic {
       else this.setState({ lean: who });
     };
     const studies = c.studies.map((x) => ({
-      ...x, hasMetric: !!x.metric, credibility: ['very-low', 'low', 'moderate', 'high'][x.grade - 1],
+      ...x, lead: !!x.metric && x.grade >= 3, credibility: ['very-low', 'low', 'moderate', 'high'][x.grade - 1],
       gradeText: c.metaCertainty + (v.en ? ': ' + x.certainty.toLowerCase() : '：' + x.certainty),
-      method: [x.type, x.sample, x.effect && c.metaEffect + ' ' + x.effect].filter(Boolean).join(' · '),
+      method: [x.metric, x.type, x.sample, x.effect && c.metaEffect + ' ' + x.effect].filter(Boolean).join(' · '),
       seenText: v.en ? new Date(x.seen + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : x.seen,
       linkLabel: c.readSource + (v.en ? ': ' : '：') + x.journal + (v.en ? ', ' : '，') + x.year,
     }));
@@ -613,7 +630,7 @@ class Component extends DCLogic {
       closeLater: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '收起' }), 300); },
       onKey: (e) => { if (e.key === 'Escape') { clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' }); } },
       claims: c.claims.map((x) => ({ ...x, chip: 'vc-claim-chip vc-claim-chip-' + x.id })),
-      studiesLead: studies.filter((x) => x.grade === 4), studiesRows: studies.filter((x) => x.grade < 4),
+      studiesHigh: studies.filter((x) => x.lead && x.grade === 4), studiesModerate: studies.filter((x) => x.lead && x.grade === 3), studiesRows: studies.filter((x) => !x.lead),
       leafPath: VC_FIG.leafPath, netEdges: VC_FIG.netEdges, netNodes: VC_FIG.netNodes,
       glRef: this.glRef || (this.glRef = (el) => { this.cv = el; if (el) { this.paperEl = el.closest('.vc-hero').querySelector('.vc-hero-paper'); this.startGL(); } }),
       stageRef: this.stageRef || (this.stageRef = (el) => { this.stageEl = el; if (el) this.startGL(); }),

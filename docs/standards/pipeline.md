@@ -141,7 +141,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 
 **2026-11-13 起只由主频道合并（产品负责人定，velicoach-mono 工程规范「分支和合并」）：** 下表的合并条件和合并脚本里的检查是合并前要过的关，动手合并的只有主频道；推进器、观察者、主会话和子 Agent 做到评审通过、预览 READY 为止，不调合并脚本、不点合并，接着做不依赖它的事。表里写「产品负责人确认」「产品负责人合并」「`owner:merge`」的，都由主频道代他判断；只有撤不回、花钱、对外发声（含站上内容的发布）三类由主频道去问他。要他定的取舍在 PR 或 issue 评论起一行「待主频道定：」。
 
-产品负责人：「让用户确认其实要有一套对应的规则，不是什么都要用户去合并。」照 Veli `agent-gitflow.md` §5.3、§5.4 改（§9）。合并进集成分支一律用合并脚本；脚本判定 base、类别、要几份评审（`merge-gates.mjs`、`review-markers.mjs`，测试在两份 `.test.mjs`），合并前在「PR + 最新目标分支」上重跑 `npm test`、`check:terms`、`check:vague`（命令取自目标分支）。任何 PR 都不能关 #13（`PROTECTED_ISSUES`）。
+产品负责人：「让用户确认其实要有一套对应的规则，不是什么都要用户去合并。」照 Veli `agent-gitflow.md` §5.3、§5.4 改（§9）。合并进集成分支一律用合并脚本；脚本判定 base、类别、要几份评审（`merge-gates.mjs`、`review-markers.mjs`，测试在两份 `.test.mjs`），合并前在「PR + 最新目标分支」上重跑 `npm test`、`check:terms`、`check:vague`、`check:voice`、`check:research-metric`（命令取自目标分支；`check:research-metric` 是 2026-11-13 主频道定的，单独一个提交，可单独回退）。任何 PR 都不能关 #13（`PROTECTED_ISSUES`）。
 
 | PR | 合并条件 | 谁合并 |
 |---|---|---|

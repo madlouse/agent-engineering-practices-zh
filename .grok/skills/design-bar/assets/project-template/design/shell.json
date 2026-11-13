@@ -1,0 +1,8 @@
+{
+  "theme": {
+    "storageKey": null,
+    "values": ["auto", "light", "dark"],
+    "fixedAllow": []
+  },
+  "family": null
+}

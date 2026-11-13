@@ -12,6 +12,8 @@ Claude Design 的配套技能。设计在 Claude Design 里做；本技能补上
 
 - **说不清需求时，直接出图会用品类默认值填空。** design-bar 先读完项目资料，用「我的理解」表和对比题让用户只做纠正和选择；受众、核心任务、气质确认之前不出完整设计。
 - **画布不会检查代码。** 写代码的 agent 读不到私有画布，代码会悄悄长成另一套设计语言。design-bar 把设计系统的 token 生成为代码里的 tokens.css，把规则写进 `AGENTS.md`，并用脚本检查实现。
+- **「好看好用」没有可判定的口径。** 苹果设计大奖的六个维度写成每维的「中、强」条件，加上一道定稿门槛（动效原型、操作视频、真机实测、独立评审打分），`gate.py` 查记分卡齐不齐、够不够。
+- **几个产品共用一个入口时外壳各写各的。** 主题跟随系统、偏好记忆、产品家族的导航写成约定（`shell.json`），`check_shell.py` 查源码有没有照做。
 - **评审意见会被遗忘。** 同一类意见出现两次以上，就写回设计系统或检查阈值。
 - **需求一直在加，设计跟不上。** `coverage.py` 列出还没画的功能，`stale_terms.py` 按词汇表找出还在用旧说法的地方，`verify_canvas.py` 把每块画板的每个状态在浅色、深色下验一遍，只给 done 或 needs_work。
 
@@ -60,6 +62,8 @@ docs/design/            （或 design/）
 ├── brief.md            已确认的产品与用户信息
 ├── bar-sheet.md        标杆卡
 ├── decisions.md        设计决策日志
+├── shell.json          外壳约定：主题、偏好存储键、产品家族导航
+├── scorecard.md        体验与美学记分卡（定稿前由独立评审填）
 ├── features/           每个功能一份设计简报
 └── reviews/            每轮评审的报告与截图
 ```
@@ -80,9 +84,18 @@ python scripts/check_agent_ready.py <站点地址或构建目录> --out docs/des
 
 # 源码里写死的颜色和数值、Tailwind 任意值、静态内联样式、!important、未定义的 token
 python scripts/lint_tokens.py src --tokens src/app/tokens.css
+
+# 外壳：主题跟随系统、偏好记忆的存储键、产品家族的导航（约定写在 shell.json）
+python scripts/check_shell.py src --config docs/design/shell.json --out docs/design/reviews/2026-11-13-外壳
+
+# 定稿门槛：记分卡的六维评分、参照、交付物、步数实测
+python scripts/gate.py docs/design/scorecard.md --out docs/design/reviews/2026-11-13-定稿
+
+# 技能自检；--static 只跑不需要浏览器的部分
+python scripts/selftest.py --static
 ```
 
-`lint_tokens.py` 和 `sync_tokens.py --check` 发现问题时退出码为 1，可以接入提交前检查。
+`lint_tokens.py`、`sync_tokens.py --check`、`check_shell.py`、`gate.py` 发现问题时退出码为 1，可以接入提交前检查或 CI。
 
 ## 文件
 
@@ -100,8 +113,11 @@ python scripts/lint_tokens.py src --tokens src/app/tokens.css
 | `references/audit.md` | 已有设计的全面检查：两位侧重不同的独立评审、裁决简报、重做还是修补 |
 | `references/agent-ready.md` | 让 AI 访问时拿得到高质量数据：做什么、怎么查（`scripts/check_agent_ready.py`） |
 | `references/liquid-glass.md` | 液态玻璃的做法、数值和退路 |
+| `references/award-bar.md` | 苹果设计大奖六维的「中、强」条件、体验与美学定稿门槛、定稿纪律 |
+| `references/family.md` | 主题跟随系统、产品家族的外壳约定、`shell.json` 格式 |
+| `references/preflight.md` | 每块画板交出前的生成前清单 |
 | `scripts/` | 接入、同步、检查脚本 |
-| `assets/` | 项目设计目录模板与 AGENTS.md 规则块 |
+| `assets/` | 项目设计目录模板（含 `scorecard.md`、`shell.json`）、AGENTS.md 规则块、通用词汇表 `canon-glossary.md` |
 
 ## 实测记录
 

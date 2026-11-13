@@ -6,6 +6,7 @@
 只有图标的按钮、触控目标太小、对外页面留着「示例」这类占位；另有一个状态放 unslop 的模板味信号（emoji、感叹号、全大写加宽字距、特粗字重）。
 
 用法：python selftest.py        通过时退出码 0，有漏报或误报时退出码 1。
+      python selftest.py --static  只跑不用浏览器的检查（gate.py、check_shell.py、stale_terms.py），没装 Playwright 时用。
 """
 import json
 import os
@@ -30,9 +31,134 @@ EXPECT = {
 }
 
 
+def project_config_checks():
+    """项目配置（design-bar.json）：从路径往上找、design/ 下也认、命令行参数优先、--no-project-config 关掉、写错了报错、不越过仓库根。"""
+    import argparse
+    sys.path.insert(0, HERE)
+    import verify_canvas as vc
+    failures = []
+    root = tempfile.mkdtemp(prefix='cfg-selftest-')
+    cwd = os.getcwd()
+
+    def parser():
+        ap = argparse.ArgumentParser()
+        ap.add_argument('--face-contrast', type=float, default=vc.FACE_MIN_CONTRAST)
+        ap.add_argument('--tap-min', type=float, default=vc.TAP_MIN)
+        vc.add_project_config_args(ap)
+        return ap
+
+    def write(path, text):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        open(path, 'w', encoding='utf-8').write(text)
+
+    try:
+        os.chdir(root)  # 当前目录也在查找范围里，换到临时目录免得读到别处的配置
+        write(os.path.join(root, 'a', '.git', 'HEAD'), '')
+        write(os.path.join(root, 'a', 'docs', 'design-bar.json'), '{"thresholds": {"face-contrast": 1.8, "edge-tol": 3}}')
+        write(os.path.join(root, 'a', 'docs', 'boards', 'x.dc.html'), '')
+        board = os.path.join(root, 'a', 'docs', 'boards')
+        ap = parser()
+        found = vc.apply_project_config(ap, [board, '--out', 'o'])
+        if not found or ap.parse_args([]).face_contrast != 1.8:
+            failures.append('项目配置：从画板目录往上找到 design-bar.json，face-contrast 应该是 1.8（不带命令行参数）')
+        if ap.parse_args([]).tap_min != vc.TAP_MIN:
+            failures.append('项目配置：没写的阈值保持默认')
+        if ap.parse_args(['--face-contrast', '1.5']).face_contrast != 1.5:
+            failures.append('项目配置：命令行参数优先于配置')
+        ap = parser()
+        if vc.apply_project_config(ap, [board, '--no-project-config']) is not None or ap.parse_args(['--no-project-config']).face_contrast != vc.FACE_MIN_CONTRAST:
+            failures.append('项目配置：--no-project-config 不读配置')
+        write(os.path.join(root, 'b', '.git', 'HEAD'), '')
+        write(os.path.join(root, 'b', 'design', 'design-bar.json'), '{"thresholds": {"face-contrast": 2}}')
+        write(os.path.join(root, 'b', 'src', 'page.html'), '')
+        ap = parser()
+        if not vc.apply_project_config(ap, [os.path.join(root, 'b', 'src', 'page.html')]) or ap.parse_args([]).face_contrast != 2:
+            failures.append('项目配置：design/design-bar.json 也要认，传文件路径也能往上找')
+        write(os.path.join(root, 'design-bar.json'), '{"thresholds": {"face-contrast": 9}}')
+        write(os.path.join(root, 'c', '.git', 'HEAD'), '')
+        write(os.path.join(root, 'c', 'boards', 'x.dc.html'), '')
+        os.chdir(os.path.join(root, 'c'))
+        ap = parser()
+        if vc.apply_project_config(ap, [os.path.join(root, 'c', 'boards')]) is not None:
+            failures.append('项目配置：查找到仓库根（有 .git 的目录）为止，不读仓库外的配置')
+        write(os.path.join(root, 'c', 'design-bar.json'), '{"thresholds": {"face-contrats": 1.8}}')
+        try:
+            vc.apply_project_config(parser(), [os.path.join(root, 'c', 'boards')])
+            failures.append('项目配置：写错阈值名要报错，不能悄悄忽略')
+        except SystemExit:
+            pass
+    finally:
+        os.chdir(cwd)
+        shutil.rmtree(root, ignore_errors=True)
+    return failures
+
+
+def static_checks():
+    """不用浏览器的检查：gate.py、check_shell.py、stale_terms.py 的通用词汇表。"""
+    failures = []
+
+    def run(script, *args):
+        r = subprocess.run([sys.executable, os.path.join(HERE, script), *args], capture_output=True, text=True)
+        return r.returncode, r.stdout
+
+    gate = os.path.join(FIXTURES, 'gate')
+    code, _ = run('gate.py', os.path.join(gate, 'good.md'))
+    if code != 0:
+        failures.append(f'gate.py：填全的记分卡应该过、退出码 0，实际 {code}')
+    code, txt = run('gate.py', os.path.join(gate, 'bad.md'))
+    for want in ('自评不算', 'Delight and Fun：弱', 'Social Impact：档位要写', 'Visuals and Graphics：中，但没写证据', '参照只有 1 个',
+                 '入口第一屏：没填位置', '找不到 evidence/missing.mp4', '今天开练：3 步', '建档：测法是「画板估算」', '看回顾：点按次数要写一个整数'):
+        if want not in txt:
+            failures.append(f'gate.py：做坏的记分卡应该报「{want}」')
+    if code != 1:
+        failures.append(f'gate.py：做坏的记分卡应该退出码 1，实际 {code}')
+    code, _ = run('gate.py', os.path.join(HERE, '..', 'assets', 'project-template', 'design', 'scorecard.md'))
+    if code != 1:
+        failures.append('gate.py：没填的模板不该过')
+
+    shell = os.path.join(FIXTURES, 'shell')
+    cfg = os.path.join(shell, 'shell.json')
+    code, txt = run('check_shell.py', os.path.join(shell, 'good'), '--config', cfg)
+    if code != 0:
+        failures.append(f'check_shell.py：做对的外壳应该过（训练屏写死深色在 fixedAllow 里），实际 {code}：{txt[:300]}')
+    code, txt = run('check_shell.py', os.path.join(shell, 'bad'), '--config', cfg)
+    for want in ('| 主题跟随系统 |', '| 根元素写死主题 | ', '存储键 fam-theme', '存储键 fam-lang', '没有链到 / 的链接', '/b 在源码里没出现', '没有 aria-current'):
+        if want not in txt.split('## 过')[0]:
+            failures.append(f'check_shell.py：做坏的外壳应该报「{want.strip("| ")}」')
+    if '/a 在源码里没出现' in txt or code != 1:
+        failures.append(f'check_shell.py：做坏的外壳退出码应该是 1，/a 出现了不该报，实际 {code}')
+    code, _ = run('check_shell.py', os.path.join(shell, 'bad'))
+    if code != 1:
+        failures.append('check_shell.py：不给配置时也要查主题跟随系统和根元素写死主题')
+
+    failures += project_config_checks()
+
+    d = tempfile.mkdtemp(prefix='stale-selftest-')
+    phrase = '不随' + '系统切换'  # 拆开写，免得技能自己的文件命中通用词汇表
+    open(os.path.join(d, 'g.md'), 'w', encoding='utf-8').write('| 废弃说法 | 现在的说法 | 依据 |\n|---|---|---|\n| 旧名 | 新名 | x |\n')
+    open(os.path.join(d, 'doc.md'), 'w', encoding='utf-8').write(f'浅色界面在根元素加 data-theme，{phrase}。\n')
+    code, txt = run('stale_terms.py', '--glossary', os.path.join(d, 'g.md'), os.path.join(d, 'doc.md'))
+    if code != 1 or phrase not in txt:
+        failures.append('stale_terms.py：通用词汇表里的「主题不跟系统」应该命中')
+    code, _ = run('stale_terms.py', '--glossary', os.path.join(d, 'g.md'), '--no-canon', os.path.join(d, 'doc.md'))
+    if code != 0:
+        failures.append('stale_terms.py：--no-canon 时不该再读通用词汇表')
+    code, txt = run('stale_terms.py', '--glossary', os.path.join(d, 'g.md'), os.path.join(HERE, '..'))
+    if code != 0:
+        failures.append('stale_terms.py：技能自己的文件不该命中通用词汇表：' + txt[-300:])
+    return failures
+
+
 def main():
+    if '--static' in sys.argv:
+        failures = static_checks()
+        if failures:
+            print('selftest --static 不通过：\n  ' + '\n  '.join(failures))
+            sys.exit(1)
+        print('selftest --static 通过：gate.py（填全的、做坏的、没填的模板）、check_shell.py（做对的、做坏的、不给配置）、stale_terms.py 的通用词汇表、项目配置（design-bar.json）都对')
+        return
     out = tempfile.mkdtemp(prefix='verify-selftest-')
-    subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), FIXTURES, '--out', out, '--size', 'SelftestProps.dc.html=320x600'],
+    subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), '--no-project-config', FIXTURES, '--out', out, '--size', 'SelftestProps.dc.html=320x600'],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     data = json.load(open(os.path.join(out, 'verify-canvas.json'), encoding='utf-8'))
     items = data['boards']['Selftest.dc.html']
@@ -94,7 +220,8 @@ def main():
     # 首屏、色面、点按区域、字号（SelftestSurface）：每个 case 只报它那一类，好的写法不报
     sf = data['boards']['SelftestSurface.dc.html']
     sfound = {(st, i['type'], th) for i in sf for st in i['states'] for th in i['theme'].split('、')}
-    for st, typ, th in (('case=空白带', '首屏空白带', 'light'), ('case=色面分不开', '相邻两大块色面分不开', 'light'), ('case=深色色面分不开', '相邻两大块色面分不开', 'dark'),
+    for st, typ, th in (('case=空白带', '首屏空白带', 'light'), ('case=骨架之外的空带', '首屏空白带', 'light'),  # 骨架只豁免它自己占的那一块，容器之外真空着的带照报
+                         ('case=色面分不开', '相邻两大块色面分不开', 'light'), ('case=深色色面分不开', '相邻两大块色面分不开', 'dark'),
                         ('case=链接太矮', '触控目标小于 44', None), ('case=链接太矮', '点按区域小于 24', None), ('case=可点太小', '点按区域小于 24', None),
                         ('各状态合并', '字号种类过多', None)):
         if not any(s_ == st and t_ == typ and (th is None or h_ == th) for s_, t_, h_ in sfound):
@@ -116,6 +243,7 @@ def main():
     if any(s_ == 'case=色面有描边' and t_ == '相邻两大块色面分不开' for s_, t_, _ in sfound):
         failures.append('误报：SelftestSurface「case=色面有描边」带 box-shadow 的面算已经分开，不该报「相邻两大块色面分不开」')
     for st, typ, th in (('case=深色色面分不开', '相邻两大块色面分不开', 'light'), ('case=色面分不开', '相邻两大块色面分不开', 'dark'), ('case=动效带', '首屏空白带', None),
+                        ('case=骨架加载态', '首屏空白带', None), ('case=骨架占位块', '首屏空白带', None),  # aria-busy 的容器、data-skeleton 和类名带 skeleton 的占位块都是加载态，不是空白
                         ('case=句中链接', '触控目标小于 44', None), ('case=句中链接', '点按区域小于 24', None), ('case=热区撑大', '触控目标小于 44', None), ('case=热区撑大', '点按区域小于 24', None),
                         ('case=子元素撑大热区', '触控目标小于 44', None), ('case=子元素撑大热区', '点按区域小于 24', None),
                         ('case=热区有细缝', '触控目标小于 44', None), ('case=热区有细缝', '点按区域小于 24', None),  # 两个取样点之间 3px 的缝在声明的精度以内，量不出来
@@ -158,7 +286,7 @@ def main():
         d = tempfile.mkdtemp(prefix='verify-size-')
         shutil.copy(os.path.join(FIXTURES, board), d)
         o = os.path.join(d, 'out')
-        r = subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), d, '--out', o, '--themes', 'light', *extra], capture_output=True, text=True)
+        r = subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), '--no-project-config', d, '--out', o, '--themes', 'light', *extra], capture_output=True, text=True)
         try:
             j = json.load(open(os.path.join(o, 'verify-canvas.json'), encoding='utf-8'))
         except OSError:
@@ -169,7 +297,7 @@ def main():
     src = open(os.path.join(FIXTURES, 'SelftestSurface.dc.html'), encoding='utf-8').read().replace('data-first-screen', 'data-board="doc" data-first-screen', 1)
     open(os.path.join(d, 'SelftestSurface.dc.html'), 'w', encoding='utf-8').write(src)
     json.dump({'boards': {'SelftestSurface.dc.html': {'w': 390, 'h': 600}}}, open(os.path.join(d, 'canvas.json'), 'w', encoding='utf-8'))
-    subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), d, '--out', os.path.join(d, 'out'), '--themes', 'light'], capture_output=True, text=True)
+    subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), '--no-project-config', d, '--out', os.path.join(d, 'out'), '--themes', 'light'], capture_output=True, text=True)
     try:
         j = json.load(open(os.path.join(d, 'out', 'verify-canvas.json'), encoding='utf-8'))
         if j['meta']['SelftestSurface.dc.html']['doc'] or not any(i['type'] == '点按区域小于 24' for i in j['boards']['SelftestSurface.dc.html']):
@@ -188,7 +316,7 @@ def main():
     m, n = run_meta('SelftestProps.dc.html', '--size', 'SelftestProps=1200x800')
     if m['viewports'][:1] != [[1200, 800]] or [390, 844] in m['viewports'] or '画板尺寸没找到' in n:
         failures.append(f'尺寸没找到时 --size SelftestProps=1200x800 应该成为基准视口（名称可以不带 .dc.html），不再按 390 宽跑，实际 {m}')
-    r = subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), FIXTURES, '--out', out, '--size', 'Nope=320x600'], capture_output=True, text=True)
+    r = subprocess.run([sys.executable, os.path.join(HERE, 'verify_canvas.py'), '--no-project-config', FIXTURES, '--out', out, '--size', 'Nope=320x600'], capture_output=True, text=True)
     if r.returncode == 0 or '没有对上' not in r.stderr:
         failures.append('--size 的画板名写错应该报错退出')
 
@@ -205,7 +333,7 @@ def main():
 
     # check_page.py：同一套点按区域、首屏空白带、相邻色面在真实页面上也抓得到（tests/fixtures/pages/bad.html）
     cp = tempfile.mkdtemp(prefix='check-page-selftest-')
-    subprocess.run([sys.executable, os.path.join(HERE, 'check_page.py'), os.path.join(FIXTURES, 'pages', 'bad.html'), '--out', cp, '--dark', '--widths', '375,1440'],
+    subprocess.run([sys.executable, os.path.join(HERE, 'check_page.py'), '--no-project-config', os.path.join(FIXTURES, 'pages', 'bad.html'), '--out', cp, '--dark', '--widths', '375,1440'],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         rep = json.load(open(os.path.join(cp, 'report.json'), encoding='utf-8'))
@@ -233,7 +361,7 @@ def main():
     # 不然后面的首屏空白带是在滚过的画面上量的（铺满文字的首屏误报、真空着的首屏漏报）
     for page_name, want_band in (('shell-good.html', False), ('shell-empty.html', True)):
         sd = tempfile.mkdtemp(prefix='check-page-selftest-')
-        subprocess.run([sys.executable, os.path.join(HERE, 'check_page.py'), os.path.join(FIXTURES, 'pages', page_name), '--out', sd, '--widths', '375'],
+        subprocess.run([sys.executable, os.path.join(HERE, 'check_page.py'), '--no-project-config', os.path.join(FIXTURES, 'pages', page_name), '--out', sd, '--widths', '375'],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
             w375 = json.load(open(os.path.join(sd, 'report.json'), encoding='utf-8'))['widths']['375']
@@ -355,6 +483,8 @@ def main():
                        capture_output=True, text=True)
     if r.returncode != 1 or '| metric | **没有画板画出来** |' not in r.stdout or '| claim | Card.dc.html |' not in r.stdout:
         failures.append('coverage.py --data：应该报 metric 没画出来、claim 画在 Card.dc.html 上，退出码 1')
+
+    failures += static_checks()
 
     if failures:
         print('selftest 不通过：\n  ' + '\n  '.join(failures))

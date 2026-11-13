@@ -2,16 +2,18 @@ import type { Locator, Page } from "playwright";
 import { E2E } from "../env.ts";
 
 export type Text = string | RegExp;
+export type Where = "navigation" | "main";
 
 export interface User {
   readonly page: Page;
   readonly errors: string[];
   open(path: string): Promise<number>;
   reload(): Promise<void>;
-  tap(name: Text): Promise<void>;
+  tap(name: Text, where?: Where): Promise<void>;
   sees(text: Text, timeoutMs?: number): Promise<void>;
   notSees(text: Text, timeoutMs?: number): Promise<void>;
-  canTap(name: Text): Promise<boolean>;
+  canTap(name: Text, where?: Where): Promise<boolean>;
+  onFirstScreen(name: Text): Promise<boolean>;
   countOf(text: Text): Promise<number>;
   path(): Promise<string>;
   waitForPath(expected: RegExp, timeoutMs?: number): Promise<void>;
@@ -21,7 +23,7 @@ export interface User {
   currentNav(): Promise<string | null>;
   linksTo(path: string): Promise<number>;
   expandFirst(): Promise<boolean>;
-  hrefOf(name: Text): Promise<string | null>;
+  hrefOf(name: Text, where?: Where): Promise<string | null>;
   hreflangs(): Promise<string[]>;
   stored(key: string): Promise<string | null>;
   isDark(): Promise<boolean>;
@@ -34,9 +36,10 @@ export interface User {
 
 const exact = (t: Text) => (typeof t === "string" ? { name: t, exact: true } : { name: t });
 
-function control(page: Page, name: Text): Locator {
+function control(page: Page, name: Text, where?: Where): Locator {
+  const root = where ? page.getByRole(where).first() : page;
   const roles = ["link", "button", "tab", "radio", "checkbox", "switch"] as const;
-  return roles.map((role) => page.getByRole(role, exact(name))).reduce((all, one) => all.or(one));
+  return roles.map((role) => root.getByRole(role, exact(name))).reduce((all, one) => all.or(one));
 }
 
 function darkBackground(): boolean {
@@ -59,8 +62,8 @@ export function userOn(page: Page): User {
     async reload() {
       await page.reload({ waitUntil: "load" });
     },
-    async tap(name) {
-      await control(page, name).filter({ visible: true }).first().click();
+    async tap(name, where) {
+      await control(page, name, where).filter({ visible: true }).first().click();
     },
     async sees(text, timeoutMs = 10_000) {
       await visible(text).waitFor({ state: "visible", timeout: timeoutMs });
@@ -70,9 +73,17 @@ export function userOn(page: Page): User {
         if (await visible(text).isVisible()) throw new Error(`不该出现却出现了：${String(text)}`);
       });
     },
-    async canTap(name) {
-      const c = control(page, name).filter({ visible: true }).first();
+    async canTap(name, where) {
+      const c = control(page, name, where).filter({ visible: true }).first();
       return (await c.count()) > 0 && (await c.isEnabled());
+    },
+    async onFirstScreen(name) {
+      const c = control(page, name).filter({ visible: true }).first();
+      if ((await c.count()) === 0 || !(await c.isEnabled())) return false;
+      return c.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && r.top < window.innerHeight && r.bottom > 0 && r.left < window.innerWidth && r.right > 0;
+      });
     },
     async countOf(text) {
       return page.getByText(text).filter({ visible: true }).count();
@@ -108,12 +119,16 @@ export function userOn(page: Page): User {
       return page.locator(`a[href="${path}"]`).filter({ visible: true }).count();
     },
     async expandFirst() {
-      const folded = page.locator('main [aria-expanded="false"]').filter({ visible: true }).first();
+      const folded = await page.locator('main [aria-expanded="false"]').filter({ visible: true }).first().elementHandle();
+      if (!folded) return false;
       await folded.click();
-      return (await folded.getAttribute("aria-expanded")) === "true";
+      return page
+        .waitForFunction((el) => el.getAttribute("aria-expanded") === "true", folded, { timeout: 2_000 })
+        .then(() => true, () => false);
     },
-    async hrefOf(name) {
-      return page.getByRole("link", exact(name)).filter({ visible: true }).first().getAttribute("href");
+    async hrefOf(name, where) {
+      const root = where ? page.getByRole(where).first() : page;
+      return root.getByRole("link", exact(name)).filter({ visible: true }).first().getAttribute("href");
     },
     async hreflangs() {
       return page.locator('link[rel="alternate"][hreflang]').evaluateAll((els) => els.map((el) => el.getAttribute("hreflang") ?? ""));

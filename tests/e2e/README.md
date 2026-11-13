@@ -6,7 +6,7 @@
 |---|---|
 | `docs/prd/e2e-scenarios.md` | 场景表：从主站 PRD 提炼的用户场景 S01–S20，每行写明出自 PRD 哪一节、触发、期望、边界、验收标准 |
 | `env.ts`、`core/target.ts`、`core/doctor.ts` | 环境：被测站点、证据目录、跑前体检；缺什么就跳过并说明原因 |
-| `core/web.ts`、`core/scenario.ts` | Web 驱动：`open`、`tap`、`sees`、`notSees`、`path`、`navLinks`、`isDark` 等用户语言的操作；失败自动截图；第三方请求一律拦掉，案例只验主站自己的行为 |
+| `core/web.ts`、`core/scenario.ts` | Web 驱动：`open`、`tap`、`sees`、`notSees`、`path`、`navLinks`、`isDark` 等用户语言的操作；`tap`、`canTap` 可以限定在导航或正文里点，`onFirstScreen` 判断不滚动就看得到点得到；失败自动截图；第三方请求一律拦掉，案例只验主站自己的行为 |
 | `core/coverage.ts`、`core/report.ts` | 运行时覆盖率：浏览器里主站自己构建出的脚本（`/assets/*.js`）被走到的比例，V8 覆盖率按字节算 |
 | `cases/*.test.ts` | 案例：一个场景一个文件，标题以场景编号开头，比如 `scenario("S08 切换语言：…")` |
 

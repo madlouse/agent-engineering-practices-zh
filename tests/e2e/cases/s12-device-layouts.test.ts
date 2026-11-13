@@ -7,7 +7,9 @@ async function homeFitsScreen(user: User, touch: boolean): Promise<void> {
   await user.sees(/开始训练/);
   await user.sees(/读最新文章/);
   assert.ok((await user.horizontalOverflow()) <= 0, "首页出现了横向滚动");
-  assert.ok(await user.canTap(/动手/), "首屏上点不到动手入口");
+  for (const entry of [/开始训练/, /读最新文章/, /动手/]) {
+    assert.ok(await user.onFirstScreen(entry), `首屏上点不到：${String(entry)}`);
+  }
   if (touch) assert.deepEqual(await user.smallTargets(44), [], "有点按区域小于 44 px 的控件");
 }
 

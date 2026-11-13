@@ -469,20 +469,23 @@ const VC_FIG = (() => {
 
 class Component extends DCLogic {
   pick(k, d) { return (this.state && this.state[k]) ?? this.props[k] ?? d; }
-  /* 悬停意图的延迟取 token delay-hover-intent（80ms）：首屏倾斜和「开始训练」的展开共用，脚本里不另写数 */
+  /* 悬停意图的延迟取 token delay-hover-intent（80ms）：首屏倾斜和「开始训练」的展开共用；倾斜另用 hover-intent-radius（40px）判指针是不是放慢了。脚本里不另写数 */
   hoverIntent() { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--delay-hover-intent')) || 0; }
+  hoverRadius() { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hover-intent-radius')) || 0; }
   canLean() { return !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1180px)').matches); }
   componentDidMount() {
     if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
     // 展开的选项都能退出：Esc、点外面；Esc 同时回到五五分
     this.onEsc = (e) => { if (e.key === 'Escape') { clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' }); } };
     this.onOutside = (e) => { if (this.pick('start', '收起') === '展开' && !(e.target.closest && e.target.closest('.vc-pop-anchor'))) this.setState({ start: '收起' }); };
+    this.onMove = (e) => { this.ptr = { x: e.clientX, y: e.clientY }; };
     document.addEventListener('keydown', this.onEsc);
     document.addEventListener('pointerdown', this.onOutside);
+    document.addEventListener('pointermove', this.onMove, { passive: true });
     this.startGL();
   }
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.onEsc); document.removeEventListener('pointerdown', this.onOutside);
+    document.removeEventListener('keydown', this.onEsc); document.removeEventListener('pointerdown', this.onOutside); document.removeEventListener('pointermove', this.onMove);
     clearTimeout(this.timer); clearTimeout(this.leanTimer); cancelAnimationFrame(this.raf); if (this.io) this.io.disconnect();
   }
   /* 叶与网（WebGL2 的点）。每个点有两个位置：叶上的和网上的（节点里，或一条连线上）。uMorph 从 0 到 1，点按各自的次序从叶飞到网：
@@ -605,12 +608,19 @@ class Component extends DCLogic {
     const open = this.pick('start', '收起') === '展开';
     const still = (this.props.motion ?? '正常') !== '正常' || !!st.noGL;
     const offline = this.pick('network', '在线') === '离线';
-    /* 倾斜：指针进入一侧后停留 delay-hover-intent 才倾斜，横穿首屏去别处不触发；键盘聚焦不等。进入另一侧或离开首屏时取消还没生效的那一次 */
+    /* 倾斜：指针进入一侧后，每隔 delay-hover-intent 看一次指针走了多远；不到 hover-intent-radius（相当于每秒 500px 以下，放慢或停下）才倾斜，走得更远就从当前位置重新计时。
+       横扫首屏（整屏 300–700ms，每秒 2000px 以上）一直在重新计时，不倾斜；键盘聚焦不等。进入另一侧或离开首屏时取消还没生效的那一次 */
     const lean = (who, wait) => () => {
       clearTimeout(this.leanTimer);
       if (!this.canLean() || ((this.state && this.state.lean) || '') === who) return;
-      if (wait) this.leanTimer = setTimeout(() => this.setState({ lean: who }), this.hoverIntent());
-      else this.setState({ lean: who });
+      if (!wait) { this.setState({ lean: who }); return; }
+      let from = this.ptr;
+      const check = () => {
+        const p = this.ptr;
+        if (from && p && Math.hypot(p.x - from.x, p.y - from.y) > this.hoverRadius()) { from = p; this.leanTimer = setTimeout(check, this.hoverIntent()); }
+        else this.setState({ lean: who });
+      };
+      this.leanTimer = setTimeout(check, this.hoverIntent());
     };
     const studies = c.studies.map((x) => ({
       ...x, lead: !!x.metric && x.grade >= 3, credibility: ['very-low', 'low', 'moderate', 'high'][x.grade - 1],

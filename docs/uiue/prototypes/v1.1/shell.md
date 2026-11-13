@@ -163,7 +163,7 @@ function shellVals(self, station, path) {
 </div>
 ```
 
-- `navClass` 在首屏是 `vc-nav vc-nav-paper`、`vc-nav vc-nav-ink` 或 `vc-nav vc-nav-moss`（看这页首屏的底色），吸顶时是 `vc-nav lg`。`data-backdrop="scroll"` 一直写着，只有带 `lg` 时起作用；导航不写 `data-lens`（吸顶条不挂透镜）。实色换玻璃的时刻：首屏色带的底边滚过导航下沿时（没有色带的页面是标题区的底边），过渡用 `duration-base`、`ease-out`，样式表已经写好。
+- `navClass` 在首屏是 `vc-nav vc-nav-paper`、`vc-nav vc-nav-ink` 或 `vc-nav vc-nav-moss`（看这页首屏的底色），吸顶时是 `vc-nav lg`，吸顶时压在视频画面上再加 `lg-on-dark`（浅色字，和播放条一样）。`data-backdrop="scroll"` 一直写着，只有带 `lg` 时起作用；导航不写 `data-lens`（吸顶条不挂透镜）。实色换玻璃的时刻：首屏色带的底边滚过导航下沿时（没有色带的页面是标题区的底边），过渡用 `duration-base`、`ease-out`，样式表已经写好。
 - 当前所在的站在对应的 `vc-nav-link` 上写 `aria-current="page"`（上面的例子是看清）；首页、关于、页面状态三个都不写。
 - 首页的导航和别的页面一样居中，首屏倾斜时不动（它是全站唯一的固定参照）。
 - 窄屏的收法样式表已经写好：< 744 只留叶子；< 360 语言分段控件换成 `.vc-lang-one`。两个语言控件都保留在标记里。

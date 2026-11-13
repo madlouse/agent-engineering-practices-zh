@@ -4,15 +4,59 @@ import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 export const WHY = /^(?:why|为什么)\s*[:：]\s*\S/i;
-export const DIRECTIVES =
-  /^(?:eslint-|@ts-|prettier-ignore|biome-ignore|deno-lint-ignore|c8 |v8 |istanbul |<reference|@vitest-|@vite-|@jsx|webpack|[#@]__PURE__|shellcheck |noqa|type: ?ignore|pragma|!)/;
+
+const list = (item) => String.raw`${item}(?:\s*,\s*${item})*`;
+const full = (...forms) => new RegExp(`^(?:${forms.join("|")})$`);
+const NOQA = String.raw`noqa(?::\s*${list(String.raw`[A-Z]+\d+`)})?`;
+
+export const DIRECTIVES = {
+  c: full(
+    String.raw`eslint-(?:disable|enable)(?:-next-line|-line)?(?:\s+${list(String.raw`[\w@/-]+`)})?(?:\s+--\s+\S.*)?`,
+    String.raw`eslint-env\s+${list(String.raw`[\w-]+`)}`,
+    String.raw`eslint\s+${list(String.raw`[\w@/-]+:\s*(?:off|warn|error|[0-2]|\[.*\])`)}`,
+    String.raw`globals?\s+${list(String.raw`[\w$]+(?::\s*(?:readonly|writable|off))?`)}`,
+    String.raw`@ts-(?:expect-error|ignore)(?:\s+\S.*)?`,
+    String.raw`@ts-(?:check|nocheck)`,
+    String.raw`prettier-ignore`,
+    String.raw`biome-ignore(?:-all|-start|-end)?\s+[\w/]+(?:\([\w/-]+\))?:\s*\S.*`,
+    String.raw`deno-lint-ignore(?:-file)?(?:\s+[\w-]+)*`,
+    String.raw`(?:c8|v8)\s+ignore\s+(?:next|if|else|file|start|stop)(?:\s+\d+)?`,
+    String.raw`istanbul\s+ignore\s+(?:next|if|else|file)`,
+    String.raw`<reference\s+(?:path|types|lib|no-default-lib)=""\s*/>`,
+    String.raw`@vitest-environment\s+[\w-]+`,
+    String.raw`@vite-ignore`,
+    String.raw`@jsx(?:Runtime|ImportSource|Frag)?\s+[\w.@/-]+`,
+    list(String.raw`webpack\w+:\s*\S+`),
+    String.raw`[#@]__(?:PURE|NO_SIDE_EFFECTS)__`,
+  ),
+  hash: full(
+    NOQA,
+    String.raw`type:\s*ignore(?:\[${list(String.raw`[\w-]+`)}\])?`,
+    String.raw`type:\s*[\w.\[\](),|*\s>-]+`,
+    String.raw`pylint:\s*(?:disable|enable|disable-next)=${list(String.raw`[\w-]+`)}`,
+    String.raw`pylint:\s*skip-file`,
+    String.raw`pyright:\s*(?:ignore(?:\[${list(String.raw`[\w-]+`)}\])?|basic|standard|strict|${list(String.raw`\w+=\w+`)})`,
+    String.raw`mypy:\s*${list(String.raw`[\w-]+(?:\s*=\s*[\w.-]+)?`)}`,
+    String.raw`fmt:\s*(?:skip|off|on)`,
+    String.raw`isort:\s*(?:skip|skip_file|off|on|split)`,
+    String.raw`nosec(?:\s+${list(String.raw`B\d+`)})?`,
+    String.raw`pragma:\s*no\s+(?:cover|branch)`,
+    String.raw`shellcheck(?:\s+(?:disable|enable|source|source-path|shell|external-sources)=\S+)+`,
+    String.raw`yamllint\s+(?:disable|enable)(?:-line|-file)?(?:\s+rule:[\w-]+)*`,
+    String.raw`-\*-\s*coding[:=]\s*[\w.-]+\s*-\*-`,
+  ),
+  sql: full(NOQA),
+};
+const NESTED = { c: /\s+\/\/\s*/, hash: /\s+#(?!\d)\s*/, sql: /\s+--\s*/ };
 
 const C_LIKE = /\.(?:[cm]?[jt]sx?|css|scss)$/;
 const SQL = /\.sql$/;
 const TRIPLE_QUOTED = /\.(?:py|toml)$/;
 const HASH = /\.(?:sh|bash|ya?ml)$/;
+const TRIPLE_QUOTED_TOKEN = /"""|'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|#(.*)$/g;
 
 const stripStrings = (line) => line.replace(/(["'`])(?:\\.|(?!\1).)*\1/g, '""');
+const shebang = (l) => l.line === 1 && l.text.startsWith("#!");
 
 function cLikeComments(lines) {
   let inBlock = false;
@@ -23,14 +67,14 @@ function cLikeComments(lines) {
     const code = stripStrings(l.text);
     if (inBlock) {
       if (code.includes("*/")) inBlock = false;
-      return { text: code.replace(/\*\/.*$/, "").replace(/^\s*\*?\s?/, ""), multi: true };
+      return { text: code.replace(/\*\/.*$/, "").replace(/^\s*\*?\s?/, ""), multi: true, kind: "c" };
     }
     const m = /(?:^|[^:\\])(\/\/|\/\*)(.*)$/.exec(code);
     if (!m) return null;
-    if (m[1] === "//") return { text: m[2].replace(/^\/?\s*/, ""), multi: false };
+    if (m[1] === "//") return { text: m[2].replace(/^\/?\s*/, ""), multi: false, kind: "c" };
     const closed = m[2].includes("*/");
     inBlock = !closed;
-    return { text: m[2].replace(/\*\/.*$/, "").replace(/^\*?\s*/, ""), multi: !closed };
+    return { text: m[2].replace(/\*\/.*$/, "").replace(/^\*?\s*/, ""), multi: !closed, kind: "c" };
   });
 }
 
@@ -40,18 +84,24 @@ function tripleQuotedComments(lines) {
   return lines.map((l) => {
     if (previous !== null && l.line !== previous + 1) open = null;
     previous = l.line;
-    let code = l.text;
+    if (shebang(l)) return null;
+    TRIPLE_QUOTED_TOKEN.lastIndex = 0;
     if (open) {
-      const end = code.indexOf(open);
+      const end = l.text.indexOf(open);
       if (end < 0) return null;
-      code = code.slice(end + 3);
+      TRIPLE_QUOTED_TOKEN.lastIndex = end + 3;
       open = null;
     }
-    code = code.replace(/("""|''')[\s\S]*?\1/g, '""');
-    const unclosed = /"""|'''/.exec(code);
-    const m = /#(.*)$/.exec(stripStrings(unclosed ? code.slice(0, unclosed.index) : code));
-    if (m) return { text: (m[1] + (unclosed ? code.slice(unclosed.index) : "")).trim(), multi: false };
-    if (unclosed) open = unclosed[0];
+    for (let m; (m = TRIPLE_QUOTED_TOKEN.exec(l.text)); ) {
+      if (m[1] !== undefined) return { text: m[1].trim(), multi: false, kind: "hash" };
+      if (m[0] !== '"""' && m[0] !== "'''") continue;
+      const end = l.text.indexOf(m[0], TRIPLE_QUOTED_TOKEN.lastIndex);
+      if (end < 0) {
+        open = m[0];
+        return null;
+      }
+      TRIPLE_QUOTED_TOKEN.lastIndex = end + 3;
+    }
     return null;
   });
 }
@@ -59,10 +109,10 @@ function tripleQuotedComments(lines) {
 export function commentsOf(path, lines) {
   if (C_LIKE.test(path)) return cLikeComments(lines);
   if (TRIPLE_QUOTED.test(path)) return tripleQuotedComments(lines);
-  const pattern = SQL.test(path) ? /--(.*)$/ : HASH.test(path) ? /(?:^|(?<!\\)\s)#(.*)$/ : null;
+  const [pattern, kind] = SQL.test(path) ? [/--(.*)$/, "sql"] : HASH.test(path) ? [/(?:^|(?<!\\)\s)#(.*)$/, "hash"] : [];
   return lines.map((l) => {
-    const m = pattern && pattern.exec(stripStrings(l.text));
-    return m ? { text: m[1].trim(), multi: false } : null;
+    const m = pattern && !shebang(l) && pattern.exec(stripStrings(l.text));
+    return m ? { text: m[1].trim(), multi: false, kind } : null;
   });
 }
 
@@ -77,13 +127,16 @@ export function judge({ config, added }) {
     const comments = commentsOf(path, lines);
     comments.forEach((c, i) => {
       if (!c) return;
-      const text = c.text.trim();
-      if (!text || DIRECTIVES.test(text) || allow.some((r) => r.test(text))) return;
+      const parts = c.text.trim().split(NESTED[c.kind]).filter(Boolean);
+      const last = parts.length - 1;
+      const why = last >= 0 && WHY.test(parts[last]);
+      const allowed = (p, j) => DIRECTIVES[c.kind].test(p) || allow.some((r) => r.test(p)) || (j === last && why);
       const where = `${path}:${lines[i].line}`;
-      if (!WHY.test(text)) {
-        problems.push(`${where} 新增了注释：${text.slice(0, 60)}`);
+      if (!parts.every(allowed)) {
+        problems.push(`${where} 新增了注释：${c.text.trim().slice(0, 60)}`);
         return;
       }
+      if (!why) return;
       const touching = [i - 1, i + 1].some((j) => comments[j] && Math.abs(lines[j].line - lines[i].line) === 1);
       if (c.multi || touching) problems.push(`${where} why 注释只能写一行`);
     });

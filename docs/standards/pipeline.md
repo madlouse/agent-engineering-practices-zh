@@ -50,7 +50,7 @@ PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线
 - Lighthouse（性能预算作为上线关口，PRD 第 8 节）；axe 严重和较严重的问题为 0；
 - 真机各走一遍：iOS 和 iPadOS 的 Safari、Android 的 Chrome（产品负责人在场，同 Veli 的多端通道 B）；
 - 折叠屏：U13 按 `quality-terms.md` 的「怎么查」做（A8 折痕对齐在 v2 再启用，v1 不查）；
-- 两份独立走查（`design-reviewer` 和 `design-reviewer-b`，后者是 Fable，按 `design-bar` 的定稿记分卡逐项把关 UI/UX 和细节）P0、P1 为 0；`quality-terms.md` 里适用的规则全部通过（含只能在实现上查的 U8 速度、U9 响应时间）；
+- 两份独立走查（`design-reviewer` 和 `design-reviewer-b`，后者是 Fable，按 `design-bar` 的定稿记分卡逐项把关 UI/UX 和细节）P0、P1 为 0，标杆卡 P1–P5 每项 ≥ 4（`docs/uiue/bar-sheet.md`）；「拿奖级」的加权分只记录，不判（`quality-terms.md` §2.2，需求第 102 条）；`quality-terms.md` 里适用的规则全部通过（含只能在实现上查的 U8 速度、U9 响应时间）；
 - 五秒测试：5 个没看过的人看首页和三站首屏 5 秒，至少 4 人说得出「给谁的、能做什么、点哪里」（U2，产品负责人找人）；
 - `npm run check:terms`、`npm run check:vague`、`npm run check:voice` 通过；中英两版齐全；
 - 首次生产迁移和权限核对（#67）通过；

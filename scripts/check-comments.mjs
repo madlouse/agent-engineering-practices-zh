@@ -9,8 +9,8 @@ export const DIRECTIVES =
 
 const C_LIKE = /\.(?:[cm]?[jt]sx?|css|scss)$/;
 const SQL = /\.sql$/;
-const PY = /\.py$/;
-const HASH = /\.(?:sh|bash|ya?ml|toml)$/;
+const TRIPLE_QUOTED = /\.(?:py|toml)$/;
+const HASH = /\.(?:sh|bash|ya?ml)$/;
 
 const stripStrings = (line) => line.replace(/(["'`])(?:\\.|(?!\1).)*\1/g, '""');
 
@@ -34,7 +34,7 @@ function cLikeComments(lines) {
   });
 }
 
-function pyComments(lines) {
+function tripleQuotedComments(lines) {
   let open = null;
   let previous = null;
   return lines.map((l) => {
@@ -58,7 +58,7 @@ function pyComments(lines) {
 
 export function commentsOf(path, lines) {
   if (C_LIKE.test(path)) return cLikeComments(lines);
-  if (PY.test(path)) return pyComments(lines);
+  if (TRIPLE_QUOTED.test(path)) return tripleQuotedComments(lines);
   const pattern = SQL.test(path) ? /--(.*)$/ : HASH.test(path) ? /(?:^|(?<!\\)\s)#(.*)$/ : null;
   return lines.map((l) => {
     const m = pattern && pattern.exec(stripStrings(l.text));

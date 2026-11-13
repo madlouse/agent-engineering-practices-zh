@@ -309,7 +309,7 @@ body{margin:0}
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
     <figure class="vc-video vc-read-wide">
       <div class="vc-video-frame" data-video="">
-        <div class="vc-video-shot {{frameClass}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
           <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
@@ -626,7 +626,7 @@ function articleVals(v, o) {
     length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
     videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
     voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
-    frameText: frame !== '最暗一帧', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
+    frameText: frame !== '最暗一帧', frameKey: { '最亮一帧': 'brightest', '最暗一帧': 'darkest' }[frame] || 'cover', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
   };
 }
 /* ── 看清首页的数据和取值：/mind（AI 发展史）和 /mind/collaboration（人机协作）。Mind 和 States 两块画板共用这一份（States 由 pa-out/build.py 把同一份标记和这份数据拼进去）── */

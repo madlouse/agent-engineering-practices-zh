@@ -1,7 +1,7 @@
 /* Velicoach 设计系统 v1.1（2026-11-12）· 画板共用样式表：token 变量、基础类、外壳和组件的类。全部画板只有这一份样式。
    变量部分由 tokens.json 生成（gen_canvas_vars.py，@tokens:start 到 @tokens:end 之间不手改）；后面的类手写，只引用 token。
    页面画板只引用这里的类，<helmet> 里只留 body{margin:0} 和真的只属于那一页的版式（类名 vc-<页名>page-…）；外壳的标准片段见 shell.md。
-   类名：块 vc-xxx，子元素 vc-xxx-yyy，状态 is-xxx（is-open、is-closed、is-done、is-offline、is-scrolled、is-bright、is-tight；is-hover、is-press、is-focus 只给画板上静态展示状态用）。
+   类名：块 vc-xxx，子元素 vc-xxx-yyy，状态 is-xxx（is-open、is-closed、is-done、is-offline、is-scrolled、is-bright、is-tight、is-over-video；is-hover、is-press、is-focus 只给画板上静态展示状态用）。
    下面这几个不带前缀，是 design-bar 检查脚本（verify_canvas.py）和液态玻璃脚本的约定名，改名会让检查失效：
      .btn（主按钮、次按钮：首屏主操作、按钮高度、按下和悬停的对比度都按它找）、.opt、.icon-btn、.orb（按下和悬停各算一次对比度）、.seg（语言名不随伪语言加长）、
      .home（站标回首页）、.mono（首屏要读的字不算它）、.kicker、.row-title（词中断行、孤字成行）、.is-hover、.is-press（状态样式）、.lg 和 .lg-*（液态玻璃的模板和 canvas.js）。 */
@@ -466,8 +466,11 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-nav { pointer-events: auto; display: flex; align-items: center; gap: var(--space-1); max-width: 100%; height: var(--nav-height); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border-radius: var(--radius-pill); white-space: nowrap; transition: background-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), backdrop-filter var(--duration-base) var(--ease-out), -webkit-backdrop-filter var(--duration-base) var(--ease-out); }
 .vc-nav-paper { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-solid-line), var(--shadow-pop); }
 .vc-nav-ink { background: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-accent-line), var(--shadow-pop); }
-/* 浅色主题下吸顶玻璃压在视频上：和播放条一样用浓的一档（视频读不出像素，liquid-glass.md 第 7 节）；播放条下面有墨色渐变垫底，导航停在画面哪里不定，改给字垫一圈墨色光晕，画面最亮处也压得住 */
-.vc-nav.lg.lg-on-dark { --lg-density: 1; text-shadow: 0 0 var(--space-2) color-mix(in srgb, var(--vc-ink) 72%, transparent), 0 0 var(--space-1) color-mix(in srgb, var(--vc-ink) 72%, transparent); }
+/* 吸顶玻璃压在视频上（.is-over-video，两种主题）：和播放条一样用浓的一档、下面垫一层墨色（视频读不出像素，liquid-glass.md 第 7 节）。
+   播放条垫的是画面底部的渐变；导航停在画面哪里不定，墨色垫在胶囊自己下面：胶囊里一层墨色 50%，向外柔和地淡出，画面最亮的一帧上字也过 4.5:1，不是突然一块黑 */
+.vc-nav.lg.is-over-video { --lg-density: 1; }
+.vc-nav.lg::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; opacity: 0; background: color-mix(in srgb, var(--vc-ink) 50%, transparent); box-shadow: 0 0 var(--space-6) var(--space-2) color-mix(in srgb, var(--vc-ink) 50%, transparent); transition: opacity var(--duration-base) var(--ease-out); }
+.vc-nav.lg.is-over-video::after { opacity: 1; }
 /* 苔绿实色导航：背后是平涂苔绿，提亮一层（叠 8% 白）和首屏分开。苔绿玻璃超过约 50% 就是实色，不做苔绿玻璃 */
 .vc-nav-moss { background-color: var(--vc-moss-hero); background-image: linear-gradient(rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.08)); color: var(--vc-on-moss); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--shadow-pop); }
 .vc-nav .home { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--control-height); min-width: var(--control-height); padding-right: var(--space-2); text-decoration: none; color: inherit; }
@@ -1294,7 +1297,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 :lang(zh-CN) a :is(p, .vc-row-line, .vc-row-foot, .vc-station-line, .vc-type-lead), :lang(zh-CN) :is(p, li, dd) a { word-break: normal; }
 
 /* ───────── 12. 液态玻璃（design-bar 的模板 references/liquid-glass.md，材质的数值不改；模糊的两档 lg-blur、lg-blur-scroll 在 token 里；过渡的时长和缓动用本站的 token：duration-base、ease-out，ease-out 的值和模板相同，模板里浓度旋钮的 400ms 并到 duration-base） ─────────
-   本站只有两处玻璃：视频播放条（.vc-playbar.lg.lg-on-dark，data-backdrop="video"）、吸顶时压过正文的导航（.vc-nav.lg，data-backdrop="scroll"；浅色主题下压在视频上时加 .lg-on-dark）。
+   本站只有两处玻璃：视频播放条（.vc-playbar.lg.lg-on-dark，data-backdrop="video"）、吸顶时压过正文的导航（.vc-nav.lg，data-backdrop="scroll"；压在视频上时加 .is-over-video，浅色主题另加 .lg-on-dark）。
    表面只加 .lg 和一个状态类，标记不动；模板里本站用不到的部分（玻璃上的墨色类、悬停提浓、高亮行）没有带进来。
    状态：.lg-light（浅色玻璃、深色字，默认）、.lg-on-dark（浅色模式压在暗处、浅色字）、.lg-dark（深色模式）。
    liquid-glass.js 会按背后的内容改 --lg-density（0 薄 – 1 浓）和 --lg-sat，按需切换状态类。 */

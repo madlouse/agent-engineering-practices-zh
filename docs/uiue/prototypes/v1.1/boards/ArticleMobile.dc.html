@@ -78,7 +78,7 @@ body{margin:0}
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
     <figure class="vc-video vc-read-wide">
       <div class="vc-video-frame" data-video="">
-        <div class="vc-video-shot {{frameClass}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
           <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
@@ -143,7 +143,7 @@ body{margin:0}
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
     <figure class="vc-video vc-read-wide">
       <div class="vc-video-frame" data-video="">
-        <div class="vc-video-shot {{frameClass}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
           <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
@@ -571,7 +571,7 @@ function articleVals(v, o) {
     length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
     videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
     voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
-    frameText: frame !== '最暗一帧', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
+    frameText: frame !== '最暗一帧', frameKey: { '最亮一帧': 'brightest', '最暗一帧': 'darkest' }[frame] || 'cover', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
   };
 }
 class Component extends DCLogic {
@@ -584,9 +584,9 @@ class Component extends DCLogic {
     /* 语言切换链到本页的另一语言版本：文章是 /mind/<slug>，单条开发日志是 /build/<项目>/<slug> */
     const v = shellVals(self, 'paper', kind === '开发日志' ? '/build/velicoach/one-domain' : '/mind/shopify-harness');
     const a = articleVals(v, { kind, media: P('media', '正常'), english: noEnglish ? '暂无英文版' : '有英文版', load: P('load', '正常'), frame: P('frame', '封面'), scrolled: P('nav', '首屏') === '吸顶', scrollAt: P('scrollAt', '正文中段') });
-    /* 浅色主题下吸顶玻璃压在视频上：和播放条一样换成 lg-on-dark（浅色字），黑字对暗画面不到 4.5:1；深色主题本来就是浅色字，不加 */
+    /* 吸顶玻璃压在视频上：加 is-over-video（浓的一档、胶囊下垫一层墨色），浅色主题再换成 lg-on-dark（浅色字）；深色主题本来就是浅色字，不加 lg-on-dark */
     const dark = v.themeAttr ? v.themeAttr === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-    return { ...v, ...a, navClass: a.atVideo && !dark ? v.navClass + ' lg-on-dark' : v.navClass };
+    return { ...v, ...a, navClass: a.atVideo ? v.navClass + ' is-over-video' + (dark ? '' : ' lg-on-dark') : v.navClass };
   }
   componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }
 }

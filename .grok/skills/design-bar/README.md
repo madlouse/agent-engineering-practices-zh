@@ -83,7 +83,7 @@ python scripts/check_page.py <页面路径或 URL> --out docs/design/reviews/202
 python scripts/check_agent_ready.py <站点地址或构建目录> --out docs/design/reviews/2026-10-30-首页
 
 # 源码里写死的颜色和数值、Tailwind 任意值、静态内联样式、!important、未定义的 token
-python scripts/lint_tokens.py src --tokens src/app/tokens.css
+python scripts/lint_tokens.py src --tokens src/app/tokens.css   # 可加 --exclude <路径前缀>，或在 design-bar.json 写 lint-tokens.exclude
 
 # 外壳：主题跟随系统、偏好记忆的存储键、产品家族的导航（约定写在 shell.json）
 python scripts/check_shell.py src --config docs/design/shell.json --out docs/design/reviews/2026-11-13-外壳

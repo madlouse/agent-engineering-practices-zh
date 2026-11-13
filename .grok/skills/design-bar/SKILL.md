@@ -111,7 +111,7 @@ python <本技能目录>/scripts/init_project.py <项目根目录> \
 0. 画板先过 `verify_canvas.py`（上面第 3.5 步第 4 条）；需求文档有更新时，再跑 `coverage.py`（还有哪些功能没画）和 `stale_terms.py`（哪里还在用旧说法）。
 1. `python scripts/check_page.py <页面> --out <设计目录>/reviews/<日期-主题> --dark`：多个宽度截图并做机械检查（项目见 `references/checks.md`）。
 1.5 对外的页面有了能访问的构建或预览以后：`python scripts/check_agent_ready.py <站点地址或构建目录> --out <同一目录>`，必须项修到都过（`references/agent-ready.md`）。
-2. `python scripts/lint_tokens.py <源码目录> --tokens <tokens.css>`：写死的颜色和数值、Tailwind 任意值、静态内联样式、`!important`、未定义的 token。传 CSS 变量和数据驱动的内联值不算问题。
+2. `python scripts/lint_tokens.py <源码目录> --tokens <tokens.css>`：写死的颜色和数值、Tailwind 任意值、静态内联样式、`!important`、未定义的 token。传 CSS 变量和数据驱动的内联值不算问题。不属于页面样式的目录（按帧内联样式的视频画面、平台约定的认证代码）用可重复的 `--exclude <路径前缀>` 排除，或写进项目配置 `design-bar.json` 的 `{"lint-tokens": {"exclude": [...]}}`（查找和 `--project-config`、`--no-project-config` 同其他脚本；命令行给了 `--exclude` 就只用命令行的）。
 2.2 `python scripts/check_shell.py <源码目录> --config <设计目录>/shell.json`：主题跟随系统、根元素写死主题、偏好记忆、家族导航约定。
 2.5 **去模板味**：按 `unslop` 的信号清单审计（项目里有 unslop 技能时用它的 `references/signs.md`），判断重度、轻度还是没有；要改时按九遍顺序（间距 → 颜色 → 图标 → 文案 → 字体 → 版式 → 细节 → 视觉 → 动效）；最后做模板测试：把产品名换掉，这屏还成立吗（`references/craft.md` §1、§3）。
 3. **独立评审，不自评。** 交给一个没看过制作过程的评审者（子代理），只给它：截图、brief、标杆卡、`references/rubric.md`、`references/anti-patterns.md`，以及上一轮的问题清单（要它逐条核对是否真的解决）。要求它对照 1–2 个顶级参照（标杆卡里的作品）指出最大差距，每个分数附截图证据。自己打的分不算通过：制作者会不自觉地宽松。会话不能开子代理时，用户就是评审者：把截图和打分理由交给用户，不自称达标。

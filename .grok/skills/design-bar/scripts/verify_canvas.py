@@ -140,7 +140,7 @@ PROSE_MIN_CHARS = 12    # 5：块里链接以外的字数达到它，行内链�
 
 # 项目配置：项目自己的阈值（例如设计系统定了更严的色面对比）写在 design-bar.json 里，命令不带参数也生效；命令行参数优先。
 # 查找：从命令行里给出的路径（画板目录、页面文件）往上，再从当前目录往上，每层看 design-bar.json 和 design/design-bar.json，到仓库根（有 .git）为止。
-# 格式：{"thresholds": {"face-contrast": 1.8}}，键就是上面那些阈值的同名命令行参数（去掉 --）。--project-config <文件> 指定，--no-project-config 不读。
+# 格式：{"thresholds": {"face-contrast": 1.8}}，另可有 "lint-tokens"（lint_tokens.py 读），键就是上面那些阈值的同名命令行参数（去掉 --）。--project-config <文件> 指定，--no-project-config 不读。
 PROJECT_CONFIG_NAME = 'design-bar.json'
 PROJECT_CONFIG_DEST_ALIASES = {'tap-min': 'min_target'}  # check_page.py 把同一个阈值叫 --min-target
 PROJECT_CONFIG_LOOSER = {'edge-tol': (EDGE_TOL, '>'), 'empty-band': (EMPTY_BAND_MAX, '>'), 'face-area': (FACE_MIN_AREA, '>'), 'face-contrast': (FACE_MIN_CONTRAST, '<'),
@@ -168,22 +168,34 @@ def add_project_config_args(ap):
     ap.add_argument('--no-project-config', action='store_true', help='不读项目配置（技能自测用）')
 
 
-def apply_project_config(ap, argv):
-    """把项目配置里的阈值设成 ap 的默认值（命令行参数仍然优先），返回读到的配置文件路径，没有则返回 None。"""
+def locate_project_config(argv):
+    """按 --project-config、--no-project-config 和往上找的规则，返回项目配置的路径；不读、没有则返回 None。check_page.py、lint_tokens.py 共用。"""
     pre = argparse.ArgumentParser(add_help=False)
     pre.add_argument('--project-config')
     pre.add_argument('--no-project-config', action='store_true')
     known, _ = pre.parse_known_args(argv)
     if known.no_project_config:
         return None
-    path = known.project_config or find_project_config([x for x in argv if not x.startswith('-') and os.path.exists(x)] + [os.getcwd()])
+    return known.project_config or find_project_config([x for x in argv if not x.startswith('-') and os.path.exists(x)] + [os.getcwd()])
+
+
+def load_project_config(path):
+    try:
+        cfg = json.load(open(path, encoding='utf-8'))
+        assert isinstance(cfg, dict)
+        return cfg
+    except (OSError, ValueError, AssertionError):
+        sys.exit(f'{path}：项目配置要写成 JSON 对象，例如 {{"thresholds": {{"face-contrast": 1.8}}}}')
+
+
+def apply_project_config(ap, argv):
+    """把项目配置里的阈值设成 ap 的默认值（命令行参数仍然优先），返回读到的配置文件路径，没有则返回 None。其他键（如 lint-tokens）由各自的脚本读，这里不管。"""
+    path = locate_project_config(argv)
     if not path:
         return None
-    try:
-        th = json.load(open(path, encoding='utf-8'))['thresholds']
-        assert isinstance(th, dict)
-    except (OSError, ValueError, KeyError, AssertionError):
-        sys.exit(f'{path}：项目配置要写成 {{"thresholds": {{"face-contrast": 1.8}}}}')
+    th = load_project_config(path).get('thresholds', {})
+    if not isinstance(th, dict):
+        sys.exit(f'{path}：thresholds 要写成 {{"face-contrast": 1.8}} 这样的对象')
     bad = sorted(set(th) - set(PROJECT_CONFIG_KEYS))
     if bad:
         sys.exit(f'{path}：不认识的阈值 {"、".join(bad)}，可用：{"、".join(PROJECT_CONFIG_KEYS)}')

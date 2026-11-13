@@ -536,8 +536,28 @@ test("PR 头和目标分支合并冲突：拒绝并提示先合并目标分支�
 
 test("冲突检查没跑成（git 太旧或命令出错）：放行，但打印一行提示", () => {
   const lines = [];
-  const git = () => { throw Object.assign(new Error("x"), { status: 129, stderr: "usage: git merge-tree [<options>]\nmore" }); };
+  const git = (...a) => { if (a.includes("merge-tree")) throw Object.assign(new Error("x"), { status: 129, stderr: "usage: git merge-tree [<options>]\nmore" }); return ""; };
   assert.deepEqual(mergeConflicts({ base: "a", head: "b", git, warn: (l) => lines.push(l) }), []);
   assert.equal(lines.length, 1);
   assert.match(lines[0], /冲突检查没跑成（usage: git merge-tree/);
+});
+
+test("冲突检查：引用不存在不算冲突，放行并提示；真冲突照旧拒绝", () => {
+  const r = repo();
+  try {
+    const lines = [];
+    const git = r.git;
+    const noRef = mergeConflicts({ base: "no-such-base", head: "base", git, warn: (l) => lines.push(l) });
+    assert.deepEqual(noRef, []);
+    assert.equal(lines.length, 1);
+    assert.match(lines[0], /冲突检查没跑成（引用不存在：no-such-base）/);
+
+    r.branch("chore/conflict2"); r.write("src/a.ts", "export const a = 2;\n");
+    const head = r.commit("pr");
+    r.git("checkout", "-q", "base"); r.write("src/a.ts", "export const a = 3;\n"); r.commit("moved");
+    const real = mergeConflicts({ base: "base", head, git, warn: (l) => lines.push(l) });
+    assert.equal(real.length, 1);
+    assert.match(real[0], /和目标分支冲突：src\/a\.ts/);
+    assert.equal(lines.length, 1, "真冲突不打印没跑成的提示");
+  } finally { r.cleanup(); }
 });

@@ -62,7 +62,7 @@
 ## 其余
 
 - `check_agent_ready.py <站点地址或构建目录> --out <报告目录>`：见 `agent-ready.md`。
-- `lint_tokens.py <源码目录> --tokens <tokens.css>`：写死的颜色和数值、Tailwind 任意值、静态内联样式、`!important`、未定义的 token。
+- `lint_tokens.py <源码目录> --tokens <tokens.css> [--exclude <路径前缀>]...`：写死的颜色和数值、Tailwind 任意值、静态内联样式、`!important`、未定义的 token。`--exclude` 相对当前目录写，按目录边界匹配（`src/a` 不排除 `src/ab`），路径前缀下的文件不报；项目配置 `design-bar.json` 里 `{"lint-tokens": {"exclude": [...]}}` 作默认值，查找和开关同 `verify_canvas.py`、`check_page.py`（往上找、`--project-config`、`--no-project-config`），命令行给了 `--exclude` 就只用命令行的。
 - `coverage.py`、`stale_terms.py`：需求覆盖和过时口径，用法见 SKILL.md「需求变更时」。
 
 ## `coverage.py`、`stale_terms.py`（需求和说法）

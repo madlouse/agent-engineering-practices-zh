@@ -129,6 +129,67 @@ def project_config_checks():
     return failures
 
 
+def lint_tokens_checks():
+    """lint_tokens.py 的排除：命令行 --exclude、项目配置的 lint-tokens.exclude、命令行优先、--no-project-config 不读、前缀只中目录边界、配置写错报错。"""
+    failures = []
+    root = tempfile.mkdtemp(prefix='lint-selftest-')
+    bad_css = 'a { color: #ff0000; }\n'
+
+    def write(path, text):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        open(path, 'w', encoding='utf-8').write(text)
+
+    def lint(*args):
+        r = subprocess.run([sys.executable, os.path.join(HERE, 'lint_tokens.py'), 'src', '--tokens', 'none.css', *args], cwd=root, capture_output=True, text=True)
+        return r.returncode, r.stdout + r.stderr
+
+    try:
+        write(os.path.join(root, '.git', 'HEAD'), '')
+        write(os.path.join(root, 'src', 'skip', 'a.css'), bad_css)
+        write(os.path.join(root, 'src', 'skipper', 'b.css'), bad_css)
+        write(os.path.join(root, 'src', 'keep', 'c.css'), bad_css)
+        code, txt = lint('--no-project-config')
+        if code != 1 or not all(x in txt for x in ('skip/a.css', 'skipper/b.css', 'keep/c.css')):
+            failures.append('lint_tokens.py：不排除时三个目录里的写死颜色都要报：' + txt[-200:])
+        code, txt = lint('--no-project-config', '--exclude', 'src/skip/', '--exclude', 'src/other')
+        if code != 1 or 'skip/a.css' in txt or 'skipper/b.css' not in txt or 'keep/c.css' not in txt:
+            failures.append('lint_tokens.py：--exclude src/skip/ 只排除 skip 目录，skipper 和 keep 照报：' + txt[-200:])
+        code, txt = lint('--no-project-config', '--exclude', 'src/skip')
+        if 'skip/a.css' in txt or 'skipper/b.css' not in txt:
+            failures.append('lint_tokens.py：前缀不写结尾斜杠也只按目录边界匹配，不能把 skipper 一起排除：' + txt[-200:])
+        write(os.path.join(root, 'design-bar.json'), json.dumps({'lint-tokens': {'exclude': ['src/skip/', 'src/skipper']}}))
+        code, txt = lint()
+        if code != 1 or 'skip/a.css' in txt or 'skipper/b.css' in txt or 'keep/c.css' not in txt:
+            failures.append('lint_tokens.py：项目配置的 lint-tokens.exclude 要生效（没有 thresholds 键也行）：' + txt[-200:])
+        code, txt = lint('--no-project-config')
+        if 'skip/a.css' not in txt or 'skipper/b.css' not in txt:
+            failures.append('lint_tokens.py：--no-project-config 时不读配置的排除：' + txt[-200:])
+        code, txt = lint('--exclude', 'src/keep')
+        if 'keep/c.css' in txt or 'skip/a.css' not in txt:
+            failures.append('lint_tokens.py：命令行给了 --exclude 就只用命令行的，配置的排除不叠加：' + txt[-200:])
+        write(os.path.join(root, 'design-bar.json'), json.dumps({'lint-tokens': {'excludes': ['src/skip']}}))
+        code, txt = lint()
+        if code != 1 or 'lint-tokens' not in txt or 'Traceback' in txt:
+            failures.append('lint_tokens.py：配置里键名写错要报错退出，不能悄悄忽略：' + txt[-200:])
+        write(os.path.join(root, 'design-bar.json'), json.dumps({'thresholds': {'face-contrast': 1.8}, 'lint-tokens': {'exclude': ['src/skip']}}))
+        sys.path.insert(0, HERE)
+        import argparse
+        import verify_canvas as vc
+        ap = argparse.ArgumentParser()
+        ap.add_argument('--face-contrast', type=float, default=vc.FACE_MIN_CONTRAST)
+        vc.add_project_config_args(ap)
+        cwd = os.getcwd()
+        try:
+            os.chdir(root)
+            if not vc.apply_project_config(ap, []) or ap.parse_args([]).face_contrast != 1.8:
+                failures.append('项目配置：thresholds 和 lint-tokens 同在一个文件里，verify_canvas、check_page 读阈值不能被多出的键拦住')
+        finally:
+            os.chdir(cwd)
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
+    return failures
+
+
 def static_checks():
     """不用浏览器的检查：gate.py、check_shell.py、stale_terms.py 的通用词汇表。"""
     failures = []
@@ -194,6 +255,7 @@ def static_checks():
             failures.append(f'check_shell.py：good-guard/{name} 的守卫是对的（含 !matchMedia(…).matches 写 light），不该报写死主题，实际 {code}')
 
     failures += project_config_checks()
+    failures += lint_tokens_checks()
 
     d = tempfile.mkdtemp(prefix='stale-selftest-')
     phrase = '不随' + '系统切换'  # 拆开写，免得技能自己的文件命中通用词汇表

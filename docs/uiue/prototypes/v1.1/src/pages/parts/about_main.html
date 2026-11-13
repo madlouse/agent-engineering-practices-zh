@@ -1,0 +1,37 @@
+<section class="vc-band vc-band-paper" data-first-screen="">
+  <div class="vc-container vc-band-body">
+    <p class="kicker">{{c.kicker}}</p>
+    <h1 class="vc-type-title-1">{{c.title}}</h1>
+    <p class="vc-type-lead vc-sub">{{c.lead}}</p>
+  </div>
+</section>
+<main class="vc-container vc-read">
+  <div class="vc-prose">
+    <h2 id="who">{{c.whoTitle}}</h2>
+    <p>{{c.who}}</p>
+    <h2 id="why">{{c.whyTitle}}</h2>
+    <p>{{c.why1}}</p>
+    <p>{{c.why2}}</p>
+  </div>
+  <section class="vc-part vc-part-rule vc-read-wide" aria-labelledby="maintain">
+    <h2 id="maintain" class="vc-type-title-3-serif">{{c.keepTitle}}</h2>
+    <dl class="vc-deflist vc-deflist-numbered">
+      <sc-for list="{{c.keep}}" as="k" hint-placeholder-count="4">
+        <div><span class="vc-deflist-n mono" aria-hidden="true">{{k.n}}</span><dt>{{k.q}}</dt><dd>{{k.a}}</dd></div>
+      </sc-for>
+    </dl>
+  </section>
+  <section class="vc-part vc-contact vc-read-col" id="contact" aria-labelledby="contact-t">
+    <h2 id="contact-t" class="vc-type-title-3-serif">{{c.contactTitle}}</h2>
+    <p class="vc-type-body-reading">{{c.contact}}</p>
+    <a class="btn vc-btn-action" href="mailto:">{{c.contactCta}}</a>
+  </section>
+  <nav class="vc-part vc-next" aria-labelledby="start-t">
+    <h2 id="start-t" class="vc-type-title-3">{{c.startTitle}}</h2>
+    <div class="vc-stations">
+      <a class="vc-station vc-station-body" href="{{t.bodyHref}}"><span class="vc-station-name">{{t.body}}</span><span class="vc-station-line">{{c.bodyLine}}</span></a>
+      <a class="vc-station vc-station-mind" href="{{t.mindHref}}"><span class="vc-station-name">{{t.mind}}</span><span class="vc-station-line">{{c.mindLine}}</span></a>
+      <a class="vc-station vc-station-build" href="{{t.buildHref}}"><span class="vc-station-name">{{t.build}}</span><span class="vc-station-line">{{c.buildLine}}</span></a>
+    </div>
+  </nav>
+</main>

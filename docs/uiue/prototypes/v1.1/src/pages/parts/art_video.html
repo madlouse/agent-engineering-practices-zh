@@ -1,0 +1,36 @@
+  <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
+    <figure class="vc-video vc-read-wide">
+      <div class="vc-video-frame" data-video="">
+        <div class="vc-video-shot {{frameClass}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <span class="vc-video-scrim" aria-hidden="true"></span>
+        <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
+          <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
+          <span class="vc-playbar-label">{{u.video}}</span>
+          <span class="mono">{{videoTime}}</span>
+          <span class="vc-playbar-space"></span>
+          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="false">{{u.capt}}</button>
+        </div>
+      </div>
+      <figcaption>{{voice}}</figcaption>
+      <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
+        <summary>{{u.transcript}}</summary>
+        <div class="vc-transcript">
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+        </div>
+      </details>
+    </figure>
+  </sc-if>
+  <sc-if value="{{videoFailed}}" hint-placeholder-val="{{ false }}">
+    <figure class="vc-video">
+      <div class="vc-notice vc-notice-action vc-read-wide" role="alert">
+        <p><strong>{{u.videoFailTitle}}</strong>{{u.videoFailBody}}</p>
+        <button type="button" class="btn vc-btn-quiet">{{u.retry}}</button>
+      </div>
+      <section class="vc-transcript-open vc-read-col" id="transcript" aria-labelledby="transcript-t">
+        <h2 id="transcript-t" class="kicker">{{u.transcript}}</h2>
+        <div class="vc-transcript">
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+        </div>
+      </section>
+    </figure>
+  </sc-if>

@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>站稳 · 和威利一起练 · Velicoach</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/2d0ccacf7377c5a050e285f270f25ffd">
+<script src="/_blob/26c007f478ecf5fa646eda60cbc23992"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+/* 参考画板：站稳页是 Veli 的落地页，由 Veli 仓库实现，主站别的页面不用这些版式，所以留在这一页，不放进共享样式表。外壳、区块标题（.vc-head）、纸面卡片（.vc-card）、原地展开（.vc-pop）用共享的 */
+/* 首屏：左边标题、导语和「开始训练」，右边一周安排的样张 */
+.vc-bodypage-hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--space-8); align-items: start; }
+.vc-bodypage-text { display: grid; gap: var(--space-5); justify-items: start; }
+.vc-bodypage-text .vc-type-lead { max-width: var(--text-max); color: var(--vc-sub); }
+.vc-bodypage-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); }
+.vc-bodypage-direct { display: none; }
+.vc-bodypage-plan { margin: 0; display: grid; gap: var(--space-3); }
+.vc-bodypage-plan > figcaption { color: var(--vc-sub); }
+.vc-bodypage-card { display: grid; gap: var(--space-4); }
+.vc-bodypage-card > * { margin: 0; }
+.vc-bodypage-plan-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--vc-line); }
+.vc-bodypage-plan-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-1) var(--space-4); padding: var(--space-3) 0; border-bottom: 1px solid var(--vc-line); }
+.vc-bodypage-plan-kind { color: var(--vc-faint); }
+.vc-bodypage-plan-list .mono { font-size: var(--type-meta-mono); line-height: var(--leading-body); color: var(--vc-status); white-space: nowrap; }
+/* 三栏的行：标签或序号、名称、一句说明 */
+.vc-bodypage-list { list-style: none; margin: 0; padding: 0; border-bottom: 1px solid var(--vc-line); }
+.vc-bodypage-list li { display: grid; grid-template-columns: 96px 200px minmax(0, 1fr); gap: var(--space-1) var(--space-5); align-items: baseline; padding: var(--space-4) 0; border-top: 1px solid var(--vc-line); }
+.vc-bodypage-list .mono { font-size: var(--type-meta-mono); color: var(--vc-status); }
+.vc-bodypage-list h3 { font-family: var(--font-sans); }
+.vc-bodypage-list p { margin: 0; color: var(--vc-sub); text-wrap: pretty; }
+.vc-bodypage-branch { margin: var(--space-4) 0 0; }
+.vc-bodypage-start { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.vc-bodypage-start .opt { padding-inline: var(--space-5); }
+/* breakpoint-desktop 1180px */
+@media (max-width: 1179px) { .vc-bodypage-hero { grid-template-columns: minmax(0, 1fr); gap: var(--space-7); } }
+/* breakpoint-tablet 744px：手机上两个登录方式直接摆出，不再点开（步数预算：没登录过 2 步） */
+@media (max-width: 743px) {
+  .vc-bodypage-toggle { display: none; }
+  .vc-bodypage-direct { display: grid; gap: var(--space-2); width: 100%; }
+  .vc-bodypage-text, .vc-bodypage-actions { justify-items: stretch; }
+  .vc-bodypage-actions { display: grid; width: 100%; }
+  .vc-bodypage-list li { grid-template-columns: minmax(0, 1fr); }
+  .vc-bodypage-start { display: grid; }
+  /* 图缩到手机宽度后，星期的字放大到缩放后约 13px */
+  .vc-bodypage-branch svg { overflow: visible; margin-top: var(--space-4); }
+  .vc-bodypage-branch text { font-size: 40px; }
+}
+</style>
+</helmet>
+<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
+  <div class="vc-nav-wrap">
+    <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+      <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
+        <span class="vc-wordmark">Velicoach</span>
+      </a>
+      <nav class="vc-nav-links" aria-label="{{t.navLabel}}">
+        <a class="vc-nav-link" href="{{t.bodyHref}}" aria-current="page">{{t.body}}</a>
+        <a class="vc-nav-link" href="{{t.mindHref}}">{{t.mind}}</a>
+        <a class="vc-nav-link" href="{{t.buildHref}}">{{t.build}}</a>
+      </nav>
+      <div class="seg vc-nav-lang" role="group" aria-label="{{t.langLabel}}">
+        <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
+        <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
+      </div>
+      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+    </header>
+  </div>
+  <main>
+    <section class="vc-band vc-band-paper" data-first-screen="" aria-labelledby="bo-title">
+      <div class="vc-container vc-bodypage-hero">
+        <div class="vc-bodypage-text">
+          <h1 id="bo-title" class="vc-type-title-1">{{c.h1}}</h1>
+          <p class="vc-type-lead">{{c.lead}}</p>
+          <div class="vc-bodypage-actions">
+            <div class="vc-pop-anchor vc-bodypage-toggle">
+              <button type="button" class="btn vc-btn-action" aria-expanded="{{startExpanded}}" aria-controls="bo-start-options" onClick="{{toggleStart}}">{{c.cta}}<svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2.5 4.5 L6 8 L9.5 4.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+              <div id="bo-start-options" class="{{popClass}}" data-pop="" role="group" aria-label="{{c.startGroup}}">
+                <div class="vc-pop-opts"><a class="opt" href="{{a1.href}}">{{a1.label}}</a><a class="opt" href="{{a2.href}}">{{a2.label}}</a></div>
+                <p class="vc-pop-note">{{c.popNote}}</p>
+              </div>
+            </div>
+            <div class="vc-bodypage-direct" role="group" aria-label="{{c.startGroup}}"><a class="btn vc-btn-action" href="{{a1.href}}">{{a1.label}}</a><a class="btn vc-btn-quiet" href="{{a2.href}}">{{a2.label}}</a></div>
+            <a class="vc-quick" href="#how">{{c.how}}</a>
+          </div>
+        </div>
+        <figure class="vc-bodypage-plan">
+          <div class="vc-card vc-bodypage-card">
+            <p class="vc-type-lead">{{c.planIntro}}</p>
+            <ul class="vc-bodypage-plan-list">
+              <sc-for list="{{ plan }}" as="p" hint-placeholder-count="5">
+                <li><span><span class="vc-bodypage-plan-kind">{{ p.kind }} · </span>{{ p.name }}</span><span class="mono">{{ p.dose }}</span></li>
+              </sc-for>
+            </ul>
+          </div>
+          <figcaption class="vc-type-footnote">{{c.planCap}}</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="what" class="vc-container vc-section vc-section-flush" aria-labelledby="bo-what-title">
+      <div class="vc-head">
+        <h2 id="bo-what-title" class="vc-type-title-2">{{c.whatTitle}}</h2>
+        <p class="vc-type-body">{{c.whatLead}}</p>
+      </div>
+      <ol class="vc-bodypage-list">
+        <sc-for list="{{ moves }}" as="m" hint-placeholder-count="3">
+          <li><span class="mono">{{ m.tag }}</span><h3 class="vc-type-lead">{{ m.name }}</h3><p class="vc-type-body">{{ m.line }}</p></li>
+        </sc-for>
+      </ol>
+    </section>
+
+    <section id="how" class="vc-container vc-section vc-section-flush" aria-labelledby="bo-how-title">
+      <div class="vc-head">
+        <h2 id="bo-how-title" class="vc-type-title-2">{{c.how}}</h2>
+        <p class="vc-type-body">{{c.howLead}}</p>
+      </div>
+      <ol class="vc-bodypage-list">
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+          <li><span class="mono" aria-hidden="true">{{ s.n }}</span><h3 class="vc-type-lead">{{ s.title }}</h3><p class="vc-type-body">{{ s.line }}</p></li>
+        </sc-for>
+      </ol>
+      <figure class="vc-card vc-bodypage-card vc-bodypage-branch">
+        <h3 class="vc-type-title-3">{{c.branch}}</h3>
+        <svg viewBox="0 0 980 110" width="100%" role="img" aria-label="{{c.branchAlt}}">
+          <g font-family="var(--font-sans)" font-size="16" fill="var(--vc-text-2)" text-anchor="middle">
+            <text x="70" y="20">{{c.d1}}</text><text x="210" y="20">{{c.d2}}</text><text x="350" y="20">{{c.d3}}</text><text x="490" y="20">{{c.d4}}</text><text x="630" y="20">{{c.d5}}</text><text x="770" y="20">{{c.d6}}</text><text x="910" y="20">{{c.d7}}</text>
+          </g>
+          <line x1="30" y1="88" x2="950" y2="88" stroke="var(--vc-moss)" stroke-width="3" stroke-linecap="round"></line>
+          <path d="M70 88 C 52 74, 54 52, 70 46 C 86 52, 88 74, 70 88 Z" fill="var(--vc-moss)"></path>
+          <circle cx="210" cy="88" r="5" fill="var(--vc-moss)"></circle>
+          <path d="M350 88 C 332 74, 334 52, 350 46 C 366 52, 368 74, 350 88 Z" fill="var(--vc-moss)"></path>
+          <path d="M490 88 C 472 74, 474 52, 490 46 C 506 52, 508 74, 490 88 Z" fill="var(--vc-paper-surface)" stroke="var(--vc-moss)" stroke-width="2"></path>
+          <path d="M630 88 C 612 74, 614 52, 630 46 C 646 52, 648 74, 630 88 Z" fill="var(--vc-moss)"></path>
+          <circle cx="770" cy="88" r="5" fill="var(--vc-moss)"></circle>
+          <path d="M910 88 C 892 74, 894 52, 910 46 C 926 52, 928 74, 910 88 Z" fill="var(--vc-moss)"></path>
+        </svg>
+        <figcaption class="vc-type-body vc-sub">{{c.branchCap}}</figcaption>
+      </figure>
+    </section>
+
+    <section id="start" class="vc-container vc-section" aria-labelledby="bo-start-title">
+      <div class="vc-head">
+        <h2 id="bo-start-title" class="vc-type-title-2">{{c.firstTitle}}</h2>
+        <p class="vc-type-body">{{c.firstLead}}</p>
+      </div>
+      <div class="vc-bodypage-start" role="group" aria-label="{{c.startGroup}}">
+        <a class="opt" href="{{a1.href}}">{{a1.label}}</a>
+        <a class="opt" href="{{a2.href}}">{{a2.label}}</a>
+      </div>
+    </section>
+  </main>
+  <footer class="vc-footer vc-container">
+    <nav class="vc-footer-links" aria-label="{{t.footerLabel}}">
+      <a href="{{t.aboutHref}}">{{t.about}}</a>
+      <a href="{{t.contactHref}}">{{t.contact}}</a>
+      <a href="{{t.copyrightHref}}">{{t.copyright}}</a>
+      <a href="{{t.privacyHref}}">{{t.privacy}}</a>
+      <a href="{{t.healthHref}}">{{t.health}}</a>
+      <a href="{{t.disclaimerHref}}">{{t.disclaimerLink}}</a>
+      <a href="{{t.termsHref}}">{{t.terms}}</a>
+      <a href="{{t.feedHref}}">RSS</a>
+    </nav>
+    <div class="vc-footer-tools">
+      <div class="seg" role="group" aria-label="{{t.appearance}}">
+        <button type="button" aria-pressed="{{themeAuto}}" onClick="{{setAuto}}">{{t.auto}}</button>
+        <button type="button" aria-pressed="{{themeLight}}" onClick="{{setLight}}">{{t.light}}</button>
+        <button type="button" aria-pressed="{{themeDark}}" onClick="{{setDark}}">{{t.dark}}</button>
+      </div>
+      <div class="seg" role="group" aria-label="{{t.langLabel}}">
+        <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
+        <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
+      </div>
+    </div>
+    <p class="vc-footer-note">{{t.disclaimer}}</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"startMenu":{"editor":"enum","options":["收起","展开"],"default":"收起"},"device":{"editor":"enum","options":["其他","苹果"],"default":"其他"},"$preview":{"width":1440,"height":2700}}'>
+/* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+const SHELL = {
+  zh: {
+    home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
+    navLabel: '三站', body: '站稳', mind: '看清', build: '动手',
+    langLabel: '语言', langSwitch: '切换到英文，现在是中文', otherLang: 'en',
+    subTitle: '订阅', subNote: '每周日一封：一读、一练、一个项目。可一键退订。', privacy: '隐私政策',
+    subscribe: '订阅', subBusy: '正在订阅', subDone: '已订阅，每周日见', emailLabel: '邮箱', emailPh: '你的邮箱', collapse: '收起',
+    subAction: '/api/site/subscribe', errFormat: '邮箱格式不对', errRate: '提交太频繁，一小时后再试', errDown: '订阅暂时不可用，稍后再试',
+    rssRow: '用 RSS 订阅更新',
+    footerLabel: '页脚', about: '关于', contact: '联系', copyright: '版权与转载', health: '健康数据政策', disclaimerLink: '健康免责', terms: '服务条款',
+    aboutHref: '/about', contactHref: '/about#contact', copyrightHref: '/legal/copyright', privacyHref: '/legal/privacy', healthHref: '/data-usage', disclaimerHref: '/legal/health-disclaimer', termsHref: '/legal/terms', feedHref: '/feed.xml',
+    appearance: '外观', auto: '自动', light: '浅色', dark: '深色',
+    disclaimer: '威利不是医生。有伤病或疼痛，先停下来，问医生。',
+  },
+  en: {
+    home: '/en/', homeLabel: 'Velicoach home', bodyHref: '/en/body', mindHref: '/en/mind', buildHref: '/en/build',
+    navLabel: 'Stations', body: 'Body', mind: 'Mind', build: 'Build',
+    langLabel: 'Language', langSwitch: 'Switch to Chinese, currently English', otherLang: 'zh-CN',
+    subTitle: 'Newsletter', subNote: 'Every Sunday: one read, one workout, one project. One-click unsubscribe. ', privacy: 'Privacy policy',
+    subscribe: 'Subscribe', subBusy: 'Subscribing', subDone: 'Subscribed. See you Sunday.', emailLabel: 'Email', emailPh: 'Your email', collapse: 'Close',
+    subAction: '/api/site/subscribe', errFormat: 'That email doesn’t look right.', errRate: 'Too many tries. Wait an hour.', errDown: 'Sign-up is down. Try again later.',
+    rssRow: 'Follow updates by RSS',
+    footerLabel: 'Footer', about: 'About', contact: 'Contact', copyright: 'Copyright and reuse', health: 'Health data policy', disclaimerLink: 'Health disclaimer', terms: 'Terms',
+    aboutHref: '/en/about', contactHref: '/en/about#contact', copyrightHref: '/en/legal/copyright', privacyHref: '/en/legal/privacy', healthHref: '/en/data-usage', disclaimerHref: '/en/legal/health-disclaimer', termsHref: '/en/legal/terms', feedHref: '/en/feed.xml',
+    appearance: 'Appearance', auto: 'Auto', light: 'Light', dark: 'Dark',
+    disclaimer: 'Veli isn’t a doctor. If you’re injured or in pain, stop and see a doctor.',
+  },
+};
+/* station：这页在首屏用哪种实色导航，'paper' | 'ink' | 'moss'。
+   path：这一页的中文地址（'/'、'/mind'、'/mind/learn'……）；英文版在前面加 /en。语言切换链到本页的另一语言版本，不回首页 */
+function shellVals(self, station, path) {
+  const pick = (k, d) => (self.state && self.state[k]) ?? self.props[k] ?? d;
+  const en = pick('lang', '中文') === 'English';
+  const theme = pick('theme', '自动');
+  const gate = pick('subscribeGate', '开') === '开';
+  const sub = pick('subscribe', '收起');
+  const t = SHELL[en ? 'en' : 'zh'];
+  const err = { '格式不对': t.errFormat, '提交太频繁': t.errRate, '服务不可用': t.errDown }[sub] || '';
+  const zhHref = path, enHref = path === '/' ? '/en/' : '/en' + path;
+  const done = sub === '订阅成功';
+  const busy = sub === '正在订阅';
+  return {
+    t, en, langAttr: en ? 'en' : 'zh-CN',
+    zhHref, enHref, otherHref: en ? zhHref : enHref,
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
+    toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
+    themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',
+    themeAuto: theme === '自动' ? 'true' : 'false', themeLight: theme === '浅色' ? 'true' : 'false', themeDark: theme === '深色' ? 'true' : 'false',
+    setAuto: () => self.setState({ theme: '自动' }), setLight: () => self.setState({ theme: '浅色' }), setDark: () => self.setState({ theme: '深色' }),
+    navClass: pick('nav', '首屏') === '吸顶' ? 'vc-nav lg' : 'vc-nav vc-nav-' + station,
+    subOn: gate, rssRow: !gate,
+    barClosed: gate && sub === '收起', barOpen: gate && sub !== '收起' && !done, barDone: gate && done, formShown: !done,
+    openSub: () => self.setState({ subscribe: '填写邮箱' }), closeSub: () => self.setState({ subscribe: '收起' }),
+    subButton: busy ? t.subBusy : t.subscribe, subBusy: busy ? 'true' : 'false',
+    subHasError: !!err, subError: err, subInvalid: err ? 'true' : 'false',
+    subValue: sub === '格式不对' ? 'name@' : (busy || err) ? 'name@example.com' : '',
+  };
+}
+/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」展开的两个选项是 /auth/google、/auth/apple ── */
+const COPY = {
+ "zh": {
+  "what": "练什么",
+  "how": "威利怎么陪你",
+  "h1": "做一个强健的人",
+  "lead": "威利是 Veli 里的 AI 力量训练教练，替上班族排好什么时候练、在哪练、练什么。你只管到场。",
+  "cta": "开始训练",
+  "startGroup": "开始训练的方式",
+  "google": "用 Google 开始训练",
+  "apple": "用 Apple 开始训练",
+  "planIntro": "明早 7:10 出门，健身房 6:30 就开了。动作排好了：",
+  "planCap": "威利前一晚发来的第一练：六组动作，加上热身和收尾，12 分钟做完。",
+  "whatTitle": "练什么：先练三个动作",
+  "whatLead": "先把三个基本动作练稳，再慢慢加重量。每个动作都有更容易的做法，从你做得到的那一档开始。",
+  "howLead": "说一次你想要什么，剩下的它来排；练完只说具体哪里变好了。",
+  "branch": "一周一根枝",
+  "branchAlt": "一周七天的枝：周一、周三、周五、周日练了力量，长出实心叶；周四完成了一件小事，长出浅色叶；周二、周六没练，只是节点",
+  "d1": "周一",
+  "d2": "周二",
+  "d3": "周三",
+  "d4": "周四",
+  "d5": "周五",
+  "d6": "周六",
+  "d7": "周日",
+  "branchCap": "练了力量长一片实心叶，完成一件小事长一片浅色叶；没练的日子只是一个节点，不扣分，也不掉叶子。",
+  "firstTitle": "第一练，12 分钟",
+  "firstLead": "告诉威利你想练什么、一周有几天，剩下的它来排。",
+  "googleHref": "/auth/google",
+  "appleHref": "/auth/apple",
+  "popNote": "登录后直接进入今天的安排。第一次来，先确认年龄和数据怎么用，一屏完成。按 Esc 可以收起。"
+ },
+ "en": {
+  "what": "What to train",
+  "how": "How Veli helps",
+  "h1": "Get strong for the long run",
+  "lead": "Veli, an AI strength coach, plans when, where, and what you train around a full-time job. You just show up.",
+  "cta": "Start training",
+  "startGroup": "Ways to start training",
+  "google": "Start training with Google",
+  "apple": "Start training with Apple",
+  "planIntro": "You leave at 7:10 tomorrow and the gym opens at 6:30. Your session is ready:",
+  "planCap": "Sent by Veli the night before. Your first session: six sets plus a warm-up and a cool-down, done in 12 minutes.",
+  "whatTitle": "What to train: three moves first",
+  "whatLead": "Get three basic moves solid, then add weight slowly. Each move has an easier version, so start at the level you can do.",
+  "howLead": "Say what you want once and Veli plans the rest. After each session, it tells you exactly what improved.",
+  "branch": "One branch a week",
+  "branchAlt": "A week as a branch: Monday, Wednesday, Friday, and Sunday had strength sessions and grew solid leaves; Thursday had a small win and grew a light leaf; Tuesday and Saturday are plain nodes",
+  "d1": "Mon",
+  "d2": "Tue",
+  "d3": "Wed",
+  "d4": "Thu",
+  "d5": "Fri",
+  "d6": "Sat",
+  "d7": "Sun",
+  "branchCap": "A strength session grows a solid leaf; a small win grows a light one. Days off are just nodes: no penalty, no lost leaves.",
+  "firstTitle": "Your first session: 12 minutes",
+  "firstLead": "Tell Veli what you want to train and how many days a week. It plans the rest.",
+  "googleHref": "/auth/google",
+  "appleHref": "/auth/apple",
+  "popNote": "Signing in takes you straight to today’s plan. First time? Confirm your age and how your data is used, all on one screen. Press Esc to close."
+ }
+};
+const LISTS = {
+ "zh": {
+  "plan": [
+   {
+    "kind": "热身",
+    "name": "动态拉伸",
+    "dose": "2 分钟"
+   },
+   {
+    "kind": "力量",
+    "name": "高脚杯深蹲",
+    "dose": "2 组 × 8 次"
+   },
+   {
+    "kind": "力量",
+    "name": "俯卧撑",
+    "dose": "2 组 × 6 次"
+   },
+   {
+    "kind": "力量",
+    "name": "哑铃划船",
+    "dose": "2 组 × 8 次"
+   },
+   {
+    "kind": "收尾",
+    "name": "拉伸",
+    "dose": "2 分钟"
+   }
+  ],
+  "moves": [
+   {
+    "tag": "下肢",
+    "name": "深蹲",
+    "line": "从徒手深蹲开始，能稳稳做 10 次以后，换成高脚杯深蹲。"
+   },
+   {
+    "tag": "推",
+    "name": "俯卧撑",
+    "line": "先扶着桌边做，再到膝盖着地，最后做标准俯卧撑。"
+   },
+   {
+    "tag": "拉",
+    "name": "划船",
+    "line": "用一只哑铃或一瓶水做单臂划船，后背发力，肩膀放松。"
+   }
+  ],
+  "steps": [
+   {
+    "n": "01",
+    "title": "说出你想要的",
+    "line": "练什么、一周几天、身上有没有旧伤。说一次，威利记住。"
+   },
+   {
+    "n": "02",
+    "title": "威利提前排好",
+    "line": "动作、组数、路线、开门时间，前一晚就放在你手边。不知道的，它会直说不知道。"
+   },
+   {
+    "n": "03",
+    "title": "练完，长一片叶子",
+    "line": "只告诉你具体哪里变好了，比如「比上周多 2 次」。误差内的波动，不算进步。"
+   }
+  ]
+ },
+ "en": {
+  "plan": [
+   {
+    "kind": "Warm-up",
+    "name": "Dynamic stretches",
+    "dose": "2 min"
+   },
+   {
+    "kind": "Strength",
+    "name": "Goblet squat",
+    "dose": "2 × 8"
+   },
+   {
+    "kind": "Strength",
+    "name": "Push-up",
+    "dose": "2 × 6"
+   },
+   {
+    "kind": "Strength",
+    "name": "Dumbbell row",
+    "dose": "2 × 8"
+   },
+   {
+    "kind": "Cool-down",
+    "name": "Stretching",
+    "dose": "2 min"
+   }
+  ],
+  "moves": [
+   {
+    "tag": "Legs",
+    "name": "Squat",
+    "line": "Start with bodyweight squats. Once you can do 10 steady reps, switch to goblet squats."
+   },
+   {
+    "tag": "Push",
+    "name": "Push-up",
+    "line": "Start with your hands on a table edge, then on your knees, then a full push-up."
+   },
+   {
+    "tag": "Pull",
+    "name": "Row",
+    "line": "Do one-arm rows with a dumbbell or a water bottle. Pull with your back and keep your shoulders loose."
+   }
+  ],
+  "steps": [
+   {
+    "n": "01",
+    "title": "Say what you want",
+    "line": "What to train, how many days a week, any old injuries. Say it once and Veli remembers."
+   },
+   {
+    "n": "02",
+    "title": "Veli plans ahead",
+    "line": "Moves, sets, route, and opening hours, ready the night before. When it doesn’t know something, it says so."
+   },
+   {
+    "n": "03",
+    "title": "Finish and grow a leaf",
+    "line": "You hear exactly what improved, such as “2 more reps than last week.” Normal day-to-day swings don’t count as progress."
+   }
+  ]
+ }
+};
+class Component extends DCLogic {
+  componentDidMount() {
+    if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
+    // 展开层打开时，Esc 在页面任何位置都能关上；关上后焦点回到「开始训练」
+    this.onKey = (e) => {
+      if (e.key !== 'Escape' || !this.isOpen()) return;
+      this.setState({ open: false });
+      const btn = document.querySelector('.vc-bodypage-toggle .btn'); if (btn) btn.focus();
+    };
+    document.addEventListener('keydown', this.onKey);
+  }
+  componentWillUnmount() { document.removeEventListener('keydown', this.onKey); }
+  isOpen() { return this.state && this.state.open !== undefined ? this.state.open : (this.props.startMenu ?? '收起') === '展开'; }
+  renderVals() {
+    const v = shellVals(this, 'paper', '/body');
+    const k = v.en ? 'en' : 'zh';
+    const open = this.isOpen();
+    /* 登录方式按设备定主次：苹果设备上「用 Apple」在前，其余设备「用 Google」在前（和首页同一条规则） */
+    const c0 = COPY[k], g = { label: c0.google, href: c0.googleHref }, ap = { label: c0.apple, href: c0.appleHref };
+    const apple = (this.props.device ?? '其他') === '苹果';
+    return {
+      ...v, c: COPY[k], ...LISTS[k], a1: apple ? ap : g, a2: apple ? g : ap,
+      startExpanded: open ? 'true' : 'false', popClass: open ? 'vc-pop' : 'vc-pop is-closed',
+      toggleStart: () => {
+        this.setState({ open: !open });
+        if (!open) setTimeout(() => { const first = document.querySelector('#bo-start-options a'); if (first) first.focus(); }, 0);
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

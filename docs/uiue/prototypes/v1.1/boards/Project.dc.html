@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Velicoach 主站 · 动手 · Velicoach</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/2d0ccacf7377c5a050e285f270f25ffd">
+<script src="/_blob/26c007f478ecf5fa646eda60cbc23992"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+/* 只属于项目页的版式：项目说明在左，「和智能体怎么分工」在右。这是项目页比动手页多出来的一段，别的页面没有左文右表的区块，所以不放进共享样式表 */
+.vc-projectpage-about { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--space-6) var(--space-8); align-items: start; }
+.vc-projectpage-text { display: grid; gap: var(--space-4); }
+.vc-projectpage-text p { color: var(--vc-sub); }
+/* breakpoint-desktop 1180px */
+@media (max-width: 1179px) { .vc-projectpage-about { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</helmet>
+<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
+  <div class="vc-nav-wrap">
+    <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+      <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
+        <span class="vc-wordmark">Velicoach</span>
+      </a>
+      <nav class="vc-nav-links" aria-label="{{t.navLabel}}">
+        <a class="vc-nav-link" href="{{t.bodyHref}}">{{t.body}}</a>
+        <a class="vc-nav-link" href="{{t.mindHref}}">{{t.mind}}</a>
+        <a class="vc-nav-link" href="{{t.buildHref}}" aria-current="page">{{t.build}}</a>
+      </nav>
+      <div class="seg vc-nav-lang" role="group" aria-label="{{t.langLabel}}">
+        <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
+        <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
+      </div>
+      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+    </header>
+  </div>
+  <main>
+    <section class="vc-band vc-band-moss" data-first-screen="" aria-labelledby="pj-title">
+      <div class="vc-container vc-band-body">
+        <nav class="vc-crumb" aria-label="{{c.crumbLabel}}"><a href="{{c.buildHref}}">{{t.build}}</a><span aria-hidden="true">/</span><a href="{{c.projectsHref}}">{{c.crumbProjects}}</a></nav>
+        <h1 id="pj-title" class="vc-type-title-1">{{c.name}}</h1>
+        <p class="vc-type-lead vc-sub">{{c.lead}}</p>
+        <dl class="vc-facts">
+          <div><dt class="vc-sr-only">{{c.statusLabel}}</dt><dd class="vc-status">{{c.status}}</dd></div>
+          <div><dt>{{c.addrLabel}}</dt><dd><a class="vc-quick" href="{{c.addrHref}}">{{c.addr}}</a></dd></div>
+        </dl>
+        <sc-if value="{{hasLogs}}" hint-placeholder-val="{{ true }}">
+          <a class="btn vc-btn-on-moss" href="#devlog">{{c.cta}}</a>
+        </sc-if>
+      </div>
+    </section>
+
+    <section class="vc-container vc-section vc-section-flush vc-projectpage-about" aria-labelledby="pj-about-title">
+      <div class="vc-projectpage-text">
+        <h2 id="pj-about-title" class="vc-type-title-2">{{c.aboutTitle}}</h2>
+        <p class="vc-type-body">{{c.about1}}</p>
+        <p class="vc-type-body">{{c.about2}}</p>
+      </div>
+      <div>
+        <h3 class="vc-type-title-3" style="margin-bottom: var(--space-4);">{{c.rolesTitle}}</h3>
+        <dl class="vc-deflist">
+          <sc-for list="{{ roles }}" as="r" hint-placeholder-count="4">
+            <div><dt>{{ r.who }}</dt><dd>{{ r.what }}</dd></div>
+          </sc-for>
+        </dl>
+      </div>
+    </section>
+
+    <section id="devlog" class="vc-container vc-section" aria-labelledby="pj-log-title">
+      <div class="vc-head">
+        <h2 id="pj-log-title" class="vc-type-title-2">{{c.logTitle}}</h2>
+        <sc-if value="{{hasLogs}}" hint-placeholder-val="{{ true }}"><p class="vc-type-body">{{c.logLead}}</p></sc-if>
+      </div>
+      <sc-if value="{{hasLogs}}" hint-placeholder-val="{{ true }}">
+      <ol class="vc-rows">
+        <sc-for list="{{ logs }}" as="l" hint-placeholder-count="5">
+          <li class="vc-row vc-log" id="{{ l.id }}">
+            <a class="vc-row-main" href="{{ l.href }}" aria-labelledby="{{ l.tid }}">
+              <time class="vc-row-lead" datetime="{{ l.iso }}">{{ l.date }}</time>
+              <div class="vc-row-body">
+                <p class="vc-row-kind">{{ l.project }}</p>
+                <h3 id="{{ l.tid }}" class="row-title">{{ l.title }}</h3>
+                <p class="vc-row-line"><b>{{c.splitLabel}}</b>{{ l.split }}</p>
+                <p class="vc-row-line"><b>{{c.nextLabel}}</b>{{ l.next }}</p>
+              </div>
+            </a>
+            <p class="vc-row-more"><sc-for list="{{ l.refs }}" as="r" hint-placeholder-count="1"><a class="vc-quick" href="{{ r.href }}">{{ r.label }}</a></sc-for></p>
+          </li>
+        </sc-for>
+      </ol>
+      </sc-if>
+      <sc-if value="{{noLogs}}" hint-placeholder-val="{{ false }}">
+        <div class="vc-empty">
+          <p class="vc-type-body">{{c.empty}}</p>
+          <a class="vc-quick" href="{{c.allLogsHref}}">{{c.allLogs}}</a>
+        </div>
+      </sc-if>
+    </section>
+  </main>
+  <sc-if value="{{subOn}}" hint-placeholder-val="{{ true }}">
+    <section class="vc-subscribe vc-container" aria-labelledby="vc-sub-title">
+      <div class="vc-subscribe-text">
+        <h2 id="vc-sub-title" class="vc-type-title-3">{{t.subTitle}}</h2>
+        <p class="vc-sub-note">{{t.subNote}}<a href="{{t.privacyHref}}">{{t.privacy}}</a></p>
+      </div>
+      <sc-if value="{{formShown}}" hint-placeholder-val="{{ true }}">
+        <form class="vc-sub-form" action="{{t.subAction}}" method="post" novalidate>
+          <label class="vc-sr-only" for="vc-sub-email">{{t.emailLabel}}</label>
+          <input id="vc-sub-email" class="vc-field" type="email" name="email" autocomplete="email" placeholder="{{t.emailPh}}" value="{{subValue}}" aria-invalid="{{subInvalid}}" aria-describedby="vc-sub-error">
+          <button type="submit" class="btn vc-btn-action" aria-disabled="{{subBusy}}">{{subButton}}</button>
+          <sc-if value="{{subHasError}}" hint-placeholder-val="{{ false }}">
+            <p id="vc-sub-error" class="vc-error" role="alert">{{subError}}</p>
+          </sc-if>
+        </form>
+      </sc-if>
+      <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
+        <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+      </sc-if>
+    </section>
+  </sc-if>
+  <footer class="vc-footer vc-container">
+    <nav class="vc-footer-links" aria-label="{{t.footerLabel}}">
+      <a href="{{t.aboutHref}}">{{t.about}}</a>
+      <a href="{{t.contactHref}}">{{t.contact}}</a>
+      <a href="{{t.copyrightHref}}">{{t.copyright}}</a>
+      <a href="{{t.privacyHref}}">{{t.privacy}}</a>
+      <a href="{{t.healthHref}}">{{t.health}}</a>
+      <a href="{{t.disclaimerHref}}">{{t.disclaimerLink}}</a>
+      <a href="{{t.termsHref}}">{{t.terms}}</a>
+      <a href="{{t.feedHref}}">RSS</a>
+    </nav>
+    <div class="vc-footer-tools">
+      <div class="seg" role="group" aria-label="{{t.appearance}}">
+        <button type="button" aria-pressed="{{themeAuto}}" onClick="{{setAuto}}">{{t.auto}}</button>
+        <button type="button" aria-pressed="{{themeLight}}" onClick="{{setLight}}">{{t.light}}</button>
+        <button type="button" aria-pressed="{{themeDark}}" onClick="{{setDark}}">{{t.dark}}</button>
+      </div>
+      <div class="seg" role="group" aria-label="{{t.langLabel}}">
+        <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
+        <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
+      </div>
+    </div>
+    <p class="vc-footer-note">{{t.disclaimer}}</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"devlog":{"editor":"enum","options":["有日志","还没有日志"],"default":"有日志"},"$preview":{"width":1440,"height":2600}}'>
+/* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+const SHELL = {
+  zh: {
+    home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
+    navLabel: '三站', body: '站稳', mind: '看清', build: '动手',
+    langLabel: '语言', langSwitch: '切换到英文，现在是中文', otherLang: 'en',
+    subTitle: '订阅', subNote: '每周日一封：一读、一练、一个项目。可一键退订。', privacy: '隐私政策',
+    subscribe: '订阅', subBusy: '正在订阅', subDone: '已订阅，每周日见', emailLabel: '邮箱', emailPh: '你的邮箱', collapse: '收起',
+    subAction: '/api/site/subscribe', errFormat: '邮箱格式不对', errRate: '提交太频繁，一小时后再试', errDown: '订阅暂时不可用，稍后再试',
+    rssRow: '用 RSS 订阅更新',
+    footerLabel: '页脚', about: '关于', contact: '联系', copyright: '版权与转载', health: '健康数据政策', disclaimerLink: '健康免责', terms: '服务条款',
+    aboutHref: '/about', contactHref: '/about#contact', copyrightHref: '/legal/copyright', privacyHref: '/legal/privacy', healthHref: '/data-usage', disclaimerHref: '/legal/health-disclaimer', termsHref: '/legal/terms', feedHref: '/feed.xml',
+    appearance: '外观', auto: '自动', light: '浅色', dark: '深色',
+    disclaimer: '威利不是医生。有伤病或疼痛，先停下来，问医生。',
+  },
+  en: {
+    home: '/en/', homeLabel: 'Velicoach home', bodyHref: '/en/body', mindHref: '/en/mind', buildHref: '/en/build',
+    navLabel: 'Stations', body: 'Body', mind: 'Mind', build: 'Build',
+    langLabel: 'Language', langSwitch: 'Switch to Chinese, currently English', otherLang: 'zh-CN',
+    subTitle: 'Newsletter', subNote: 'Every Sunday: one read, one workout, one project. One-click unsubscribe. ', privacy: 'Privacy policy',
+    subscribe: 'Subscribe', subBusy: 'Subscribing', subDone: 'Subscribed. See you Sunday.', emailLabel: 'Email', emailPh: 'Your email', collapse: 'Close',
+    subAction: '/api/site/subscribe', errFormat: 'That email doesn’t look right.', errRate: 'Too many tries. Wait an hour.', errDown: 'Sign-up is down. Try again later.',
+    rssRow: 'Follow updates by RSS',
+    footerLabel: 'Footer', about: 'About', contact: 'Contact', copyright: 'Copyright and reuse', health: 'Health data policy', disclaimerLink: 'Health disclaimer', terms: 'Terms',
+    aboutHref: '/en/about', contactHref: '/en/about#contact', copyrightHref: '/en/legal/copyright', privacyHref: '/en/legal/privacy', healthHref: '/en/data-usage', disclaimerHref: '/en/legal/health-disclaimer', termsHref: '/en/legal/terms', feedHref: '/en/feed.xml',
+    appearance: 'Appearance', auto: 'Auto', light: 'Light', dark: 'Dark',
+    disclaimer: 'Veli isn’t a doctor. If you’re injured or in pain, stop and see a doctor.',
+  },
+};
+/* station：这页在首屏用哪种实色导航，'paper' | 'ink' | 'moss'。
+   path：这一页的中文地址（'/'、'/mind'、'/mind/learn'……）；英文版在前面加 /en。语言切换链到本页的另一语言版本，不回首页 */
+function shellVals(self, station, path) {
+  const pick = (k, d) => (self.state && self.state[k]) ?? self.props[k] ?? d;
+  const en = pick('lang', '中文') === 'English';
+  const theme = pick('theme', '自动');
+  const gate = pick('subscribeGate', '开') === '开';
+  const sub = pick('subscribe', '收起');
+  const t = SHELL[en ? 'en' : 'zh'];
+  const err = { '格式不对': t.errFormat, '提交太频繁': t.errRate, '服务不可用': t.errDown }[sub] || '';
+  const zhHref = path, enHref = path === '/' ? '/en/' : '/en' + path;
+  const done = sub === '订阅成功';
+  const busy = sub === '正在订阅';
+  return {
+    t, en, langAttr: en ? 'en' : 'zh-CN',
+    zhHref, enHref, otherHref: en ? zhHref : enHref,
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
+    toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
+    themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',
+    themeAuto: theme === '自动' ? 'true' : 'false', themeLight: theme === '浅色' ? 'true' : 'false', themeDark: theme === '深色' ? 'true' : 'false',
+    setAuto: () => self.setState({ theme: '自动' }), setLight: () => self.setState({ theme: '浅色' }), setDark: () => self.setState({ theme: '深色' }),
+    navClass: pick('nav', '首屏') === '吸顶' ? 'vc-nav lg' : 'vc-nav vc-nav-' + station,
+    subOn: gate, rssRow: !gate,
+    barClosed: gate && sub === '收起', barOpen: gate && sub !== '收起' && !done, barDone: gate && done, formShown: !done,
+    openSub: () => self.setState({ subscribe: '填写邮箱' }), closeSub: () => self.setState({ subscribe: '收起' }),
+    subButton: busy ? t.subBusy : t.subscribe, subBusy: busy ? 'true' : 'false',
+    subHasError: !!err, subError: err, subInvalid: err ? 'true' : 'false',
+    subValue: sub === '格式不对' ? 'name@' : (busy || err) ? 'name@example.com' : '',
+  };
+}
+/* ── 项目页自己的文案和数据。地址：/build/velicoach（英文 /en/build/velicoach）；#devlog 是本项目的开发日志；属性「开发日志」= 还没有日志时是同一个地址的空状态 ── */
+const COPY = {
+ "zh": {
+  "crumbLabel": "所在位置",
+  "buildHref": "/build",
+  "projectsHref": "/build#projects",
+  "crumbProjects": "在做的项目",
+  "name": "Velicoach 主站",
+  "lead": "这座站本身：三站的首页、看清的文章库和动手的开发日志，都和智能体一起做。",
+  "statusLabel": "状态",
+  "status": "开发中",
+  "addrLabel": "产品地址",
+  "addr": "velicoach.com",
+  "addrHref": "/",
+  "cta": "读这个项目的开发日志",
+  "aboutTitle": "这个项目",
+  "about1": "Velicoach 是 AGI 路上的陪练：先站稳，再看清，然后动手。这个项目做的是它的主站：首页、看清的文章和里程碑、动手的开发日志。站稳一站的产品 Veli 是另一个项目。",
+  "about2": "整座站由一位产品负责人和一组智能体一起做。怎么做的、哪里走了弯路，都写进下面的开发日志。",
+  "rolesTitle": "和智能体怎么分工",
+  "logTitle": "开发日志",
+  "logLead": "只列这个项目的日志，最新的在最上面。",
+  "empty": "这个项目还没有开发日志。第一条写好后会出现在这里。",
+  "allLogs": "看全部项目的开发日志",
+  "allLogsHref": "/build#devlog",
+  "splitLabel": "分工",
+  "nextLabel": "下一步"
+ },
+ "en": {
+  "crumbLabel": "You are here",
+  "buildHref": "/en/build",
+  "projectsHref": "/en/build#projects",
+  "crumbProjects": "What we’re building",
+  "name": "Velicoach",
+  "lead": "This site itself: the home page, Mind’s article library, and Build’s devlog, all made with agents.",
+  "statusLabel": "Status",
+  "status": "In development",
+  "addrLabel": "Product",
+  "addr": "velicoach.com",
+  "addrHref": "/en/",
+  "cta": "Read this project’s devlog",
+  "aboutTitle": "About this project",
+  "about1": "Velicoach is a training partner for the AGI era: get strong, see clearly, then build. This project is its main site: the home page, Mind’s articles and milestones, and Build’s devlog. Veli, the strength-training product, is a separate project.",
+  "about2": "One product owner and a team of agents build the whole site. How we did it, wrong turns included, goes into the devlog below.",
+  "rolesTitle": "How we split the work with agents",
+  "logTitle": "Devlog",
+  "logLead": "Entries for this project only, newest first.",
+  "empty": "This project has no devlog entries yet. The first one will appear here.",
+  "allLogs": "Read the devlog for all projects",
+  "allLogsHref": "/en/build#devlog",
+  "splitLabel": "Who did what",
+  "nextLabel": "Next"
+ }
+};
+const LISTS = {
+ "zh": {
+  "logs": [
+   {
+    "id": "log-cold-review",
+    "tid": "log-cold-review-t",
+    "href": "/build/velicoach/cold-review",
+    "iso": "2026-11-04",
+    "date": "2026-11-04",
+    "project": "Velicoach 主站",
+    "title": "合并前，一位没参与制作的评审找出 11 处问题：10 处当场改完，基线里失败的测试另开一张票",
+    "split": "一个智能体写协作规范；另一个没看过写作过程的智能体来评审；产品负责人确认方案。",
+    "next": "规范里写的每条命令都实际跑一次；在另开的那张票里把基线的 8 个失败测试修到通过。",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/98a80d4",
+      "label": "velicoach 提交 98a80d4"
+     }
+    ]
+   },
+   {
+    "id": "log-quality-terms",
+    "tid": "log-quality-terms-t",
+    "href": "/build/velicoach/quality-terms",
+    "iso": "2026-11-04",
+    "date": "2026-11-04",
+    "project": "Velicoach 主站",
+    "title": "「体验友好」拆成五类能判对错的规则，并做成一项自动检查",
+    "split": "产品负责人提出：说不清的标准要照对标产品写成能评审的规则。智能体起草规则和检查脚本；另一个智能体做对抗评审，找出 8 类问题后重写。",
+    "next": "用这些规则对照现有设计，找出的四处冲突逐个处理。",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/3138a79",
+      "label": "velicoach 提交 3138a79"
+     },
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/fc7fa5e",
+      "label": "velicoach 提交 fc7fa5e"
+     },
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/35ab42c",
+      "label": "velicoach 提交 35ab42c"
+     }
+    ]
+   },
+   {
+    "id": "log-two-reviewers",
+    "tid": "log-two-reviewers-t",
+    "href": "/build/velicoach/two-reviewers",
+    "iso": "2026-11-04",
+    "date": "2026-11-04",
+    "project": "Velicoach 主站",
+    "title": "两个模型各审一遍设计，互相看不到结论",
+    "split": "智能体出设计稿；两位评审智能体只拿到截图和需求，各交一份问题清单；主会话合并两份结论再改。",
+    "next": "按合并后的结论改设计稿，再评一轮，直到两份评审都通过。",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/f1ad59f",
+      "label": "velicoach 提交 f1ad59f"
+     }
+    ]
+   },
+   {
+    "id": "log-home-motion",
+    "tid": "log-home-motion-t",
+    "href": "/build/velicoach/home-motion",
+    "iso": "2026-11-04",
+    "date": "2026-11-04",
+    "project": "Velicoach 主站",
+    "title": "首页的「叶与网」动效回到设计稿里：约 6000 个点在叶子和网之间变形",
+    "split": "产品负责人发现动效不见了；智能体查出原因（设计稿的工具加载不了 three.js，上一版用静态圆点代替），改成直接用 WebGL2 画。",
+    "next": "正式站点用 three.js 实现同一个动效；评审的截图覆盖动效的几个状态。",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/53696b1",
+      "label": "velicoach 提交 53696b1"
+     }
+    ]
+   },
+   {
+    "id": "log-one-domain",
+    "tid": "log-one-domain-t",
+    "href": "/build/velicoach/one-domain",
+    "iso": "2026-11-04",
+    "date": "2026-11-04",
+    "project": "Velicoach 主站",
+    "title": "两个产品共用一个域名：按路径分给主站和 Veli",
+    "split": "产品负责人定哪些地址归主站、哪些归 Veli；智能体在 Veli 的仓库里写路由表和分流规则。",
+    "next": "主站接管根域名，其余地址转给 Veli。",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/thin-muscle-coach/pull/84",
+      "label": "thin-muscle-coach PR #84"
+     }
+    ]
+   }
+  ],
+  "roles": [
+   {
+    "who": "产品负责人",
+    "what": "定做什么；确认需求、设计和上线；发布后可以撤下任何内容。"
+   },
+   {
+    "who": "写的智能体",
+    "what": "按拆好的任务实现功能、起草内容，每次改动都带上检查结果。"
+   },
+   {
+    "who": "审的智能体",
+    "what": "另起一个没看过制作过程的智能体来评审；设计由两个不同的模型各审一遍。"
+   },
+   {
+    "who": "自动检查",
+    "what": "术语、质量词和设计稿的检查通过以后才能合并；合并只走合并脚本。"
+   }
+  ]
+ },
+ "en": {
+  "logs": [
+   {
+    "id": "log-cold-review",
+    "tid": "log-cold-review-t",
+    "href": "/en/build/velicoach/cold-review",
+    "iso": "2026-11-04",
+    "date": "Nov 4, 2026",
+    "project": "Velicoach",
+    "title": "A reviewer who wasn’t involved found 11 issues before the merge: 10 fixed on the spot, the failing baseline tests moved to their own ticket.",
+    "split": "One agent wrote the team rules. A second agent, which never saw the drafting, reviewed them. The product owner approved the plan.",
+    "next": "Run every command the rules mention, and fix the 8 failing baseline tests in their own ticket.",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/98a80d4",
+      "label": "velicoach commit 98a80d4"
+     }
+    ]
+   },
+   {
+    "id": "log-quality-terms",
+    "tid": "log-quality-terms-t",
+    "href": "/en/build/velicoach/quality-terms",
+    "iso": "2026-11-04",
+    "date": "Nov 4, 2026",
+    "project": "Velicoach",
+    "title": "“User-friendly” is now five groups of rules you can check, plus one automated check.",
+    "split": "The product owner asked for vague standards to become reviewable rules, based on benchmark products. An agent drafted the rules and the checker. Another agent attacked the draft, found 8 kinds of problems, and we rewrote it.",
+    "next": "Hold the current design against the rules and settle the four conflicts they exposed.",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/3138a79",
+      "label": "velicoach commit 3138a79"
+     },
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/fc7fa5e",
+      "label": "velicoach commit fc7fa5e"
+     },
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/35ab42c",
+      "label": "velicoach commit 35ab42c"
+     }
+    ]
+   },
+   {
+    "id": "log-two-reviewers",
+    "tid": "log-two-reviewers-t",
+    "href": "/en/build/velicoach/two-reviewers",
+    "iso": "2026-11-04",
+    "date": "Nov 4, 2026",
+    "project": "Velicoach",
+    "title": "Two different models now review each design, and neither sees the other’s findings.",
+    "split": "An agent produces the design. Two reviewer agents get only screenshots and requirements, and each files its own list. The lead session merges the two lists and makes the fixes.",
+    "next": "Revise the design from the merged list and review again until both reviewers pass it.",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/f1ad59f",
+      "label": "velicoach commit f1ad59f"
+     }
+    ]
+   },
+   {
+    "id": "log-home-motion",
+    "tid": "log-home-motion-t",
+    "href": "/en/build/velicoach/home-motion",
+    "iso": "2026-11-04",
+    "date": "Nov 4, 2026",
+    "project": "Velicoach",
+    "title": "The home page’s leaf-and-web animation is back in the design file: about 6,000 points morph between a leaf and a web.",
+    "split": "The product owner noticed it was gone. An agent traced the cause (the design tool couldn’t load three.js, so the last version showed static dots) and redrew it directly in WebGL2.",
+    "next": "Build the same animation with three.js on the live site, and have review screenshots cover each of its states.",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/velicoach/commit/53696b1",
+      "label": "velicoach commit 53696b1"
+     }
+    ]
+   },
+   {
+    "id": "log-one-domain",
+    "tid": "log-one-domain-t",
+    "href": "/en/build/velicoach/one-domain",
+    "iso": "2026-11-04",
+    "date": "Nov 4, 2026",
+    "project": "Velicoach",
+    "title": "Two products now share one domain, split by path between this site and Veli.",
+    "split": "The product owner decided which URLs belong to the site and which to Veli. An agent wrote the routing table and the split rules.",
+    "next": "Point the root domain at this site and pass every other path through to Veli.",
+    "refs": [
+     {
+      "href": "https://github.com/madlouse/thin-muscle-coach/pull/84",
+      "label": "thin-muscle-coach PR #84"
+     }
+    ]
+   }
+  ],
+  "roles": [
+   {
+    "who": "Product owner",
+    "what": "Decides what to build, signs off on requirements, design, and launch, and can pull anything after it ships."
+   },
+   {
+    "who": "Agents that write",
+    "what": "Build each task and draft the content. Every change comes with its check results."
+   },
+   {
+    "who": "Agents that review",
+    "what": "A fresh agent that never saw the work reviews it. Designs get two reviews, from two different models."
+   },
+   {
+    "who": "Automated checks",
+    "what": "Terminology, quality-word, and design-file checks must pass before a merge. Merges go through one script."
+   }
+  ]
+ }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const v = shellVals(this, 'moss', '/build/velicoach');
+    const k = v.en ? 'en' : 'zh';
+    const has = (this.props.devlog ?? '有日志') === '有日志';
+    return { ...v, c: COPY[k], ...LISTS[k], hasLogs: has, noLogs: !has };
+  }
+  componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+  <section class="vc-band vc-band-ink" data-first-screen="">
+    <div class="vc-container vc-band-body">
+      <nav class="vc-crumb" aria-label="{{c.crumbLabel}}"><a href="{{t.mindHref}}">{{t.mind}}</a><span aria-hidden="true">/</span><a href="{{c.histHref}}">{{c.hist}}</a><span aria-hidden="true">/</span><span>{{c.title}}</span></nav>
+      <h1 class="vc-type-title-1-serif">{{c.title}}</h1>
+      <p class="vc-type-lead vc-sub">{{c.lead}}</p>
+      <div class="vc-band-switch">
+        <div class="seg vc-seg-tabs" role="group" aria-label="{{c.linesLabel}}">
+          <a href="{{c.histHref}}" aria-current="true">{{c.hist}}</a>
+          <a href="{{c.collabHref}}" aria-current="false">{{c.collab}}</a>
+        </div>
+      </div>
+      <nav class="vc-path" aria-label="{{c.pathLabel}}">
+        <sc-for list="{{levels}}" as="lv" hint-placeholder-count="4">
+          <a href="#{{lv.id}}"><span class="mono">{{lv.n}}</span><span class="vc-path-name">{{lv.name}}</span><span class="vc-path-count">{{lv.count}}</span></a>
+        </sc-for>
+      </nav>
+    </div>
+  </section>
+  <main class="vc-container vc-section">
+    <p class="vc-type-lead vc-intro">{{c.intro}}</p>
+    <sc-for list="{{levels}}" as="lv" hint-placeholder-count="4">
+      <section class="vc-level" id="{{lv.id}}" aria-labelledby="{{lv.id}}-name">
+        <div class="vc-level-head"><h2 id="{{lv.id}}-name" class="vc-level-name">{{lv.head}}</h2><p class="vc-level-goal">{{c.goalLabel}}{{lv.goal}}</p></div>
+        <ol class="vc-steps">
+          <sc-for list="{{lv.steps}}" as="p" hint-placeholder-count="3">
+            <li class="vc-step" id="{{p.slug}}">
+              <sc-if value="{{p.closed}}" hint-placeholder-val="{{ true }}">
+                <details class="vc-step-fold" data-expand="inline">
+<!--@MS-->
+                </details>
+              </sc-if>
+              <sc-if value="{{p.open}}" hint-placeholder-val="{{ false }}">
+                <details class="vc-step-fold" data-expand="inline" open>
+<!--@MS-->
+                </details>
+              </sc-if>
+            </li>
+          </sc-for>
+        </ol>
+      </section>
+    </sc-for>
+  </main>

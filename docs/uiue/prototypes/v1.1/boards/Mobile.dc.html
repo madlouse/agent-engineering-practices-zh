@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>首页 · 手机 · Velicoach</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="/_blob/2d0ccacf7377c5a050e285f270f25ffd">
+<script src="/_blob/26c007f478ecf5fa646eda60cbc23992"></script>
+</head>
+<body>
+<x-dc>
+<!-- 由 Main.dc.html 生成的同一份标记（只改了标题和预览尺寸），不要手改；改 Main 后重新生成 -->
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}" data-lean="{{lean}}">
+
+  <div class="vc-nav-wrap">
+    <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+      <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
+        <span class="vc-wordmark">Velicoach</span>
+      </a>
+      <nav class="vc-nav-links" aria-label="{{t.navLabel}}">
+        <a class="vc-nav-link" href="{{t.bodyHref}}">{{t.body}}</a>
+        <a class="vc-nav-link" href="{{t.mindHref}}">{{t.mind}}</a>
+        <a class="vc-nav-link" href="{{t.buildHref}}">{{t.build}}</a>
+      </nav>
+      <div class="seg vc-nav-lang" role="group" aria-label="{{t.langLabel}}">
+        <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
+        <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
+      </div>
+      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+    </header>
+  </div>
+
+  <main>
+  <section class="{{heroClass}}" data-first-screen="" aria-labelledby="vc-hero-tag" onMouseLeave="{{leanNone}}" onKeyDown="{{onKey}}">
+    <div class="vc-hero-paper" aria-hidden="true"></div>
+    <div class="vc-hero-ink" aria-hidden="true"></div>
+
+    <h1 id="vc-hero-tag" class="vc-hero-tag vc-type-lead" data-edge="free"><span class="vc-hero-tag-paper">{{c.tag}}</span><span class="vc-hero-tag-ink" aria-hidden="true">{{c.tag}}</span></h1>
+
+    <div class="vc-hero-stage" ref="{{stageRef}}" aria-hidden="true">
+      <canvas class="vc-hero-gl" ref="{{glRef}}"></canvas>
+      <svg class="vc-still vc-still-leaf" ref="{{leafRef}}" viewBox="-1.1 -1.1 2.2 2.2"><path d="{{leafPath}}"></path></svg>
+      <svg class="vc-still vc-still-net" ref="{{netRef}}" viewBox="-1.5 -1 3 2"><path d="{{netEdges}}"></path><path class="vc-still-nodes" d="{{netNodes}}"></path></svg>
+    </div>
+
+    <div class="vc-half vc-half-body vc-half-start" onMouseEnter="{{leanBody}}" onFocus="{{leanBody}}">
+      <sc-if value="{{en}}" hint-placeholder-val="{{ false }}"><p class="kicker vc-hero-station">{{t.body}}</p></sc-if>
+      <h2 class="vc-type-hero vc-hero-title">{{c.bodyTitle}}</h2>
+      <p class="vc-type-lead vc-hero-lead">{{c.bodyLead}}</p>
+      <div class="vc-hero-actions">
+        <div class="vc-pop-anchor" onMouseEnter="{{openStart}}" onMouseLeave="{{closeLater}}">
+          <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="vc-start-opts" onFocus="{{openStart}}"><span>{{c.start}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+          <div id="vc-start-opts" class="vc-pop {{startClass}}" data-pop="" role="group" aria-label="{{c.startMenu}}">
+            <div class="vc-pop-opts">
+              <a class="opt" href="{{c.authHref}}">{{authFirst}}</a>
+              <a class="opt" href="{{c.authHref}}">{{authSecond}}</a>
+            </div>
+            <svg class="vc-start-code" role="img" aria-label="{{c.codeLabel}}" viewBox="0 0 21 21"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
+            <p class="vc-pop-note">{{c.startNote}}</p>
+          </div>
+        </div>
+        <p class="vc-type-body vc-hero-fact">{{c.fact}}</p>
+        <div class="vc-hero-direct" role="group" aria-label="{{c.startMenu}}">
+          <a class="btn vc-btn-action" href="{{c.authHref}}">{{authFirst}}</a>
+          <a class="btn vc-btn-quiet" href="{{c.authHref}}">{{authSecond}}</a>
+        </div>
+      </div>
+      <p class="vc-hero-quick"><a class="vc-quick" href="#why-muscle">{{c.whyMuscle}}</a></p>
+    </div>
+
+    <div class="vc-half vc-half-mind vc-half-end" onMouseEnter="{{leanMind}}" onFocus="{{leanMind}}">
+      <sc-if value="{{en}}" hint-placeholder-val="{{ false }}"><p class="kicker vc-hero-station">{{t.mind}}</p></sc-if>
+      <h2 class="vc-type-hero-serif vc-hero-title">{{c.mindTitle}}</h2>
+      <p class="vc-type-lead vc-hero-lead vc-hero-lead-full">{{c.mindLead}}</p>
+      <p class="vc-type-lead vc-hero-lead vc-hero-lead-short">{{c.mindLeadShort}}</p>
+      <div class="vc-hero-actions">
+        <a class="btn vc-btn-on-ink" href="{{c.articleHref}}">{{c.read}}</a>
+        <sc-if value="{{showPause}}" hint-placeholder-val="{{ true }}">
+          <button type="button" class="icon-btn vc-surface-ink vc-hero-pause" onClick="{{togglePause}}" aria-label="{{pauseLabel}}" aria-pressed="{{pausedAttr}}">
+            <sc-if value="{{playing}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3 V13 M11 3 V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></sc-if>
+            <sc-if value="{{paused}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3 L13 8 L5 13 Z" fill="currentColor"></path></svg></sc-if>
+          </button>
+        </sc-if>
+      </div>
+      <p class="vc-hero-quick"><a class="vc-quick" href="{{c.histHref}}">{{c.hist}}</a><a class="vc-quick" href="{{c.collabHref}}">{{c.collab}}</a></p>
+    </div>
+
+    <div class="vc-hero-seam">
+      <a class="{{orbClass}}" href="{{c.devlogHref}}" aria-label="{{c.orbLabel}}"><sc-if value="{{en}}" hint-placeholder-val="{{ false }}"><span class="vc-orb-station">{{t.build}}</span></sc-if><span class="vc-orb-title">{{c.orbTitle}}</span><span class="vc-orb-sub"><span class="vc-orb-long">{{c.orbLong}}</span><span class="vc-orb-short">{{c.orbShort}}</span></span></a>
+    </div>
+
+    <sc-if value="{{offline}}" hint-placeholder-val="{{ false }}">
+      <div class="vc-notice vc-hero-notice" role="status">
+        <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M2.5 7.5 C 6.6 3.8, 13.4 3.8, 17.5 7.5 M5.5 10.6 C 8 8.5, 12 8.5, 14.5 10.6 M8.4 13.6 C 9.3 12.9, 10.7 12.9, 11.6 13.6 M3 3 L17 17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+        <span>{{c.offline}}</span>
+      </div>
+    </sc-if>
+
+    <div class="vc-hero-sub" data-expand="inline">
+      <div class="vc-subbar-slot">
+        <sc-if value="{{rssRow}}" hint-placeholder-val="{{ false }}">
+          <a class="vc-rss-row vc-surface-solid" href="{{t.feedHref}}">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 3 a10 10 0 0 1 10 10 M3 7.5 a5.5 5.5 0 0 1 5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><circle cx="3.6" cy="12.4" r="1.3" fill="currentColor"></circle></svg>
+            <span>{{t.rssRow}}</span>
+          </a>
+        </sc-if>
+        <sc-if value="{{barClosed}}" hint-placeholder-val="{{ true }}">
+          <div class="vc-subbar vc-surface-solid">
+            <p class="vc-sub-note">{{t.subNote}}<a href="{{t.privacyHref}}">{{t.privacy}}</a></p>
+            <button type="button" class="btn vc-btn-quiet" aria-expanded="false" aria-controls="vc-subbar-form" onClick="{{openSub}}">{{t.subscribe}}</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{barOpen}}" hint-placeholder-val="{{ false }}">
+          <div class="vc-subbar vc-surface-solid is-open">
+            <p class="vc-sub-note">{{t.subNote}}<a href="{{t.privacyHref}}">{{t.privacy}}</a></p>
+            <button type="button" class="icon-btn" aria-expanded="true" aria-controls="vc-subbar-form" aria-label="{{t.collapse}}" onClick="{{closeSub}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 3.5 L12.5 12.5 M12.5 3.5 L3.5 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg></button>
+            <form id="vc-subbar-form" class="vc-sub-form" action="{{t.subAction}}" method="post" novalidate>
+              <label class="vc-sr-only" for="vc-subbar-email">{{t.emailLabel}}</label>
+              <input id="vc-subbar-email" class="vc-field" type="email" name="email" autocomplete="email" placeholder="{{t.emailPh}}" value="{{subValue}}" aria-invalid="{{subInvalid}}" aria-describedby="vc-subbar-error">
+              <button type="submit" class="btn vc-btn-quiet" aria-disabled="{{subBusy}}">{{subButton}}</button>
+              <sc-if value="{{subHasError}}" hint-placeholder-val="{{ false }}">
+                <p id="vc-subbar-error" class="vc-error" role="alert">{{subError}}</p>
+              </sc-if>
+            </form>
+          </div>
+        </sc-if>
+        <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
+          <div class="vc-subbar vc-surface-solid is-done">
+            <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </section>
+
+  <section class="vc-container vc-section" aria-labelledby="vc-claim-title">
+    <h2 id="vc-claim-title" class="vc-type-title-2 vc-claim-title">{{c.claimTitle}}</h2>
+    <ol class="vc-claim-list">
+      <sc-for list="{{claims}}" as="it" hint-placeholder-count="3">
+        <li class="vc-row">
+          <a class="vc-row-main vc-claim-link" href="{{it.href}}" aria-labelledby="{{it.tid}}">
+            <h3 id="{{it.tid}}" class="vc-type-title-3 row-title vc-claim-name"><span class="{{it.chip}}" aria-hidden="true"></span><span>{{it.name}}</span></h3>
+            <p class="vc-type-lead vc-claim-line">{{it.line}}</p>
+            <span class="vc-claim-go"><span class="vc-row-go">{{it.go}}</span></span>
+          </a>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+
+  <section id="why-muscle" class="vc-container vc-section-tight" aria-labelledby="vc-proof-title">
+    <div class="vc-head">
+      <h2 id="vc-proof-title" class="vc-type-title-3">{{c.proofTitle}}</h2>
+      <p class="vc-type-body">{{c.proofLead}}</p>
+    </div>
+    <div class="vc-study-grid">
+      <sc-for list="{{studies}}" as="st" hint-placeholder-count="3">
+        <article class="vc-card vc-study">
+          <h3 class="vc-study-topic">{{st.topic}}</h3>
+          <p class="vc-type-metric">{{st.metric}}</p>
+          <p class="vc-study-claim">{{st.claim}}</p>
+          <p class="vc-study-src"><span><time datetime="{{st.year}}">{{st.year}}</time> · {{st.journal}}</span><a class="vc-quick" href="{{st.url}}" aria-label="{{st.linkLabel}}">{{c.readSource}}</a></p>
+          <dl class="vc-study-meta">
+            <div><dt>{{c.metaType}}</dt><dd>{{st.type}}</dd></div>
+            <div><dt>{{c.metaSample}}</dt><dd>{{st.sample}}</dd></div>
+            <div><dt>{{c.metaCertainty}}</dt><dd>{{st.certainty}}</dd></div>
+            <div><dt>{{c.metaSeen}}</dt><dd><time datetime="{{st.seen}}">{{st.seenText}}</time></dd></div>
+          </dl>
+        </article>
+      </sc-for>
+    </div>
+    <p class="vc-study-foot">{{c.proofFoot}}</p>
+  </section>
+
+  <section class="vc-container vc-section" aria-labelledby="vc-week-title">
+    <h2 id="vc-week-title" class="vc-type-title-3 vc-week-title">{{c.weekTitle}}</h2>
+    <div class="vc-week">
+      <article class="vc-feature" aria-labelledby="vc-week-read">
+        <p class="kicker">{{c.latest}}</p>
+        <h3 id="vc-week-read" class="vc-type-title-2-serif">{{c.articleTitle}}</h3>
+        <p class="vc-type-lead">{{c.articleLine}}</p>
+        <div class="vc-feature-actions">
+          <a class="btn vc-btn-on-ink" href="{{c.articleHref}}">{{c.read}}</a>
+          <p class="vc-type-meta-mono"><time datetime="{{c.articleIso}}">{{c.articleDate}}</time> · {{c.articleMeta}}</p>
+        </div>
+      </article>
+      <div class="vc-week-log">
+        <p class="vc-type-footnote vc-week-label">{{c.logLabel}}</p>
+        <ol class="vc-rows">
+          <li class="vc-row vc-log">
+            <a class="vc-row-main" href="{{c.logHref}}" aria-labelledby="vc-week-log-t">
+              <time class="vc-row-lead" datetime="2026-11-04">{{c.logDate}}</time>
+              <div class="vc-row-body">
+                <p class="vc-row-kind">{{c.logProject}}</p>
+                <h3 id="vc-week-log-t" class="row-title">{{c.logTitle}}</h3>
+                <p class="vc-row-line">{{c.logLine}}</p>
+              </div>
+            </a>
+          </li>
+        </ol>
+        <p class="vc-row-more"><a class="vc-quick" href="{{c.devlogHref}}">{{c.allLogs}}</a></p>
+      </div>
+    </div>
+  </section>
+  </main>
+
+  <sc-if value="{{subOn}}" hint-placeholder-val="{{ true }}">
+    <section class="vc-subscribe vc-container" aria-labelledby="vc-sub-title">
+      <div class="vc-subscribe-text">
+        <h2 id="vc-sub-title" class="vc-type-title-3">{{t.subTitle}}</h2>
+        <p class="vc-sub-note">{{t.subNote}}<a href="{{t.privacyHref}}">{{t.privacy}}</a></p>
+      </div>
+      <sc-if value="{{formShown}}" hint-placeholder-val="{{ true }}">
+        <form class="vc-sub-form" action="{{t.subAction}}" method="post" novalidate>
+          <label class="vc-sr-only" for="vc-sub-email">{{t.emailLabel}}</label>
+          <input id="vc-sub-email" class="vc-field" type="email" name="email" autocomplete="email" placeholder="{{t.emailPh}}" value="{{subValue}}" aria-invalid="{{subInvalid}}" aria-describedby="vc-sub-error">
+          <button type="submit" class="btn vc-btn-action" aria-disabled="{{subBusy}}">{{subButton}}</button>
+          <sc-if value="{{subHasError}}" hint-placeholder-val="{{ false }}">
+            <p id="vc-sub-error" class="vc-error" role="alert">{{subError}}</p>
+          </sc-if>
+        </form>
+      </sc-if>
+      <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
+        <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+      </sc-if>
+    </section>
+  </sc-if>
+
+  <footer class="vc-footer vc-container">
+    <nav class="vc-footer-links" aria-label="{{t.footerLabel}}">
+      <a href="{{t.aboutHref}}">{{t.about}}</a>
+      <a href="{{t.contactHref}}">{{t.contact}}</a>
+      <a href="{{t.copyrightHref}}">{{t.copyright}}</a>
+      <a href="{{t.privacyHref}}">{{t.privacy}}</a>
+      <a href="{{t.healthHref}}">{{t.health}}</a>
+      <a href="{{t.disclaimerHref}}">{{t.disclaimerLink}}</a>
+      <a href="{{t.termsHref}}">{{t.terms}}</a>
+      <a href="{{t.feedHref}}">RSS</a>
+    </nav>
+    <div class="vc-footer-tools">
+      <div class="seg" role="group" aria-label="{{t.appearance}}">
+        <button type="button" aria-pressed="{{themeAuto}}" onClick="{{setAuto}}">{{t.auto}}</button>
+        <button type="button" aria-pressed="{{themeLight}}" onClick="{{setLight}}">{{t.light}}</button>
+        <button type="button" aria-pressed="{{themeDark}}" onClick="{{setDark}}">{{t.dark}}</button>
+      </div>
+      <div class="seg" role="group" aria-label="{{t.langLabel}}">
+        <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
+        <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
+      </div>
+    </div>
+    <p class="vc-footer-note">{{t.disclaimer}}</p>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["收起","填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"收起"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"start":{"editor":"enum","options":["收起","展开"],"default":"收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"motion":{"editor":"enum","options":["正常","减弱动态效果","无 WebGL"],"default":"正常"},"focus":{"editor":"enum","options":["无","接缝上的圆"],"default":"无"},"device":{"editor":"enum","options":["其他","苹果"],"default":"其他"},"$preview":{"width":390,"height":4440}}'>
+/* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+const SHELL = {
+  zh: {
+    home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
+    navLabel: '三站', body: '站稳', mind: '看清', build: '动手',
+    langLabel: '语言', langSwitch: '切换到英文，现在是中文', otherLang: 'en',
+    subTitle: '订阅', subNote: '每周日一封：一读、一练、一个项目。可一键退订。', privacy: '隐私政策',
+    subscribe: '订阅', subBusy: '正在订阅', subDone: '已订阅，每周日见', emailLabel: '邮箱', emailPh: '你的邮箱', collapse: '收起',
+    subAction: '/api/site/subscribe', errFormat: '邮箱格式不对', errRate: '提交太频繁，一小时后再试', errDown: '订阅暂时不可用，稍后再试',
+    rssRow: '用 RSS 订阅更新',
+    footerLabel: '页脚', about: '关于', contact: '联系', copyright: '版权与转载', health: '健康数据政策', disclaimerLink: '健康免责', terms: '服务条款',
+    aboutHref: '/about', contactHref: '/about#contact', copyrightHref: '/legal/copyright', privacyHref: '/legal/privacy', healthHref: '/data-usage', disclaimerHref: '/legal/health-disclaimer', termsHref: '/legal/terms', feedHref: '/feed.xml',
+    appearance: '外观', auto: '自动', light: '浅色', dark: '深色',
+    disclaimer: '威利不是医生。有伤病或疼痛，先停下来，问医生。',
+  },
+  en: {
+    home: '/en/', homeLabel: 'Velicoach home', bodyHref: '/en/body', mindHref: '/en/mind', buildHref: '/en/build',
+    navLabel: 'Stations', body: 'Body', mind: 'Mind', build: 'Build',
+    langLabel: 'Language', langSwitch: 'Switch to Chinese, currently English', otherLang: 'zh-CN',
+    subTitle: 'Newsletter', subNote: 'Every Sunday: one read, one workout, one project. One-click unsubscribe. ', privacy: 'Privacy policy',
+    subscribe: 'Subscribe', subBusy: 'Subscribing', subDone: 'Subscribed. See you Sunday.', emailLabel: 'Email', emailPh: 'Your email', collapse: 'Close',
+    subAction: '/api/site/subscribe', errFormat: 'That email doesn’t look right.', errRate: 'Too many tries. Wait an hour.', errDown: 'Sign-up is down. Try again later.',
+    rssRow: 'Follow updates by RSS',
+    footerLabel: 'Footer', about: 'About', contact: 'Contact', copyright: 'Copyright and reuse', health: 'Health data policy', disclaimerLink: 'Health disclaimer', terms: 'Terms',
+    aboutHref: '/en/about', contactHref: '/en/about#contact', copyrightHref: '/en/legal/copyright', privacyHref: '/en/legal/privacy', healthHref: '/en/data-usage', disclaimerHref: '/en/legal/health-disclaimer', termsHref: '/en/legal/terms', feedHref: '/en/feed.xml',
+    appearance: 'Appearance', auto: 'Auto', light: 'Light', dark: 'Dark',
+    disclaimer: 'Veli isn’t a doctor. If you’re injured or in pain, stop and see a doctor.',
+  },
+};
+/* station：这页在首屏用哪种实色导航，'paper' | 'ink' | 'moss'。
+   path：这一页的中文地址（'/'、'/mind'、'/mind/learn'……）；英文版在前面加 /en。语言切换链到本页的另一语言版本，不回首页 */
+function shellVals(self, station, path) {
+  const pick = (k, d) => (self.state && self.state[k]) ?? self.props[k] ?? d;
+  const en = pick('lang', '中文') === 'English';
+  const theme = pick('theme', '自动');
+  const gate = pick('subscribeGate', '开') === '开';
+  const sub = pick('subscribe', '收起');
+  const t = SHELL[en ? 'en' : 'zh'];
+  const err = { '格式不对': t.errFormat, '提交太频繁': t.errRate, '服务不可用': t.errDown }[sub] || '';
+  const zhHref = path, enHref = path === '/' ? '/en/' : '/en' + path;
+  const done = sub === '订阅成功';
+  const busy = sub === '正在订阅';
+  return {
+    t, en, langAttr: en ? 'en' : 'zh-CN',
+    zhHref, enHref, otherHref: en ? zhHref : enHref,
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
+    toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
+    themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',
+    themeAuto: theme === '自动' ? 'true' : 'false', themeLight: theme === '浅色' ? 'true' : 'false', themeDark: theme === '深色' ? 'true' : 'false',
+    setAuto: () => self.setState({ theme: '自动' }), setLight: () => self.setState({ theme: '浅色' }), setDark: () => self.setState({ theme: '深色' }),
+    navClass: pick('nav', '首屏') === '吸顶' ? 'vc-nav lg' : 'vc-nav vc-nav-' + station,
+    subOn: gate, rssRow: !gate,
+    barClosed: gate && sub === '收起', barOpen: gate && sub !== '收起' && !done, barDone: gate && done, formShown: !done,
+    openSub: () => self.setState({ subscribe: '填写邮箱' }), closeSub: () => self.setState({ subscribe: '收起' }),
+    subButton: busy ? t.subBusy : t.subscribe, subBusy: busy ? 'true' : 'false',
+    subHasError: !!err, subError: err, subInvalid: err ? 'true' : 'false',
+    subValue: sub === '格式不对' ? 'name@' : (busy || err) ? 'name@example.com' : '',
+  };
+}
+
+/* ── 首页自己的文案。地址：/（英文 /en/）；研究卡的锚点 #why-muscle。最新文章按发布日期取最新的一篇，和看清画板 POSTS 的发布日期是同一份（Shopify 一篇 2026-10-31 最新）── */
+const COPY = {
+  zh: {
+    tag: 'AGI 路上的陪练',
+    bodyTitle: '先站稳', bodyLead: '每周两次力量训练。威利替你排好时间和动作。',
+    start: '开始训练', fact: '第一练 12 分钟', startMenu: '开始训练的方式', google: '用 Google 开始训练', apple: '用 Apple 开始训练',
+    startNote: '第一练 12 分钟。登录在 Veli 里完成；扫右边的码，可以在手机上打开。', codeLabel: '扫码在手机上打开 Veli',
+    appHref: '/app', authHref: '/auth', whyMuscle: '为什么是肌肉',
+    mindTitle: '再看清', mindLead: '写给想跟上 AI 的人：AI 怎么一步步走到今天，人和智能体（agent）怎么一起工作。', mindLeadShort: '写给想跟上 AI 的人。',
+    read: '读最新文章', hist: 'AI 发展史', collab: '人机协作', histHref: '/mind', collabHref: '/mind/collaboration',
+    orbTitle: '然后动手', orbLong: '看开发日志', orbShort: '开发日志', orbLabel: '然后动手：看开发日志', devlogHref: '/build#devlog',
+    pause: '暂停首页动画', play: '播放首页动画',
+    offline: '离线中，打开的内容还能读。',
+    claimTitle: 'AI 走得越快，越要先站稳',
+    claims: [
+      { id: 'body', name: '站稳', line: '每周练两次力量。身体撑得住，别的事才做得下去。', go: '去站稳', href: '/body' },
+      { id: 'mind', name: '看清', line: '读懂 AI 从哪里来，再判断自己接下来学什么。', go: '去看清', href: '/mind' },
+      { id: 'build', name: '动手', line: '和智能体一起做出一件能用的东西，公开记下过程。', go: '去动手', href: '/build' },
+    ],
+    proofTitle: '为什么是肌肉', proofLead: '三项研究，各看一件事：防摔、长寿、情绪。',
+    readSource: '读原文', metaType: '研究类型', metaSample: '样本量', metaCertainty: '证据可信度', metaSeen: '产品负责人看过',
+    proofFoot: '这些是人群研究的平均结果，不是对每个人的保证。有伤病或疼痛，先问医生。',
+    /* 三张研究卡的事实照出处写（Cochrane CD012424、BJSM 2022、BMJ 2024）。正式数据由内容任务 T07 交付；seen 是「产品负责人看过的日期」，这里的 2026-11-10 是画板示例，上线前换成他本人看过的日期 */
+    studies: [
+      { topic: '防摔 · 运动', metric: '少 23%', claim: '少 23%：这是 60 岁以上、住在社区的人参加运动项目（以平衡和功能训练为主）以后，跌倒次数的降幅。只做抗阻练习的证据不足。', year: '2019', journal: 'Cochrane 系统综述', url: 'https://doi.org/10.1002/14651858.CD012424.pub2', type: '随机对照试验的系统综述', sample: '59 项试验、12,981 人', certainty: '高', seen: '2026-11-10' },
+      { topic: '长寿 · 力量训练', metric: '低 15%', claim: '低 15%：做肌肉力量训练，与全因死亡风险低这么多有关；每周 30–60 分钟时关联最强。观察性研究，说明不了因果。', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: '队列研究的系统综述（观察性）', sample: '7 项研究、263,058 人', certainty: '很低', seen: '2026-11-10' },
+      { topic: '情绪 · 力量训练', metric: 'g = −0.49', claim: 'g = −0.49：达到重度抑郁诊断标准的人做力量训练，抑郁症状可能比对照组轻，效应量中等。证据可信度很低，结论还可能变。', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: '随机对照试验的网状荟萃分析', sample: '218 项试验、14,170 人', certainty: '很低', seen: '2026-11-10' },
+    ],
+    weekTitle: '最新', latest: '最新文章',
+    articleTitle: '比模型更耐久的 Harness', articleLine: 'Shopify 团队用测试证明漏洞，而不是收集模型给出的候选清单。',
+    articleHref: '/mind/shopify-harness', articleIso: '2026-10-31', articleDate: '2026-10-31', articleMeta: '12 分钟 · 附 3 分钟视频',
+    logLabel: '最新的开发日志', logDate: '2026-11-04', logProject: 'Velicoach 主站', logHref: '/build/velicoach/cold-review',
+    logTitle: '合并前，一位没参与制作的评审找出 11\u00A0处问题：10 处当场改完，基线里失败的测试另开一张票',
+    logLine: '基线测试是红的、命令参数不对、漏了订阅的用户数据。评审没看过写作过程，所以看得出来。',
+    allLogs: '全部开发日志',
+  },
+  en: {
+    tag: 'An AGI-era training partner',
+    bodyTitle: 'Get strong', bodyLead: 'Strength training twice a week. Veli plans the time and the moves.',
+    start: 'Start training', fact: 'First session: 12 minutes', startMenu: 'Ways to start training', google: 'Start training with Google', apple: 'Start training with Apple',
+    startNote: 'First session: 12 minutes. You sign in on Veli. Scan the code to open it on your phone.', codeLabel: 'Scan to open Veli on your phone',
+    appHref: '/app', authHref: '/auth', whyMuscle: 'Why muscle',
+    mindTitle: 'See clearly', mindLead: 'For anyone keeping up with AI: how it got here, step by step, and how people and agents work together.', mindLeadShort: 'For anyone keeping up with AI.',
+    read: 'Read the latest article', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration',
+    orbTitle: 'Then build', orbLong: 'Read the devlog', orbShort: 'Devlog', orbLabel: 'Then build: read the devlog', devlogHref: '/en/build#devlog',
+    pause: 'Pause the home animation', play: 'Play the home animation',
+    offline: 'You’re offline. What’s open still works.',
+    claimTitle: 'AI is moving fast. Start by getting strong.',
+    claims: [
+      { id: 'body', name: 'Body', line: 'Train for strength twice a week. A body that holds up makes the rest possible.', go: 'Go to Body', href: '/en/body' },
+      { id: 'mind', name: 'Mind', line: 'Learn where AI came from, then decide what to learn next.', go: 'Go to Mind', href: '/en/mind' },
+      { id: 'build', name: 'Build', line: 'Make something useful with agents, and write down what happened.', go: 'Go to Build', href: '/en/build' },
+    ],
+    proofTitle: 'Why muscle', proofLead: 'Three studies, three questions: falls, lifespan, and mood.',
+    readSource: 'Read the source', metaType: 'Study type', metaSample: 'Sample', metaCertainty: 'Certainty', metaSeen: 'Owner reviewed',
+    proofFoot: 'These are averages across groups of people, not a promise for any one person. If you’re injured or in pain, ask a doctor first.',
+    studies: [
+      { topic: 'Falls · exercise', metric: '23% fewer', claim: '23% fewer falls for people over 60 living at home who joined exercise programs, mostly balance and functional training. For resistance training alone, the evidence is not enough.', year: '2019', journal: 'Cochrane review', url: 'https://doi.org/10.1002/14651858.CD012424.pub2', type: 'Systematic review of randomized trials', sample: '59 trials, 12,981 people', certainty: 'High', seen: '2026-11-10' },
+      { topic: 'Lifespan · strength training', metric: '15% lower', claim: '15% lower risk of death from any cause is linked to muscle-strengthening activity, most strongly at 30–60 minutes a week. Observational, so it cannot show cause.', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: 'Systematic review of cohort studies (observational)', sample: '7 studies, 263,058 people', certainty: 'Very low', seen: '2026-11-10' },
+      { topic: 'Mood · strength training', metric: 'g = −0.49', claim: 'g = −0.49: in people who meet the criteria for major depression, strength training may ease symptoms compared with controls, a moderate effect. Certainty is very low.', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: 'Network meta-analysis of randomized trials', sample: '218 trials, 14,170 people', certainty: 'Very low', seen: '2026-11-10' },
+    ],
+    weekTitle: 'Latest', latest: 'Latest read',
+    articleTitle: 'A harness that outlasts the model', articleLine: 'Shopify’s team proves each vulnerability with a test instead of collecting a model’s list of candidates.',
+    articleHref: '/en/mind/shopify-harness', articleIso: '2026-10-31', articleDate: 'Oct 31, 2026', articleMeta: '9 min · with a 3-minute video',
+    logLabel: 'Latest devlog entry', logDate: 'Nov 4, 2026', logProject: 'Velicoach', logHref: '/en/build/velicoach/cold-review',
+    logTitle: 'A reviewer who wasn’t involved found 11 issues before the merge: 10 fixed on the spot, the failing baseline tests moved to their own ticket.',
+    logLine: 'The baseline tests were red, a command flag was wrong, and subscriber data was missing. The reviewer never saw the drafting, so the gaps stood out.',
+    allLogs: 'All devlog entries',
+  },
+};
+
+/* ── 叶与网的几何：动效和静态线稿用同一份数据 ──
+   叶：Veli 的叶子，叶尖朝右上（和站标同向）。局部坐标 u ∈ [0,1] 沿主脉，半宽 W(u)。
+   网：节点加连线。节点在一个 3:2 的范围里均匀撒开（每次取离已有节点最远的候选点），相邻的节点连线（Gabriel 图）。 */
+const VC_FIG = (() => {
+  let s = 20261112;
+  const rnd = () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const W = (u) => 0.42 * Math.pow(Math.max(0, Math.sin(Math.PI * u)), 0.9);
+  const c45 = Math.SQRT1_2;
+  const rot = (x, y) => [x * c45 + y * c45, -x * c45 + y * c45];
+  const veins = [0, 1, 2, 3, 4].map((v) => 0.16 + v * 0.12);
+  const nodes = [[-1.3, 0.1]];
+  while (nodes.length < 36) {
+    let best = null, bd = -1;
+    for (let k = 0; k < 24; k++) {
+      const x = (rnd() * 2 - 1) * 1.36, y = (rnd() * 2 - 1) * 0.9;
+      if (Math.pow(Math.abs(x / 1.36), 2.6) + Math.pow(Math.abs(y / 0.9), 2.6) > 1) continue;
+      let d = 1e9; for (const n of nodes) d = Math.min(d, Math.hypot(n[0] - x, n[1] - y));
+      if (d > bd) { bd = d; best = [x, y]; }
+    }
+    if (best) nodes.push(best);
+  }
+  const edges = [], deg = nodes.map(() => 0);
+  for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+    const mx = (nodes[i][0] + nodes[j][0]) / 2, my = (nodes[i][1] + nodes[j][1]) / 2, r = Math.hypot(nodes[i][0] - nodes[j][0], nodes[i][1] - nodes[j][1]) / 2;
+    let ok = true; for (let k = 0; k < nodes.length && ok; k++) if (k !== i && k !== j && Math.hypot(nodes[k][0] - mx, nodes[k][1] - my) < r) ok = false;
+    if (ok) { edges.push([i, j, r * 2]); deg[i]++; deg[j]++; }
+  }
+  const rad = deg.map((d) => (d >= 4 ? 0.07 : 0.045));
+  const f = (n) => n.toFixed(3);
+  // 静态线稿的路径（SVG 的 y 向下）
+  const side = (sg) => { const p = []; for (let i = 0; i <= 36; i++) { const u = i / 36, q = rot(sg * W(u), u * 2 - 1); p.push(f(q[0]) + ' ' + f(-q[1])); } return p; };
+  const L = side(-1), Rr = side(1).reverse();
+  let leafPath = 'M' + L.join(' L') + ' L' + Rr.join(' L') + ' Z';
+  const seg = (a, b) => ' M' + f(a[0]) + ' ' + f(-a[1]) + ' L' + f(b[0]) + ' ' + f(-b[1]);
+  leafPath += seg(rot(0, -0.92), rot(0, 0.92));
+  veins.forEach((u0) => { [-1, 1].forEach((sg) => { leafPath += seg(rot(0, u0 * 2 - 1), rot(sg * W(u0 + 0.2) * 0.9, (u0 + 0.2) * 2 - 1)); }); });
+  const netEdges = edges.map((e) => 'M' + f(nodes[e[0]][0]) + ' ' + f(nodes[e[0]][1]) + ' L' + f(nodes[e[1]][0]) + ' ' + f(nodes[e[1]][1])).join(' ');
+  const netNodes = nodes.map((n, i) => 'M' + f(n[0] - rad[i]) + ' ' + f(n[1]) + ' a' + rad[i] + ' ' + rad[i] + ' 0 1 0 ' + f(rad[i] * 2) + ' 0 a' + rad[i] + ' ' + rad[i] + ' 0 1 0 ' + f(-rad[i] * 2) + ' 0 Z').join(' ');
+  return { rnd, W, rot, veins, nodes, edges, rad, leafPath, netEdges, netNodes };
+})();
+
+class Component extends DCLogic {
+  pick(k, d) { return (this.state && this.state[k]) ?? this.props[k] ?? d; }
+  canLean() { return !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1180px)').matches); }
+  componentDidMount() {
+    if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
+    // 展开的选项都能退出：Esc、点外面；Esc 同时回到五五分
+    this.onEsc = (e) => { if (e.key === 'Escape') { clearTimeout(this.timer); this.setState({ start: '收起', lean: '' }); } };
+    this.onOutside = (e) => { if (this.pick('start', '收起') === '展开' && !(e.target.closest && e.target.closest('.vc-pop-anchor'))) this.setState({ start: '收起' }); };
+    document.addEventListener('keydown', this.onEsc);
+    document.addEventListener('pointerdown', this.onOutside);
+    this.startGL();
+  }
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.onEsc); document.removeEventListener('pointerdown', this.onOutside);
+    clearTimeout(this.timer); cancelAnimationFrame(this.raf); if (this.io) this.io.disconnect();
+  }
+  /* 叶与网（WebGL2 的点）。每个点有两个位置：叶上的和网上的（节点里，或一条连线上）。uMorph 从 0 到 1，点按各自的次序从叶飞到网：
+     不倾斜时一半在叶、一半在网，跟着呼吸周期来回；向左倾斜全部长回叶子，向右全部散成网。颜色看点落在接缝哪一侧。
+     系统减弱动态效果、属性选了「减弱动态效果」或「无 WebGL」、拿不到 WebGL2 时不启动，页面上留着静态线稿。 */
+  startGL() {
+    const cv = this.cv, stage = this.stageEl;
+    if (!cv || !stage || this.gl || this.glTried) return;
+    this.glTried = true;
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || (this.props.motion ?? '正常') !== '正常') return;
+    const gl = cv.getContext('webgl2', { premultipliedAlpha: true, antialias: true, alpha: true });
+    if (!gl) { this.setState({ noGL: true }); return; }
+    const vs = `#version 300 es
+    in vec2 aLeaf; in vec2 aA; in vec2 aB; in vec2 aOff; in vec4 aP;
+    uniform float uMorph, uTime, uDpr, uLeafU, uNetU, uSeam, uAxis; uniform vec2 uRes, uLeafC, uNetC;
+    out float vSide; out float vAlpha;
+    vec2 wob(vec2 p) { return 0.03 * vec2(sin(uTime * 0.45 + p.x * 7.0 + p.y * 3.0), cos(uTime * 0.38 + p.y * 9.0 + p.x * 2.0)); }
+    void main() {
+      float t = aP.x, seed = aP.y, rank = aP.z, kind = aP.w;
+      float k = smoothstep(rank - 0.06, rank + 0.06, uMorph);
+      vec2 lp = uLeafC + (vec2(aLeaf.x, -aLeaf.y) + 0.012 * vec2(sin(seed * 91.0 + uTime * (0.6 + seed)), cos(seed * 57.0 + uTime * 0.7))) * uLeafU;
+      float tt = kind > 1.5 ? fract(t + uTime * 0.05 * (0.6 + seed)) : t;
+      vec2 np = uNetC + (mix(aA + wob(aA), aB + wob(aB), tt) + aOff) * uNetU;
+      vec2 p = mix(lp, np, k) + sin(k * 3.14159) * vec2(0.0, (0.35 - seed) * 0.5 * uLeafU);
+      gl_Position = vec4(p.x / uRes.x * 2.0 - 1.0, 1.0 - p.y / uRes.y * 2.0, 0.0, 1.0);
+      float sNet = kind < 0.5 ? 1.6 : (kind < 1.5 ? 2.4 : 3.6);
+      gl_PointSize = mix(1.0 + seed * 1.6, sNet, k) * uDpr;
+      vSide = smoothstep(-2.0, 2.0, (uAxis < 0.5 ? p.x : p.y) - uSeam);
+      float aNet = kind < 0.5 ? 0.8 : 1.0;
+      vAlpha = mix(0.3 + 0.65 * seed, aNet, k);
+    }`;
+    const fs = `#version 300 es
+    precision mediump float;
+    uniform vec3 uBody, uMind; in float vSide; in float vAlpha; out vec4 o;
+    void main() {
+      float d = length(gl_PointCoord - 0.5);
+      if (d > 0.5) discard;
+      float a = vAlpha * smoothstep(0.5, 0.15, d);
+      o = vec4(mix(uBody, uMind, vSide) * a, a);
+    }`;
+    const sh = (t, src) => { const x = gl.createShader(t); gl.shaderSource(x, src); gl.compileShader(x); return x; };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { this.setState({ noGL: true }); return; }
+    this.gl = gl; gl.useProgram(prog);
+    const F = VC_FIG, rnd = F.rnd, N = 7000;
+    const leaf = new Float32Array(N * 2), nA = new Float32Array(N * 2), nB = new Float32Array(N * 2), off = new Float32Array(N * 2), par = new Float32Array(N * 4);
+    const leafPt = (i) => {
+      const k = i % 20, r = rnd();
+      if (k < 5) return [(k % 2 ? 1 : -1) * F.W(r), r * 2 - 1, 0.6 + 0.4 * rnd()];
+      if (k < 8) { const u = 0.04 + r * 0.92; return [(rnd() - 0.5) * 0.012, u * 2 - 1, 0.7 + 0.3 * rnd()]; }
+      if (k < 13) { const u0 = F.veins[Math.floor(rnd() * 5)], sd = rnd() < 0.5 ? -1 : 1, u = Math.min(0.97, u0 + r * 0.2); return [sd * r * F.W(u) * 0.9, u * 2 - 1, 0.5 + 0.4 * rnd()]; }
+      const u = rnd(); return [(rnd() * 2 - 1) * F.W(u), u * 2 - 1, rnd() * 0.4];
+    };
+    const total = F.edges.reduce((a, e) => a + e[2], 0), nodeShare = Math.round(N * 0.24);
+    const areaSum = F.rad.reduce((a, r) => a + r * r, 0);
+    let ni = 0, nLeft = Math.round(nodeShare * F.rad[0] * F.rad[0] / areaSum), ei = 0, acc = F.edges[0][2];
+    for (let i = 0; i < N; i++) {
+      const lp = leafPt(i), q = F.rot(lp[0], lp[1]);
+      leaf[i * 2] = q[0]; leaf[i * 2 + 1] = q[1];
+      let kind = 0, t = rnd();
+      if (i < nodeShare) {
+        while (nLeft <= 0 && ni < F.nodes.length - 1) { ni++; nLeft = Math.round(nodeShare * F.rad[ni] * F.rad[ni] / areaSum); }
+        nLeft--; kind = 1;
+        const n = F.nodes[ni], a = rnd() * 6.2832, rr = Math.sqrt(rnd()) * F.rad[ni];
+        nA[i * 2] = nB[i * 2] = n[0]; nA[i * 2 + 1] = nB[i * 2 + 1] = n[1]; off[i * 2] = Math.cos(a) * rr; off[i * 2 + 1] = Math.sin(a) * rr;
+      } else {
+        const pos = (i - nodeShare) / (N - nodeShare) * total;
+        while (pos > acc && ei < F.edges.length - 1) { ei++; acc += F.edges[ei][2]; }
+        const e = F.edges[ei], a = F.nodes[e[0]], b = F.nodes[e[1]];
+        nA[i * 2] = a[0]; nA[i * 2 + 1] = a[1]; nB[i * 2] = b[0]; nB[i * 2 + 1] = b[1];
+        if (rnd() < 0.035) kind = 2;
+      }
+      par[i * 4] = t; par[i * 4 + 1] = lp[2]; par[i * 4 + 2] = 0.1 + 0.8 * rnd(); par[i * 4 + 3] = kind;
+    }
+    const buf = (data, name, size) => { const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW); const loc = gl.getAttribLocation(prog, name); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0); };
+    gl.bindVertexArray(gl.createVertexArray());
+    buf(leaf, 'aLeaf', 2); buf(nA, 'aA', 2); buf(nB, 'aB', 2); buf(off, 'aOff', 2); buf(par, 'aP', 4);
+    const U = {}; ['uMorph', 'uTime', 'uDpr', 'uLeafU', 'uNetU', 'uSeam', 'uAxis', 'uRes', 'uLeafC', 'uNetC', 'uBody', 'uMind'].forEach((n) => { U[n] = gl.getUniformLocation(prog, n); });
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    const hex = (h) => { h = (h || '').trim().replace('#', ''); if (h.length !== 6) return [0.5, 0.5, 0.5]; return [0, 2, 4].map((o) => parseInt(h.slice(o, o + 2), 16) / 255); };
+    let morph = 0.5, colors = null, frame = 0, dprCap = 2, slow = 0, last = 0;
+    const t0 = performance.now();
+    const draw = (now) => {
+      const box = cv.getBoundingClientRect(), w = box.width, h = box.height;
+      if (w < 2 || h < 48 || !this.leafEl || !this.netEl) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, dprCap), pw = Math.round(w * dpr), ph = Math.round(h * dpr);
+      if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; gl.viewport(0, 0, pw, ph); }
+      const t = (now - t0) / 1000, lean = (this.state && this.state.lean) || '';
+      const target = lean === 'mind' ? 1 : lean === 'body' ? 0 : 0.5 + 0.16 * Math.sin(t * 2 * Math.PI / 10);
+      morph += (target - morph) * 0.05;
+      if (!colors || frame++ % 30 === 0) { const cs = getComputedStyle(cv); colors = [hex(cs.getPropertyValue('--vc-moss')), hex(cs.getPropertyValue('--vc-cinnabar'))]; }
+      const lb = this.leafEl.getBoundingClientRect(), nb = this.netEl.getBoundingClientRect();
+      const stacked = window.matchMedia('(max-width: 743px)').matches, pb = this.paperEl ? this.paperEl.getBoundingClientRect() : null;
+      const seam = pb ? (stacked ? pb.bottom - box.top : pb.right - box.left) : (stacked ? h / 2 : w / 2);
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform1f(U.uMorph, morph); gl.uniform1f(U.uTime, t); gl.uniform1f(U.uDpr, dpr);
+      gl.uniform2f(U.uRes, w, h); gl.uniform1f(U.uSeam, seam); gl.uniform1f(U.uAxis, stacked ? 1 : 0);
+      gl.uniform2f(U.uLeafC, lb.left + lb.width / 2 - box.left, lb.top + lb.height / 2 - box.top); gl.uniform1f(U.uLeafU, lb.height / 2.2);
+      gl.uniform2f(U.uNetC, nb.left + nb.width / 2 - box.left, nb.top + nb.height / 2 - box.top); gl.uniform1f(U.uNetU, nb.height / 2);
+      gl.uniform3fv(U.uBody, colors[0]); gl.uniform3fv(U.uMind, colors[1]);
+      gl.drawArrays(gl.POINTS, 0, N);
+      if (!stage.hasAttribute('data-live')) stage.setAttribute('data-live', '');
+      // 帧率持续低于 40 时把像素密度降到 1 倍
+      if (last) { slow = now - last > 25 ? slow + 1 : 0; if (slow > 90 && dprCap > 1) dprCap = 1; }
+      last = now;
+    };
+    let visible = true;
+    const loop = (now) => { cancelAnimationFrame(this.raf); if (!visible || document.hidden || (this.state && this.state.paused)) { last = 0; return; } draw(now); this.raf = requestAnimationFrame(loop); };
+    this.io = new IntersectionObserver((e) => { visible = e[0].isIntersecting; if (visible) loop(performance.now()); }); this.io.observe(cv);
+    this.resume = () => loop(performance.now());
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) loop(performance.now()); });
+    this.raf = requestAnimationFrame(loop);
+  }
+  renderVals() {
+    const v = shellVals(this, 'paper', '/');
+    const st = this.state || {};
+    const c = COPY[v.en ? 'en' : 'zh'];
+    const open = this.pick('start', '收起') === '展开';
+    const still = (this.props.motion ?? '正常') !== '正常' || !!st.noGL;
+    const offline = this.pick('network', '在线') === '离线';
+    const lean = (who) => () => { if (this.canLean() && (st.lean || '') !== who) this.setState({ lean: who }); };
+    return {
+      ...v, c,
+      lean: st.lean || '', leanBody: lean('body'), leanMind: lean('mind'),
+      leanNone: () => { clearTimeout(this.timer); this.setState({ lean: '', start: '收起' }); },
+      heroClass: 'vc-hero' + (offline ? ' is-offline' : ''), offline,
+      startClass: open ? '' : 'is-closed', startExpanded: open ? 'true' : 'false',
+      openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '展开' }), 80); },
+      closeLater: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '收起' }), 300); },
+      onKey: (e) => { if (e.key === 'Escape') this.setState({ start: '收起', lean: '' }); },
+      claims: c.claims.map((x) => ({ ...x, tid: 'vc-claim-' + x.id, chip: 'vc-claim-chip vc-claim-chip-' + x.id })),
+      studies: c.studies.map((x) => ({ ...x, seenText: v.en ? new Date(x.seen + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : x.seen, linkLabel: c.readSource + (v.en ? ': ' : '：') + x.journal + (v.en ? ', ' : '，') + x.year })),
+      leafPath: VC_FIG.leafPath, netEdges: VC_FIG.netEdges, netNodes: VC_FIG.netNodes,
+      glRef: this.glRef || (this.glRef = (el) => { this.cv = el; if (el) { this.paperEl = el.closest('.vc-hero').querySelector('.vc-hero-paper'); this.startGL(); } }),
+      stageRef: this.stageRef || (this.stageRef = (el) => { this.stageEl = el; if (el) this.startGL(); }),
+      leafRef: this.leafRef || (this.leafRef = (el) => { this.leafEl = el; }),
+      netRef: this.netRef || (this.netRef = (el) => { this.netEl = el; }),
+      orbClass: this.pick('focus', '无') === '无' ? 'orb' : 'orb is-focus',
+      /* 登录方式按设备定主次：苹果设备上「用 Apple」在前（手机上是实心主按钮），其余设备「用 Google」在前；两个按钮尺寸相同。实现里按平台判断，画板用属性 device 切换 */
+      authFirst: this.pick('device', '其他') === '苹果' ? c.apple : c.google, authSecond: this.pick('device', '其他') === '苹果' ? c.google : c.apple,
+      showPause: !still, paused: !!st.paused, playing: !st.paused, pausedAttr: st.paused ? 'true' : 'false',
+      pauseLabel: st.paused ? c.play : c.pause,
+      togglePause: () => { const p = !st.paused; this.setState({ paused: p }); if (!p && this.resume) setTimeout(this.resume, 0); },
+    };
+  }
+}
+</script>
+</body>
+</html>

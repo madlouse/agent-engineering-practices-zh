@@ -15,6 +15,8 @@ export default tseslint.config(
       ".nitro/**",
       "node_modules/**",
       "src/routeTree.gen.ts",
+      // 画板的生成源：拼进画板的脚本片段，单个文件不是完整的模块，在画布里运行，不是站点代码（docs/uiue/prototypes/v1.1/README.md）
+      "docs/uiue/prototypes/**",
     ],
   },
   js.configs.recommended,

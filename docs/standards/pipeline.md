@@ -10,14 +10,14 @@
 
 ## 2. 从需求到上线：五个阶段，四个关口
 
-PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线，阶段之间是四个关口。每个关口有负责的 Agent 组合和能检查的出口。
+PRD 第 9 节定了顺序：PRD → 设计语言 → UI/UE → 代码 → 上线，阶段之间是四个关口。每个关口有负责的 Agent 组合和能检查的出口。各关口现在走到哪一步只写在 `docs/delivery/roadmap.md` §1，这里不另记。
 
-| 关口 | 从哪到哪 | 出口 | 谁做、谁查 | 状态 |
-|---|---|---|---|---|
-| 一 | PRD → 设计语言 | PRD 对抗评审（PRD 附录） | 主会话写；独立评审 | 已过（PRD v1.0） |
-| 二 | 设计语言 → UI/UE | 设计系统确认、动效选定 C | 主会话；产品负责人 | 已过 |
-| 三 | UI/UE → 代码 | **3a UI/UE 对抗评审**（§2.1）；**3b 拆成就绪的规格和票**（§2.2），也就是把循环拆出来 | 3a：`design-reviewer` + `design-reviewer-b` 独立评审，`verify_canvas.py` 只读验证；3b：主会话 `to-spec`、`to-tickets`，`spec-reviewer` 冷审；主会话判定通过，拆分里涉及需求取舍的地方向产品负责人说清 | 3a 已过（#14）；3b 已拆（规格 #17–#20），冷审后修改中（`docs/delivery/gate-3b-split.md`） |
-| 四 | 代码 → 上线 | 上线检查（§2.3） | 两条车道的循环（§4）；`design-reviewer` 两份走查；产品负责人确认上线 | 关口三之后 |
+| 关口 | 从哪到哪 | 出口 | 谁做、谁查 |
+|---|---|---|---|
+| 一 | PRD → 设计语言 | PRD 对抗评审（PRD 附录） | 主会话写；独立评审 |
+| 二 | 设计语言 → UI/UE | 设计系统确认、动效选定 C | 主会话；产品负责人 |
+| 三 | UI/UE → 代码 | **3a UI/UE 对抗评审**（§2.1）；**3b 拆成就绪的规格和票**（§2.2），也就是把循环拆出来 | 3a：`design-reviewer` + `design-reviewer-b` 独立评审，`verify_canvas.py` 只读验证；3b：主会话 `to-spec`、`to-tickets`，`spec-reviewer` 冷审；主会话判定通过，拆分里涉及需求取舍的地方向产品负责人说清 |
+| 四 | 代码 → 上线 | 上线检查（§2.3） | 两条车道的循环（§4）；`design-reviewer` 两份走查；产品负责人确认上线 |
 
 ### 2.1 关口三 a：UI/UE 对抗评审
 
@@ -225,7 +225,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖 | `reviewer` 用 Vercel 连接器看构建日志 |
 | 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |
 | token | `python .grok/skills/design-bar/scripts/lint_tokens.py src --tokens <token 文件>` | `reviewer`（界面票） |
-| 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo --face-contrast 1.8`（`--out` 必填；`--face-contrast 1.8` 把相邻大色面的最低对比从技能通用的 1.3:1 提到本站的门槛，依据是设计系统「浅色与深色」：深色下品牌两半 ≥ 1.8:1。深色下有意只隔约 1.3:1 的两处，墨色色带和强调面对页面底，都带 1px 描边，边界画出来的面检查不报；2026-11-12 用这个门槛跑过 18 块画板，报了 2 条色面，都是文章页手机版「加载失败」的提示块对页面底 1.10:1，是真问题，见 `docs/uiue/reviews/2026-11-12-audit/summary.md`） | 关口三 a；改了画板的票 |
+| 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo --face-contrast 1.8`（`--out` 必填；`--face-contrast 1.8` 把相邻大色面的最低对比从技能通用的 1.3:1 提到本站的门槛，依据是设计系统「浅色与深色」：深色下品牌两半 ≥ 1.8:1。深色下有意只隔约 1.3:1 的两处，墨色色带和强调面对页面底，都带 1px 描边，边界画出来的面检查不报） | 关口三 a；改了画板的票 |
 | 内容 | 出处逐条打开核对；授权状态；`velicoach-content` 的审核清单；中英两版都在。研究卡另查：出处链到论文原文，措辞和研究类型相符（`npm run check:research`，站点票 #52 交付；交付前逐张人工核对） | `content-reviewer` |
 
 ## 8. 先慢后快

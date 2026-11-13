@@ -34,9 +34,32 @@ function cLikeComments(lines) {
   });
 }
 
+function pyComments(lines) {
+  let open = null;
+  let previous = null;
+  return lines.map((l) => {
+    if (previous !== null && l.line !== previous + 1) open = null;
+    previous = l.line;
+    let code = l.text;
+    if (open) {
+      const end = code.indexOf(open);
+      if (end < 0) return null;
+      code = code.slice(end + 3);
+      open = null;
+    }
+    code = code.replace(/("""|''')[\s\S]*?\1/g, '""');
+    const unclosed = /"""|'''/.exec(code);
+    const m = /#(.*)$/.exec(stripStrings(unclosed ? code.slice(0, unclosed.index) : code));
+    if (m) return { text: (m[1] + (unclosed ? code.slice(unclosed.index) : "")).trim(), multi: false };
+    if (unclosed) open = unclosed[0];
+    return null;
+  });
+}
+
 export function commentsOf(path, lines) {
   if (C_LIKE.test(path)) return cLikeComments(lines);
-  const pattern = SQL.test(path) ? /--(.*)$/ : PY.test(path) ? /#(.*)$/ : HASH.test(path) ? /(?:^|\s)#(.*)$/ : null;
+  if (PY.test(path)) return pyComments(lines);
+  const pattern = SQL.test(path) ? /--(.*)$/ : HASH.test(path) ? /(?:^|(?<!\\)\s)#(.*)$/ : null;
   return lines.map((l) => {
     const m = pattern && pattern.exec(stripStrings(l.text));
     return m ? { text: m[1].trim(), multi: false } : null;

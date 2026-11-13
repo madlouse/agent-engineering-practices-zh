@@ -13,7 +13,7 @@ export interface User {
   sees(text: Text, timeoutMs?: number): Promise<void>;
   notSees(text: Text, timeoutMs?: number): Promise<void>;
   canTap(name: Text, where?: Where): Promise<boolean>;
-  onFirstScreen(name: Text): Promise<boolean>;
+  onFirstScreen(name: Text, where?: Where): Promise<boolean>;
   countOf(text: Text): Promise<number>;
   path(): Promise<string>;
   waitForPath(expected: RegExp, timeoutMs?: number): Promise<void>;
@@ -77,8 +77,8 @@ export function userOn(page: Page): User {
       const c = control(page, name, where).filter({ visible: true }).first();
       return (await c.count()) > 0 && (await c.isEnabled());
     },
-    async onFirstScreen(name) {
-      const c = control(page, name).filter({ visible: true }).first();
+    async onFirstScreen(name, where) {
+      const c = control(page, name, where).filter({ visible: true }).first();
       if ((await c.count()) === 0 || !(await c.isEnabled())) return false;
       return c.evaluate((el) => {
         const r = el.getBoundingClientRect();

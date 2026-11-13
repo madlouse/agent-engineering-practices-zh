@@ -82,6 +82,13 @@ gates_out=$(node "$lib_dir/merge-gates.mjs" "$tgt" "$sha" "$head" "$body_file" -
   printf '%s\n' "$gates_out" | grep -qx 'owner=yes' && owner_brief
   fail "改动范围、base 或类别不合规（见上）"
 }
+for check in check-doc-first check-comments; do
+  if git show "$tgt:scripts/$check.mjs" > "$lib_dir/$check.mjs" 2>/dev/null; then
+    node "$lib_dir/$check.mjs" "$tgt" "$sha" "$body_file" || fail "$check 不通过（见上，velicoach-mono 工程规范）"
+  else
+    echo "（$TARGET 上还没有 scripts/$check.mjs，跳过）"
+  fi
+done
 category=$(printf '%s\n' "$gates_out" | sed -n 's/^category=//p' | tail -1)
 [[ "$category" =~ ^(ticket|a|b)$ ]] || fail "读不懂类别：$gates_out"
 printf '%s\n' "$gates_out" | grep -v -e '^category=' -e '^risk=high$' || true

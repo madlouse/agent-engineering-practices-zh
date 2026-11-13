@@ -9,3 +9,7 @@ dist
 .node_modules.lock
 __pycache__/
 *.pyc
+
+.env
+.env.*
+!.env.example

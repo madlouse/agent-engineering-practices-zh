@@ -216,6 +216,8 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 检查 | 命令 | 谁跑 |
 |---|---|---|
 | 术语 | `npm run check:terms` | 两条车道的评审 |
+| 文档先行 | `node scripts/check-doc-first.mjs <目标分支> <PR 头> <正文文件>`：改了站点代码的 PR 要在同一个 PR 里改 PRD 或技术方案，或在正文写「需求：」「免文档：」（velicoach-mono 工程规范「文档先行」）；合并脚本从目标分支取脚本和配置来跑 | 开 PR 的人；合并脚本 |
+| 不写注释 | `node scripts/check-comments.mjs <目标分支> <PR 头>`：新增和改动的代码行不写注释，只许一行 `// why: …` 说明外部原因（velicoach-mono 工程规范「结构和代码」）。两个脚本都是 velicoach-mono 同名脚本的副本，只在那里改，路径在 `.velicoach-checks.json`；合并脚本从目标分支取来跑 | 开 PR 的人；合并脚本 |
 | 票正文里的跨仓库票号 | `npm run check:issue-refs`（只读，用 `gh api` 拉开着的票，只查仓库所有者开的那些的正文，和 `check:terms` 用同一个函数；要连 GitHub，不进 `npm test`）。什么时候跑：改过票或规格的正文之后、重新生成拆票文档的票表之后，要求 0 处 | 改票正文的人（主会话、拆票的 Agent）；`spec-reviewer` 复核时再跑一遍 |
 | 票表和依赖图 | `npm run check:ticket-table`（只读，分页拉开着的票和每张票的原生依赖，和 `docs/delivery/gate-3b-split.md` §3 的表、§4 的图、§1 的数字逐项比对，顺带查依赖没有环；要连 GitHub，不进 `npm test`；加 `-- --write` 重新生成）。什么时候跑：改了票的标题、标签、依赖以后，以及改 `gate-3b-split.md` 的 PR 合并之前，要求 0 处 | 改票的人（主会话、拆票的 Agent）；`reviewer` 评审改这一页的 PR 时再跑一遍 |
 | 评审结论评论 | 贴之前 `node scripts/check-review-draft.mjs <草稿文件> <种类> <PR 头 sha>`，不通过不贴（和合并脚本同一套判定） | 四种评审 |

@@ -20,7 +20,17 @@
 ## 生态手册
 <!-- velicoach-mono -->
 
-本仓库是 Velicoach 生态的主站，三站入口和看清一站的文章都在这里。跨产品的愿景、仓库地图、共享契约（账号、路由、设计 token、MCP 工具、反馈库）和多 Agent 交接协议在 [velicoach-mono](https://github.com/madlouse/velicoach-mono/blob/main/AGENTS.md)，会话里克隆在同级目录 velicoach-mono。改共享部分前先读那里的契约，改完通知相关频道；派给 Codex、Antigravity 的任务按那里的任务卡写，合并前由 Claude 做效果评审。主站内的事以本仓库为准，跨产品的事以 velicoach-mono 为准。
+本仓库是 Velicoach 生态的主站，三站入口和看清一站的文章都在这里。跨产品的愿景、产品卡、规范、共享契约和交接协议在 [velicoach-mono](https://github.com/madlouse/velicoach-mono/blob/main/AGENTS.md)，会话里克隆在同级目录 velicoach-mono。主站内的事以本仓库为准，跨产品的事以 velicoach-mono 为准；下面这些事开工前先读那里对应的一份：
+
+| 要做的事 | 先读 |
+|---|---|
+| 改共享契约（账号、路由、设计 token、MCP 工具、反馈库） | velicoach-mono/map/repos.md 的共享契约；主站这边怎么接看 [docs/architecture/overview.md](docs/architecture/overview.md)（账号：v1 不读会话，登录在 Veli）；改完通知相关频道 |
+| 新功能、需求取舍 | velicoach-mono/vision.md 的五问 |
+| 碰到 Veli 或种星词 | velicoach-mono/products/veli.md、velicoach-mono/products/words.md |
+| 派活给 Codex、Antigravity | velicoach-mono/contracts/task.md；合并前由 Claude 做效果评审 |
+| 改跨产品规范、共享检查脚本，或提建议 | velicoach-mono/contracts/spec-change.md：只在那里改，本仓库只指过去 |
+
+界面和对外内容的跨产品底线由 `velicoach-layout`、`velicoach-content` 按需带进来。改站点代码先改 PRD，再改技术方案，再改代码：只改代码的 PR，正文写一行「需求：」引用已有需求，或「免文档：」加类别（重构、依赖、修复、测试、构建）和理由。代码不写注释，只许一行 `// why: …`（中文 `// 为什么：…`）说明外部原因，`eslint-disable` 这类工具指令不算。两条合并脚本都会查（`docs/standards/pipeline.md` §7「文档先行」「不写注释」，规则在 velicoach-mono/standards/engineering.md）。
 
 ## 技能
 

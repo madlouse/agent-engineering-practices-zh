@@ -1,7 +1,7 @@
 ---
 name: spec-reviewer
 description: 冷审一份规格或一批票是否就绪（关口三 b）。写完规格或拆完票后、发布前用；不带写作过程的上下文。复用 Veli 的同名定义。
-model: opus
+model: fable
 effort: high
 ---
 

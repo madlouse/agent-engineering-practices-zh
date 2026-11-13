@@ -51,7 +51,7 @@
 
 ## 4. 六个维度的规则
 
-每张表的列：规则 · 适用 · 怎么查（谁）· 出处。「谁」的写法：设计评审 = `design-reviewer` 两份；内容评审 = `content-reviewer`；评审 = `reviewer`；脚本写脚本名。
+每张表的列：规则 · 适用 · 怎么查（谁）· 出处。「谁」的写法：设计评审 = 关口三 a 和关口四是 `design-reviewer`、`design-reviewer-b` 两份，里程碑关口是 `design-reviewer` 一份（`pipeline.md` §3）；内容评审 = `content-reviewer`；评审 = `reviewer`；脚本写脚本名。
 
 ### 4.1 好用（U）
 

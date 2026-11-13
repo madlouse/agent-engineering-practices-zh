@@ -178,7 +178,7 @@ App 或移动端交互，另读 `references/app.md`。
 | `scripts/gate.py` | 「体验与美学」出口门槛：读 `scorecard.md`，查六维、参照、交付物、步数实测齐不齐、够不够 |
 | `scripts/check_shell.py` | 外壳检查：主题跟随系统、根元素写死主题、偏好记忆、家族导航约定（读源码，按 `shell.json`） |
 | `scripts/check_agent_ready.py` | 不执行脚本取站点或读构建目录，逐项报 过 / 不过 / 没做 / 没查；必须项不过时退出码 1 |
-| `scripts/lint_tokens.py` | 源码写死值检查，发现问题时退出码为 1 |
+| `scripts/lint_tokens.py` | 源码写死值检查，发现问题时退出码为 1；一个文件也没检查到（路径写错）时报错退出，退出码 2 |
 | `scripts/render_dc.py` | 把 Design 画布的 `.dc.html` 按给定状态渲染并截图（本地核对高保真稿） |
 | `scripts/capture_motion.py` | 动效和透镜的截图：执行画板完整的挂载代码，支持悬停、减弱动态效果、`--no-webgl` 的兜底帧、`--probe` 量玻璃背后会不会变；签名动效和玻璃交付的证据用它 |
 | `scripts/verify_canvas.py` | 画板的只读验证：每块画板 × 每个状态 × 浅色、深色、伪语言 × 视口，只报能判对错的问题，另列提示，给出 done / needs_work |

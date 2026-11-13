@@ -181,6 +181,12 @@ def lint_tokens_checks():
         code, txt = lint('--exclude', 'src/keep')
         if 'keep/c.css' in txt or 'skip/a.css' not in txt:
             failures.append('lint_tokens.py：命令行给了 --exclude 就只用命令行的，配置的排除不叠加：' + txt[-200:])
+        code, txt = lint('--no-project-config', paths=('src/missing',))
+        if code != 2 or '没有检查任何文件' not in txt or gone in txt:
+            failures.append('lint_tokens.py：扫描路径下一个文件也没检查（路径写错）要报错退出，不能输出「没有发现」：' + txt[-300:])
+        code, txt = lint('--no-project-config', paths=('src/keep/c.css',))
+        if code != 1 or 'keep/c.css' not in txt:
+            failures.append('lint_tokens.py：扫描路径直接写文件时照常检查：' + txt[-200:])
         write(os.path.join(root, 'design-bar.json'), json.dumps({'lint-tokens': {'excludes': ['src/skip']}}))
         code, txt = lint()
         if code == 0 or '可用的键' not in txt or 'lint-tokens-ignore' in txt or gone in txt or 'keep/c.css' in txt:

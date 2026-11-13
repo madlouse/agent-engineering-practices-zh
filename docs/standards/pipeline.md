@@ -230,7 +230,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 口语和转写错误 | `npm run check:voice`（原话只在 `timeline.md`，其余正式文字不带口语标记和登记过的转写错误）；票和规格的正文同样跑 `node scripts/check-voice.mjs <文件>` | 两条车道的评审；`spec-reviewer` |
 | 脚本单元测试 | `npm test`（`check:mail` 合并以后（#112）要给目标分支：`MERGE_TARGET_BRANCH=origin/<目标分支> npm test`，不给就报错，没有默认值；合并脚本自己传核对过的提交号。`scripts/` 下除 grok-pwa 以外的测试，加 `npm run test:pwa`：grok-pwa 插件的测试读当前目录的分享卡配置，要在空临时目录里跑；沙箱契约不许改它的测试文件。PR #68 起。后半段的 `src/lib` 测试要依赖装全。云端会话里 `registry.npmjs.org` 在 `NO_PROXY` 里、直连解析不了，`npm ci` 报 ENOTFOUND；装依赖时让它走代理：`NO_PROXY=localhost,127.0.0.1 no_proxy=localhost,127.0.0.1 npm ci --no-audit --no-fund`） | `reviewer` |
 | 类型检查、lint、构建 | 分支的 Vercel 预览部署，构建命令是 `tsc --noEmit && eslint . && vite build`、安装带开发依赖 | `reviewer` 用 Vercel 连接器看构建日志 |
-| 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180 --project-config docs/uiue/design-bar.json`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。预览部署有访问保护，用 #15 里配的绕过头访问 | `reviewer`（界面票）；里程碑关口 |
+| 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180 --project-config docs/uiue/design-bar.json`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。在 Vercel Sandbox 里对预览部署跑，不带任何凭据；预览的访问保护目前关闭（需求第 104 条），M3 订阅表单上预览之前重新打开，届时另开票解决有保护时怎么跑 | `reviewer`（界面票）；里程碑关口 |
 | token | `npm run check:tokens`（跑 `python .grok/skills/design-bar/scripts/lint_tokens.py src --project-config docs/uiue/design-bar.json --tokens <token 文件>`，排除的目录写在 `design-bar.json` 的 `lint-tokens.exclude`；这条 npm 命令由票 #22 加） | `reviewer`（界面票） |
 | 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo --project-config docs/uiue/design-bar.json`（`--out` 必填；本站把相邻大色面的最低对比从技能通用的 1.3:1 提到 1.8:1，写在 `docs/uiue/design-bar.json`；配置只许收紧，比通用下限松的值脚本报错退出；`docs/uiue/design-bar.json` 和 `docs/uiue/shell.json` 是门槛文件，和本节命令一样：票的 PR 不能改，其他 PR 改了按 b 类要两份评审（`scripts/merge-gates.mjs` 的 `GATE_FILES`）；依据是设计系统「浅色与深色」：深色下品牌两半 ≥ 1.8:1。深色下有意只隔约 1.3:1 的两处，墨色色带和强调面对页面底，都带 1px 描边，边界画出来的面检查不报） | 关口三 a；改了画板的票 |
 | 内容 | 出处逐条打开核对；授权状态；`velicoach-content` 的审核清单；中英两版都在。研究卡另查：出处链到论文原文，措辞和研究类型相符（`npm run check:research`，站点票 #52 交付；交付前逐张人工核对） | `content-reviewer` |
@@ -241,7 +241,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 
 | 阶段 | 开哪些 | 进入条件 |
 |---|---|---|
-| 0 准备 | 都不开 | 前置票 #15 全部做完：Vercel 项目和预览绕过头、`feature/v1`、基线变绿（`npm test`，#15）、合并脚本（主会话从 Veli 复用改写，`chore/` 分支，按 b 类两份冷评审后合并，不能由票自己写：票的 PR 不能改门槛文件）；GitHub 默认分支改成 `feature/v1`（§5）、云端会话放行合并脚本 |
+| 0 准备 | 都不开 | 前置票 #15 全部做完：Vercel 项目（预览保护关闭）、`feature/v1`、基线变绿（`npm test`，#15）、合并脚本（主会话从 Veli 复用改写，`chore/` 分支，按 b 类两份冷评审后合并，不能由票自己写：票的 PR 不能改门槛文件）；GitHub 默认分支改成 `feature/v1`（§5）、云端会话放行合并脚本 |
 | 试跑 | 手动跑一次 ①，做第一张票 | 关口三已过；走完整条链路，交接评论格式对 |
 | 1 | ① ② ③ ④ | 前 5 个合并的 PR 产品负责人抽查，没有要退回的 |
 | 2 | 加评审清扫、清理与经验 | 连续一周没有「集成分支红超过 4 小时」 |

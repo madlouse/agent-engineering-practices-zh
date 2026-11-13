@@ -95,7 +95,7 @@ python scripts/gate.py docs/design/scorecard.md --out docs/design/reviews/2026-1
 python scripts/selftest.py --static
 ```
 
-`lint_tokens.py`、`sync_tokens.py --check`、`check_shell.py`、`gate.py` 发现问题时退出码为 1，可以接入提交前检查或 CI。
+`lint_tokens.py`、`sync_tokens.py --check`、`check_shell.py`、`gate.py` 发现问题时退出码为 1（`lint_tokens.py` 一个文件也没检查到时退出码为 2），可以接入提交前检查或 CI。
 
 ## 文件
 

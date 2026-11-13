@@ -151,6 +151,7 @@ def main():
         print(f"排除前缀盖住了要检查的路径 {'、'.join(covering)}：这样什么都不会被检查，请缩小排除范围。", file=sys.stderr)
         return 2
     skipped = 0
+    checked = 0
 
     tokens = pathlib.Path(a.tokens)
     defined = set()
@@ -170,6 +171,7 @@ def main():
             text = f.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):
             continue
+        checked += 1
         local_defs = set(VAR_DEF.findall(text))
         for i, line in enumerate(text.splitlines(), 1):
             s = line.strip()
@@ -196,6 +198,9 @@ def main():
                     if v not in defined and v not in local_defs:
                         findings.append(("未定义变量 " + v, f, i, s[:120]))
 
+    if checked == 0:
+        print(f"没有检查任何文件（扫描路径 {'、'.join(a.paths)} 下没有可检查的文件，或全被排除）：路径可能写错，这样「没有问题」不算数。", file=sys.stderr)
+        return 2
     if excludes:
         print(f"已排除 {skipped} 个文件（前缀：{'、'.join(given)}）。")
     if not findings:

@@ -9,17 +9,31 @@ const list = (item) => String.raw`${item}(?:\s*,\s*${item})*`;
 const full = (...forms) => new RegExp(`^(?:${forms.join("|")})$`);
 const NOQA = String.raw`noqa(?::\s*${list(String.raw`[A-Z]+\d+`)})?`;
 
+const HASH_FORMS = [
+  NOQA,
+  String.raw`pylint:\s*(?:disable|enable|disable-next)=${list(String.raw`[\w-]+`)}`,
+  String.raw`pylint:\s*skip-file`,
+  String.raw`pyright:\s*(?:ignore(?:\[${list(String.raw`[\w-]+`)}\])?|basic|standard|strict|${list(String.raw`\w+=\w+`)})`,
+  String.raw`mypy:\s*${list(String.raw`[a-z]+(?:-[a-z0-9]+)+(?:\s*=\s*[\w.-]+)?`)}`,
+  String.raw`fmt:\s*(?:skip|off|on)`,
+  String.raw`isort:\s*(?:skip|skip_file|off|on|split)`,
+  String.raw`nosec(?:\s+${list(String.raw`B\d+`)})?`,
+  String.raw`pragma:\s*no\s+(?:cover|branch)`,
+  String.raw`shellcheck(?:\s+(?:disable|enable|source|source-path|shell|external-sources)=\S+)+`,
+  String.raw`yamllint\s+(?:disable|enable)(?:-line|-file)?(?:\s+rule:[\w-]+)*`,
+  String.raw`-\*-\s*coding[:=]\s*[\w.-]+\s*-\*-`,
+];
+
 export const DIRECTIVES = {
   c: full(
     String.raw`eslint-(?:disable|enable)(?:-next-line|-line)?(?:\s+${list(String.raw`[\w@/-]+`)})?(?:\s+--\s+\S.*)?`,
     String.raw`eslint-env\s+${list(String.raw`[\w-]+`)}`,
-    String.raw`eslint\s+${list(String.raw`[\w@/-]+:\s*(?:off|warn|error|[0-2]|\[.*\])`)}`,
-    String.raw`globals?\s+${list(String.raw`[\w$]+(?::\s*(?:readonly|writable|off))?`)}`,
+    String.raw`eslint\s+${list(String.raw`[\w@/-]+:\s*(?:off|warn|error|[0-2]|\[(?:[\s\d,":{}.\-]|true|false|null)*\])`)}`,
     String.raw`@ts-(?:expect-error|ignore)(?:\s+\S.*)?`,
     String.raw`@ts-(?:check|nocheck)`,
     String.raw`prettier-ignore`,
     String.raw`biome-ignore(?:-all|-start|-end)?\s+[\w/]+(?:\([\w/-]+\))?:\s*\S.*`,
-    String.raw`deno-lint-ignore(?:-file)?(?:\s+[\w-]+)*`,
+    String.raw`deno-lint-ignore(?:-file)?(?:\s+(?:[a-z][a-z0-9]*(?:-[a-z0-9]+)+|camelcase|eqeqeq))*`,
     String.raw`(?:c8|v8)\s+ignore\s+(?:next|if|else|file|start|stop)(?:\s+\d+)?`,
     String.raw`istanbul\s+ignore\s+(?:next|if|else|file)`,
     String.raw`<reference\s+(?:path|types|lib|no-default-lib)=""\s*/>`,
@@ -29,25 +43,14 @@ export const DIRECTIVES = {
     list(String.raw`webpack\w+:\s*\S+`),
     String.raw`[#@]__(?:PURE|NO_SIDE_EFFECTS)__`,
   ),
-  hash: full(
-    NOQA,
-    String.raw`type:\s*ignore(?:\[${list(String.raw`[\w-]+`)}\])?`,
-    String.raw`type:\s*[\w.\[\](),|*\s>-]+`,
-    String.raw`pylint:\s*(?:disable|enable|disable-next)=${list(String.raw`[\w-]+`)}`,
-    String.raw`pylint:\s*skip-file`,
-    String.raw`pyright:\s*(?:ignore(?:\[${list(String.raw`[\w-]+`)}\])?|basic|standard|strict|${list(String.raw`\w+=\w+`)})`,
-    String.raw`mypy:\s*${list(String.raw`[\w-]+(?:\s*=\s*[\w.-]+)?`)}`,
-    String.raw`fmt:\s*(?:skip|off|on)`,
-    String.raw`isort:\s*(?:skip|skip_file|off|on|split)`,
-    String.raw`nosec(?:\s+${list(String.raw`B\d+`)})?`,
-    String.raw`pragma:\s*no\s+(?:cover|branch)`,
-    String.raw`shellcheck(?:\s+(?:disable|enable|source|source-path|shell|external-sources)=\S+)+`,
-    String.raw`yamllint\s+(?:disable|enable)(?:-line|-file)?(?:\s+rule:[\w-]+)*`,
-    String.raw`-\*-\s*coding[:=]\s*[\w.-]+\s*-\*-`,
+  py: full(
+    ...HASH_FORMS,
+    String.raw`type:\s*(?:ignore(?:\[${list(String.raw`[\w-]+`)}\])?|(?:[\w.\[\](),|*>-]|(?<=[,|>(\[])\s+|\s+(?=[|-]))+)`,
   ),
+  hash: full(...HASH_FORMS),
   sql: full(NOQA),
 };
-const NESTED = { c: /\s+\/\/\s*/, hash: /\s+#(?!\d)\s*/, sql: /\s+--\s*/ };
+const NESTED = { c: /\s+\/\/\s*/, py: /\s+#(?!\d)\s*/, hash: /\s+#(?!\d)\s*/, sql: /\s+--\s*/ };
 
 const C_LIKE = /\.(?:[cm]?[jt]sx?|css|scss)$/;
 const SQL = /\.sql$/;
@@ -78,7 +81,7 @@ function cLikeComments(lines) {
   });
 }
 
-function tripleQuotedComments(lines) {
+function tripleQuotedComments(lines, kind) {
   let open = null;
   let previous = null;
   return lines.map((l) => {
@@ -93,7 +96,7 @@ function tripleQuotedComments(lines) {
       open = null;
     }
     for (let m; (m = TRIPLE_QUOTED_TOKEN.exec(l.text)); ) {
-      if (m[1] !== undefined) return { text: m[1].trim(), multi: false, kind: "hash" };
+      if (m[1] !== undefined) return { text: m[1].trim(), multi: false, kind };
       if (m[0] !== '"""' && m[0] !== "'''") continue;
       const end = l.text.indexOf(m[0], TRIPLE_QUOTED_TOKEN.lastIndex);
       if (end < 0) {
@@ -108,7 +111,7 @@ function tripleQuotedComments(lines) {
 
 export function commentsOf(path, lines) {
   if (C_LIKE.test(path)) return cLikeComments(lines);
-  if (TRIPLE_QUOTED.test(path)) return tripleQuotedComments(lines);
+  if (TRIPLE_QUOTED.test(path)) return tripleQuotedComments(lines, path.endsWith(".py") ? "py" : "hash");
   const [pattern, kind] = SQL.test(path) ? [/--(.*)$/, "sql"] : HASH.test(path) ? [/(?:^|(?<!\\)\s)#(.*)$/, "hash"] : [];
   return lines.map((l) => {
     const m = pattern && !shebang(l) && pattern.exec(stripStrings(l.text));

@@ -145,6 +145,7 @@ PROJECT_CONFIG_NAME = 'design-bar.json'
 PROJECT_CONFIG_DEST_ALIASES = {'tap-min': 'min_target'}  # check_page.py 把同一个阈值叫 --min-target
 PROJECT_CONFIG_LOOSER = {'edge-tol': (EDGE_TOL, '>'), 'empty-band': (EMPTY_BAND_MAX, '>'), 'face-area': (FACE_MIN_AREA, '>'), 'face-contrast': (FACE_MIN_CONTRAST, '<'),
                          'tap-min': (TAP_MIN, '<'), 'tap-floor': (TAP_FLOOR, '<'), 'max-font-sizes': (MAX_FONT_SIZES, '>')}  # why: 配置只许收紧，比通用下限松的值报错
+PROJECT_CONFIG_TOP_KEYS = ('thresholds', 'lint-tokens')
 PROJECT_CONFIG_KEYS = ('edge-tol', 'empty-band', 'face-area', 'face-contrast', 'tap-min', 'tap-floor', 'max-font-sizes')
 
 
@@ -183,9 +184,12 @@ def load_project_config(path):
     try:
         cfg = json.load(open(path, encoding='utf-8'))
         assert isinstance(cfg, dict)
-        return cfg
     except (OSError, ValueError, AssertionError):
         sys.exit(f'{path}：项目配置要写成 JSON 对象，例如 {{"thresholds": {{"face-contrast": 1.8}}}}')
+    bad = sorted(set(cfg) - set(PROJECT_CONFIG_TOP_KEYS))
+    if bad:
+        sys.exit(f'{path}：不认识的顶层键 {"、".join(bad)}，可用：{"、".join(PROJECT_CONFIG_TOP_KEYS)}（键写错会让门槛悄悄退回通用下限，所以报错）')
+    return cfg
 
 
 def apply_project_config(ap, argv):

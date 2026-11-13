@@ -45,7 +45,7 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
     console.log("用法：node scripts/check-doc-first.mjs <base-ref> <head-ref> [PR 正文文件]。配置取自 base 上 .velicoach-checks.json 的 docFirst（code、docs、refs，都是正则）；规则见 velicoach-mono/standards/engineering.md「文档先行」。");
     process.exit(2);
   }
-  const git = (...a) => execFileSync("git", a, { encoding: "utf8", maxBuffer: 64 << 20 });
+  const git = (...a) => execFileSync("git", a, { encoding: "utf8", maxBuffer: 64 << 20, stdio: ["ignore", "pipe", "ignore"] });
   let config;
   try {
     config = JSON.parse(git("show", `${base}:.velicoach-checks.json`)).docFirst;

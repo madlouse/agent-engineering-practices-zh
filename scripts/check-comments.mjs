@@ -95,7 +95,7 @@ if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.me
     console.log("用法：node scripts/check-comments.mjs <base-ref> <head-ref>。配置取自 base 上 .velicoach-checks.json 的 comments（paths、exclude、allow，都是正则）；规则见 velicoach-mono/standards/engineering.md「结构和代码」。");
     process.exit(2);
   }
-  const git = (...a) => execFileSync("git", a, { encoding: "utf8", maxBuffer: 64 << 20 });
+  const git = (...a) => execFileSync("git", a, { encoding: "utf8", maxBuffer: 64 << 20, stdio: ["ignore", "pipe", "ignore"] });
   let config;
   try {
     config = JSON.parse(git("show", `${base}:.velicoach-checks.json`)).comments;

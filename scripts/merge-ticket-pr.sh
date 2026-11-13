@@ -82,7 +82,7 @@ gates_out=$(node "$lib_dir/merge-gates.mjs" "$tgt" "$sha" "$head" "$body_file" -
   printf '%s\n' "$gates_out" | grep -qx 'owner=yes' && owner_brief
   fail "改动范围、base 或类别不合规（见上）"
 }
-for check in check-doc-first check-comments; do
+for check in check-doc-first check-comments check-role-paths; do
   if git show "$tgt:scripts/$check.mjs" > "$lib_dir/$check.mjs" 2>/dev/null; then
     node "$lib_dir/$check.mjs" "$tgt" "$sha" "$body_file" || fail "$check 不通过（见上，velicoach-mono 工程规范）"
   else
@@ -132,6 +132,11 @@ if [ -x node_modules/.bin/tsc ] && [ -x node_modules/.bin/eslint ]; then
   eslint . || fail "lint 没过"
 else
   echo "（本地没装 tsc、eslint：类型检查和 lint 以已确认 READY 的预览构建为准）"
+fi
+if git show "$tgt:scripts/check-e2e-trace.mjs" > "$lib_dir/check-e2e-trace.mjs" 2>/dev/null; then
+  node "$lib_dir/check-e2e-trace.mjs" "$tgt" || fail "check-e2e-trace 不通过（见上，velicoach-mono verify/cases.md）"
+else
+  echo "（$TARGET 上还没有 scripts/check-e2e-trace.mjs，跳过）"
 fi
 cd "$ROOT"
 

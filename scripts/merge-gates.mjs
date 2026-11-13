@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 // 定义门槛的文件：票的 PR（feat/、fix/、content/）不能动，改名、删除也算。不是票的 PR 改了它们，一律按 b 类（要两份评审）
 export const GATE_FILES = [
   /^scripts\/merge-ticket-pr\.sh$/,
-  /^scripts\/check-(?:doc-first|comments)\.mjs$/,
+  /^scripts\/check-(?:doc-first|comments|role-paths|e2e-trace)\.mjs$/,
   /^\.velicoach-checks\.json$/,
   /^scripts\/merge-gates(\.test)?\.mjs$/,
   /^scripts\/review-markers(\.test)?\.mjs$/,

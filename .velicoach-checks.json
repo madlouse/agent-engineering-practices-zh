@@ -8,5 +8,16 @@
     "paths": ["^src/(?!content/.*\\.md$)", "^server/", "^migrations/", "^scripts/"],
     "exclude": ["\\.md$"],
     "allow": []
+  },
+  "roles": {
+    "source": ["^src/", "^server/", "^migrations/", "^public/"],
+    "e2eCore": ["^tests/e2e/core/", "^tests/e2e/env\\.ts$"],
+    "e2eCases": ["^tests/e2e/cases/"]
+  },
+  "e2eTrace": {
+    "prd": ["^docs/prd/e2e-scenarios\\.md$"],
+    "id": "\\b(S\\d{2})\\b",
+    "cases": ["^tests/e2e/cases/"],
+    "minCoverage": 0
   }
 }

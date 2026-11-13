@@ -9,6 +9,8 @@
                  theme.fixedAllow 里列出的特例路径（正则）不算
   偏好记忆       theme.storageKey、family.langKey 和它们的取值在源码里都出现
   家族导航       family.home 有一个链到它的链接；family.links 每个地址都出现；有 aria-current
+  跨子域偏好     配了 family.cookieDomain（家族里有子域上的产品）时，每个产品的源码都要写 cookie，并且 cookie 带 Domain 属性、写的是这个上级域；
+                 路径产品（/body、/mind）也一样，不豁免：同级产品先读 cookie，路径产品只写本机存储，用户的改动会被旧 cookie 盖回去
   「无条件」的判法：写入包在守卫之后才算有条件，守卫是带 prefers-color-scheme 的 matchMedia，或键等于 theme.storageKey 的 getItem(
   （没有配置就不限键）；位置是 if 块、if 行内、三元或 && 之前。matchMedia 的 .matches 取反（!matchMedia(…).matches、=== false、!== true）仍算守卫，
   因为 `if (!matchMedia('(prefers-color-scheme: dark)').matches) { 写 'light' }` 是跟随系统的正确写法。不算守卫的：对 matchMedia 函数本身取反（!window.matchMedia，特性检测）；
@@ -35,6 +37,7 @@ EXTS = ('.css', '.scss', '.html', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.vue', 
 SKIP_DIRS = re.compile(r'(^|/)(node_modules|\.next|dist|build|out|coverage|\.git)(/|$)')
 DARK = re.compile(r'''data-theme\s*=\s*["'`]?dark|\[data-theme=["']?dark|\.dark\b|color-scheme:\s*dark''')
 FOLLOWS = re.compile(r'prefers-color-scheme')
+COOKIE_WRITE = re.compile(r'document\.cookie\s*=|cookieStore\.set|cookies\(\)\.set|[Cc]ookies?\.set\(|Set-Cookie|setCookie\(')
 FORCED = [
     re.compile(r'''<html\b[^>]*\bdata-theme\s*=\s*["'](light|dark)["']'''),
     re.compile(r'''documentElement\.dataset\.theme\s*=\s*["'](light|dark)["']'''),
@@ -255,6 +258,20 @@ def check(srcs, cfg):
             (passes if hit else fails).append(('同级产品链接', f'{link}：{hit[0]}' if hit else f'{link} 在源码里没出现'))
         hit = where(srcs, re.compile(r'aria-current|ariaCurrent'), 1)
         (passes if hit else fails).append(('当前所在高亮', hit[0] if hit else '没有 aria-current：当前所在只靠颜色，读屏和 Agent 看不出'))
+        domain = family.get('cookieDomain')
+        if domain:
+            writes = where(srcs, COOKIE_WRITE, 1)
+            # 上级域要出现在 cookie 的 Domain 属性里：既要有 Domain 属性，又要有一个只写这个域的字面量
+            # （链接里的 https://域名/ 不算，否则链回家族首页就把不写 Domain 的 cookie 放过去了）
+            attr = where(srcs, re.compile(r'\b[Dd]omain\s*[=:]'), 1) if writes else []
+            lit = re.compile(r'''["'`=]\s*\.?''' + re.escape(domain.lstrip('.')) + r'''\s*["'`;]''')
+            named = where(srcs, lit, 1) if attr else []
+            if not writes:
+                fails.append(('跨子域偏好', f'配了 cookieDomain {domain}，源码里却没有写 cookie：偏好只存在本机存储。家族里的同级产品先读 cookie，路径产品也要写，否则在这里改了外观，回到同级产品会被旧 cookie 盖回去'))
+            elif not named:
+                fails.append(('跨子域偏好', f'写了 cookie（{writes[0]}），但没把 Domain 设成上级域 {domain}：不写 Domain 的 cookie 只在当前子域有效'))
+            else:
+                passes.append(('跨子域偏好', f'{writes[0]}；{domain}：{named[0]}'))
     return fails, passes
 
 

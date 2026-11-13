@@ -1,0 +1,96 @@
+[
+ {
+  "name": "超预算",
+  "level": "核心",
+  "board": "Home",
+  "start": "首页",
+  "steps": [
+   {
+    "tap": "换一天"
+   },
+   {
+    "tap": "不改了"
+   },
+   {
+    "tap": "换一天"
+   }
+  ]
+ },
+ {
+  "name": "没这个按钮",
+  "level": "非核心",
+  "board": "Home",
+  "start": "首页",
+  "steps": [
+   {
+    "tap": "删除全部"
+   }
+  ]
+ },
+ {
+  "name": "去向不同",
+  "level": "非核心",
+  "board": "Home",
+  "start": "首页",
+  "steps": [
+   {
+    "tap": "更多"
+   }
+  ]
+ },
+ {
+  "name": "去向不符",
+  "level": "非核心",
+  "board": "Home",
+  "start": "首页",
+  "steps": [
+   {
+    "tap": "换一天",
+    "to": "已改"
+   }
+  ]
+ },
+ {
+  "name": "画板不符",
+  "level": "非核心",
+  "board": "Home",
+  "start": "首页",
+  "steps": [
+   {
+    "tap": "去另一页",
+    "board": "Home"
+   }
+  ]
+ },
+ {
+  "name": "离开后还点",
+  "level": "非核心",
+  "board": "Home",
+  "start": "首页",
+  "steps": [
+   {
+    "tap": "拨打 110"
+   },
+   {
+    "tap": "换一天"
+   }
+  ]
+ },
+ {
+  "name": "离开后说一句再点",
+  "level": "非核心",
+  "board": "Home",
+  "start": "首页",
+  "steps": [
+   {
+    "tap": "拨打 110"
+   },
+   {
+    "intent": "再问一句"
+   },
+   {
+    "tap": "换一天"
+   }
+  ]
+ }
+]

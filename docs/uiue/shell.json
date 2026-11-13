@@ -8,6 +8,7 @@
     "home": "/",
     "links": ["/body", "/mind", "/build"],
     "langKey": "vc-lang",
-    "langValues": ["zh", "en"]
+    "langValues": ["zh", "en"],
+    "cookieDomain": ".velicoach.com"
   }
 }

@@ -9,25 +9,27 @@
   2. 文字被挤成竖排：一段文字的宽度不到两个字、高度却超过 2.5 行
   3. 内容超出画板：元素右边超出画板（画板会把它裁掉）
   4. 对比度：正文 < 4.5:1、大字 < 3:1（禁用态按钮除外；浅色、深色各查一次）
-  5. 点按区域（A2）：独立成行的链接和按钮 < 44×44 报「触控目标小于 44」；任何可点元素短边 < 24 报更重的「点按区域小于 24」
+  5. 点按区域（A2）：独立成行的链接和按钮 < 44×44 报「触控目标小于 44」；任何可点元素短边 < 24 报更重的「点按区域小于 24」；图形上的密集热区（人形图的部位、地图的点）放进带 data-tap-equivalent 的容器、旁边有等价的列表可选时，只要求 24（WCAG 2.2 的 2.5.8 等价控件例外），热区之间不许重叠
      （WCAG 2.2 的 2.5.8 底线）。页脚、面包屑、整行链接都查。只放过一句话中间的行内链接（2.5.8 的行内例外）：在 p 里或 li > span 里，
      行内显示，不在 nav / header / footer 里，所在的块里链接以外还有 ≥ 12 个字；div、td 里的句中链接和 li > a 的行标题链接照报。
      伪元素或子元素把热区撑大的（::before / ::after、溢出盒子的子元素），按撑大后的量（2.5.8 量的是目标区域，不是文字盒）。
      撑大的部分要真的点得到，并且盖得住目标尺寸的方块：方块每条边取 9 点，全部要点到它或它的子元素；
      写了 pointer-events: none、被别的东西盖住、只伸出一条比目标尺寸窄的条、偏在一侧、缺一块、圆形或圆角 ≥ 2px、或取样点在视口外量不了的，照盒子量。
      量不出来的：两个取样点之间比间距窄的缝（44 下 5.4px、24 下 2.9px）；每个方向撑到超过 43px（23px）就算撑到；盒子和方块的边之间不取样
-  6. 引用了没定义的 token：var(--x) 在样式表里找不到
+  6. 引用了没定义的 token：var(--x) 在样式表里找不到（带回退值的 var(--x, 值) 是局部参数，不算）
+  35. 属性值里混进了标签：aria-label、title 一类属性里出现 <，源码会露在页面上
   11. 展开层超出所在区块：aria-expanded 的控件用 aria-controls 指向的展开层，要完整留在所在 <section> 里
-  12. 可点元素被盖住：链接、按钮、输入框的中心点上面压着别的控件或浮层
+  12. 可点元素被盖住：链接、按钮、输入框的中心点上面压着别的控件或浮层（滚动容器里没露出来的先滚进来再量，滚出去不算被盖；停用的、在 inert 或 aria-hidden 衬底里的不算，本来就点不到）
+  34. 图里的文字压在一起：同一个 svg 里两段 <text> 的盒子交叠超过 2×2px（枝图、折线图上的标签读成一个词，「本周」压着「升级」）
   13. 首屏主操作在视口外：第一个 <section> 里的按钮和表单，底边超出视口（配合 --size 查 1280×720 这类常见高度）；
       流式页面里第一个 <section> 从视口下半才开始的不算首屏（固定尺寸的画板不加这个条件）
   14. 深色下露出浅色底：主题只设在里层，画板比视口矮或有外边距时，外面露出浅色的 body
-  15. 按钮文字折行：按钮里的字折成两行（伪语言那一遍最容易出现）
+  15. 按钮文字折行：按钮里的字折成两行（伪语言那一遍最容易出现）；整行按钮里标题、副标题各自成块的，按块分别数
   16. 浮层没有出路：对话框、菜单里没有「关闭」按钮，画板逻辑也没处理 Esc
   17. 孤字成行：两行以上的标题和段落，最后一行只剩一个汉字或一个短词
   18. 词中断行：标题、按钮、标签这类 40 字以内的短文字里，中文词被拆到两行（Intl.Segmenter 分词）；
       西文词和紧跟的中文词被拆开（「AI / 发展史」，自动折行和手写 <br> 都算）也报；正文段落只查孤字
-  19. 文字冲出容器、短标签被挤成多行：文字超出所在的圆角条或卡片；一行控件里三个词以内的标签折成三行以上
+  19. 文字冲出容器、短标签被挤成多行：文字超出所在的圆角条或卡片（量字本身，不量为了热区撑大的链接盒子）；一行控件里三个词以内的标签折成三行以上
   21. 玻璃压在平涂底色上：用了 backdrop-filter 的元素，背后 5×3 网格的亮度极差 < 0.04（浅色那一遍，需要 Pillow）；
       背后是静态截图画不出来的动效、视频、滚动内容时，在元素或祖先上写 data-backdrop="motion|video|scroll"，这一项跳过
   22. 玻璃的背景声明不成立：data-backdrop="motion" 的元素要和一个 canvas（或 [data-motion] 区域）重叠；"video" 要和 video、
@@ -54,6 +56,8 @@
       边界已经画出来的面算分开，不报：有一层看得见的柔和阴影（不透明度 > 0.1、模糊 > 0；全透明的不算），或者描边
       （边框、outline、没有模糊的 box-shadow 圈）和两块面里至少一块对比 ≥ 阈值（和面同色的描边不算）。1.3 是通用的下限；项目定了更高的门槛就用 --face-contrast 调高
   32. 字号种类过多：一块画板在基准视口下不同的字号 > 8 种，列出每种和用到的次数
+  33. 回执复述了别的入口：一个状态从两个以上文字不同的按钮进来（选项组里的代表选项不算），页上却只复述了其中一部分按钮的原话。
+      两个不同的回答共用一个回执，会把用户没说过的话记下来；拆成两个状态，或回执不复述原话（纯源码检查，不开浏览器）
   （提示）向第三方取字体：画板源码或运行时请求里出现 Google Fonts 这类第三方字体地址。不影响结论，理由写在报告里
   （另）颜色算不了：oklab()、color-mix() 这类写法画到画布上也取不到像素时报出来，不拿外层背景顶替
   按下和悬停：浅色那一遍另外把所有按钮、液态玻璃控件设成按下（.is-press）、悬停（.is-hover）各算一次对比度
@@ -98,6 +102,7 @@
 结论：没有问题时 done（退出码 0），有问题时 needs_work（退出码 1）。需要 Python Playwright 和 Chromium。
 """
 import argparse
+import time
 import glob
 import json
 import math
@@ -108,6 +113,7 @@ import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from render_dc import render_html, logic_values  # noqa: E402
+import canvas_common as cc  # noqa: E402
 
 PSEUDO_JS = r"""
 () => {
@@ -228,7 +234,7 @@ def fold_height(w):
     return 900 if w >= 1024 else 1180 if w >= 744 else 844
 
 
-LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格', '展开层超出所在区块', '可点元素被盖住', '首屏主操作在视口外', '按钮文字折行', '文字冲出容器', '短标签被挤成多行'}
+LAYOUT_TYPES = {'主按钮被挡住或在首屏外', '主按钮被挤扁', '文字被挤成竖排', '内容超出画板', '弹性布局吞掉了空格', '展开层超出所在区块', '可点元素被盖住', '首屏主操作在视口外', '按钮文字折行', '文字冲出容器', '短标签被挤成多行', '图里的文字压在一起'}
 
 STATE_JS = None  # 在 CHECK_JS 定义之后生成
 
@@ -331,12 +337,13 @@ CHECK_JS = r"""
     if (interactive && !name(el) && !el.getAttribute('title')) issues.push({type: '控件没有可读名称', where: el.tagName.toLowerCase(), detail: '只有图标的按钮要写 aria-label，读屏才念得出来'});
     if (el.tagName === 'INPUT' && !['checkbox', 'radio', 'hidden'].includes(el.type) && !el.getAttribute('aria-label') && !el.closest('label') && !(el.id && document.querySelector(`label[for="${el.id}"]`)))
       issues.push({type: '控件没有可读名称', where: el.placeholder || 'input', detail: '输入框要有 <label> 或 aria-label，占位文字不算'});
-    if (interactive && !squashed && r.width > 0 && (r.width < TAP_MIN - 0.5 || r.height < TAP_MIN - 0.5) && !inSentence(el)) {
+    const tapMin = el.closest('[data-tap-equivalent]') ? TAP_FLOOR : TAP_MIN;
+    if (interactive && !squashed && r.width > 0 && (r.width < tapMin - 0.5 || r.height < tapMin - 0.5) && !inSentence(el)) {
       const measure = q => [hitSize(el, q, TAP_FLOOR), hitSize(el, q, TAP_MIN)];  // 热区要在视口里才量得到
       const [[fw, fh], [mw, mh]] = (r.bottom > innerHeight || r.top < 0) ? inView(el, measure) : measure(r);
       const size = `${Math.round(r.width)}×${Math.round(r.height)}`;
       if (Math.min(fw, fh) < TAP_FLOOR - 0.5) issues.push({type: '点按区域小于 24', where: name(el) || el.tagName.toLowerCase(), detail: `${size}，任何可点元素短边至少 ${TAP_FLOOR}px（WCAG 2.2 的 2.5.8）；独立成行的要 ${TAP_MIN}px`});
-      else if (mw < TAP_MIN - 0.5 || mh < TAP_MIN - 0.5) issues.push({type: '触控目标小于 44', where: name(el) || el.tagName.toLowerCase(), detail: `${size}，要 ${TAP_MIN}×${TAP_MIN}：给它加内边距或最小高度，整行可点的让链接包住整行`});
+      else if (tapMin === TAP_MIN && (mw < TAP_MIN - 0.5 || mh < TAP_MIN - 0.5)) issues.push({type: '触控目标小于 44', where: name(el) || el.tagName.toLowerCase(), detail: `${size}，要 ${TAP_MIN}×${TAP_MIN}：给它加内边距或最小高度，整行可点的让链接包住整行`});
     }
   }
   // 2、3、4：文字
@@ -374,16 +381,33 @@ CHECK_JS = r"""
   }
   // 12：可点元素被别的东西盖住（看它中心那一点最上面是不是它自己）
   for (const el of root.querySelectorAll('a[href], button, input')) {
-    if (!visible(el)) continue;
+    if (!visible(el) || el.disabled || el.closest('[inert], [aria-hidden="true"]')) continue;
     const r0 = el.getBoundingClientRect();
     if (r0.width < 2 || r0.height < 2 || r0.right < 0 || r0.left > innerWidth) continue;
-    const below = r0.top + r0.height / 2 >= innerHeight && r0.top < Math.max(R.bottom, document.documentElement.scrollHeight);  // 一屏以下的滚到视口里再量
+    const cy = r0.top + r0.height / 2;
+    let clipped = false;
+    for (let e = el.parentElement; e && e !== document.body; e = e.parentElement) {
+      const o = getComputedStyle(e).overflowY;
+      if (o === 'visible' || e.scrollHeight <= e.clientHeight) continue;
+      const pr = e.getBoundingClientRect();
+      if (cy < pr.top || cy > pr.bottom) { clipped = true; break; }
+    }
+    const below = clipped || (cy >= innerHeight && r0.top < Math.max(R.bottom, document.documentElement.scrollHeight));  // 一屏以下的、滚动容器里没露出来的，滚到视口里再量
     if (!below && (r0.bottom < 0 || r0.top > innerHeight)) continue;
     const probe = r => document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
     const hit = below ? inView(el, probe) : probe(r0);
     if (!hit || el.contains(hit) || hit.contains(el)) continue;
     const owner = hit.closest('a[href], button, input, [role="group"], [role="dialog"], [role="menu"], form, header, nav');
     if (owner && !owner.contains(el) && !el.contains(owner)) issues.push({type: '可点元素被盖住', where: name(el), detail: `被「${name(owner) || owner.tagName.toLowerCase()}」盖住`});
+  }
+  // 34：图里的文字标签互相压住（同一个 svg 里两段 text 的盒子交叠，读成一个词）
+  for (const svg of root.querySelectorAll('svg')) {
+    const labels = [...svg.querySelectorAll('text')].filter(t => visible(t) && t.textContent.trim()).map(t => [t, t.getBoundingClientRect()]);
+    for (let i = 0; i < labels.length; i++) for (let j = i + 1; j < labels.length; j++) {
+      const [ta, a] = labels[i], [tb, b] = labels[j];
+      const w = Math.min(a.right, b.right) - Math.max(a.left, b.left), h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+      if (w > 2 && h > 2) issues.push({type: '图里的文字压在一起', where: `「${ta.textContent.trim()}」和「${tb.textContent.trim()}」`, detail: `交叠 ${Math.round(w)}×${Math.round(h)}px`});
+    }
   }
   // 13：首屏（第一个 section）里的按钮和表单完整留在视口里
   const hero = root.querySelector('section');
@@ -405,12 +429,24 @@ CHECK_JS = r"""
     if (!visible(el)) continue;
     const t = (el.innerText || '').trim(); if (!t) continue;
     const cs = getComputedStyle(el); const lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.3;
-    const tops = [];
+    const groups = new Map();
     const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-    while (tw.nextNode()) { if (!tw.currentNode.textContent.trim()) continue; const rg = document.createRange(); rg.selectNodeContents(tw.currentNode); for (const r of rg.getClientRects()) if (r.width > 1) tops.push(r.top); }
-    tops.sort((a, b) => a - b);
-    const lines = new Set(); let last = -1e9; for (const tp of tops) { if (tp - last > lh * 0.5) { lines.add(tp); last = tp; } }
-    if (lines.size > 1) issues.push({type: '按钮文字折行', where: t.slice(0, 24), detail: `折成 ${lines.size} 行；按钮文字一行放下，放不下时改排法，不缩字号`});
+    while (tw.nextNode()) {
+      if (!tw.currentNode.textContent.trim()) continue;
+      let box = tw.currentNode.parentElement;
+      while (box !== el && !/^(block|flex|grid|list-item|table)$/.test(getComputedStyle(box).display)) box = box.parentElement;
+      if (!groups.has(box)) groups.set(box, []);
+      const rg = document.createRange(); rg.selectNodeContents(tw.currentNode);
+      for (const r of rg.getClientRects()) if (r.width > 1) groups.get(box).push(r.top);
+    }
+    let worst = 1;
+    for (const [box, tops] of groups) {
+      const blh = parseFloat(getComputedStyle(box).lineHeight) || lh;
+      tops.sort((a, b) => a - b);
+      let n = 0, last = -1e9; for (const tp of tops) { if (tp - last > blh * 0.5) { n++; last = tp; } }
+      worst = Math.max(worst, n);
+    }
+    if (worst > 1) issues.push({type: '按钮文字折行', where: t.slice(0, 24), detail: `折成 ${worst} 行；按钮文字一行放下，放不下时改排法，不缩字号（标题和副标题各自成块的整行按钮按块分别数）`});
   }
   // 16：浮层要有出路（U6）：展开的层、对话框、菜单里有关闭按钮，或画板逻辑处理了 Esc
   for (const layer of root.querySelectorAll('[role="dialog"], [role="menu"], [aria-modal="true"]')) {
@@ -476,7 +512,7 @@ CHECK_JS = r"""
       }
     }
   }
-  // 19：文字冲出所在的圆角容器（胶囊条、卡片），或短标签被挤成三行以上
+  // 19：文字冲出所在的圆角容器（胶囊条、卡片），或短标签被挤成三行以上；量的是字本身占的地方，为了 44 热区把链接盒子撑出胶囊条的不算
   for (const el of root.querySelectorAll('span, time, a, button, p, small')) {
     if (!visible(el) || el.closest('svg')) continue;
     const t = (el.innerText || '').trim(); if (!t || el.children.length > 2) continue;
@@ -485,7 +521,7 @@ CHECK_JS = r"""
     let box = null;
     for (let e = el.parentElement; e && e !== root; e = e.parentElement) { const cs = getComputedStyle(e); if (parseFloat(cs.borderTopLeftRadius) >= 8 && (parseColor(cs.backgroundColor) || cs.backdropFilter !== 'none')) { box = e; break; } }
     if (box && /auto|scroll|hidden|clip/.test(getComputedStyle(box).overflowX + getComputedStyle(box).overflowY)) box = null;  // 能滚动或有意裁切的容器
-    if (box) { const b = box.getBoundingClientRect(); if (r.right > b.right + 2 || r.bottom > b.bottom + 2 || r.left < b.left - 2) issues.push({type: '文字冲出容器', where: t.slice(0, 24), detail: '文字超出所在的圆角条或卡片；给它换一行，或让容器跟着内容长'}); }
+    if (box) { const b = box.getBoundingClientRect(), tr = document.createRange(); tr.selectNodeContents(el); const g = tr.getBoundingClientRect(); if (g.right > b.right + 2 || g.bottom > b.bottom + 2 || g.left < b.left - 2) issues.push({type: '文字冲出容器', where: t.slice(0, 24), detail: '文字超出所在的圆角条或卡片；给它换一行，或让容器跟着内容长'}); }
     const words = t.split(/\s+/).length;
     if (words <= 3 && t.length <= 24 && !getComputedStyle(el).writingMode.startsWith('vertical') && el.parentElement && getComputedStyle(el.parentElement).display.includes('flex')) {
       const lh = parseFloat(getComputedStyle(el).lineHeight) || parseFloat(getComputedStyle(el).fontSize) * 1.3;
@@ -975,6 +1011,8 @@ def static_a11y(src):
     for m in re.finditer(r'<(\w+)\b[^>]*\bonClick=', body, flags=re.I):
         if m.group(1).lower() not in INTERACTIVE_TAGS:
             out.append({'type': '控件不能用键盘到达', 'where': '<' + m.group(1) + '>', 'detail': '点击挂在非交互元素上；改成 <button>'})
+    for m in re.finditer(r'\s([\w:-]+)="([^"]*<[^"]*)"', body):
+        out.append({'type': '属性值里混进了标签', 'where': m.group(1), 'detail': f'{m.group(2)[:40]}：拼进属性的文字带了 <span> 一类标签，浏览器会在第一个引号处截断，后面的源码露在页面上；进属性前先去掉标签'})
     # 交互绑定写错：生成脚本把空值写成 {{ None }}，或 f-string 少了一层括号变成 { x }；点了没反应甚至报错
     for m in re.finditer(r'\bon[A-Z]\w*="(\{\{\s*(?:None|null|undefined)?\s*\}\}|\{(?!\{)[^"]*)"', body):
         out.append({'type': '交互绑定写错', 'where': m.group(0)[:40], 'detail': '事件绑定是空值或只有一层花括号；不跳转的按钮就不要写 onClick'})
@@ -1044,7 +1082,9 @@ def main():
     with sync_playwright() as pw:
         browser = pw.chromium.launch(args=['--allow-file-access-from-files'])  # 本地样式表的 cssRules 才读得到（查 23、查 token）
         logic_page = browser.new_page()  # 执行画板的 renderVals()，算出模板里的值
-        for f in files:
+        t_start = time.time()
+        for fi, f in enumerate(files, 1):
+            print(f'[{fi}/{len(files)}] {os.path.basename(f)} · 已用 {time.time() - t_start:.0f}s', flush=True)
             src = open(f, encoding='utf-8').read()
             for m in a.blob:
                 bid, _, bpath = m.partition('=')
@@ -1066,7 +1106,7 @@ def main():
                 notices.append({'type': '画板尺寸没找到', 'where': '390×844', 'detail': '同目录没有 canvas.json（或里面没有这块画板），data-props 里也没有 $preview，按 390×844 查的；桌面画板这样查出来的竖排、超出画板都是假象。把 canvas.json 放到画板旁边，或用 --size 名称=宽x高 给出基准视口'})
             font_sizes, font_reqs = {}, set()
             labels = stage_labels(src)
-            refs = set(re.findall(r'var\(--([\w-]+)', src))
+            refs = set(re.findall(r'var\(--([\w-]+)\s*\)', src))
             # file:// 下读不到外部样式表的规则，直接从链接的 css 文件和内联 <style> 里收集定义
             css_defined = set(re.findall(r'--([\w-]+)\s*:', re.sub(r'<script.*?</script>', '', src, flags=re.S)))
             for href in re.findall(r'<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"', src):
@@ -1075,6 +1115,8 @@ def main():
                     css_defined |= set(re.findall(r'--([\w-]+)\s*:', open(cp, encoding='utf-8').read()))
             board_issues = [{'state': '源码', 'theme': '-', 'type': '写死的颜色', 'where': c, 'detail': ''} for c in literal_colors(src)]
             board_issues += [{'state': '源码', 'theme': '-', **i} for i in static_a11y(src)]
+            board_issues += [{'state': i['state'], 'theme': '-', 'type': '回执复述了别的入口', 'where': i['state'], 'detail': i['detail']}
+                             for i in cc.echo_issues(cc.Board(f, labels or None))]
             board_hints = {}
             states = discover_states(src)
             variants = []

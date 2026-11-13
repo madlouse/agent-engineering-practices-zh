@@ -359,9 +359,9 @@ def main():
         except ET.ParseError as e:
             add('sitemap.xml', True, FAIL, f'解析不了：{e}')
 
-    st, home_html = site.get('/')
-    if st != 'ok':
-        add('首页', True, SKIP if st == 'unreachable' else FAIL, f'没取到：{site.why}' if st == 'unreachable' else '取不到首页')
+    home_st, home_html = site.get('/')
+    if home_st != 'ok':
+        add('首页', True, SKIP if home_st == 'unreachable' else FAIL, f'没取到：{site.why}' if home_st == 'unreachable' else '取不到首页')
         return finish(a, site, items, [])
     home = Page()
     home.feed(home_html)
@@ -392,7 +392,7 @@ def main():
     # ---- 逐页 ----
     pages = {}
     for p in paths:
-        s2, html = (st, home_html) if p == '/' else site.get(p)
+        s2, html = (home_st, home_html) if p == '/' else site.get(p)
         if s2 != 'ok':
             add('页面', True, SKIP if s2 == 'unreachable' else FAIL, f'连不上：{site.why}' if s2 == 'unreachable' else '取不到（404）', p)
             continue

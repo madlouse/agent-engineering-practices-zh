@@ -8,6 +8,8 @@
   1. 画板文件或生成脚本里出现了功能编号（如 F141）；
   2. 覆盖表（默认 <设计目录>/coverage.md）里有这一行：`| F141 | AI-Hello · 同意 | 备注 |`；
   3. 覆盖表里写明没有界面：`| F43 | — | 无界面：实验框架 |`。
+覆盖表里写的画板名也要对得上：「画板 · 状态」那一列点名的画板，画板目录里得有这块（X.dc.html），
+否则算「指向不存在的画板」，和没有着落一样让退出码为 1。画板改名、删掉以后，覆盖表就不会悄悄过期。
 
 用法：
   python coverage.py --prd docs/product/PRD.md --canvas tools/design-canvas \\
@@ -139,6 +141,16 @@ def main():
             where, note = m.group(2).strip(), m.group(3).strip()
             (no_ui if where in ('—', '-', '') else mapped)[m.group(1)] = note if where in ('—', '-', '') else where
 
+    names = {re.sub(r'(\.[a-z]{2})?\.dc\.html$', '', b) for b, _ in boards}
+    dangling = []
+    if names:  # 只在拿到画板文件时查，只给生成脚本时跳过
+        for f, where in mapped.items():
+            if f not in scope and a.prd:  # 只查这次范围里的功能，别的批次指向以后的画板不算
+                continue
+            for part in re.split(r'[；;]', where):
+                head = part.split('·')[0].strip()
+                if re.fullmatch(r'[A-Z][A-Za-z0-9]*(-[A-Za-z0-9]+)*', head) and head not in names:
+                    dangling.append((f, head))
     missing = [f for f in scope if f not in mentioned and f not in mapped and f not in no_ui]
     lines = ['# 需求覆盖检查', '']
     if a.prd:
@@ -150,6 +162,10 @@ def main():
             n, b = rows.get(f, ('（PRD 功能表里没找到）', ''))
             lines.append(f'| {f} | {n[:30]} | {b[:30]} |')
         lines += ['', '处理：画进画板（并在画板或生成脚本里写上编号），或在覆盖表里写一行「无界面：理由」。']
+    if dangling:
+        lines += ['', f'**覆盖表指向不存在的画板 {len(dangling)} 处**', '', '| 功能 | 画板 |', '|---|---|']
+        lines += [f'| {f} | {h} |' for f, h in dangling]
+        lines += ['', '处理：改成现在的画板和状态；上线不做的写「—」和理由。']
     data_missing = 0
     if a.data:
         more, data_missing = data_fields(a.data, a.fields, a.skip_fields, boards)
@@ -161,7 +177,7 @@ def main():
         os.makedirs(os.path.dirname(path) or '.', exist_ok=True)
         open(path, 'w', encoding='utf-8').write(out)
     print(out)
-    sys.exit(0 if not missing and not data_missing else 1)
+    sys.exit(0 if not missing and not data_missing and not dangling else 1)
 
 
 if __name__ == '__main__':

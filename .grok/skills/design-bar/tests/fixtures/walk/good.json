@@ -1,0 +1,8 @@
+[{"name": "改期", "level": "核心", "board": "Home", "start": "首页",
+  "steps": [{"tap": "换一天", "to": "改期"}, {"tap": "周六", "to": "已改"}]},
+ {"name": "说一句", "level": "非核心", "board": "Home", "start": "首页",
+  "steps": [{"intent": "说一句：改到周五"}, {"tap": "周五晚上", "to": "已改"}, {"intent": "看一眼"}]},
+ {"name": "跨画板", "level": "非核心", "board": "Home", "start": "首页",
+  "steps": [{"tap": "去另一页", "board": "Other", "to": "另一页"}, {"tap": "回首页", "board": "Home", "to": "首页"}, {"tap": "拨打 110"}]},
+ {"name": "建档", "level": "建档", "board": "Home", "start": "首页",
+  "steps": [{"tap": "换一天"}, {"tap": "不改了"}, {"tap": "换一天"}, {"tap": "不改了"}, {"tap": "换一天"}, {"tap": "不改了"}, {"tap": "换一天"}, {"tap": "不改了"}, {"tap": "换一天"}, {"tap": "不改了"}]}]

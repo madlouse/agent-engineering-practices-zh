@@ -10,7 +10,7 @@
 「废弃说法」可以是普通文字，也可以写成 /正则/。
 另外每次都会读技能自带的通用词汇表 assets/canon-glossary.md（跨项目都错的说法，例如主题不跟系统），--no-canon 关掉。
 
-不算问题的行：被划掉的（~~）、决策记录和修订历史里的（用 --skip-line 指定，默认跳过以「| J」「| D」「| 1x/xx」开头的表格行和含「原为」「取代」「废弃」「已改」的行）。
+不算问题的行：被划掉的（~~）、决策记录和修订历史里的（用 --skip-line 指定，默认跳过以「| J」「| D」「| 1x/xx」开头的表格行、以「- 2026-11-13」这种日期开头的修订条目，和含「原为」「原来」「取代」「废弃」「已改」的行）。
 
 用法：
   python stale_terms.py --glossary docs/design/glossary.md docs src tools/design-canvas/gen_ai.py \\
@@ -23,7 +23,7 @@ import re
 import sys
 
 CANON = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'canon-glossary.md')
-DEFAULT_SKIP = r'~~|^\| ?[JD]\d+ |^\| \d{1,2}/\d{2} |原为|取代|废弃|已改|改为|旧说法|history|修订记录'
+DEFAULT_SKIP = r'~~|^\| ?[JD]\d+ |^\| \d{1,2}/\d{2} |^- 20\d\d-\d\d-\d\d|原为|原来|取代|废弃|已改|改为|旧说法|history|修订记录'
 EXTS = ('.md', '.py', '.html', '.tsx', '.ts', '.jsx', '.js', '.json', '.css')
 
 

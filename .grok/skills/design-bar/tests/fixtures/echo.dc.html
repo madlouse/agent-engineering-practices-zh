@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>Echo</title></head>
+<body><x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"stage": {"editor": "enum", "options": ["问", "回执", "目标"], "default": "问"}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+<sc-if value="{{ s0 }}"><main><button onClick="{{ go1 }}">都没有</button><button onClick="{{ go1 }}">有，选好了</button><button aria-pressed="true" onClick="{{ go2 }}">增肌</button><button aria-pressed="false" onClick="{{ go2 }}">减脂</button></main></sc-if>
+<sc-if value="{{ s1 }}"><main><p>你说都没有，按常规起步。</p></main></sc-if>
+<sc-if value="{{ s2 }}"><main><p>目标：增肌</p></main></sc-if>
+</x-dc></body></html>

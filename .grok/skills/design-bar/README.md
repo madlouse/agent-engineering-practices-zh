@@ -51,6 +51,8 @@ python design-bar/scripts/init_project.py /path/to/project \
 
 可重复运行。更新项目里的技能副本加 `--update-skill`。
 
+项目按场景加载规则、根目录 `AGENTS.md` 只放每次都要遵守的内容时，用 `--rules-file docs/standards/ui.md` 把规则块写进那份规范（根目录 `AGENTS.md` 和 `CLAUDE.md` 都不动，由项目的路由指向它）；已有词汇表时用 `--glossary docs/GLOSSARY.md` 沿用，不再新建一份。规则块之外是项目自己的补充，重跑只更新标记之间的内容。
+
 **claude.ai**：把 `design-bar` 文件夹打包成 `.skill` 文件上传。
 
 ## 项目里的设计目录

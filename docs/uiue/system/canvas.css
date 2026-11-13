@@ -466,6 +466,8 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-nav { pointer-events: auto; display: flex; align-items: center; gap: var(--space-1); max-width: 100%; height: var(--nav-height); padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border-radius: var(--radius-pill); white-space: nowrap; transition: background-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out), box-shadow var(--duration-base) var(--ease-out), backdrop-filter var(--duration-base) var(--ease-out), -webkit-backdrop-filter var(--duration-base) var(--ease-out); }
 .vc-nav-paper { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-solid-line), var(--shadow-pop); }
 .vc-nav-ink { background: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-accent-line), var(--shadow-pop); }
+/* 浅色主题下吸顶玻璃压在视频上：和播放条一样用浓的一档（视频读不出像素，liquid-glass.md 第 7 节）；播放条下面有墨色渐变垫底，导航停在画面哪里不定，改给字垫一圈墨色光晕，画面最亮处也压得住 */
+.vc-nav.lg.lg-on-dark { --lg-density: 1; text-shadow: 0 0 var(--space-2) color-mix(in srgb, var(--vc-ink) 72%, transparent), 0 0 var(--space-1) color-mix(in srgb, var(--vc-ink) 72%, transparent); }
 /* 苔绿实色导航：背后是平涂苔绿，提亮一层（叠 8% 白）和首屏分开。苔绿玻璃超过约 50% 就是实色，不做苔绿玻璃 */
 .vc-nav-moss { background-color: var(--vc-moss-hero); background-image: linear-gradient(rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.08)); color: var(--vc-on-moss); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), var(--shadow-pop); }
 .vc-nav .home { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: var(--control-height); min-width: var(--control-height); padding-right: var(--space-2); text-decoration: none; color: inherit; }

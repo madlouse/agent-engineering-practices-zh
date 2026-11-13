@@ -610,14 +610,20 @@ class Component extends DCLogic {
     const still = (this.props.motion ?? '正常') !== '正常' || !!st.noGL;
     const offline = this.pick('network', '在线') === '离线';
     /* 倾斜：指针进入一侧后，每隔 delay-hover-intent 看一次指针走了多远；不到 hover-intent-radius（相当于每秒 500px 以下，放慢或停下）才倾斜，走得更远就从当前位置重新计时。
-       横扫首屏（整屏 300–700ms，每秒 2000px 以上）一直在重新计时，不倾斜；键盘聚焦不等。进入另一侧或离开首屏时取消还没生效的那一次 */
-    const lean = (who, wait) => () => {
+       横扫首屏（整屏 300–700ms，每秒 2000px 以上）一直在重新计时，不倾斜；键盘聚焦不等。进入另一侧或离开首屏时取消还没生效的那一次。
+       已经倒向一侧时进入另一侧，先回正再计时，快速扫过去不会让原来那侧一直斜着；计时到点时指针已经不在这一侧（扫出了首屏），就不倾斜 */
+    const lean = (who, wait) => (e) => {
       clearTimeout(this.leanTimer);
-      if (!this.canLean() || ((this.state && this.state.lean) || '') === who) return;
+      const now = (this.state && this.state.lean) || '';
+      if (!this.canLean() || now === who) return;
       if (!wait) { this.setState({ lean: who }); return; }
+      if (now) this.setState({ lean: '' });
+      const el = e && e.currentTarget;
       let from = this.ptr;
+      const inside = (p) => { if (!el || !p) return true; const r = el.getBoundingClientRect(); return p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom; };
       const check = () => {
         const p = this.ptr;
+        if (!inside(p)) return;
         if (from && p && Math.hypot(p.x - from.x, p.y - from.y) > this.hoverRadius()) { from = p; this.leanTimer = setTimeout(check, this.hoverIntent()); }
         else this.setState({ lean: who });
       };

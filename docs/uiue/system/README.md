@@ -328,7 +328,7 @@ token 在 `tokens.json`。画板共用的样式表 `canvas.css` 的变量部分�
 | 表面 | 类 | 背后 | 透镜 |
 | --- | --- | --- | --- |
 | 3 分钟视频的播放条 | `vc-playbar lg lg-on-dark`，`data-backdrop="video"`；模糊 `lg-blur` 2px | 视频画面 | 有 |
-| 滚过首屏以后的吸顶导航（所有页面） | `vc-nav lg`，`data-backdrop="scroll"`；模糊 `lg-blur-scroll` 20px；浅色主题下压在视频画面上时加 `lg-on-dark`（浅色字） | 滚过的正文和卡片；文章页里的视频 | 无（吸顶条不画透镜） |
+| 滚过首屏以后的吸顶导航（所有页面） | `vc-nav lg`，`data-backdrop="scroll"`；模糊 `lg-blur-scroll` 20px；浅色主题下压在视频画面上时加 `lg-on-dark`（浅色字），用浓的一档（`--lg-density: 1`），字垫一圈墨色光晕 | 滚过的正文和卡片；文章页里的视频 | 无（吸顶条不画透镜） |
 | 首屏上的导航：首页、站稳、文章页、单条开发日志、关于、页面不存在 | `vc-nav vc-nav-paper`（实色纸面） | 平涂纸色 | 无 |
 | 首屏上的导航：看清首页、学习路径 | `vc-nav vc-nav-ink`（实色墨面，1px `vc-accent-line` 描边） | 平涂墨色 | 无 |
 | 首屏上的导航：动手、项目页 | `vc-nav vc-nav-moss`（苔绿实色，提亮 8%） | 平涂苔绿 | 无 |

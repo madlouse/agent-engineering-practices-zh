@@ -25,7 +25,7 @@ def page(name, title, props):
     read = lambda n: open(os.path.join(HERE, n), encoding='utf-8').read().rstrip('\n')
     body = read(name + '.body.html')
     if '<!--@MS-->' in body: body = body.replace('<!--@MS-->', read(name + '.ms.html'))   # 里程碑一行的内容只写一份，收起、展开两个分支都用它
-    js = read(name + '.js')
+    js = read('anchor.js') + '\n' + read(name + '.js')
     if os.path.exists(os.path.join(HERE, name + '.component.js')): js += '\n' + read(name + '.component.js')
     html = f'''<!doctype html>
 <html lang="zh-CN">

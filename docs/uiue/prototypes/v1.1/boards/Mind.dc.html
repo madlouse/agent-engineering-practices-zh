@@ -283,9 +283,13 @@ body{margin:0}
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
 const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com', wordsUrl: '' };
+/* 去 Veli 的地址（/body、/app、/auth/*）只从 veliHref 出，一律带来源参数（velicoach-mono map/repos.md、PRD F10）：主站固定 velicoach；Veli 自己的页面传 pageSource()，沿用当前页的来源。rebuild.sh 第 6 步扫出不带参数的这类链接 */
+const VELI_SOURCE = 'velicoach';
+function veliHref(path, source) { const [p, h] = path.split('#'); return p + '?utm_source=' + encodeURIComponent(source || VELI_SOURCE) + (h ? '#' + h : ''); }
+function pageSource() { try { return new URLSearchParams(window.location.search).get('utm_source'); } catch (e) { return null; } }
 const SHELL = {
   zh: {
-    home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
+    home: '/', homeLabel: 'Velicoach 首页', bodyHref: veliHref('/body'), mindHref: '/mind', buildHref: '/build',
     navLabel: '三站', body: '站稳', mind: '看清', build: '动手',
     langLabel: '语言', langSwitch: '切换到英文，现在是中文', otherLang: 'en',
     subTitle: '订阅', subNote: '每周日一封：一读、一练、一个项目。可一键退订。', privacy: '隐私政策',
@@ -298,7 +302,7 @@ const SHELL = {
     disclaimer: '威利不是医生。有伤病或疼痛，先停下来，问医生。',
   },
   en: {
-    home: '/en/', homeLabel: 'Velicoach home', bodyHref: '/en/body', mindHref: '/en/mind', buildHref: '/en/build',
+    home: '/en/', homeLabel: 'Velicoach home', bodyHref: veliHref('/en/body'), mindHref: '/en/mind', buildHref: '/en/build',
     navLabel: 'Stations', body: 'Body', mind: 'Mind', build: 'Build',
     langLabel: 'Language', langSwitch: 'Switch to Chinese, currently English', otherLang: 'zh-CN',
     subTitle: 'Newsletter', subNote: 'Every Sunday: one read, one workout, one project. One-click unsubscribe. ', privacy: 'Privacy policy',
@@ -342,6 +346,12 @@ function shellVals(self, station, path) {
     subHasError: !!err, subError: err, subInvalid: err ? 'true' : 'false',
     subValue: sub === '格式不对' ? 'name@' : (busy || err) ? 'name@example.com' : '',
   };
+}
+/* 从别的页带锚点进来（/mind#<里程碑>、/mind/learn#<步骤>），或页内换了锚点：那一条原地展开并标出，滚到它（联审 C-08）。Mind 和 Learn 两块画板共用这一份 */
+function revealHashTarget() {
+  const id = decodeURIComponent((location.hash || '').slice(1));
+  const t = id && document.getElementById(id);
+  if (t && t.matches('.vc-ms, .vc-step')) { const d = t.querySelector('details'); if (d) d.open = true; t.classList.add('is-target'); t.scrollIntoView({ block: 'start' }); }
 }
 /* ── 看清首页的数据和取值：/mind（AI 发展史）和 /mind/collaboration（人机协作）。Mind 和 States 两块画板共用这一份（States 由 pa-out/build.py 把同一份标记和这份数据拼进去）── */
 const MIND_NOW_YEAR = 2026;            // 时间尺的右端：画板核对的这一年
@@ -598,11 +608,10 @@ class Component extends DCLogic {
   }
   componentDidMount() {
     if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
-    /* 从别的页带锚点进来（/mind#<里程碑>、/mind/learn#<步骤>）：那一条原地展开并标出，滚到它（联审 C-08） */
-    const id = decodeURIComponent((location.hash || '').slice(1));
-    const t = id && document.getElementById(id);
-    if (t && t.matches('.vc-ms, .vc-step')) { const d = t.querySelector('details'); if (d) d.open = true; t.classList.add('is-target'); t.scrollIntoView({ block: 'start' }); }
+    revealHashTarget();
+    window.addEventListener('hashchange', revealHashTarget);
   }
+  componentWillUnmount() { window.removeEventListener('hashchange', revealHashTarget); }
 }
 </script>
 </body>

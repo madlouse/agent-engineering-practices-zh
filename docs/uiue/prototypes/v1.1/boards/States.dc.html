@@ -35,13 +35,13 @@ body{margin:0}
 </div>
 <!-- 页面不存在、退订成功、退订链接失效：不属于任何一站，导航里没有当前页；一句话说明，下面是三站入口，不放搜索框。
      退订的两种是 /unsubscribe 页点「确认退订」之后原位显示的结果（PRD「订阅的细则」第 9 条、ADR-0004 (c)），不要求登录：
-     退订成功给「重新订阅」（POST，算重新同意，第 15 条），退订链接失效给联系邮箱，不说这个地址在不在名单里（联审 E-04） -->
+     退订成功给「重新订阅」（描边次按钮，不做成唯一的实心主按钮：退订不挽留；POST 带链接里的退订令牌，不让人重填邮箱，接口怎么认令牌实现时补进 ADR-0004；提交算重新同意，第 15 条），退订链接失效给联系邮箱，不说这个地址在不在名单里（联审 E-04） -->
 <sc-if value="{{isPaperPage}}" hint-placeholder-val="{{ true }}">
   <section class="vc-band vc-band-paper" data-first-screen="">
     <div class="vc-container vc-band-body">
       <h1 class="vc-type-title-1">{{pageTitle}}</h1>
       <p class="vc-type-lead vc-sub">{{pageLead}}</p>
-      <sc-if value="{{unsubDone}}" hint-placeholder-val="{{ false }}"><form class="vc-band-form" method="post" action="{{p.resubAction}}"><button class="btn vc-btn-action" type="submit">{{p.resub}}</button></form></sc-if>
+      <sc-if value="{{unsubDone}}" hint-placeholder-val="{{ false }}"><form class="vc-band-form" method="post" action="{{p.resubAction}}"><input type="hidden" name="token" value="{{unsubToken}}"><button class="btn vc-btn-quiet" type="submit">{{p.resub}}</button></form></sc-if>
       <sc-if value="{{unsubBad}}" hint-placeholder-val="{{ false }}"><p class="vc-contact-address"><span class="mono">{{site.contactEmail}}</span><a class="btn vc-btn-action" href="{{unsubMail}}">{{p.writeUs}}</a></p></sc-if>
     </div>
   </section>
@@ -395,9 +395,13 @@ body{margin:0}
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
 const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com', wordsUrl: '' };
+/* 去 Veli 的地址（/body、/app、/auth/*）只从 veliHref 出，一律带来源参数（velicoach-mono map/repos.md、PRD F10）：主站固定 velicoach；Veli 自己的页面传 pageSource()，沿用当前页的来源。rebuild.sh 第 6 步扫出不带参数的这类链接 */
+const VELI_SOURCE = 'velicoach';
+function veliHref(path, source) { const [p, h] = path.split('#'); return p + '?utm_source=' + encodeURIComponent(source || VELI_SOURCE) + (h ? '#' + h : ''); }
+function pageSource() { try { return new URLSearchParams(window.location.search).get('utm_source'); } catch (e) { return null; } }
 const SHELL = {
   zh: {
-    home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
+    home: '/', homeLabel: 'Velicoach 首页', bodyHref: veliHref('/body'), mindHref: '/mind', buildHref: '/build',
     navLabel: '三站', body: '站稳', mind: '看清', build: '动手',
     langLabel: '语言', langSwitch: '切换到英文，现在是中文', otherLang: 'en',
     subTitle: '订阅', subNote: '每周日一封：一读、一练、一个项目。可一键退订。', privacy: '隐私政策',
@@ -410,7 +414,7 @@ const SHELL = {
     disclaimer: '威利不是医生。有伤病或疼痛，先停下来，问医生。',
   },
   en: {
-    home: '/en/', homeLabel: 'Velicoach home', bodyHref: '/en/body', mindHref: '/en/mind', buildHref: '/en/build',
+    home: '/en/', homeLabel: 'Velicoach home', bodyHref: veliHref('/en/body'), mindHref: '/en/mind', buildHref: '/en/build',
     navLabel: 'Stations', body: 'Body', mind: 'Mind', build: 'Build',
     langLabel: 'Language', langSwitch: 'Switch to Chinese, currently English', otherLang: 'zh-CN',
     subTitle: 'Newsletter', subNote: 'Every Sunday: one read, one workout, one project. One-click unsubscribe. ', privacy: 'Privacy policy',
@@ -470,10 +474,10 @@ const ART_UI = {
     play: '播放 3 分钟视频', video: '3 分钟视频', seek: '播放进度', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
     videoFailTitle: '视频没能播放。', videoFailBody: '文字稿讲的是同一件事，就在下面。', retry: '重试',
     loading: '正在加载视频',
-    noEnTitle: '', noEnBody: '', noEnCta: '', noEnEnd: '',
+    noEnTitle: '', noEnBody: '', noEnBodyNoVideo: '', noEnCta: '', noEnEnd: '',
     next: '接着读', nextLead: '下一篇', nextKind: '人机协作 · Harness 工程', nextTitle: 'Claude Code 团队如何做 Code Review', nextHref: '/mind/claude-code-review',
     allLine: '人机协作的全部文章',
-    workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: '/app',
+    workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: veliHref('/app'),
     toBuild: '去动手一站', toBuildLine: '把这个练习带过去，和智能体一起做一遍。',
     colophon: '更新记录和版权', changes: '更新记录', change2: '补充两处数字的来源说明', change1: '发布',
     source: '原文和授权', sourcePre: '原文：《', sourcePost: '》，Zack Deveau，Shopify Engineering，2026 年 7 月 29 日，英文。',
@@ -493,10 +497,10 @@ const ART_UI = {
     play: 'Play the 3-minute video', video: '3-minute video', seek: 'Playback position', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
     videoFailTitle: 'The video didn’t play. ', videoFailBody: 'The transcript below covers the same ground.', retry: 'Try again',
     loading: 'Loading the video',
-    noEnTitle: 'Only in Chinese for now. ', noEnBody: 'The 3-minute video has English narration and captions; the write-up below is in Chinese, and ', noEnCta: 'the original post', noEnEnd: ' is in English.',
+    noEnTitle: 'Only in Chinese for now. ', noEnBody: 'The 3-minute video has English narration and captions; the write-up below is in Chinese, and ', noEnBodyNoVideo: 'The write-up below is in Chinese, and ', noEnCta: 'the original post', noEnEnd: ' is in English.',
     next: 'Keep reading', nextLead: 'Next', nextKind: 'Human–AI collaboration · Harness engineering', nextTitle: 'How the Claude Code team does code review', nextHref: '/en/mind/claude-code-review',
     allLine: 'Everything in Human–AI collaboration',
-    workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: '/app',
+    workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: veliHref('/app'),
     toBuild: 'Go to Build', toBuildLine: 'Take this exercise with you and run it with an agent.',
     colophon: 'Changes and rights', changes: 'Changes', change2: 'Added sources for two figures', change1: 'Published',
     source: 'Source and rights', sourcePre: 'Original: “', sourcePost: '” by Zack Deveau, Shopify Engineering, July 29, 2026.',
@@ -606,6 +610,7 @@ function articleVals(v, o) {
   u.reportHref = mail(u.reportSubject); g.reportHref = mail(g.reportSubject); u.srcHref = ART_SRC;
   const media = isLog ? '没有视频' : (o.media || '正常');
   const hasVideo = media !== '没有视频';
+  if (!(hasVideo && media !== '视频无法播放')) u.noEnBody = u.noEnBodyNoVideo;
   const scrolled = !!o.scrolled;
   const atVideo = scrolled && hasVideo && o.scrollAt === '视频';
   const frame = o.frame || '封面';
@@ -907,8 +912,9 @@ class Component extends DCLogic {
     return {
       ...v, ...m, ...a, ...sub, c: inArticle ? a.c : m.c, p,
       curMind: isPaperPage ? 'false' : 'page', curBuild: 'false',
-      isNotFound, isPaperPage, unsubDone, unsubBad, inArticle, inList: !isPaperPage && !inArticle,
+      isPaperPage, unsubDone, unsubBad, inArticle, inList: !isPaperPage && !inArticle,
       pageTitle: unsubDone ? p.unsubTitle : unsubBad ? p.badTitle : p.nfTitle, pageLead: unsubDone ? p.unsubLead : unsubBad ? p.badLead : p.nfLead,
+      unsubToken: (() => { try { return new URLSearchParams(window.location.search).get('token') || ''; } catch (e) { return ''; } })(),
       unsubMail: 'mailto:' + SITE_CONFIG.contactEmail + '?subject=' + encodeURIComponent(p.badSubject),
     };
   }

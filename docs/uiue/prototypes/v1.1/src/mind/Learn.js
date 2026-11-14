@@ -88,9 +88,8 @@ class Component extends DCLogic {
   }
   componentDidMount() {
     if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
-    /* 从别的页带锚点进来（/mind#<里程碑>、/mind/learn#<步骤>）：那一条原地展开并标出，滚到它（联审 C-08） */
-    const id = decodeURIComponent((location.hash || '').slice(1));
-    const t = id && document.getElementById(id);
-    if (t && t.matches('.vc-ms, .vc-step')) { const d = t.querySelector('details'); if (d) d.open = true; t.classList.add('is-target'); t.scrollIntoView({ block: 'start' }); }
+    revealHashTarget();
+    window.addEventListener('hashchange', revealHashTarget);
   }
+  componentWillUnmount() { window.removeEventListener('hashchange', revealHashTarget); }
 }

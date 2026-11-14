@@ -34,8 +34,9 @@ class Component extends DCLogic {
     return {
       ...v, ...m, ...a, ...sub, c: inArticle ? a.c : m.c, p,
       curMind: isPaperPage ? 'false' : 'page', curBuild: 'false',
-      isNotFound, isPaperPage, unsubDone, unsubBad, inArticle, inList: !isPaperPage && !inArticle,
+      isPaperPage, unsubDone, unsubBad, inArticle, inList: !isPaperPage && !inArticle,
       pageTitle: unsubDone ? p.unsubTitle : unsubBad ? p.badTitle : p.nfTitle, pageLead: unsubDone ? p.unsubLead : unsubBad ? p.badLead : p.nfLead,
+      unsubToken: (() => { try { return new URLSearchParams(window.location.search).get('token') || ''; } catch (e) { return ''; } })(),
       unsubMail: 'mailto:' + SITE_CONFIG.contactEmail + '?subject=' + encodeURIComponent(p.badSubject),
     };
   }

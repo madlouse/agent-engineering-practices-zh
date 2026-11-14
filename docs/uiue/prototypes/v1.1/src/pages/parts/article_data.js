@@ -13,10 +13,10 @@ const ART_UI = {
     play: '播放 3 分钟视频', video: '3 分钟视频', seek: '播放进度', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
     videoFailTitle: '视频没能播放。', videoFailBody: '文字稿讲的是同一件事，就在下面。', retry: '重试',
     loading: '正在加载视频',
-    noEnTitle: '', noEnBody: '', noEnCta: '', noEnEnd: '',
+    noEnTitle: '', noEnBody: '', noEnBodyNoVideo: '', noEnCta: '', noEnEnd: '',
     next: '接着读', nextLead: '下一篇', nextKind: '人机协作 · Harness 工程', nextTitle: 'Claude Code 团队如何做 Code Review', nextHref: '/mind/claude-code-review',
     allLine: '人机协作的全部文章',
-    workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: '/app',
+    workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: veliHref('/app'),
     toBuild: '去动手一站', toBuildLine: '把这个练习带过去，和智能体一起做一遍。',
     colophon: '更新记录和版权', changes: '更新记录', change2: '补充两处数字的来源说明', change1: '发布',
     source: '原文和授权', sourcePre: '原文：《', sourcePost: '》，Zack Deveau，Shopify Engineering，2026 年 7 月 29 日，英文。',
@@ -36,10 +36,10 @@ const ART_UI = {
     play: 'Play the 3-minute video', video: '3-minute video', seek: 'Playback position', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
     videoFailTitle: 'The video didn’t play. ', videoFailBody: 'The transcript below covers the same ground.', retry: 'Try again',
     loading: 'Loading the video',
-    noEnTitle: 'Only in Chinese for now. ', noEnBody: 'The 3-minute video has English narration and captions; the write-up below is in Chinese, and ', noEnCta: 'the original post', noEnEnd: ' is in English.',
+    noEnTitle: 'Only in Chinese for now. ', noEnBody: 'The 3-minute video has English narration and captions; the write-up below is in Chinese, and ', noEnBodyNoVideo: 'The write-up below is in Chinese, and ', noEnCta: 'the original post', noEnEnd: ' is in English.',
     next: 'Keep reading', nextLead: 'Next', nextKind: 'Human–AI collaboration · Harness engineering', nextTitle: 'How the Claude Code team does code review', nextHref: '/en/mind/claude-code-review',
     allLine: 'Everything in Human–AI collaboration',
-    workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: '/app',
+    workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: veliHref('/app'),
     toBuild: 'Go to Build', toBuildLine: 'Take this exercise with you and run it with an agent.',
     colophon: 'Changes and rights', changes: 'Changes', change2: 'Added sources for two figures', change1: 'Published',
     source: 'Source and rights', sourcePre: 'Original: “', sourcePost: '” by Zack Deveau, Shopify Engineering, July 29, 2026.',
@@ -149,6 +149,7 @@ function articleVals(v, o) {
   u.reportHref = mail(u.reportSubject); g.reportHref = mail(g.reportSubject); u.srcHref = ART_SRC;
   const media = isLog ? '没有视频' : (o.media || '正常');
   const hasVideo = media !== '没有视频';
+  if (!(hasVideo && media !== '视频无法播放')) u.noEnBody = u.noEnBodyNoVideo;
   const scrolled = !!o.scrolled;
   const atVideo = scrolled && hasVideo && o.scrollAt === '视频';
   const frame = o.frame || '封面';

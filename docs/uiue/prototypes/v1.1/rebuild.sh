@@ -40,9 +40,13 @@ python3 "$U/gen_device_boards.py" "$P"
 echo '── 5. 类名审计（重复定义、没用到、没定义）'
 python3 "$U/tools/audit_classes.py" "$SYS/canvas.css" "$P" --strict
 
+echo '── 6. 去 Veli 的链接都带 utm_source'
+python3 "$U/tools/check_veli_links.py" --selftest
+python3 "$U/tools/check_veli_links.py" "$P"
+
 if [ "${1:-}" = "--verify" ]; then
   OUT=${2:?--verify 后面要给输出目录（放在仓库外面）}
-  echo '── 6. verify_canvas.py'
+  echo '── 7. verify_canvas.py'
   # 两遍都跑完再判：任何一遍结论不是 done 或没出报告，整条命令退出码非 0（verify_all.sh 的退出码说明）
   rc=0
   bash "$U/tools/verify_all.sh" "$OUT/pages" || rc=$?

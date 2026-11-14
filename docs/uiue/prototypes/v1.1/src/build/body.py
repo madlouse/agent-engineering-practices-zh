@@ -61,7 +61,7 @@ BODY = '''<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
               <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="bo-start-options" onFocus="{{focusStart}}"><span>{{c.cta}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
               <div id="bo-start-options" class="{{popClass}}" data-pop="" role="group" aria-label="{{c.startGroup}}">
                 <div class="vc-pop-opts"><a class="opt" href="{{c.googleHref}}">{{c.google}}</a><a class="vc-quick" href="{{c.emailHref}}">{{c.email}}</a></div>
-                <svg class="vc-start-code" data-encodes="https://velicoach.com/body?utm_source=velicoach_qr" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
+                <svg class="vc-start-code" data-encodes="{{codeTarget}}" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
                 <p class="vc-pop-note">{{c.popNote}}</p>
               </div>
             </div>
@@ -144,7 +144,7 @@ P['startMenu'] = {"editor": "enum", "options": ["收起", "展开"], "default": 
 P['$preview'] = {'width': 1440, 'height': 2700}
 SCRIPT = '''<script type="text/x-dc" data-dc-script data-props='%s'>
 %s
-/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」主按钮直达 /app?utm_source=velicoach，鼠标停留或键盘聚焦时原地展开 /auth/google?utm_source=velicoach、用邮箱开始（/app?utm_source=velicoach）和扫码（编 /body?utm_source=velicoach_qr）；Apple 等 Veli B2 再加（#164） ── */
+/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」主按钮直达 /app，鼠标停留或键盘聚焦时原地展开 /auth/google、用邮箱开始（/app）和扫码（编本页 /body）；这一页的去处和码都沿用当前页的 utm_source，没有时去处回落 velicoach、码回落 velicoach_qr（veliHref(path, pageSource())，PRD 第 528 版 F10）；英文页的码编 /en/body；点阵是示意，实现时按 codeTarget 生成并扫码核对；Apple 等 Veli B2 再加（#164） ── */
 const COPY = %s;
 const LISTS = %s;
 class Component extends DCLogic {
@@ -168,9 +168,11 @@ class Component extends DCLogic {
   renderVals() {
     const v = shellVals(this, 'paper', '/body');
     const k = v.en ? 'en' : 'zh';
+    const src = pageSource();
     const open = this.isOpen();
     return {
-      ...v, c: COPY[k], ...LISTS[k],
+      ...v, c: { ...COPY[k], appHref: veliHref('/app', src), googleHref: veliHref('/auth/google', src), emailHref: veliHref('/app', src) }, ...LISTS[k],
+      t: { ...v.t, bodyHref: veliHref(v.en ? '/en/body' : '/body', src) }, codeTarget: 'https://velicoach.com' + veliHref(v.en ? '/en/body' : '/body', src || 'velicoach_qr'),
       startExpanded: open ? 'true' : 'false', popClass: open ? 'vc-pop vc-pop-code' : 'vc-pop vc-pop-code is-closed',
       openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },
       focusStart: () => { if (this.skipFocusOpen) { this.skipFocusOpen = false; return; } clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },

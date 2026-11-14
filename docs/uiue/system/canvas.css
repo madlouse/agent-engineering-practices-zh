@@ -447,7 +447,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-pop-note { margin: 0; font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-text-2); text-wrap: pretty; }
 @media (max-width: 743px) { .vc-pop-opts { grid-auto-flow: row; } }
 /* 带码的展开层（首页首屏、站稳页的「开始训练」）：.vc-pop.vc-pop-code > .vc-pop-opts（a.opt 用 Google + a.vc-quick 用邮箱）+ svg.vc-start-code[data-encodes] + p.vc-pop-note。
-   两个去处上下排在左，右边是在手机上打开的码（编 /body?utm_source=velicoach_qr），说明占满下面一行。Apple 等 Veli B2 再加（#164） */
+   两个去处上下排在左，右边是在手机上打开的码（首页编 /body?utm_source=velicoach_qr，英文页 /en/body；站稳页沿用当前页的 utm_source，缺省 velicoach_qr；见设计系统「来源参数」），说明占满下面一行。Apple 等 Veli B2 再加（#164） */
 .vc-pop-code { grid-template-columns: auto auto; align-items: start; gap: var(--space-2) var(--space-3); padding: var(--space-3); }
 .vc-pop-code .vc-pop-opts { grid-auto-flow: row; }
 .vc-pop-opts .vc-quick { justify-self: start; }
@@ -871,10 +871,13 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 开发日志的行（动手页 #devlog、项目页；同一个组件）：li.vc-row.vc-log，结构同「整行可点的行」：日期带年份（2026-11-04）、项目、做了什么（.row-title）、
    .vc-row-line「分工」「下一步」；PR 或提交放在 p.vc-row-more：仓库公开时是 a.vc-quick，不公开时是 span.vc-row-ref（只写提交号、不带链接，PRD F19） */
 .vc-log { --vc-row-lead: 112px; }
-/* 标题后面常驻一个 →，不悬停也看得出整行能点；行下面的 PR、提交降一档（次要文字色），句末 ↗ 表示去 GitHub。记号不读出来（联审 D-03） */
-.vc-log .row-title::after { content: "\00a0→" / ""; font-weight: 400; color: var(--vc-sub); }
+/* 行下面的 PR、提交降一档（次要文字色），句末 ↗ 表示去 GitHub（联审 D-03）；标题后面的 → 见下面「整行、整卡可点」 */
 .vc-log .vc-row-more .vc-quick { color: var(--vc-sub); }
-.vc-log .vc-row-more a.vc-quick::after { content: "\00a0↗" / ""; }
+.vc-log .vc-row-more a.vc-quick::after { content: "\00a0↗"; content: "\00a0↗" / ""; }
+/* 整行、整卡可点的链接（整行可点的行、人机协作的卡片、项目卡）：标题后面常驻 →，不悬停也看得出能点；去别的站的换成 ↗。记号不读出来；
+   先写一条不带替代文本的 content，给不认「/ ""」写法的浏览器回退（联审 D-02、D-03） */
+.vc-row-main .row-title::after, .vc-card-link .row-title::after, .vc-project > h3::after { content: "\00a0→"; content: "\00a0→" / ""; font-weight: 400; color: var(--vc-sub); }
+a.vc-row-main[href^="http"] .row-title::after, a.vc-card-link[href^="http"] .row-title::after { content: "\00a0↗"; content: "\00a0↗" / ""; }
 
 /* 项目卡（动手页「在做的项目」）：article.vc-card.vc-project > p.vc-status（开发中）+ h3.vc-type-title-3 > a.vc-project-name + p（一句话说明）+ [p.vc-project-links > a.vc-quick（打开产品，站外的地址句末 ↗）]，主站本身没有「打开产品」。
    .vc-project-grid：桌面三列、平板两列、手机单列 */

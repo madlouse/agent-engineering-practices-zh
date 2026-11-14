@@ -99,11 +99,11 @@ def steps(lang):
 def projects(lang):
     b = '' if lang == 'zh' else '/en'
     P = {'zh': [
-      ('Veli', '威利是 Veli 里的 AI 力量训练教练，替你排好什么时候练、练什么。', 'veli', b + '/body'),
+      ('Veli', '威利是 Veli 里的 AI 力量训练教练，替你排好什么时候练、练什么。', 'veli', veli_href(b + '/body')),
       ('Velicoach 主站', '这座站本身：三站的首页、看清的文章库和这份开发日志。', 'velicoach', None),   # 产品就是你正在看的这座站，不放「打开产品」
       ('智能体技能库', '把做产品、做设计的方法写成智能体能反复调用的技能，公开分享。', 'agent-skills', REPO + '/tree/HEAD/.grok/skills')],
      'en': [
-      ('Veli', 'Veli is an AI strength coach. It plans when you train and what you do.', 'veli', b + '/body'),
+      ('Veli', 'Veli is an AI strength coach. It plans when you train and what you do.', 'veli', veli_href(b + '/body')),
       ('Velicoach', 'This site itself: the home page, Mind’s article library, and this devlog.', 'velicoach', None),
       ('Agent skills library', 'Our product and design methods, written as skills that agents can reuse, shared in the open.', 'agent-skills', REPO + '/tree/HEAD/.grok/skills')]}[lang]
     op = COPY[lang]['projOpen']

@@ -319,7 +319,7 @@ body{{margin:0}}
 </ol>
 </div>
 <div class="vc-sheet-sample vc-sheet-sample-wide"><div class="vc-project-grid">
-<article class="vc-card vc-project"><p class="vc-status">开发中</p><h3 class="vc-type-title-3"><a class="vc-project-name" href="/build/veli">Veli</a></h3><p class="vc-sub">威利是 Veli 里的 AI 力量训练教练，替你排好什么时候练、练什么。</p><p class="vc-project-links"><a class="vc-quick" href="/body">打开产品 →</a></p></article>
+<article class="vc-card vc-project"><p class="vc-status">开发中</p><h3 class="vc-type-title-3"><a class="vc-project-name" href="/build/veli">Veli</a></h3><p class="vc-sub">威利是 Veli 里的 AI 力量训练教练，替你排好什么时候练、练什么。</p><p class="vc-project-links"><a class="vc-quick" href="/body?utm_source=velicoach">打开产品 →</a></p></article>
 <article class="vc-card vc-project"><p class="vc-status">开发中</p><h3 class="vc-type-title-3"><a class="vc-project-name" href="/build/velicoach">Velicoach 主站</a></h3><p class="vc-sub">这座站本身：三站的首页、看清的文章库和这份开发日志。</p></article>
 </div></div>
 </div>
@@ -331,7 +331,7 @@ body{{margin:0}}
 <div class="vc-sheet-sample vc-sheet-sample-wide"><p class="vc-sheet-label">强调卡 .vc-feature（首页「最新文章」；深色下比页面底高一档，加 1px 描边）</p>
 <article class="vc-feature"><p class="kicker">最新文章</p><h3 class="vc-type-title-2-serif">比模型更耐久的 Harness</h3><p class="vc-type-lead">模型每几个月换一代，围着它搭的工具、权限和验证环境却能一直用下去。</p><div class="vc-feature-actions"><a class="btn vc-btn-on-ink" href="#read">读最新文章</a><p class="vc-type-meta-mono">12 分钟 · 附 3 分钟视频</p></div></article></div>
 <div class="vc-sheet-sample vc-sheet-sample-wide"><p class="vc-sheet-label">三站入口小色带 .vc-stations（404）</p>
-<div class="vc-stations"><a class="vc-station vc-station-body" href="/body"><span class="vc-station-name">站稳</span><span class="vc-station-line">每周两次力量训练。</span></a><a class="vc-station vc-station-mind" href="/mind"><span class="vc-station-name">看清</span><span class="vc-station-line">读懂 AI 从哪里来。</span></a><a class="vc-station vc-station-build" href="/build"><span class="vc-station-name">动手</span><span class="vc-station-line">和智能体一起做出东西。</span></a></div></div>
+<div class="vc-stations"><a class="vc-station vc-station-body" href="/body?utm_source=velicoach"><span class="vc-station-name">站稳</span><span class="vc-station-line">每周两次力量训练。</span></a><a class="vc-station vc-station-mind" href="/mind"><span class="vc-station-name">看清</span><span class="vc-station-line">读懂 AI 从哪里来。</span></a><a class="vc-station vc-station-build" href="/build"><span class="vc-station-name">动手</span><span class="vc-station-line">和智能体一起做出东西。</span></a></div></div>
 <div class="vc-sheet-sample"><p class="vc-sheet-label">原地展开的卡片 .vc-pop（挂在 .vc-pop-anchor 上；这里为了看清楚摆在流里）</p>
 <div class="vc-pop vc-sheet-static vc-sheet-auto" data-pop=""><div class="vc-pop-opts"><a class="opt" href="/auth/google?utm_source=velicoach">用 Google 开始训练</a><a class="vc-quick" href="/app?utm_source=velicoach">用邮箱开始</a></div><p class="vc-pop-note">第一练 12 分钟。在 Veli 登录过的人直接到今天的安排；按 Esc 收起。</p></div></div>
 <div class="vc-sheet-sample"><p class="vc-sheet-label">带码的展开层 .vc-pop.vc-pop-code（首页首屏、站稳页的「开始训练」，宽度 ≥ 1180px 且能悬停时）</p>

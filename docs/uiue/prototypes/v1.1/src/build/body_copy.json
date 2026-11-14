@@ -26,11 +26,8 @@
    "branchCap": "练了力量长一片实心叶，完成一件小事长一片浅色叶；没练的日子只是一个节点，不扣分，也不掉叶子。",
    "firstTitle": "第一练，12 分钟",
    "firstLead": "告诉威利你想练什么、一周有几天，剩下的它来排。",
-   "googleHref": "/auth/google?utm_source=velicoach",
    "popNote": "登录后直接进入今天的安排；第一次来，先确认年龄和数据怎么用，一屏完成。扫右边的码，可以在手机上打开。",
-   "appHref": "/app?utm_source=velicoach",
-   "codeLabel": "扫码在手机上打开这一页",
-   "emailHref": "/app?utm_source=velicoach"
+   "codeLabel": "扫码在手机上打开这一页"
   },
   "en": {
    "what": "What to train",
@@ -58,11 +55,8 @@
    "branchCap": "A strength session grows a solid leaf; a small win grows a light one. Days off are just nodes: no penalty, no lost leaves.",
    "firstTitle": "Your first session: 12 minutes",
    "firstLead": "Tell Veli what you want to train and how many days a week. It plans the rest.",
-   "googleHref": "/auth/google?utm_source=velicoach",
    "popNote": "Signing in takes you straight to today’s plan. First time? Confirm your age and how your data is used, all on one screen. Scan the code to open it on your phone.",
-   "appHref": "/app?utm_source=velicoach",
-   "codeLabel": "Scan to open this page on your phone",
-   "emailHref": "/app?utm_source=velicoach"
+   "codeLabel": "Scan to open this page on your phone"
   }
  },
  "L": {

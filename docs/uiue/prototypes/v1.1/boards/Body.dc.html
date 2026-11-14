@@ -89,7 +89,7 @@ body{margin:0}
               <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="bo-start-options" onFocus="{{focusStart}}"><span>{{c.cta}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
               <div id="bo-start-options" class="{{popClass}}" data-pop="" role="group" aria-label="{{c.startGroup}}">
                 <div class="vc-pop-opts"><a class="opt" href="{{c.googleHref}}">{{c.google}}</a><a class="vc-quick" href="{{c.emailHref}}">{{c.email}}</a></div>
-                <svg class="vc-start-code" data-encodes="https://velicoach.com/body?utm_source=velicoach_qr" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
+                <svg class="vc-start-code" data-encodes="{{codeTarget}}" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
                 <p class="vc-pop-note">{{c.popNote}}</p>
               </div>
             </div>
@@ -193,9 +193,13 @@ body{margin:0}
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
 const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com', wordsUrl: '' };
+/* 去 Veli 的地址（/body、/app、/auth/*）只从 veliHref 出，一律带来源参数（velicoach-mono map/repos.md、PRD F10）：主站固定 velicoach；Veli 自己的页面传 pageSource()，沿用当前页的来源。rebuild.sh 第 6 步扫出不带参数的这类链接 */
+const VELI_SOURCE = 'velicoach';
+function veliHref(path, source) { const [p, h] = path.split('#'); return p + '?utm_source=' + encodeURIComponent(source || VELI_SOURCE) + (h ? '#' + h : ''); }
+function pageSource() { try { return new URLSearchParams(window.location.search).get('utm_source'); } catch (e) { return null; } }
 const SHELL = {
   zh: {
-    home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
+    home: '/', homeLabel: 'Velicoach 首页', bodyHref: veliHref('/body'), mindHref: '/mind', buildHref: '/build',
     navLabel: '三站', body: '站稳', mind: '看清', build: '动手',
     langLabel: '语言', langSwitch: '切换到英文，现在是中文', otherLang: 'en',
     subTitle: '订阅', subNote: '每周日一封：一读、一练、一个项目。可一键退订。', privacy: '隐私政策',
@@ -208,7 +212,7 @@ const SHELL = {
     disclaimer: '威利不是医生。有伤病或疼痛，先停下来，问医生。',
   },
   en: {
-    home: '/en/', homeLabel: 'Velicoach home', bodyHref: '/en/body', mindHref: '/en/mind', buildHref: '/en/build',
+    home: '/en/', homeLabel: 'Velicoach home', bodyHref: veliHref('/en/body'), mindHref: '/en/mind', buildHref: '/en/build',
     navLabel: 'Stations', body: 'Body', mind: 'Mind', build: 'Build',
     langLabel: 'Language', langSwitch: 'Switch to Chinese, currently English', otherLang: 'zh-CN',
     subTitle: 'Newsletter', subNote: 'Every Sunday: one read, one workout, one project. One-click unsubscribe. ', privacy: 'Privacy policy',
@@ -253,7 +257,7 @@ function shellVals(self, station, path) {
     subValue: sub === '格式不对' ? 'name@' : (busy || err) ? 'name@example.com' : '',
   };
 }
-/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」主按钮直达 /app?utm_source=velicoach，鼠标停留或键盘聚焦时原地展开 /auth/google?utm_source=velicoach、用邮箱开始（/app?utm_source=velicoach）和扫码（编 /body?utm_source=velicoach_qr）；Apple 等 Veli B2 再加（#164） ── */
+/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」主按钮直达 /app，鼠标停留或键盘聚焦时原地展开 /auth/google、用邮箱开始（/app）和扫码（编本页 /body）；这一页的去处和码都沿用当前页的 utm_source，没有时去处回落 velicoach、码回落 velicoach_qr（veliHref(path, pageSource())，PRD 第 528 版 F10）；英文页的码编 /en/body；点阵是示意，实现时按 codeTarget 生成并扫码核对；Apple 等 Veli B2 再加（#164） ── */
 const COPY = {
  "zh": {
   "what": "练什么",
@@ -281,11 +285,8 @@ const COPY = {
   "branchCap": "练了力量长一片实心叶，完成一件小事长一片浅色叶；没练的日子只是一个节点，不扣分，也不掉叶子。",
   "firstTitle": "第一练，12 分钟",
   "firstLead": "告诉威利你想练什么、一周有几天，剩下的它来排。",
-  "googleHref": "/auth/google?utm_source=velicoach",
   "popNote": "登录后直接进入今天的安排；第一次来，先确认年龄和数据怎么用，一屏完成。扫右边的码，可以在手机上打开。",
-  "appHref": "/app?utm_source=velicoach",
-  "codeLabel": "扫码在手机上打开这一页",
-  "emailHref": "/app?utm_source=velicoach"
+  "codeLabel": "扫码在手机上打开这一页"
  },
  "en": {
   "what": "What to train",
@@ -313,11 +314,8 @@ const COPY = {
   "branchCap": "A strength session grows a solid leaf; a small win grows a light one. Days off are just nodes: no penalty, no lost leaves.",
   "firstTitle": "Your first session: 12 minutes",
   "firstLead": "Tell Veli what you want to train and how many days a week. It plans the rest.",
-  "googleHref": "/auth/google?utm_source=velicoach",
   "popNote": "Signing in takes you straight to today’s plan. First time? Confirm your age and how your data is used, all on one screen. Scan the code to open it on your phone.",
-  "appHref": "/app?utm_source=velicoach",
-  "codeLabel": "Scan to open this page on your phone",
-  "emailHref": "/app?utm_source=velicoach"
+  "codeLabel": "Scan to open this page on your phone"
  }
 };
 const LISTS = {
@@ -469,9 +467,11 @@ class Component extends DCLogic {
   renderVals() {
     const v = shellVals(this, 'paper', '/body');
     const k = v.en ? 'en' : 'zh';
+    const src = pageSource();
     const open = this.isOpen();
     return {
-      ...v, c: COPY[k], ...LISTS[k],
+      ...v, c: { ...COPY[k], appHref: veliHref('/app', src), googleHref: veliHref('/auth/google', src), emailHref: veliHref('/app', src) }, ...LISTS[k],
+      t: { ...v.t, bodyHref: veliHref(v.en ? '/en/body' : '/body', src) }, codeTarget: 'https://velicoach.com' + veliHref(v.en ? '/en/body' : '/body', src || 'velicoach_qr'),
       startExpanded: open ? 'true' : 'false', popClass: open ? 'vc-pop vc-pop-code' : 'vc-pop vc-pop-code is-closed',
       openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },
       focusStart: () => { if (this.skipFocusOpen) { this.skipFocusOpen = false; return; } clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },

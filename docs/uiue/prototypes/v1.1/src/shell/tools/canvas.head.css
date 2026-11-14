@@ -981,7 +981,7 @@ a.vc-row-main[href^="http"] .row-title::after, a.vc-card-link[href^="http"] .row
   .vc-still-net { top: calc(var(--seam-yn) * 1% + var(--space-2)); left: calc(50% - var(--net-h) * 0.75); transform: none; }
   /* 手机上订阅条在首屏最后一行；槽位高度固定成收起时的高度（告知折两行），展开的表单是贴着槽位底边、向上长的浮卡，
      和桌面同一做法：首屏不长高，上面的入口和「动手」圆都不动，浮卡排在叶与网、圆之上（联审 A-02） */
-  .vc-hero-sub { position: relative; grid-row: 5; grid-column: 1; z-index: 4; transform: none; width: auto; padding: var(--space-2) var(--gutter); }
+  .vc-hero-sub { position: relative; left: auto; bottom: auto; grid-row: 5; grid-column: 1; z-index: 4; transform: none; width: auto; padding: var(--space-2) var(--gutter); }
   .vc-hero-sub .vc-subbar-slot { position: relative; height: auto; min-height: calc(var(--space-8) + var(--space-2)); }
   .vc-hero-sub .vc-subbar.is-open { position: absolute; left: 0; right: 0; bottom: 0; }
   .vc-hero.is-offline { --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-9)); }

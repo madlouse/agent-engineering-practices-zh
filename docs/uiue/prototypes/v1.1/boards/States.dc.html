@@ -16,7 +16,7 @@ body{margin:0}
 </helmet>
 <div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
 <div class="vc-nav-wrap">
-  <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+  <header class="{{navClass}}" data-backdrop="scroll">
     <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
       <span class="vc-wordmark">Velicoach</span>
@@ -309,7 +309,7 @@ body{margin:0}
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
     <figure class="vc-video vc-read-wide">
       <div class="vc-video-frame" data-video="">
-        <div class="vc-video-shot {{frameClass}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
           <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
@@ -366,7 +366,7 @@ body{margin:0}
       </form>
     </sc-if>
     <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
-      <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+      <p class="vc-sub-done" role="status"><svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg><span>{{t.subDone}}</span></p>
     </sc-if>
   </section>
 </sc-if>
@@ -597,7 +597,7 @@ const ART_LOG = {
     colophon: 'Corrections', report: 'Spotted an error or something out of date?', reportLink: 'Email a correction', reportSubject: 'Correction: https://velicoach.com/en/build/velicoach/one-domain',
   },
 };
-/* v：shellVals() 的结果；o：{ kind, media, english, load, frame, scrolled }。「暂无英文版」时调用方先把页面语言定成英文 */
+/* v：shellVals() 的结果；o：{ kind, media, english, load, frame, scrolled, scrollAt }。「暂无英文版」时调用方先把页面语言定成英文 */
 function articleVals(v, o) {
   const L = v.en ? 'en' : 'zh';
   const isLog = o.kind === '开发日志';
@@ -612,6 +612,7 @@ function articleVals(v, o) {
   const load = o.load || '正常';
   const loaded = load === '正常';
   const scrolled = !!o.scrolled && loaded;
+  const atVideo = scrolled && hasVideo && o.scrollAt === '视频';
   const frame = o.frame || '封面';
   const readTime = noEnglish ? '12 min read, in Chinese' : u.readTime;
   return {
@@ -619,13 +620,13 @@ function articleVals(v, o) {
     scenes: ART_CONTENT[CL].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
     isArticle: !isLog, isLog, noEnglish,
     curMind: isLog ? 'false' : 'page', curBuild: isLog ? 'page' : 'false',
-    artClass: scrolled ? 'is-scrolled' : '', atTop: loaded && !scrolled, scrolled,
+    artClass: scrolled ? 'is-scrolled' : '', atTop: loaded && !scrolled, scrolled, atVideo,
     isLoaded: loaded, isLoading: load === '加载中' || load === '加载超过 10 秒', isSlow: load === '加载超过 10 秒', loadFailed: load === '加载失败',
     videoOk: media === '正常', videoFailed: media === '视频无法播放',
     length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
     videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
     voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
-    frameText: frame !== '最暗一帧', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
+    frameText: frame !== '最暗一帧', frameKey: { '最亮一帧': 'brightest', '最暗一帧': 'darkest' }[frame] || 'cover', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
   };
 }
 /* ── 看清首页的数据和取值：/mind（AI 发展史）和 /mind/collaboration（人机协作）。Mind 和 States 两块画板共用这一份（States 由 pa-out/build.py 把同一份标记和这份数据拼进去）── */

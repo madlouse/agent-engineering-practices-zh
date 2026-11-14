@@ -18,7 +18,7 @@ body{margin:0}
 <div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}" data-lean="{{lean}}">
 
   <div class="vc-nav-wrap">
-    <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+    <header class="{{navClass}}" data-backdrop="scroll">
       <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
         <span class="vc-wordmark">Velicoach</span>
@@ -41,7 +41,7 @@ body{margin:0}
     <div class="vc-hero-paper" aria-hidden="true"></div>
     <div class="vc-hero-ink" aria-hidden="true"></div>
 
-    <h1 id="vc-hero-tag" class="vc-hero-tag vc-type-lead" data-edge="free"><span class="vc-hero-tag-paper">{{c.tag}}</span><span class="vc-hero-tag-ink" aria-hidden="true">{{c.tag}}</span></h1>
+    <h1 id="vc-hero-tag" class="vc-hero-tag vc-type-title-3" data-edge="free"><span class="vc-hero-tag-paper">{{c.tag}}</span><span class="vc-hero-tag-ink" aria-hidden="true">{{c.tag}}</span></h1>
 
     <div class="vc-hero-stage" ref="{{stageRef}}" aria-hidden="true">
       <canvas class="vc-hero-gl" ref="{{glRef}}"></canvas>
@@ -49,10 +49,11 @@ body{margin:0}
       <svg class="vc-still vc-still-net" ref="{{netRef}}" viewBox="-1.5 -1 3 2"><path d="{{netEdges}}"></path><path class="vc-still-nodes" d="{{netNodes}}"></path></svg>
     </div>
 
-    <div class="vc-half vc-half-body vc-half-start" onMouseEnter="{{leanBody}}" onFocus="{{leanBody}}">
+    <div class="vc-half vc-half-body vc-half-start" onMouseEnter="{{leanBody}}" onFocus="{{leanBodyNow}}">
       <sc-if value="{{en}}" hint-placeholder-val="{{ false }}"><p class="kicker vc-hero-station">{{t.body}}</p></sc-if>
       <h2 class="vc-type-hero vc-hero-title">{{c.bodyTitle}}</h2>
       <p class="vc-type-lead vc-hero-lead">{{c.bodyLead}}</p>
+      <p class="vc-type-lead vc-hero-lead vc-hero-lead-short">{{c.bodyLeadShort}}</p>
       <div class="vc-hero-actions">
         <div class="vc-pop-anchor" onMouseEnter="{{openStart}}" onMouseLeave="{{closeLater}}">
           <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="vc-start-opts" onFocus="{{openStart}}"><span>{{c.start}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
@@ -74,25 +75,25 @@ body{margin:0}
       <p class="vc-hero-quick"><a class="vc-quick" href="#why-muscle">{{c.whyMuscle}}</a></p>
     </div>
 
-    <div class="vc-half vc-half-mind vc-half-end" onMouseEnter="{{leanMind}}" onFocus="{{leanMind}}">
+    <div class="vc-half vc-half-mind vc-half-end" onMouseEnter="{{leanMind}}" onFocus="{{leanMindNow}}">
       <sc-if value="{{en}}" hint-placeholder-val="{{ false }}"><p class="kicker vc-hero-station">{{t.mind}}</p></sc-if>
       <h2 class="vc-type-hero-serif vc-hero-title">{{c.mindTitle}}</h2>
-      <p class="vc-type-lead vc-hero-lead vc-hero-lead-full">{{c.mindLead}}</p>
+      <p class="vc-type-lead vc-hero-lead">{{c.mindLead}}</p>
       <p class="vc-type-lead vc-hero-lead vc-hero-lead-short">{{c.mindLeadShort}}</p>
       <div class="vc-hero-actions">
         <a class="btn vc-btn-on-ink" href="{{c.articleHref}}">{{c.read}}</a>
-        <sc-if value="{{showPause}}" hint-placeholder-val="{{ true }}">
-          <button type="button" class="icon-btn vc-surface-ink vc-hero-pause" onClick="{{togglePause}}" aria-label="{{pauseLabel}}" aria-pressed="{{pausedAttr}}">
-            <sc-if value="{{playing}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3 V13 M11 3 V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></sc-if>
-            <sc-if value="{{paused}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3 L13 8 L5 13 Z" fill="currentColor"></path></svg></sc-if>
-          </button>
-        </sc-if>
       </div>
       <p class="vc-hero-quick"><a class="vc-quick" href="{{c.histHref}}">{{c.hist}}</a><a class="vc-quick" href="{{c.collabHref}}">{{c.collab}}</a></p>
     </div>
 
     <div class="vc-hero-seam">
       <a class="{{orbClass}}" href="{{c.devlogHref}}" aria-label="{{c.orbLabel}}"><sc-if value="{{en}}" hint-placeholder-val="{{ false }}"><span class="vc-orb-station">{{t.build}}</span></sc-if><span class="vc-orb-title">{{c.orbTitle}}</span><span class="vc-orb-sub"><span class="vc-orb-long">{{c.orbLong}}</span><span class="vc-orb-short">{{c.orbShort}}</span></span></a>
+      <sc-if value="{{showPause}}" hint-placeholder-val="{{ true }}">
+      <button type="button" class="icon-btn vc-surface-ink vc-hero-pause" onClick="{{togglePause}}" aria-label="{{pauseLabel}}" aria-pressed="{{pausedAttr}}">
+        <sc-if value="{{playing}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3 V13 M11 3 V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></sc-if>
+        <sc-if value="{{paused}}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5 3 L13 8 L5 13 Z" fill="currentColor"></path></svg></sc-if>
+      </button>
+    </sc-if>
     </div>
 
     <sc-if value="{{offline}}" hint-placeholder-val="{{ false }}">
@@ -132,7 +133,7 @@ body{margin:0}
         </sc-if>
         <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
           <div class="vc-subbar vc-surface-solid is-done">
-            <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+            <p class="vc-sub-done" role="status"><svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg><span>{{t.subDone}}</span></p>
           </div>
         </sc-if>
       </div>
@@ -143,12 +144,9 @@ body{margin:0}
     <h2 id="vc-claim-title" class="vc-type-title-2 vc-claim-title">{{c.claimTitle}}</h2>
     <ol class="vc-claim-list">
       <sc-for list="{{claims}}" as="it" hint-placeholder-count="3">
-        <li class="vc-row">
-          <a class="vc-row-main vc-claim-link" href="{{it.href}}" aria-labelledby="{{it.tid}}">
-            <h3 id="{{it.tid}}" class="vc-type-title-3 row-title vc-claim-name"><span class="{{it.chip}}" aria-hidden="true"></span><span>{{it.name}}</span></h3>
-            <p class="vc-type-lead vc-claim-line">{{it.line}}</p>
-            <span class="vc-claim-go"><span class="vc-row-go">{{it.go}}</span></span>
-          </a>
+        <li class="vc-row vc-claim">
+          <h3 class="vc-type-title-3 row-title vc-claim-name"><span class="{{it.chip}}" aria-hidden="true"></span><span>{{it.name}}</span></h3>
+          <p class="vc-type-lead vc-claim-line">{{it.line}}<a href="{{it.href}}">{{it.go}}</a></p>
         </li>
       </sc-for>
     </ol>
@@ -159,21 +157,58 @@ body{margin:0}
       <h2 id="vc-proof-title" class="vc-type-title-3">{{c.proofTitle}}</h2>
       <p class="vc-type-body">{{c.proofLead}}</p>
     </div>
-    <div class="vc-study-grid">
-      <sc-for list="{{studies}}" as="st" hint-placeholder-count="3">
-        <article class="vc-card vc-study">
+    <div class="vc-study-set">
+    <sc-for list="{{studiesHigh}}" as="st" hint-placeholder-count="1">
+      <article class="vc-card vc-study" data-research-card data-credibility="high">
+        <div class="vc-study-key">
           <h3 class="vc-study-topic">{{st.topic}}</h3>
-          <p class="vc-type-metric">{{st.metric}}</p>
+          <p class="vc-type-metric" data-research-metric>{{st.metric}}</p>
+          <p class="vc-grade" data-grade="{{st.grade}}"><span class="vc-grade-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>{{st.gradeText}}</span></p>
+        </div>
+        <div class="vc-study-body">
           <p class="vc-study-claim">{{st.claim}}</p>
           <p class="vc-study-src"><span><time datetime="{{st.year}}">{{st.year}}</time> · {{st.journal}}</span><a class="vc-quick" href="{{st.url}}" aria-label="{{st.linkLabel}}">{{c.readSource}}</a></p>
           <dl class="vc-study-meta">
             <div><dt>{{c.metaType}}</dt><dd>{{st.type}}</dd></div>
             <div><dt>{{c.metaSample}}</dt><dd>{{st.sample}}</dd></div>
-            <div><dt>{{c.metaCertainty}}</dt><dd>{{st.certainty}}</dd></div>
             <div><dt>{{c.metaSeen}}</dt><dd><time datetime="{{st.seen}}">{{st.seenText}}</time></dd></div>
           </dl>
-        </article>
+        </div>
+      </article>
+    </sc-for>
+    <sc-for list="{{studiesModerate}}" as="st" hint-placeholder-count="0">
+      <article class="vc-card vc-study" data-research-card data-credibility="moderate">
+        <div class="vc-study-key">
+          <h3 class="vc-study-topic">{{st.topic}}</h3>
+          <p class="vc-type-metric" data-research-metric>{{st.metric}}</p>
+          <p class="vc-grade" data-grade="{{st.grade}}"><span class="vc-grade-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>{{st.gradeText}}</span></p>
+        </div>
+        <div class="vc-study-body">
+          <p class="vc-study-claim">{{st.claim}}</p>
+          <p class="vc-study-src"><span><time datetime="{{st.year}}">{{st.year}}</time> · {{st.journal}}</span><a class="vc-quick" href="{{st.url}}" aria-label="{{st.linkLabel}}">{{c.readSource}}</a></p>
+          <dl class="vc-study-meta">
+            <div><dt>{{c.metaType}}</dt><dd>{{st.type}}</dd></div>
+            <div><dt>{{c.metaSample}}</dt><dd>{{st.sample}}</dd></div>
+            <div><dt>{{c.metaSeen}}</dt><dd><time datetime="{{st.seen}}">{{st.seenText}}</time></dd></div>
+          </dl>
+        </div>
+      </article>
+    </sc-for>
+    <ol class="vc-rows vc-study-rows">
+      <sc-for list="{{studiesRows}}" as="st" hint-placeholder-count="2">
+        <li class="vc-row vc-study-row" data-research-card data-credibility="{{st.credibility}}">
+          <div class="vc-study-key">
+            <h3 class="vc-study-topic">{{st.topic}}</h3>
+            <p class="vc-grade" data-grade="{{st.grade}}"><span class="vc-grade-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>{{st.gradeText}}</span></p>
+          </div>
+          <div class="vc-study-body">
+            <p class="vc-study-claim">{{st.claim}}</p>
+            <p class="vc-study-method">{{st.method}} · {{c.metaSeen}} <time datetime="{{st.seen}}">{{st.seenText}}</time></p>
+            <p class="vc-study-src"><span><time datetime="{{st.year}}">{{st.year}}</time> · {{st.journal}}</span><a class="vc-quick" href="{{st.url}}" aria-label="{{st.linkLabel}}">{{c.readSource}}</a></p>
+          </div>
+        </li>
       </sc-for>
+    </ol>
     </div>
     <p class="vc-study-foot">{{c.proofFoot}}</p>
   </section>
@@ -227,7 +262,7 @@ body{margin:0}
         </form>
       </sc-if>
       <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
-        <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+        <p class="vc-sub-done" role="status"><svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg><span>{{t.subDone}}</span></p>
       </sc-if>
     </section>
   </sc-if>
@@ -258,7 +293,7 @@ body{margin:0}
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["收起","填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"收起"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"start":{"editor":"enum","options":["收起","展开"],"default":"收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"motion":{"editor":"enum","options":["正常","减弱动态效果","无 WebGL"],"default":"正常"},"focus":{"editor":"enum","options":["无","接缝上的圆"],"default":"无"},"device":{"editor":"enum","options":["其他","苹果"],"default":"其他"},"$preview":{"width":820,"height":3780}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["收起","填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"收起"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"start":{"editor":"enum","options":["收起","展开"],"default":"收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"motion":{"editor":"enum","options":["正常","减弱动态效果","无 WebGL"],"default":"正常"},"focus":{"editor":"enum","options":["无","接缝上的圆"],"default":"无"},"device":{"editor":"enum","options":["其他","苹果"],"default":"其他"},"$preview":{"width":820,"height":3570}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 const SHELL = {
   zh: {
@@ -324,29 +359,30 @@ function shellVals(self, station, path) {
 const COPY = {
   zh: {
     tag: 'AGI 路上的陪练',
-    bodyTitle: '先站稳', bodyLead: '每周两次力量训练。威利替你排好时间和动作。',
+    bodyTitle: '先站稳', bodyLead: '每周两次力量训练。AI 教练威利替你排好时间和动作。', bodyLeadShort: '每周两次力量训练。',
     start: '开始训练', fact: '第一练 12 分钟', startMenu: '开始训练的方式', google: '用 Google 开始训练', apple: '用 Apple 开始训练',
     startNote: '第一练 12 分钟。登录在 Veli 里完成；扫右边的码，可以在手机上打开。', codeLabel: '扫码在手机上打开 Veli',
     appHref: '/app', authHref: '/auth', whyMuscle: '为什么是肌肉',
-    mindTitle: '再看清', mindLead: '写给想跟上 AI 的人：AI 怎么一步步走到今天，人和智能体（agent）怎么一起工作。', mindLeadShort: '写给想跟上 AI 的人。',
+    mindTitle: '再看清', mindLead: '写给想跟上 AI 的人：AI 怎么一步步走到今天，人和智能体（agent）怎么协作。', mindLeadShort: '写给想跟上 AI 的人。',
     read: '读最新文章', hist: 'AI 发展史', collab: '人机协作', histHref: '/mind', collabHref: '/mind/collaboration',
     orbTitle: '然后动手', orbLong: '看开发日志', orbShort: '开发日志', orbLabel: '然后动手：看开发日志', devlogHref: '/build#devlog',
     pause: '暂停首页动画', play: '播放首页动画',
     offline: '离线中，打开的内容还能读。',
     claimTitle: 'AI 走得越快，越要先站稳',
     claims: [
-      { id: 'body', name: '站稳', line: '每周练两次力量。身体撑得住，别的事才做得下去。', go: '去站稳', href: '/body' },
-      { id: 'mind', name: '看清', line: '读懂 AI 从哪里来，再判断自己接下来学什么。', go: '去看清', href: '/mind' },
-      { id: 'build', name: '动手', line: '和智能体一起做出一件能用的东西，公开记下过程。', go: '去动手', href: '/build' },
+      { id: 'body', name: '站稳', line: '身体撑得住，才学得进去。', go: '去站稳', href: '/body' },
+      { id: 'mind', name: '看清', line: '看得清，才知道该做什么。', go: '去看清', href: '/mind' },
+      { id: 'build', name: '动手', line: '做出来，才算数。', go: '去动手', href: '/build' },
     ],
-    proofTitle: '为什么是肌肉', proofLead: '三项研究，各看一件事：防摔、长寿、情绪。',
-    readSource: '读原文', metaType: '研究类型', metaSample: '样本量', metaCertainty: '证据可信度', metaSeen: '产品负责人看过',
+    proofTitle: '为什么是肌肉', proofLead: '三项研究：防摔、长寿、情绪。按证据可信度从高到低排。',
+    readSource: '读原文', metaType: '研究类型', metaSample: '样本量', metaCertainty: '证据可信度', metaEffect: '效应量', metaSeen: '产品负责人看过',
     proofFoot: '这些是人群研究的平均结果，不是对每个人的保证。有伤病或疼痛，先问医生。',
-    /* 三张研究卡的事实照出处写（Cochrane CD012424、BJSM 2022、BMJ 2024）。正式数据由内容任务 T07 交付；seen 是「产品负责人看过的日期」，这里的 2026-11-10 是画板示例，上线前换成他本人看过的日期 */
+    /* 三项研究的事实照出处写（Cochrane CD012424、BJSM 2022、BMJ 2024）。正式数据由内容任务 T07 交付；seen 是「产品负责人看过的日期」，这里的 2026-11-10 是画板示例，上线前换成他本人看过的日期。
+       版式跟着证据可信度走：grade 是 GRADE 的档位（高 4、中 3、低 2、很低 1），4 的做通栏大卡，其余降成行。metric 只放外行读得懂的数；研究只给出效应量时 metric 留空，效应量写在 effect 里，进方法一行 */
     studies: [
-      { topic: '防摔 · 运动', metric: '少 23%', claim: '少 23%：这是 60 岁以上、住在社区的人参加运动项目（以平衡和功能训练为主）以后，跌倒次数的降幅。只做抗阻练习的证据不足。', year: '2019', journal: 'Cochrane 系统综述', url: 'https://doi.org/10.1002/14651858.CD012424.pub2', type: '随机对照试验的系统综述', sample: '59 项试验、12,981 人', certainty: '高', seen: '2026-11-10' },
-      { topic: '长寿 · 力量训练', metric: '低 15%', claim: '低 15%：做肌肉力量训练，与全因死亡风险低这么多有关；每周 30–60 分钟时关联最强。观察性研究，说明不了因果。', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: '队列研究的系统综述（观察性）', sample: '7 项研究、263,058 人', certainty: '很低', seen: '2026-11-10' },
-      { topic: '情绪 · 力量训练', metric: 'g = −0.49', claim: 'g = −0.49：达到重度抑郁诊断标准的人做力量训练，抑郁症状可能比对照组轻，效应量中等。证据可信度很低，结论还可能变。', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: '随机对照试验的网状荟萃分析', sample: '218 项试验、14,170 人', certainty: '很低', seen: '2026-11-10' },
+      { topic: '防摔 · 运动', metric: '少 23%', claim: '少 23%：这是 60 岁以上、住在社区的人参加运动项目（以平衡和功能训练为主）以后，跌倒次数的降幅。只做抗阻练习的证据不足。', year: '2019', journal: 'Cochrane 系统综述', url: 'https://doi.org/10.1002/14651858.CD012424.pub2', type: '随机对照试验的系统综述', sample: '59 项试验、12,981 人', certainty: '高', grade: 4, seen: '2026-11-10' },
+      { topic: '长寿 · 力量训练', metric: '低 15%', claim: '做肌肉力量训练，可能与全因死亡风险低 15% 有关；每周 30–60 分钟时关联最强。证据可信度很低，观察性研究说明不了因果。', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: '队列研究的系统综述（观察性）', sample: '7 项研究、263,058 人', certainty: '很低', grade: 1, seen: '2026-11-10' },
+      { topic: '情绪 · 力量训练', metric: '', effect: 'g = −0.49', claim: '达到重度抑郁诊断标准的人做力量训练，抑郁症状可能比对照组轻，效应量中等。证据可信度很低，结论还可能变。', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: '随机对照试验的网状荟萃分析', sample: '218 项试验、14,170 人', certainty: '很低', grade: 1, seen: '2026-11-10' },
     ],
     weekTitle: '最新', latest: '最新文章',
     articleTitle: '比模型更耐久的 Harness', articleLine: 'Shopify 团队用测试证明漏洞，而不是收集模型给出的候选清单。',
@@ -357,29 +393,29 @@ const COPY = {
     allLogs: '全部开发日志',
   },
   en: {
-    tag: 'An AGI-era training partner',
-    bodyTitle: 'Get strong', bodyLead: 'Strength training twice a week. Veli plans the time and the moves.',
+    tag: 'A coach for the AGI years',
+    bodyTitle: 'Get strong', bodyLead: 'Strength training twice a week. Veli, your AI coach, plans the time and the moves.', bodyLeadShort: 'Strength training twice a week.',
     start: 'Start training', fact: 'First session: 12 minutes', startMenu: 'Ways to start training', google: 'Start training with Google', apple: 'Start training with Apple',
     startNote: 'First session: 12 minutes. You sign in on Veli. Scan the code to open it on your phone.', codeLabel: 'Scan to open Veli on your phone',
     appHref: '/app', authHref: '/auth', whyMuscle: 'Why muscle',
-    mindTitle: 'See clearly', mindLead: 'For anyone keeping up with AI: how it got here, step by step, and how people and agents work together.', mindLeadShort: 'For anyone keeping up with AI.',
+    mindTitle: 'See clearly', mindLead: 'For anyone keeping up with AI: its history, and how people work with agents.', mindLeadShort: 'For anyone keeping up with AI.',
     read: 'Read the latest article', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration',
     orbTitle: 'Then build', orbLong: 'Read the devlog', orbShort: 'Devlog', orbLabel: 'Then build: read the devlog', devlogHref: '/en/build#devlog',
     pause: 'Pause the home animation', play: 'Play the home animation',
     offline: 'You’re offline. What’s open still works.',
     claimTitle: 'AI is moving fast. Start by getting strong.',
     claims: [
-      { id: 'body', name: 'Body', line: 'Train for strength twice a week. A body that holds up makes the rest possible.', go: 'Go to Body', href: '/en/body' },
-      { id: 'mind', name: 'Mind', line: 'Learn where AI came from, then decide what to learn next.', go: 'Go to Mind', href: '/en/mind' },
-      { id: 'build', name: 'Build', line: 'Make something useful with agents, and write down what happened.', go: 'Go to Build', href: '/en/build' },
+      { id: 'body', name: 'Body', line: 'A body that holds up lets you keep learning.', go: 'Go to Body', href: '/en/body' },
+      { id: 'mind', name: 'Mind', line: 'Seeing clearly tells you what’s worth doing.', go: 'Go to Mind', href: '/en/mind' },
+      { id: 'build', name: 'Build', line: 'Nothing counts until you’ve built it.', go: 'Go to Build', href: '/en/build' },
     ],
-    proofTitle: 'Why muscle', proofLead: 'Three studies, three questions: falls, lifespan, and mood.',
-    readSource: 'Read the source', metaType: 'Study type', metaSample: 'Sample', metaCertainty: 'Certainty', metaSeen: 'Owner reviewed',
+    proofTitle: 'Why muscle', proofLead: 'Three studies on falls, lifespan, and mood, ordered from the strongest evidence to the weakest.',
+    readSource: 'Read the source', metaType: 'Study type', metaSample: 'Sample', metaCertainty: 'Certainty', metaEffect: 'Effect size', metaSeen: 'Owner reviewed',
     proofFoot: 'These are averages across groups of people, not a promise for any one person. If you’re injured or in pain, ask a doctor first.',
     studies: [
-      { topic: 'Falls · exercise', metric: '23% fewer', claim: '23% fewer falls for people over 60 living at home who joined exercise programs, mostly balance and functional training. For resistance training alone, the evidence is not enough.', year: '2019', journal: 'Cochrane review', url: 'https://doi.org/10.1002/14651858.CD012424.pub2', type: 'Systematic review of randomized trials', sample: '59 trials, 12,981 people', certainty: 'High', seen: '2026-11-10' },
-      { topic: 'Lifespan · strength training', metric: '15% lower', claim: '15% lower risk of death from any cause is linked to muscle-strengthening activity, most strongly at 30–60 minutes a week. Observational, so it cannot show cause.', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: 'Systematic review of cohort studies (observational)', sample: '7 studies, 263,058 people', certainty: 'Very low', seen: '2026-11-10' },
-      { topic: 'Mood · strength training', metric: 'g = −0.49', claim: 'g = −0.49: in people who meet the criteria for major depression, strength training may ease symptoms compared with controls, a moderate effect. Certainty is very low.', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: 'Network meta-analysis of randomized trials', sample: '218 trials, 14,170 people', certainty: 'Very low', seen: '2026-11-10' },
+      { topic: 'Falls · exercise', metric: '23% fewer', claim: '23% fewer falls for people over 60 living at home who joined exercise programs, mostly balance and functional training. For resistance training alone, the evidence is not enough.', year: '2019', journal: 'Cochrane review', url: 'https://doi.org/10.1002/14651858.CD012424.pub2', type: 'Systematic review of randomized trials', sample: '59 trials, 12,981 people', certainty: 'High', grade: 4, seen: '2026-11-10' },
+      { topic: 'Lifespan · strength training', metric: '15% lower', claim: 'Muscle-strengthening activity may be linked to a 15% lower risk of death from any cause, strongest at 30–60 minutes a week. Very low certainty; observational, so not proof of cause.', year: '2022', journal: 'BJSM', url: 'https://doi.org/10.1136/bjsports-2021-105061', type: 'Systematic review of cohort studies (observational)', sample: '7 studies, 263,058 people', certainty: 'Very low', grade: 1, seen: '2026-11-10' },
+      { topic: 'Mood · strength training', metric: '', effect: 'g = −0.49', claim: 'In people who meet the criteria for major depression, strength training may ease symptoms compared with controls, a moderate effect. Certainty is very low.', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: 'Network meta-analysis of randomized trials', sample: '218 trials, 14,170 people', certainty: 'Very low', grade: 1, seen: '2026-11-10' },
     ],
     weekTitle: 'Latest', latest: 'Latest read',
     articleTitle: 'A harness that outlasts the model', articleLine: 'Shopify’s team proves each vulnerability with a test instead of collecting a model’s list of candidates.',
@@ -434,19 +470,24 @@ const VC_FIG = (() => {
 
 class Component extends DCLogic {
   pick(k, d) { return (this.state && this.state[k]) ?? this.props[k] ?? d; }
+  /* 悬停意图的延迟取 token delay-hover-intent（80ms）：首屏倾斜和「开始训练」的展开共用；倾斜另用 hover-intent-radius（40px）判指针是不是放慢了。脚本里不另写数 */
+  hoverIntent() { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--delay-hover-intent')) || 0; }
+  hoverRadius() { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--hover-intent-radius')) || 0; }
   canLean() { return !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 1180px)').matches); }
   componentDidMount() {
     if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
     // 展开的选项都能退出：Esc、点外面；Esc 同时回到五五分
-    this.onEsc = (e) => { if (e.key === 'Escape') { clearTimeout(this.timer); this.setState({ start: '收起', lean: '' }); } };
+    this.onEsc = (e) => { if (e.key === 'Escape') { clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' }); } };
     this.onOutside = (e) => { if (this.pick('start', '收起') === '展开' && !(e.target.closest && e.target.closest('.vc-pop-anchor'))) this.setState({ start: '收起' }); };
+    this.onMove = (e) => { this.ptr = { x: e.clientX, y: e.clientY }; };
     document.addEventListener('keydown', this.onEsc);
     document.addEventListener('pointerdown', this.onOutside);
+    document.addEventListener('pointermove', this.onMove, { passive: true });
     this.startGL();
   }
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.onEsc); document.removeEventListener('pointerdown', this.onOutside);
-    clearTimeout(this.timer); cancelAnimationFrame(this.raf); if (this.io) this.io.disconnect();
+    document.removeEventListener('keydown', this.onEsc); document.removeEventListener('pointerdown', this.onOutside); document.removeEventListener('pointermove', this.onMove);
+    clearTimeout(this.timer); clearTimeout(this.leanTimer); cancelAnimationFrame(this.raf); if (this.io) this.io.disconnect();
   }
   /* 叶与网（WebGL2 的点）。每个点有两个位置：叶上的和网上的（节点里，或一条连线上）。uMorph 从 0 到 1，点按各自的次序从叶飞到网：
      不倾斜时一半在叶、一半在网，跟着呼吸周期来回；向左倾斜全部长回叶子，向右全部散成网。颜色看点落在接缝哪一侧。
@@ -568,18 +609,44 @@ class Component extends DCLogic {
     const open = this.pick('start', '收起') === '展开';
     const still = (this.props.motion ?? '正常') !== '正常' || !!st.noGL;
     const offline = this.pick('network', '在线') === '离线';
-    const lean = (who) => () => { if (this.canLean() && (st.lean || '') !== who) this.setState({ lean: who }); };
+    /* 倾斜：指针进入一侧后，每隔 delay-hover-intent 看一次指针走了多远；不到 hover-intent-radius（相当于每秒 500px 以下，放慢或停下）才倾斜，走得更远就从当前位置重新计时。
+       横扫首屏（整屏 300–700ms，每秒 2000px 以上）一直在重新计时，不倾斜；键盘聚焦不等。进入另一侧或离开首屏时取消还没生效的那一次。
+       已经倒向一侧时进入另一侧，先回正再计时，快速扫过去不会让原来那侧一直斜着；计时到点时指针已经不在这一侧（扫出了首屏），就不倾斜 */
+    const lean = (who, wait) => (e) => {
+      clearTimeout(this.leanTimer);
+      const now = (this.state && this.state.lean) || '';
+      if (!this.canLean() || now === who) return;
+      if (!wait) { this.setState({ lean: who }); return; }
+      if (now) this.setState({ lean: '' });
+      const el = e && e.currentTarget;
+      let from = this.ptr;
+      const inside = (p) => { if (!el || !p) return true; const r = el.getBoundingClientRect(); return p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom; };
+      const check = () => {
+        const p = this.ptr;
+        if (!inside(p)) return;
+        if (from && p && Math.hypot(p.x - from.x, p.y - from.y) > this.hoverRadius()) { from = p; this.leanTimer = setTimeout(check, this.hoverIntent()); }
+        else this.setState({ lean: who });
+      };
+      this.leanTimer = setTimeout(check, this.hoverIntent());
+    };
+    const studies = c.studies.map((x) => ({
+      ...x, lead: !!x.metric && x.grade >= 3, credibility: ['very-low', 'low', 'moderate', 'high'][x.grade - 1],
+      gradeText: c.metaCertainty + (v.en ? ': ' + x.certainty.toLowerCase() : '：' + x.certainty),
+      method: [x.metric, x.type, x.sample, x.effect && c.metaEffect + ' ' + x.effect].filter(Boolean).join(' · '),
+      seenText: v.en ? new Date(x.seen + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : x.seen,
+      linkLabel: c.readSource + (v.en ? ': ' : '：') + x.journal + (v.en ? ', ' : '，') + x.year,
+    }));
     return {
       ...v, c,
-      lean: st.lean || '', leanBody: lean('body'), leanMind: lean('mind'),
-      leanNone: () => { clearTimeout(this.timer); this.setState({ lean: '', start: '收起' }); },
+      lean: st.lean || '', leanBody: lean('body', true), leanMind: lean('mind', true), leanBodyNow: lean('body', false), leanMindNow: lean('mind', false),
+      leanNone: () => { clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ lean: '', start: '收起' }); },
       heroClass: 'vc-hero' + (offline ? ' is-offline' : ''), offline,
       startClass: open ? '' : 'is-closed', startExpanded: open ? 'true' : 'false',
-      openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '展开' }), 80); },
+      openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '展开' }), this.hoverIntent()); },
       closeLater: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '收起' }), 300); },
-      onKey: (e) => { if (e.key === 'Escape') this.setState({ start: '收起', lean: '' }); },
-      claims: c.claims.map((x) => ({ ...x, tid: 'vc-claim-' + x.id, chip: 'vc-claim-chip vc-claim-chip-' + x.id })),
-      studies: c.studies.map((x) => ({ ...x, seenText: v.en ? new Date(x.seen + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : x.seen, linkLabel: c.readSource + (v.en ? ': ' : '：') + x.journal + (v.en ? ', ' : '，') + x.year })),
+      onKey: (e) => { if (e.key === 'Escape') { clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' }); } },
+      claims: c.claims.map((x) => ({ ...x, chip: 'vc-claim-chip vc-claim-chip-' + x.id })),
+      studiesHigh: studies.filter((x) => x.lead && x.grade === 4), studiesModerate: studies.filter((x) => x.lead && x.grade === 3), studiesRows: studies.filter((x) => !x.lead),
       leafPath: VC_FIG.leafPath, netEdges: VC_FIG.netEdges, netNodes: VC_FIG.netNodes,
       glRef: this.glRef || (this.glRef = (el) => { this.cv = el; if (el) { this.paperEl = el.closest('.vc-hero').querySelector('.vc-hero-paper'); this.startGL(); } }),
       stageRef: this.stageRef || (this.stageRef = (el) => { this.stageEl = el; if (el) this.startGL(); }),

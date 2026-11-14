@@ -17,7 +17,7 @@ body{margin:0}
 </helmet>
 <div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
   <div class="vc-nav-wrap">
-    <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+    <header class="{{navClass}}" data-backdrop="scroll">
       <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
         <span class="vc-wordmark">Velicoach</span>
@@ -119,7 +119,7 @@ body{margin:0}
         </form>
       </sc-if>
       <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
-        <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+        <p class="vc-sub-done" role="status"><svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg><span>{{t.subDone}}</span></p>
       </sc-if>
     </section>
   </sc-if>
@@ -149,7 +149,7 @@ body{margin:0}
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"expand":{"editor":"enum","options":["全部收起","展开一条"],"default":"全部收起"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":3400}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"expand":{"editor":"enum","options":["全部收起","展开一条"],"default":"全部收起"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":3110}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 const SHELL = {
   zh: {

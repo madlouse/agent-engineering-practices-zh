@@ -31,7 +31,7 @@ Veli 的 `/api/*` 规则排除这个前缀。Vercel rewrites 按顺序匹配，�
 
 1. **站标回首页**：/body 导航左上角的站标链到 `/`（英文页链到 `/en/`）。
 2. **三站的链接**：导航里有站稳、看清、动手三个链接，地址是 `/body`、`/mind`、`/build`（英文加 `/en`），当前所在的站高亮。
-3. **语言和外观的记忆共用**：两边在同一个域名下，语言和外观的选择读写同一组 localStorage 键 `vc-lang`、`vc-theme`，取值和主站一致（`zh` / `en`；`auto` / `light` / `dark`）。（2026-11-13 修订，需求第 103 条）同时写 `.velicoach.com` 的 cookie，让子域名上的家族产品（WordS）读得到：属性 `Domain=.velicoach.com; Path=/; SameSite=Lax; Max-Age=31536000`，不加 `Secure`，和共享约定一致（条文在 madlouse/skills PR 15 的 `family.md`）；读的顺序是 cookie、本机存储、系统偏好。依据 `docs/uiue/decisions.md`「2026-11-13 · M1 规格的决定」的偏好 cookie 一条。
+3. **语言和外观的记忆共用**：两边在同一个域名下，语言和外观的选择读写同一组 localStorage 键 `vc-lang`、`vc-theme`，取值和主站一致（`zh` / `en`；`auto` / `light` / `dark`）。（2026-11-13 修订，需求第 103 条）同时写 `.velicoach.com` 的 cookie，让子域名上的家族产品（WordS）读得到：属性 `Domain=.velicoach.com; Path=/; SameSite=Lax; Max-Age=31536000`，不加 `Secure`，和共享约定一致（条文在 madlouse/skills 的 `family.md`，PR 15 已于 2026-11-13 合并）；读的顺序是 cookie、本机存储、系统偏好。依据 `docs/uiue/decisions.md`「2026-11-13 · M1 规格的决定」的偏好 cookie 一条。
 
 主站的上线测试（关口四）打开 /body 和 /en/body，逐条检查这三件事（第 3 条的 cookie 在真实域名上查，见 `launch-runbook.md` 切换后第 13 步）；不通过不切换域名。
 

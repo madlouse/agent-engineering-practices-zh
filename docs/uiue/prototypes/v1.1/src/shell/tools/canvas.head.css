@@ -859,7 +859,8 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 「开始训练」的选项（有悬停的桌面）：在按钮右边、和按钮同一行展开（.vc-pop，收起时加 .is-closed），占的是那行事实的位置，事实写进卡片的说明里；
    卡片顶边比按钮高 24px，离上面的说明 ≥ 8px，不压标题、说明、快捷入口和订阅条。卡片内的排法见 .vc-pop-code */
 .vc-hero .vc-pop { left: calc(100% + var(--space-3)); top: calc(-1 * var(--space-5)); }
-.vc-start-code { width: calc(var(--space-9) + var(--space-2)); height: calc(var(--space-9) + var(--space-2)); padding: var(--space-1); border-radius: var(--radius-sm); background: var(--vc-paper-surface); box-shadow: 0 0 0 1px var(--vc-paper-line); color: var(--vc-text); }
+/* 码固定深码浅底，两套主题都一样（扫码器不认反色）；viewBox 四周各留 4 个模块的静区，静区就是 vc-code-paper 的底（联审 B-06） */
+.vc-start-code { width: calc(var(--space-9) + var(--space-2)); height: calc(var(--space-9) + var(--space-2)); border-radius: var(--radius-sm); background: var(--vc-code-paper); box-shadow: 0 0 0 1px var(--vc-paper-line); color: var(--vc-code-ink); }
 /* 接缝上的一层：「动手」圆在叶和网中间，尺寸跟着动效区的高度走。a.orb > [span.vc-orb-station 英文版的站名] + span.vc-orb-title + span.vc-orb-sub > span.vc-orb-long + span.vc-orb-short（圆小的时候换短的一句）。
    暂停按钮也在这一层：动效区的右下角、贴着网（它管的就是这块动效），44px 实色墨面；倾斜时不动。手机上在动效区左下角（右边是「动手」圆），叶与网收起时一起收起 */
 .vc-hero-seam, .vc-hero-stage { grid-row: 1; grid-column: 1 / -1; position: relative; min-height: 0; container-type: size; pointer-events: none; }

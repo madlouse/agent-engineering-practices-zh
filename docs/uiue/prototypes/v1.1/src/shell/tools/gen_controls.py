@@ -86,7 +86,7 @@ def nav(cls, cur, attrs=''):
 
 NOTE = '每周日一封：一读、一练、一个项目。可一键退订。<a href="#privacy">隐私政策</a>'
 def form(idp, btn, state):
-    busy = state == 'busy'; err = {'format': '邮箱格式不对', 'rate': '提交太频繁，一小时后再试', 'down': '订阅暂时不可用，稍后再试'}.get(state)
+    busy = state == 'busy'; err = {'format': '邮箱格式不对', 'rate': '提交太频繁，请一小时后再试', 'down': '订阅暂时不可用，请稍后再试'}.get(state)
     val = 'name@' if state == 'format' else ('name@example.com' if (busy or err) else '')
     return (f'<form class="vc-sub-form" action="#subscribe" novalidate><label class="vc-sr-only" for="{idp}">邮箱</label>'
             f'<input id="{idp}" class="vc-field" type="email" autocomplete="email" placeholder="你的邮箱" value="{val}" aria-invalid="{"true" if err else "false"}">'

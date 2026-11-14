@@ -1082,9 +1082,14 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 站名小标（只有英文版：导航写 Body、Mind、Build，口号写 Get strong、See clearly、Then build，小标让两处对得上；中文的站名就是口号里的词，不加） */
 .vc-hero-station { margin: 0 0 var(--space-1); color: var(--vc-sub); }
 .vc-hero-title { display: flex; align-items: flex-end; height: var(--title-box); white-space: nowrap; transform-origin: left bottom; transition: transform var(--duration-lean) var(--ease-out); }
+/* 两个大标题是进站链接（/body、/mind）：标题文字是读屏和键盘用的那一个；a.vc-half-link 铺满这一半的空白处，只给指针用（aria-hidden、不进 Tab 顺序），
+   压在说明之上、在标题、主操作和快捷入口之下，不盖住其他控件，外观不变（票 #27；联审 A-03） */
+.vc-half-link { position: absolute; inset: 0; z-index: 0; }
+.vc-hero-title-link { color: inherit; text-decoration: none; }
+.vc-hero-title, .vc-hero-quick { position: relative; z-index: 1; }
 .vc-hero-lead { margin-top: var(--space-5); min-height: 2lh; max-width: 26em; color: var(--vc-sub); transition: opacity var(--duration-base) var(--ease-out); }
 .vc-hero-lead-short { display: none; }
-.vc-hero-actions { align-self: stretch; display: flex; align-items: center; gap: var(--space-2) var(--space-4); min-height: var(--control-height-lg); margin-top: var(--space-6); }
+.vc-hero-actions { position: relative; z-index: 2; align-self: stretch; display: flex; align-items: center; gap: var(--space-2) var(--space-4); min-height: var(--control-height-lg); margin-top: var(--space-6); }
 .vc-hero-fact { margin: 0; color: var(--vc-sub); white-space: nowrap; }
 .vc-hero-direct { display: none; }
 .vc-hero-alt { display: none; }

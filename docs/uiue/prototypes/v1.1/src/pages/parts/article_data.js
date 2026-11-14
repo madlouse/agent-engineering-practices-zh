@@ -138,7 +138,7 @@ const ART_LOG = {
     colophon: 'Corrections', report: 'Spotted an error or something out of date?', reportLink: 'Email a correction', reportSubject: 'Correction: https://velicoach.com/en/build/velicoach/one-domain',
   },
 };
-/* v：shellVals() 的结果；o：{ kind, media, english, load, frame, scrolled }。「暂无英文版」时调用方先把页面语言定成英文 */
+/* v：shellVals() 的结果；o：{ kind, media, english, load, frame, scrolled, scrollAt }。「暂无英文版」时调用方先把页面语言定成英文 */
 function articleVals(v, o) {
   const L = v.en ? 'en' : 'zh';
   const isLog = o.kind === '开发日志';
@@ -153,6 +153,7 @@ function articleVals(v, o) {
   const load = o.load || '正常';
   const loaded = load === '正常';
   const scrolled = !!o.scrolled && loaded;
+  const atVideo = scrolled && hasVideo && o.scrollAt === '视频';
   const frame = o.frame || '封面';
   const readTime = noEnglish ? '12 min read, in Chinese' : u.readTime;
   return {
@@ -160,12 +161,12 @@ function articleVals(v, o) {
     scenes: ART_CONTENT[CL].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
     isArticle: !isLog, isLog, noEnglish,
     curMind: isLog ? 'false' : 'page', curBuild: isLog ? 'page' : 'false',
-    artClass: scrolled ? 'is-scrolled' : '', atTop: loaded && !scrolled, scrolled,
+    artClass: scrolled ? 'is-scrolled' : '', atTop: loaded && !scrolled, scrolled, atVideo,
     isLoaded: loaded, isLoading: load === '加载中' || load === '加载超过 10 秒', isSlow: load === '加载超过 10 秒', loadFailed: load === '加载失败',
     videoOk: media === '正常', videoFailed: media === '视频无法播放',
     length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
     videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
     voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
-    frameText: frame !== '最暗一帧', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
+    frameText: frame !== '最暗一帧', frameKey: { '最亮一帧': 'brightest', '最暗一帧': 'darkest' }[frame] || 'cover', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
   };
 }

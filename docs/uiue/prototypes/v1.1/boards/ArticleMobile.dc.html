@@ -17,7 +17,7 @@ body{margin:0}
 </helmet>
 <div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
 <div class="vc-nav-wrap">
-  <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+  <header class="{{navClass}}" data-backdrop="scroll">
     <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
       <span class="vc-wordmark">Velicoach</span>
@@ -78,7 +78,7 @@ body{margin:0}
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
     <figure class="vc-video vc-read-wide">
       <div class="vc-video-frame" data-video="">
-        <div class="vc-video-shot {{frameClass}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
           <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
@@ -139,6 +139,44 @@ body{margin:0}
 </sc-if>
 <sc-if value="{{isLoaded}}" hint-placeholder-val="{{ true }}">
   <sc-if value="{{scrolled}}" hint-placeholder-val="{{ false }}"><h1 class="vc-sr-only" lang="{{contentLang}}">{{c.title}}</h1></sc-if>
+  <sc-if value="{{atVideo}}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
+    <figure class="vc-video vc-read-wide">
+      <div class="vc-video-frame" data-video="">
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <span class="vc-video-scrim" aria-hidden="true"></span>
+        <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
+          <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
+          <span class="vc-playbar-label">{{u.video}}</span>
+          <span class="mono">{{videoTime}}</span>
+          <span class="vc-playbar-space"></span>
+          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="false">{{u.capt}}</button>
+        </div>
+      </div>
+      <figcaption>{{voice}}</figcaption>
+      <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
+        <summary>{{u.transcript}}</summary>
+        <div class="vc-transcript">
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+        </div>
+      </details>
+    </figure>
+  </sc-if>
+  <sc-if value="{{videoFailed}}" hint-placeholder-val="{{ false }}">
+    <figure class="vc-video">
+      <div class="vc-notice vc-notice-action vc-read-wide" role="alert">
+        <p><strong>{{u.videoFailTitle}}</strong>{{u.videoFailBody}}</p>
+        <button type="button" class="btn vc-btn-quiet">{{u.retry}}</button>
+      </div>
+      <section class="vc-transcript-open vc-read-col" id="transcript" aria-labelledby="transcript-t">
+        <h2 id="transcript-t" class="kicker">{{u.transcript}}</h2>
+        <div class="vc-transcript">
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+        </div>
+      </section>
+    </figure>
+  </sc-if>
+  </sc-if>
   <div class="vc-prose vc-read-body" lang="{{contentLang}}">
     <p>{{c.p1}}</p>
     <p>{{c.p1b}}</p>
@@ -273,7 +311,7 @@ body{margin:0}
       </form>
     </sc-if>
     <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
-      <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+      <p class="vc-sub-done" role="status"><svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg><span>{{t.subDone}}</span></p>
     </sc-if>
   </section>
 </sc-if>
@@ -303,7 +341,7 @@ body{margin:0}
 </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["文章","开发日志"],"default":"文章"},"media":{"editor":"enum","options":["正常","视频无法播放","没有视频"],"default":"正常"},"frame":{"editor":"enum","options":["封面","最亮一帧","最暗一帧"],"default":"封面"},"english":{"editor":"enum","options":["有英文版","暂无英文版"],"default":"有英文版"},"load":{"editor":"enum","options":["正常","加载中","加载超过 10 秒","加载失败"],"default":"正常"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":4560}}'>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["文章","开发日志"],"default":"文章"},"media":{"editor":"enum","options":["正常","视频无法播放","没有视频"],"default":"正常"},"frame":{"editor":"enum","options":["封面","最亮一帧","最暗一帧"],"default":"封面"},"english":{"editor":"enum","options":["有英文版","暂无英文版"],"default":"有英文版"},"load":{"editor":"enum","options":["正常","加载中","加载超过 10 秒","加载失败"],"default":"正常"},"scrollAt":{"editor":"enum","options":["正文中段","视频"],"default":"正文中段"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":4560}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 const SHELL = {
   zh: {
@@ -504,7 +542,7 @@ const ART_LOG = {
     colophon: 'Corrections', report: 'Spotted an error or something out of date?', reportLink: 'Email a correction', reportSubject: 'Correction: https://velicoach.com/en/build/velicoach/one-domain',
   },
 };
-/* v：shellVals() 的结果；o：{ kind, media, english, load, frame, scrolled }。「暂无英文版」时调用方先把页面语言定成英文 */
+/* v：shellVals() 的结果；o：{ kind, media, english, load, frame, scrolled, scrollAt }。「暂无英文版」时调用方先把页面语言定成英文 */
 function articleVals(v, o) {
   const L = v.en ? 'en' : 'zh';
   const isLog = o.kind === '开发日志';
@@ -519,6 +557,7 @@ function articleVals(v, o) {
   const load = o.load || '正常';
   const loaded = load === '正常';
   const scrolled = !!o.scrolled && loaded;
+  const atVideo = scrolled && hasVideo && o.scrollAt === '视频';
   const frame = o.frame || '封面';
   const readTime = noEnglish ? '12 min read, in Chinese' : u.readTime;
   return {
@@ -526,13 +565,13 @@ function articleVals(v, o) {
     scenes: ART_CONTENT[CL].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
     isArticle: !isLog, isLog, noEnglish,
     curMind: isLog ? 'false' : 'page', curBuild: isLog ? 'page' : 'false',
-    artClass: scrolled ? 'is-scrolled' : '', atTop: loaded && !scrolled, scrolled,
+    artClass: scrolled ? 'is-scrolled' : '', atTop: loaded && !scrolled, scrolled, atVideo,
     isLoaded: loaded, isLoading: load === '加载中' || load === '加载超过 10 秒', isSlow: load === '加载超过 10 秒', loadFailed: load === '加载失败',
     videoOk: media === '正常', videoFailed: media === '视频无法播放',
     length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
     videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
     voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
-    frameText: frame !== '最暗一帧', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
+    frameText: frame !== '最暗一帧', frameKey: { '最亮一帧': 'brightest', '最暗一帧': 'darkest' }[frame] || 'cover', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
   };
 }
 class Component extends DCLogic {
@@ -544,7 +583,10 @@ class Component extends DCLogic {
     const self = noEnglish ? { state: { ...(this.state || {}), lang: 'English' }, props: this.props, setState: (s) => this.setState(s) } : this;
     /* 语言切换链到本页的另一语言版本：文章是 /mind/<slug>，单条开发日志是 /build/<项目>/<slug> */
     const v = shellVals(self, 'paper', kind === '开发日志' ? '/build/velicoach/one-domain' : '/mind/shopify-harness');
-    return { ...v, ...articleVals(v, { kind, media: P('media', '正常'), english: noEnglish ? '暂无英文版' : '有英文版', load: P('load', '正常'), frame: P('frame', '封面'), scrolled: P('nav', '首屏') === '吸顶' }) };
+    const a = articleVals(v, { kind, media: P('media', '正常'), english: noEnglish ? '暂无英文版' : '有英文版', load: P('load', '正常'), frame: P('frame', '封面'), scrolled: P('nav', '首屏') === '吸顶', scrollAt: P('scrollAt', '正文中段') });
+    /* 吸顶玻璃压在视频上：加 is-over-video（浓的一档、胶囊下垫一层墨色），浅色主题再换成 lg-on-dark（浅色字）；深色主题本来就是浅色字，不加 lg-on-dark */
+    const dark = v.themeAttr ? v.themeAttr === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    return { ...v, ...a, navClass: a.atVideo ? v.navClass + ' is-over-video' + (dark ? '' : ' lg-on-dark') : v.navClass };
   }
   componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }
 }

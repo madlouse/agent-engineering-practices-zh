@@ -79,7 +79,7 @@ COPY = {
   statusLabel='Status', status='In development', addrLabel='Product', addr='velicoach.com', addrHref='/en/',
   cta='Read this project’s devlog',
   aboutTitle='About this project',
-  about1='Velicoach is a training partner for the AGI era: get strong, see clearly, then build. This project is its main site: the home page, Mind’s articles and milestones, and Build’s devlog. Veli, the strength-training product, is a separate project.',
+  about1='Velicoach is a coach for the AGI years: get strong, see clearly, then build. This project is its main site: the home page, Mind’s articles and milestones, and Build’s devlog. Veli, the strength-training product, is a separate project.',
   about2='One product owner and a team of agents build the whole site. How we did it, wrong turns included, goes into the devlog below.',
   rolesTitle='How we split the work with agents',
   logTitle='Devlog', logLead='Entries for this project only, newest first.',

@@ -3,6 +3,8 @@
 import sys
 STATES = [('默认', ''), ('悬停', 'is-hover'), ('按下', 'is-press'), ('焦点', 'is-focus')]
 LEAF = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>'
+# 订阅成功那一行前面的叶子：两条叶脉各一条路径，出现时画一次（shell.md 第 4、5 节同一段标记）
+SUBLEAF = '<svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>'
 RSS = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 3 a10 10 0 0 1 10 10 M3 7.5 a5.5 5.5 0 0 1 5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><circle cx="3.6" cy="12.4" r="1.3" fill="currentColor"></circle></svg>'
 CLOSE = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 3.5 L12.5 12.5 M12.5 3.5 L3.5 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>'
 PAUSE = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="4" y="3" width="2.6" height="10" rx="1" fill="currentColor"></rect><rect x="9.4" y="3" width="2.6" height="10" rx="1" fill="currentColor"></rect></svg>'
@@ -92,7 +94,7 @@ def form(idp, btn, state):
             + (f'<p class="vc-error" role="alert">{err}</p>' if err else '') + '</form>')
 def subbar(i, state):
     if state == 'closed': return f'<div class="vc-subbar vc-surface-solid"><p class="vc-sub-note">{NOTE}</p><button type="button" class="btn vc-btn-quiet" aria-expanded="false">订阅</button></div>'
-    if state == 'done': return '<div class="vc-subbar vc-surface-solid is-done"><p class="vc-sub-done" role="status">已订阅，每周日见</p></div>'
+    if state == 'done': return '<div class="vc-subbar vc-surface-solid is-done"><p class="vc-sub-done" role="status">' + SUBLEAF + '<span>已订阅，每周日见</span></p></div>'
     return f'<div class="vc-subbar vc-surface-solid is-open"><p class="vc-sub-note">{NOTE}</p><button type="button" class="icon-btn" aria-label="收起">{CLOSE}</button>{form("bar-" + str(i), "vc-btn-quiet", state)}</div>'
 def labeled(label, html, wide=False): return f'<div class="vc-sheet-sample{" vc-sheet-sample-wide" if wide else ""}"><p class="vc-sheet-label">{label}</p>{html}</div>'
 
@@ -137,7 +139,7 @@ DEFLIST = sm('deflist')
 DEFNUM = sm('deflist_numbered')
 EMPTY = sm('empty')
 TAG = ('<div class="vc-sheet-seam"><div style="background: var(--vc-hero-body);"></div><div style="background: var(--vc-ink);"></div>'
-  + sm('tag', **{'<h1 id="vc-hero-tag" class="vc-hero-tag vc-type-lead" data-edge="free">': '<p class="vc-hero-tag vc-type-lead" style="top: calc(50% - var(--space-3));">', '</h1>': '</p>'}) + '</div>')
+  + sm('tag', **{'<h1 id="vc-hero-tag" class="vc-hero-tag vc-type-title-3" data-edge="free">': '<p class="vc-hero-tag vc-type-title-3" style="top: calc(50% - var(--space-3));">', '</h1>': '</p>'}) + '</div>')
 CLAIM = down(sm('claim_title')) + down(sm('claim'))
 STUDY = down(sm('study'))
 ERA_A = down(sm('era_origins'))
@@ -181,8 +183,8 @@ MORE = f'''
 <section class="vc-container vc-section" aria-labelledby="s-home">
 <h2 id="s-home" class="vc-type-title-3" style="margin-bottom: var(--space-5);">首页：定位句、论点三行</h2>
 <div class="vc-sheet-samples">
-{lab('定位句 .vc-hero-tag（正文字体、导语字号、墨色；桌面和平板骑在接缝上居中，左半按纸面取色、右半按墨面取色；页面上它是 h1，带 data-edge="free"）', TAG)}
-{lab('论点三行 .vc-claim-list（整行可点，不是三张卡）', CLAIM)}
+{lab('定位句 .vc-hero-tag（正文字体、title-3 的字号和字重、墨色；桌面和平板骑在接缝上居中，左半按纸面取色、右半按墨面取色；页面上它是 h1，带 data-edge="free"）', TAG)}
+{lab('论点三行 .vc-claim-list（每行一个因果，句末一个行内文字链接；不是三张卡）', CLAIM)}
 </div>
 </section>
 '''
@@ -285,7 +287,7 @@ body{{margin:0}}
 </section>
 
 <section class="vc-container vc-section" aria-labelledby="s-study">
-<h2 id="s-study" class="vc-type-title-3" style="margin-bottom: var(--space-5);">数字卡（研究卡）</h2>
+<h2 id="s-study" class="vc-type-title-3" style="margin-bottom: var(--space-5);">研究卡：版式跟着证据可信度走</h2>
 {STUDY}
 <p class="vc-study-foot">这些是人群研究的平均结果，不是对每个人的保证。有伤病或疼痛，先问医生。</p>
 </section>
@@ -368,7 +370,7 @@ body{{margin:0}}
 </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{{"theme":{{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"}},"$preview":{{"width":1440,"height":19500}}}}'>
+<script type="text/x-dc" data-dc-script data-props='{{"theme":{{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"}},"$preview":{{"width":1440,"height":19800}}}}'>
 class Component extends DCLogic {{
   renderVals() {{
     const theme = (this.state && this.state.theme) ?? this.props.theme ?? '自动';

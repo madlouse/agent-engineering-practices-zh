@@ -34,7 +34,7 @@ velicoach.com 按路径分给两个 Vercel 项目（Veli 仓库 ADR-0032）：
 
 ## 动效
 
-- three.js r180 的 `WebGPURenderer` 加 TSL 节点材质：同一份着色器在 WebGPU 和 WebGL2 上都能跑，两者都不可用时显示静态画面。参考实现见 `docs/uiue/prototypes/velicoach-motion.html`。
+- three.js r180 的 `WebGPURenderer` 加 TSL 节点材质：同一份着色器在 WebGPU 和 WebGL2 上都能跑，两者都不可用时显示静态画面。签名的现行实现以 Main 画板为准（`docs/uiue/prototypes/v1.1/boards/Main.dc.html`）；`docs/uiue/prototypes/velicoach-motion.html` 是选方向时的历史原型。
 - 首屏文字绘制完再加载 three.js（约 260 KB gzip），不拖慢 LCP；滚出视口或切走标签页时暂停；帧率持续低于 40 时降到 1 倍像素密度；减弱动态效果时只画一帧。
 - 原型里踩过的坑：共享 `uniform()` 节点的材质不能单独销毁（切换场景时缓存，不 dispose）；WebGPU 读回像素时每行补齐到 256 字节。
 

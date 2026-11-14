@@ -16,6 +16,7 @@ export const GATE_FILES = [
   /^scripts\/check-(?:doc-first|comments)\.mjs$/,
   /^\.velicoach-checks\.json$/,
   /^scripts\/merge-gates(\.test)?\.mjs$/,
+  /^scripts\/preview-skip(\.test)?\.mjs$/,
   /^scripts\/review-markers(\.test)?\.mjs$/,
   /^scripts\/(check-terms|check-vague|vague-terms|check-owner-brief|check-voice|voice-terms)\.mjs$/,
   /^eslint\.config\.mjs$/,
@@ -28,6 +29,14 @@ export const GATE_FILES = [
   /^docs\/GLOSSARY\.md$/,
   /(?:^|\/)(?:AGENTS[^/]*|CLAUDE)\.md$/,
 ];
+// why: 主频道 2026-11-13 定：vercel.json 只有这三个字段算门槛，rewrites 留给票（#62）
+export const VERCEL_GATE_FIELDS = ["ignoreCommand", "buildCommand", "installCommand"];
+export function vercelGateChanges(before, after) {
+  const parse = (s) => { try { return JSON.parse(s ?? "{}"); } catch { return null; } };
+  const b = parse(before), h = parse(after);
+  if (b === null || h === null) return ["vercel.json 不是合法的 JSON"];
+  return VERCEL_GATE_FIELDS.filter((k) => JSON.stringify(b[k]) !== JSON.stringify(h[k])).map((k) => `vercel.json 的 ${k} 被改、被删或新增`);
+}
 // 只归产品负责人的文件：任何 PR 改了，脚本都不合并（pipeline.md §5.1）
 export const OWNER_FILES = [
   { re: /^\.claude\/settings[^/]*\.json$/, why: (p) => `改了权限设置 ${p}：等产品负责人合并（pipeline.md §5.1）` },
@@ -103,6 +112,7 @@ export function checkGates({ base, head, kind, ticket = "", text = "", git }) {
     const bs = JSON.parse(show(fork, "package.json") ?? "{}").scripts ?? {};
     const hs = JSON.parse(show(head, "package.json") ?? "{}").scripts ?? {};
     for (const k of Object.keys(bs)) if (hs[k] !== bs[k]) problems.push(`package.json 的 scripts.${k} 被改或被删`);
+    problems.push(...vercelGateChanges(show(fork, "vercel.json"), show(head, "vercel.json")));
   }
 
   // 关闭关键字（GitHub 的九个词，可带冒号、可带 owner/repo；否定句里写了也会生效）：查 PR 标题、正文和提交说明
@@ -219,7 +229,7 @@ export function mergeConflicts({ base, head, git, warn = console.log }) {
 
 // 拒绝时的下一步，按原因分开（problems 是给人看的句子，这里按句子开头认原因）
 const HINTS = [
-  [/^改了定义门槛的文件|^package\.json 的 scripts\./, "门槛文件和已有命令的改动单独开 chore/ PR，按 b 类两份评审通过后合并（docs/standards/pipeline.md §5.1）。"],
+  [/^改了定义门槛的文件|^package\.json 的 scripts\.|^vercel\.json /, "门槛文件和已有命令的改动单独开 chore/ PR，按 b 类两份评审通过后合并（docs/standards/pipeline.md §5.1）。"],
   [/^删了测试文件|^新增了跳过|^新增了关掉/, "恢复测试，去掉跳过、关 lint、@ts-nocheck / @ts-ignore 的写法（src/、server/ 里可以用 @ts-expect-error）；确实要放宽的，单独开 chore/ PR 按 b 类评审。"],
   [/^会关掉|会关掉别的 issue/, "改掉 PR 标题、正文或提交说明里的关闭关键字：票的 PR 只关自己那张票，任何 PR 都不关 #13。"],
   [/^和目标分支冲突/, "先把最新的目标分支合并进 PR 分支、解掉冲突、重跑检查再推送（docs/delivery/lessons.md 2026-11-13）；不要等评审发现。"],
@@ -260,6 +270,8 @@ export function prCategory({ base, head, kind, ref = "", body = "", git }) {
   const bs = JSON.parse(show(fork) ?? "{}").scripts ?? {};
   const hs = JSON.parse(show(head) ?? "{}").scripts ?? {};
   for (const k of Object.keys(bs)) if (hs[k] !== bs[k]) reasons.push(`package.json 的 scripts.${k} 被改或被删`);
+  const showFile = (ref, path) => { try { return git("show", `${ref}:${path}`); } catch { return null; } };
+  reasons.push(...vercelGateChanges(showFile(fork, "vercel.json"), showFile(head, "vercel.json")));
   reasons.push(...weakenings({ fork, head, git }), ...removedAssertions({ fork, head, git }), ...earlyReturns({ fork, head, git }));
   if (reasons.length && OBSERVER_BRANCH.test(ref)) {
     return { category: "owner", reasons, problems: [`观察者提的 b 类（${reasons.join("；")}）：等产品负责人合并（pipeline.md §5.1）`] };

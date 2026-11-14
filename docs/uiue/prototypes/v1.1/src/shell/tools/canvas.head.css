@@ -948,10 +948,11 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   .vc-hero-gl { top: calc(-1 * var(--space-7)); height: calc(100% + var(--space-7)); }
   .vc-still-leaf { top: auto; right: auto; bottom: calc((100 - var(--seam-yn)) * 1% + var(--space-2)); left: calc(50% - var(--s) / 2); transform: none; }
   .vc-still-net { top: calc(var(--seam-yn) * 1% + var(--space-2)); left: calc(50% - var(--net-h) * 0.75); transform: none; }
-  .vc-hero-sub { position: static; grid-row: 5; grid-column: 1; z-index: 2; transform: none; width: auto; padding: var(--space-2) var(--gutter); }
-  /* 手机上订阅条向下展开：它在首屏最后一行，上面的入口都不动，也不会被盖住 */
-  .vc-hero-sub .vc-subbar-slot { height: auto; min-height: var(--nav-height); }
-  /* 展开时首屏不长高（邮箱框和按钮要留在一屏里）：多出来的 48px（带错误说明 72px）从动效区里让出来，叶与网跟着缩，缩到放不下就先收起 */
+  /* 手机上订阅条在首屏最后一行；槽位高度固定成收起时的高度（告知折两行），展开的表单是贴着槽位底边、向上长的浮卡，
+     和桌面同一做法：首屏不长高，上面的入口和「动手」圆都不动，浮卡排在叶与网、圆之上（联审 A-02） */
+  .vc-hero-sub { position: relative; grid-row: 5; grid-column: 1; z-index: 4; transform: none; width: auto; padding: var(--space-2) var(--gutter); }
+  .vc-hero-sub .vc-subbar-slot { position: relative; height: auto; min-height: calc(var(--space-8) + var(--space-2)); }
+  .vc-hero-sub .vc-subbar.is-open { position: absolute; left: 0; right: 0; bottom: 0; }
   .vc-hero.is-offline { --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-9)); }
   @container (max-height: 127px) { .vc-still, .vc-hero-gl, .vc-hero-pause { display: none; } }
 }

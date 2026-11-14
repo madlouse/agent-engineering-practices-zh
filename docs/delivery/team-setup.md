@@ -20,7 +20,7 @@
 3. 工作流：主会话的 `chore/` PR 把 `site-db-migrate`、`site-monitor`、`site-audit` 三个工作流文件放进默认分支 `feature/v1`，就能手动触发和定时运行。工作流文件只由主会话维护，票的 PR 不改 `.github/workflows/`。
 4. 基线变绿：`npm test` 全过。
 5. 合并脚本：主会话从 Veli 复用改写，`chore/` 分支（PR #68），按 b 类两份冷评审后合并（`pipeline.md` §5.1）。
-6. 放行合并脚本：权限设置里只放行 `scripts/merge-ticket-pr.sh`，这一条保留，专供主频道合并时使用（审核线代它执行），关口和门槛不变；本仓库的会话、循环和子 Agent 只开 PR，不调合并脚本。权限改动 Agent 只出草稿，合并脚本拒绝改了 `.claude/settings*.json` 的 PR。
+6. 放行合并脚本：权限设置里只放行 `scripts/merge-ticket-pr.sh`，这一条保留，专供主频道代产品负责人审合时使用（`AGENTS.project.md`「不能越过的线」第 8 条），关口和门槛不变；本仓库的会话、循环和子 Agent 只开 PR，不调合并脚本。权限改动 Agent 只出草稿，合并脚本拒绝改了 `.claude/settings*.json` 的 PR。
 
 ## 3. 建定时任务
 

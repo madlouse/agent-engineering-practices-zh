@@ -40,9 +40,8 @@ body{margin:0}
 <sc-if value="{{atTop}}" hint-placeholder-val="{{ true }}">
   <nav class="vc-crumb" aria-label="{{u.crumbLabel}}"><a href="{{t.mindHref}}">{{t.mind}}</a><span aria-hidden="true">/</span><a href="{{u.lineHref}}">{{u.line}}</a><span aria-hidden="true">/</span><span>{{u.layer}}</span></nav>
   <sc-if value="{{noEnglish}}" hint-placeholder-val="{{ false }}">
-    <div class="vc-notice vc-notice-action vc-read-wide" role="note">
-      <p><strong>{{u.noEnTitle}}</strong>{{u.noEnBody}}</p>
-      <a class="btn vc-btn-action" href="{{u.srcHref}}">{{u.noEnCta}}</a>
+    <div class="vc-notice vc-notice-line vc-read-wide" role="note">
+      <p><strong>{{u.noEnTitle}}</strong>{{u.noEnBody}}<a href="{{u.srcHref}}">{{u.noEnCta}}</a>{{u.noEnEnd}}</p>
     </div>
   </sc-if>
   <header class="vc-read-head">
@@ -77,29 +76,29 @@ body{margin:0}
     <p class="vc-type-body-reading" lang="{{contentLang}}"><strong>{{c.takeHead}}</strong>{{c.take}}</p>
   </section>
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
-    <figure class="vc-video vc-read-wide">
+    <figure class="vc-video vc-read-wide" id="video">
       <div class="vc-video-frame" data-video="">
-        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{videoLang}}">{{vc.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
           <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
           <span class="vc-playbar-label">{{u.video}}</span>
           <span class="mono">{{videoTime}}</span>
-          <span class="vc-playbar-space"></span>
-          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="false">{{u.capt}}</button>
+          <input type="range" class="vc-playbar-seek" min="0" max="100" value="0" aria-label="{{u.seek}}" aria-valuetext="{{videoTime}}">
+          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="{{ccOn}}">{{u.capt}}</button>
         </div>
       </div>
       <figcaption>{{voice}}</figcaption>
       <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
         <summary>{{u.transcript}}</summary>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </details>
     </figure>
   </sc-if>
   <sc-if value="{{videoLoading}}" hint-placeholder-val="{{ false }}">
-    <figure class="vc-video vc-read-wide">
+    <figure class="vc-video vc-read-wide" id="video">
       <sc-if value="{{videoSlow}}" hint-placeholder-val="{{ false }}">
         <div class="vc-loading-slow" role="status"><p>{{u.loading}}</p><button type="button" class="btn vc-btn-quiet">{{u.retry}}</button></div>
       </sc-if>
@@ -108,13 +107,13 @@ body{margin:0}
       <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
         <summary>{{u.transcript}}</summary>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </details>
     </figure>
   </sc-if>
   <sc-if value="{{videoFailed}}" hint-placeholder-val="{{ false }}">
-    <figure class="vc-video">
+    <figure class="vc-video" id="video">
       <div class="vc-notice vc-notice-action vc-read-wide" role="alert">
         <p><strong>{{u.videoFailTitle}}</strong>{{u.videoFailBody}}</p>
         <button type="button" class="btn vc-btn-quiet">{{u.retry}}</button>
@@ -122,7 +121,7 @@ body{margin:0}
       <section class="vc-transcript-open vc-read-col" id="transcript" aria-labelledby="transcript-t">
         <h2 id="transcript-t" class="kicker">{{u.transcript}}</h2>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </section>
     </figure>
@@ -131,29 +130,29 @@ body{margin:0}
   <sc-if value="{{scrolled}}" hint-placeholder-val="{{ false }}"><h1 class="vc-sr-only" lang="{{contentLang}}">{{c.title}}</h1></sc-if>
   <sc-if value="{{atVideo}}" hint-placeholder-val="{{ false }}">
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
-    <figure class="vc-video vc-read-wide">
+    <figure class="vc-video vc-read-wide" id="video">
       <div class="vc-video-frame" data-video="">
-        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{videoLang}}">{{vc.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
           <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
           <span class="vc-playbar-label">{{u.video}}</span>
           <span class="mono">{{videoTime}}</span>
-          <span class="vc-playbar-space"></span>
-          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="false">{{u.capt}}</button>
+          <input type="range" class="vc-playbar-seek" min="0" max="100" value="0" aria-label="{{u.seek}}" aria-valuetext="{{videoTime}}">
+          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="{{ccOn}}">{{u.capt}}</button>
         </div>
       </div>
       <figcaption>{{voice}}</figcaption>
       <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
         <summary>{{u.transcript}}</summary>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </details>
     </figure>
   </sc-if>
   <sc-if value="{{videoLoading}}" hint-placeholder-val="{{ false }}">
-    <figure class="vc-video vc-read-wide">
+    <figure class="vc-video vc-read-wide" id="video">
       <sc-if value="{{videoSlow}}" hint-placeholder-val="{{ false }}">
         <div class="vc-loading-slow" role="status"><p>{{u.loading}}</p><button type="button" class="btn vc-btn-quiet">{{u.retry}}</button></div>
       </sc-if>
@@ -162,13 +161,13 @@ body{margin:0}
       <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
         <summary>{{u.transcript}}</summary>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </details>
     </figure>
   </sc-if>
   <sc-if value="{{videoFailed}}" hint-placeholder-val="{{ false }}">
-    <figure class="vc-video">
+    <figure class="vc-video" id="video">
       <div class="vc-notice vc-notice-action vc-read-wide" role="alert">
         <p><strong>{{u.videoFailTitle}}</strong>{{u.videoFailBody}}</p>
         <button type="button" class="btn vc-btn-quiet">{{u.retry}}</button>
@@ -176,7 +175,7 @@ body{margin:0}
       <section class="vc-transcript-open vc-read-col" id="transcript" aria-labelledby="transcript-t">
         <h2 id="transcript-t" class="kicker">{{u.transcript}}</h2>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </section>
     </figure>
@@ -322,15 +321,19 @@ body{margin:0}
 <script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["文章","开发日志"],"default":"文章"},"media":{"editor":"enum","options":["正常","视频加载中","视频加载超过 10 秒","视频无法播放","没有视频"],"default":"正常"},"frame":{"editor":"enum","options":["封面","最亮一帧","最暗一帧"],"default":"封面"},"english":{"editor":"enum","options":["有英文版","暂无英文版"],"default":"有英文版"},"scrollAt":{"editor":"enum","options":["正文中段","视频"],"default":"正文中段"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":4560}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
-const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com', wordsUrl: '' };
+/* 去 Veli 的地址（/body、/app、/auth/*）只从 veliHref 出，一律带来源参数（velicoach-mono map/repos.md、PRD F10）：主站固定 velicoach；Veli 自己的页面传 pageSource()，沿用当前页的来源。rebuild.sh 第 6 步扫出不带参数的这类链接 */
+const VELI_SOURCE = 'velicoach';
+function veliHref(path, source) { const [p, h] = path.split('#'); return p + '?utm_source=' + encodeURIComponent(source || VELI_SOURCE) + (h ? '#' + h : ''); }
+function pageSource() { try { return new URLSearchParams(window.location.search).get('utm_source'); } catch (e) { return null; } }
 const SHELL = {
   zh: {
-    home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
+    home: '/', homeLabel: 'Velicoach 首页', bodyHref: veliHref('/body'), mindHref: '/mind', buildHref: '/build',
     navLabel: '三站', body: '站稳', mind: '看清', build: '动手',
     langLabel: '语言', langSwitch: '切换到英文，现在是中文', otherLang: 'en',
     subTitle: '订阅', subNote: '每周日一封：一读、一练、一个项目。可一键退订。', privacy: '隐私政策',
     subscribe: '订阅', subBusy: '正在订阅', subDone: '已订阅，每周日见', emailLabel: '邮箱', emailPh: '你的邮箱', collapse: '收起',
-    subAction: '/api/site/subscribe', errFormat: '邮箱格式不对', errRate: '提交太频繁，一小时后再试', errDown: '订阅暂时不可用，稍后再试',
+    subAction: '/api/site/subscribe', errFormat: '邮箱格式不对', errRate: '提交太频繁，请一小时后再试', errDown: '订阅暂时不可用，请稍后再试',
     rssRow: '用 RSS 订阅更新',
     footerLabel: '页脚', about: '关于', contact: '联系', copyright: '版权与转载', health: '健康数据政策', disclaimerLink: '健康免责', terms: '服务条款',
     aboutHref: '/about', contactHref: '/about#contact', copyrightHref: '/legal/copyright', privacyHref: '/legal/privacy', healthHref: '/data-usage', disclaimerHref: '/legal/health-disclaimer', termsHref: '/legal/terms', feedHref: '/feed.xml',
@@ -338,12 +341,12 @@ const SHELL = {
     disclaimer: '威利不是医生。有伤病或疼痛，先停下来，问医生。',
   },
   en: {
-    home: '/en/', homeLabel: 'Velicoach home', bodyHref: '/en/body', mindHref: '/en/mind', buildHref: '/en/build',
+    home: '/en/', homeLabel: 'Velicoach home', bodyHref: veliHref('/en/body'), mindHref: '/en/mind', buildHref: '/en/build',
     navLabel: 'Stations', body: 'Body', mind: 'Mind', build: 'Build',
     langLabel: 'Language', langSwitch: 'Switch to Chinese, currently English', otherLang: 'zh-CN',
     subTitle: 'Newsletter', subNote: 'Every Sunday: one read, one workout, one project. One-click unsubscribe. ', privacy: 'Privacy policy',
     subscribe: 'Subscribe', subBusy: 'Subscribing', subDone: 'Subscribed. See you Sunday.', emailLabel: 'Email', emailPh: 'Your email', collapse: 'Close',
-    subAction: '/api/site/subscribe', errFormat: 'That email doesn’t look right.', errRate: 'Too many tries. Wait an hour.', errDown: 'Sign-up is down. Try again later.',
+    subAction: '/api/site/subscribe', errFormat: 'That email doesn’t look right.', errRate: 'Too many tries. Try again in an hour.', errDown: 'Sign-up is down. Try again later.',
     rssRow: 'Follow updates by RSS',
     footerLabel: 'Footer', about: 'About', contact: 'Contact', copyright: 'Copyright and reuse', health: 'Health data policy', disclaimerLink: 'Health disclaimer', terms: 'Terms',
     aboutHref: '/en/about', contactHref: '/en/about#contact', copyrightHref: '/en/legal/copyright', privacyHref: '/en/legal/privacy', healthHref: '/en/data-usage', disclaimerHref: '/en/legal/health-disclaimer', termsHref: '/en/legal/terms', feedHref: '/en/feed.xml',
@@ -395,13 +398,13 @@ const ART_UI = {
     dtApplies: '适用于', applies: 'Harness 工程，和具体模型无关', dtRights: '授权', rights: '讲解和摘要，不是全文翻译', dtOrigin: '起草', origin: '智能体起草，独立评审',
     dtLength: '时长', readTime: '12 分钟', hasVideo: '有 3 分钟视频',
     toc: '目录', tocPractice: '练习', notesLabel: '注释', backToText: '回到正文',
-    play: '播放 3 分钟视频', video: '3 分钟视频', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
+    play: '播放 3 分钟视频', video: '3 分钟视频', seek: '播放进度', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
     videoFailTitle: '视频没能播放。', videoFailBody: '文字稿讲的是同一件事，就在下面。', retry: '重试',
     loading: '正在加载视频',
-    noEnTitle: '', noEnBody: '', noEnCta: '',
+    noEnTitle: '', noEnBody: '', noEnBodyNoVideo: '', noEnCta: '', noEnEnd: '',
     next: '接着读', nextLead: '下一篇', nextKind: '人机协作 · Harness 工程', nextTitle: 'Claude Code 团队如何做 Code Review', nextHref: '/mind/claude-code-review',
     allLine: '人机协作的全部文章',
-    workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: '/app',
+    workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: veliHref('/app'),
     toBuild: '去动手一站', toBuildLine: '把这个练习带过去，和智能体一起做一遍。',
     colophon: '更新记录和版权', changes: '更新记录', change2: '补充两处数字的来源说明', change1: '发布',
     source: '原文和授权', sourcePre: '原文：《', sourcePost: '》，Zack Deveau，Shopify Engineering，2026 年 7 月 29 日，英文。',
@@ -418,13 +421,13 @@ const ART_UI = {
     dtApplies: 'Applies to', applies: 'Harness engineering, any model', dtRights: 'Rights', rights: 'Summary and commentary, not a translation', dtOrigin: 'Drafting', origin: 'AI-drafted, independently reviewed',
     dtLength: 'Length', readTime: '9 min read', hasVideo: '3-minute video',
     toc: 'Contents', tocPractice: 'Exercise', notesLabel: 'Notes', backToText: 'Back to the text',
-    play: 'Play the 3-minute video', video: '3-minute video', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
+    play: 'Play the 3-minute video', video: '3-minute video', seek: 'Playback position', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
     videoFailTitle: 'The video didn’t play. ', videoFailBody: 'The transcript below covers the same ground.', retry: 'Try again',
     loading: 'Loading the video',
-    noEnTitle: 'This piece is only in Chinese for now. ', noEnBody: 'Our Chinese write-up is below. The original post is in English.', noEnCta: 'Read the original',
+    noEnTitle: 'Only in Chinese for now. ', noEnBody: 'The 3-minute video has English narration and captions; the write-up below is in Chinese, and ', noEnBodyNoVideo: 'The write-up below is in Chinese, and ', noEnCta: 'the original post', noEnEnd: ' is in English.',
     next: 'Keep reading', nextLead: 'Next', nextKind: 'Human–AI collaboration · Harness engineering', nextTitle: 'How the Claude Code team does code review', nextHref: '/en/mind/claude-code-review',
     allLine: 'Everything in Human–AI collaboration',
-    workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: '/app',
+    workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: veliHref('/app'),
     toBuild: 'Go to Build', toBuildLine: 'Take this exercise with you and run it with an agent.',
     colophon: 'Changes and rights', changes: 'Changes', change2: 'Added sources for two figures', change1: 'Published',
     source: 'Source and rights', sourcePre: 'Original: “', sourcePost: '” by Zack Deveau, Shopify Engineering, July 29, 2026.',
@@ -434,7 +437,8 @@ const ART_UI = {
   },
 };
 /* 正文沿用旧稿，不改；视频第一幕的标题和文字稿来自仓库 src/content/explainers.ts 的 shopify-harness。
-   「我们的判断」、视频封面的眉标、文字稿每一幕的小标是界面字（ART_UI），跟页面语言走，不跟内容语言走：「暂无英文版」的英文页上它们是英文 */
+   「我们的判断」、视频封面的眉标、文字稿每一幕的小标是界面字（ART_UI），跟页面语言走，不跟内容语言走：「暂无英文版」的英文页上它们是英文。
+   视频也跟页面语言走（第一幕的标题、文字稿、旁白，explainers.ts 两种语言都有）：「暂无英文版」的英文页放英文旁白，字幕默认打开（联审 C-06） */
 const ART_CONTENT = {
   zh: {
     title: '比模型更耐久的 Harness',
@@ -533,20 +537,22 @@ function articleVals(v, o) {
   u.reportHref = mail(u.reportSubject); g.reportHref = mail(g.reportSubject); u.srcHref = ART_SRC;
   const media = isLog ? '没有视频' : (o.media || '正常');
   const hasVideo = media !== '没有视频';
+  if (!(hasVideo && media !== '视频无法播放')) u.noEnBody = u.noEnBodyNoVideo;
   const scrolled = !!o.scrolled;
   const atVideo = scrolled && hasVideo && o.scrollAt === '视频';
   const frame = o.frame || '封面';
   const readTime = noEnglish ? '12 min read, in Chinese' : u.readTime;
   return {
     u, g, c: ART_CONTENT[CL], contentLang: CL === 'en' ? 'en' : 'zh-CN',
-    scenes: ART_CONTENT[CL].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
+    vc: ART_CONTENT[L], videoLang: L === 'en' ? 'en' : 'zh-CN', ccOn: noEnglish ? 'true' : 'false',
+    scenes: ART_CONTENT[L].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
     isArticle: !isLog, isLog, noEnglish,
     curMind: isLog ? 'false' : 'page', curBuild: isLog ? 'page' : 'false',
     artClass: scrolled ? 'is-scrolled' : '', atTop: !scrolled, scrolled, atVideo,
     videoOk: media === '正常', videoLoading: media === '视频加载中' || media === '视频加载超过 10 秒', videoSlow: media === '视频加载超过 10 秒', videoQuick: media === '视频加载中', videoFailed: media === '视频无法播放',
     length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
-    videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
-    voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
+    videoTime: u.videoTime,
+    voice: u.voice,
     frameText: frame !== '最暗一帧', frameKey: { '最亮一帧': 'brightest', '最暗一帧': 'darkest' }[frame] || 'cover', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
   };
 }

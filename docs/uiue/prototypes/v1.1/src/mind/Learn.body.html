@@ -17,7 +17,7 @@
         <div class="vc-level-head"><h2 id="{{lv.id}}-name" class="vc-level-name">{{lv.head}}</h2><p class="vc-level-goal">{{c.goalLabel}}{{lv.goal}}</p></div>
         <ol class="vc-steps">
           <sc-for list="{{lv.steps}}" as="p" hint-placeholder-count="3">
-            <li class="vc-step" id="{{p.slug}}">
+            <li class="vc-step{{p.target}}" id="{{p.slug}}">
               <sc-if value="{{p.closed}}" hint-placeholder-val="{{ true }}">
                 <details class="vc-step-fold" data-expand="inline">
 <!--@MS-->

@@ -1,6 +1,6 @@
 # 画板源：Velicoach 主站 · UI v1.1
 
-在线画布「Velicoach 主站 · UI v1.1」（地址见 `docs/README.md`）的 18 块画板，和生成它们的脚本、源片段。2026-11-12 第三轮小修以后的版本；2026-11-13 关口票 #94 把画板的 token 检查清到 0、改了两处孤字成行（`docs/uiue/decisions.md` 同日一节），同日的设计 v1.2 打磨（奖项级评审，`decisions.md` 同日一节）改了首页首屏、首屏以下两幕、导航和订阅成功的反馈，新增 token `delay-hover-intent`；这次没有浏览器，`controls_samples.json` 里论点行、研究卡、定位句三个样张是手工改的，设备画板的高度没有重量，都待在 Sandbox 里重跑 `extract_samples.py` 和 `gen_device_boards.py --measure` 核对。2026-11-14 里程碑 1 联审落画板（#162）同样没有浏览器，`controls_samples.json` 里 `meta`、`paradigm`、`video`、`study`、`loading`、`loading_slow`、`notice_action` 七个样张是手改的，按验证线程在沙箱里重跑 `extract_samples.py` 的逐键比对改齐（`docs/uiue/decisions.md` 同日一节）；下次有浏览器时重跑一次，以脚本取出的为准。这一版仓库比在线画布和在线设计系统新，在线画布由主会话照下面「发布到在线画布」重新发布一次以后才一致（样式表 `canvas.css` 有改动，要重新上传）。
+在线画布「Velicoach 主站 · UI v1.1」（地址见 `docs/README.md`）的画板，仓库里 19 块（2026-11-14 加了 Landscape，在线画布下次发布时补上），和生成它们的脚本、源片段。2026-11-12 第三轮小修以后的版本；2026-11-13 关口票 #94 把画板的 token 检查清到 0、改了两处孤字成行（`docs/uiue/decisions.md` 同日一节），同日的设计 v1.2 打磨（奖项级评审，`decisions.md` 同日一节）改了首页首屏、首屏以下两幕、导航和订阅成功的反馈，新增 token `delay-hover-intent`；这次没有浏览器，`controls_samples.json` 里论点行、研究卡、定位句三个样张是手工改的，设备画板的高度没有重量，都待在 Sandbox 里重跑 `extract_samples.py` 和 `gen_device_boards.py --measure` 核对。2026-11-14 里程碑 1 联审落画板（#162）同样没有浏览器，`controls_samples.json` 里 `meta`、`paradigm`、`video`、`study`、`loading`、`loading_slow`、`notice_action` 七个样张是手改的，按验证线程在沙箱里重跑 `extract_samples.py` 的逐键比对改齐（`docs/uiue/decisions.md` 同日一节）；下次有浏览器时重跑一次，以脚本取出的为准。这一版仓库比在线画布和在线设计系统新，在线画布由主会话照下面「发布到在线画布」重新发布一次以后才一致（样式表 `canvas.css` 有改动，要重新上传）。
 
 设计语言的唯一来源仍是在线设计系统，仓库副本在 `docs/uiue/system/`；这里放的是画板。每条设计决定的理由在 `docs/uiue/decisions.md`「2026-11-12 · 设计 v1.1」，画了什么在 `docs/uiue/coverage.md`。
 
@@ -8,7 +8,7 @@
 
 | 位置 | 是什么 | 源还是产物 |
 |---|---|---|
-| `boards/*.dc.html` | 18 块画板：页面画板 10 块（Main、Mind、Learn、Article、Build、Project、About、States、Body、Controls），设备画板 8 块（Tablet、Mobile、Fold、MindMobile、LearnMobile、ArticleMobile、AboutMobile、BuildMobile） | 产物，不直接改。例外：`Main.dc.html` 是手写的，本身就是源 |
+| `boards/*.dc.html` | 19 块画板：页面画板 10 块（Main、Mind、Learn、Article、Build、Project、About、States、Body、Controls），设备画板 9 块（Tablet、Mobile、Fold、Landscape、MindMobile、LearnMobile、ArticleMobile、AboutMobile、BuildMobile） | 产物，不直接改。例外：`Main.dc.html` 是手写的，本身就是源 |
 | `boards/canvas.json` | 画布的布局：每块画板的位置、宽高、标题，和画布上的便签 | 源（手改）。画板变长或变短以后改这里的 `h` |
 | `canvas.js` | 画板共用的脚本（液态玻璃） | 源 |
 | `shell.md` | 外壳的标准片段：骨架、`SHELL` 和 `shellVals()`、导航、订阅条、页底订阅、页脚。各页面的生成脚本从它里面取片段 | 产物，由 `src/shell/test/ShellTest.dc.html` 生成 |
@@ -43,7 +43,7 @@
    bash docs/uiue/prototypes/v1.1/rebuild.sh --verify <输出目录>
    ```
 
-   它在上面五步之后跑两遍 `.grok/skills/design-bar/scripts/verify_canvas.py`：页面画板 10 块（浅色、深色、伪语言，另加 390×844、320×568、820×1180，首页再加四种尺寸）和设备画板 8 块，本站的色面门槛 1.8:1 取自项目配置 `docs/uiue/design-bar.json`（`docs/standards/pipeline.md` §7「画板」）。报告在 `<输出目录>/pages/verify-canvas.md` 和 `<输出目录>/devices/verify-canvas.md`，换进 `docs/uiue/reviews/<日期>/`。只跑其中一遍：`bash docs/uiue/prototypes/v1.1/tools/verify_all.sh <输出目录>`，设备画板加 `--devices`。结论不是 `done` 时整条命令退出码为 1，验证器没跑完、没生成报告（例如没装浏览器）时为 2，只有两遍都是 `done` 才打印「完成」；完整输出在各自的 `verify.log`。
+   它在上面五步之后跑两遍 `.grok/skills/design-bar/scripts/verify_canvas.py`：页面画板 10 块（浅色、深色、伪语言，另加 390×844、320×568、820×1180，首页再加四种尺寸）和设备画板 9 块，本站的色面门槛 1.8:1 取自项目配置 `docs/uiue/design-bar.json`（`docs/standards/pipeline.md` §7「画板」）。报告在 `<输出目录>/pages/verify-canvas.md` 和 `<输出目录>/devices/verify-canvas.md`，换进 `docs/uiue/reviews/<日期>/`。只跑其中一遍：`bash docs/uiue/prototypes/v1.1/tools/verify_all.sh <输出目录>`，设备画板加 `--devices`。结论不是 `done` 时整条命令退出码为 1，验证器没跑完、没生成报告（例如没装浏览器）时为 2，只有两遍都是 `done` 才打印「完成」；完整输出在各自的 `verify.log`。
 4. 页面画板里组件的内容或结构改了，控件样张要重新取一次：`python3 docs/uiue/prototypes/v1.1/src/shell/tools/extract_samples.py`（要起浏览器，`rebuild.sh` 不跑这一步），再跑 `rebuild.sh`。
 5. 画板变长或变短：改 `gen_device_boards.py` 表里的高度和 `boards/canvas.json` 里那块画板的 `h`，两处一致。
 
@@ -61,9 +61,9 @@
 ## 发布到在线画布
 
 1. 把 `docs/uiue/system/canvas.css` 作为资产上传到在线画布，得到一个新的地址（每次上传编号都会变）。
-2. 复制一份 `boards/` 到仓库外面的临时目录，把 18 块画板里样式表的那一行换成上一步返回的地址。脚本没有改就不用重新上传，引用不动。仓库里的画板不改，仍然写上面两个固定编号。
+2. 复制一份 `boards/` 到仓库外面的临时目录，把 19 块画板里样式表的那一行换成上一步返回的地址。脚本没有改就不用重新上传，引用不动。仓库里的画板不改，仍然写上面两个固定编号。
 3. 把 `docs/uiue/system/tokens.json` 放到那份副本的 `ds/velicoach/tokens.json`（画布挂的设计系统副本）。
-4. 发布这份副本：18 块 `.dc.html` 和 `canvas.json`。
+4. 发布这份副本：`boards/` 里的全部 `.dc.html`（现在 19 块，含 Landscape）和 `canvas.json`；发布前数一遍 `ls boards/*.dc.html | wc -l`，和本页「boards/*.dc.html」一行的块数对上。
 5. 设计系统有改动时，在线设计系统另外发布一次（README 和 `tokens.json`），再覆盖 `docs/uiue/system/`。
 
 地址和编号以外，这里不写任何密钥。

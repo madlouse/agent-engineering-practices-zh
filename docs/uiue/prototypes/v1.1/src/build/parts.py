@@ -8,6 +8,8 @@ def block(after, lang):
     m = re.search(r'```' + lang + r'\n(.*?)```', shell[i:], re.S)
     return m.group(1).rstrip('\n')
 SHELL_JS = block('脚本里原样照抄', 'js')
+VELI_SOURCE = re.search(r"const VELI_SOURCE = '([^']+)'", SHELL_JS).group(1)
+def veli_href(path): return path + '?utm_source=' + VELI_SOURCE
 NAV = block('## 3. 导航', 'html')
 SUBSCRIBE = block('## 5. 页底订阅', 'html')
 FOOTER = block('## 6. 页脚', 'html')

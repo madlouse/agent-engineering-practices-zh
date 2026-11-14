@@ -46,6 +46,15 @@
    "expand": "fill",
    "is_interactive": true
   },
+  "Landscape.dc.html": {
+   "x": 3954,
+   "y": 0,
+   "w": 844,
+   "h": 390,
+   "title": "首页 · 手机横屏首屏（844×390，高 < 600 的排法）",
+   "expand": "fill",
+   "is_interactive": true
+  },
   "Mind.dc.html": {
    "x": 0,
    "y": 4960,
@@ -174,6 +183,7 @@
   "Tablet.dc.html",
   "Mobile.dc.html",
   "Fold.dc.html",
+  "Landscape.dc.html",
   "Mind.dc.html",
   "MindMobile.dc.html",
   "Learn.dc.html",

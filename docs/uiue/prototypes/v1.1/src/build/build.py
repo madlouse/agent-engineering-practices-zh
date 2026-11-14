@@ -45,9 +45,9 @@ BODY = '''<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
         <sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
           <article class="vc-card vc-project">
             <p class="vc-status">{{c.status}}</p>
-            <h3 class="vc-type-title-3">{{ p.name }}</h3>
+            <h3 class="vc-type-title-3"><a class="vc-project-name" href="{{ p.logHref }}">{{ p.name }}</a></h3>
             <p class="vc-sub">{{ p.line }}</p>
-            <p class="vc-project-links"><a class="vc-quick" href="{{ p.logHref }}" aria-label="{{ p.logLabel }}">{{c.projLog}}</a><sc-if value="{{ p.hasOpen }}" hint-placeholder-val="{{ true }}"><a class="vc-quick" href="{{ p.href }}" aria-label="{{ p.openLabel }}">{{c.projOpen}}</a></sc-if></p>
+            <sc-if value="{{ p.hasOpen }}" hint-placeholder-val="{{ true }}"><p class="vc-project-links"><a class="vc-quick" href="{{ p.href }}" aria-label="{{ p.openLabel }}">{{ p.openText }}</a></p></sc-if>
           </article>
         </sc-for>
       </div>
@@ -71,7 +71,7 @@ COPY = {
   lead='写给想自己动手的人：你定问题，智能体出力，你来验收。',
   cta='读最新开发日志', howTitle='怎么做：四步',
   projTitle='在做的项目', projLead='三个项目都在开发中，进度写在各自的开发日志里。',
-  status='开发中', projLog='看开发日志', projOpen='打开产品',
+  status='开发中', projOpen='打开产品',
   logTitle='开发日志', logLead='这座站是和智能体一起做的。每条写做成了什么、和智能体怎么分工、下一步。',
   splitLabel='分工', nextLabel='下一步'),
  'en': dict(
@@ -79,7 +79,7 @@ COPY = {
   lead='For people who want to build: you pick the problem, agents do the work, you check it.',
   cta='Read the latest devlog', howTitle='How it works: four steps',
   projTitle='What we’re building', projLead='Three projects, all in development. Each one keeps its own devlog.',
-  status='In development', projLog='Read the devlog', projOpen='Open the product',
+  status='In development', projOpen='Open the product',
   logTitle='Devlog', logLead='We build this site with agents. Each entry says what got done, who did what, and what’s next.',
   splitLabel='Who did what', nextLabel='Next'),
 }
@@ -99,16 +99,16 @@ def steps(lang):
 def projects(lang):
     b = '' if lang == 'zh' else '/en'
     P = {'zh': [
-      ('Veli', '威利是 Veli 里的 AI 力量训练教练，替你排好什么时候练、练什么。', 'veli', b + '/body'),
+      ('Veli', '威利是 Veli 里的 AI 力量训练教练，替你排好什么时候练、练什么。', 'veli', veli_href(b + '/body')),
       ('Velicoach 主站', '这座站本身：三站的首页、看清的文章库和这份开发日志。', 'velicoach', None),   # 产品就是你正在看的这座站，不放「打开产品」
       ('智能体技能库', '把做产品、做设计的方法写成智能体能反复调用的技能，公开分享。', 'agent-skills', REPO + '/tree/HEAD/.grok/skills')],
      'en': [
-      ('Veli', 'Veli is an AI strength coach. It plans when you train and what you do.', 'veli', b + '/body'),
+      ('Veli', 'Veli is an AI strength coach. It plans when you train and what you do.', 'veli', veli_href(b + '/body')),
       ('Velicoach', 'This site itself: the home page, Mind’s article library, and this devlog.', 'velicoach', None),
       ('Agent skills library', 'Our product and design methods, written as skills that agents can reuse, shared in the open.', 'agent-skills', REPO + '/tree/HEAD/.grok/skills')]}[lang]
-    lg, op = COPY[lang]['projLog'], COPY[lang]['projOpen']
+    op = COPY[lang]['projOpen']
     sep = '：' if lang == 'zh' else ': '
-    return [dict(name=n, line=l, logHref=b + '/build/' + s, href=h or '', hasOpen=bool(h), logLabel=lg + sep + n, openLabel=op + sep + n) for n, l, s, h in P]   # 技能库的地址用 tree/HEAD，跟着默认分支走，不写死集成分支
+    return [dict(name=n, line=l, logHref=b + '/build/' + s, href=h or '', hasOpen=bool(h), openText=op + (' ↗' if (h or '').startswith('http') else ' →'), openLabel=op + sep + n) for n, l, s, h in P]   # 技能库的地址用 tree/HEAD，跟着默认分支走，不写死集成分支
 LISTS = {k: dict(steps=steps(k), projects=projects(k), logs=logs(k)) for k in ('zh', 'en')}
 SCRIPT = '''<script type="text/x-dc" data-dc-script data-props='%s'>
 %s

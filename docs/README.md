@@ -12,7 +12,7 @@
 | Velicoach 总体方案（金字塔梳理） | https://claude.ai/artifact/R5P7pEGDRaoym7mEBtLMu4 | [prd/velicoach-strategy.md](prd/velicoach-strategy.md) |
 | Velicoach 设计系统 v1.1 | https://claude.ai/artifact/6JqC3pUJ5GjDvXD2sEMZ5w | [uiue/system/](uiue/system/) |
 | 动效原型（A / B / C 三个方向，选定 C） | https://claude.ai/artifact/PGihowSLLCHsh3xDx14Dtd | [uiue/prototypes/velicoach-motion.html](uiue/prototypes/velicoach-motion.html) |
-| 主站画板 UI v1.1（18 块：首页四种设备、看清、学习路径、文章页、动手、项目页、关于、页面状态、控件样张，和站稳的参考页） | https://claude.ai/artifact/8Nx35n8NXRebQn4aapiW9L | 画板文件、生成脚本和源在 [uiue/prototypes/v1.1/](uiue/prototypes/v1.1/)（怎么重建、验证、发布见那里的 README）；画了什么见 [uiue/coverage.md](uiue/coverage.md) |
+| 主站画板 UI v1.1（仓库里 19 块，在线 18 块待补发 Landscape：首页五种设备、看清、学习路径、文章页、动手、项目页、关于、页面状态、控件样张，和站稳的参考页） | https://claude.ai/artifact/8Nx35n8NXRebQn4aapiW9L | 画板文件、生成脚本和源在 [uiue/prototypes/v1.1/](uiue/prototypes/v1.1/)（怎么重建、验证、发布见那里的 README）；画了什么见 [uiue/coverage.md](uiue/coverage.md) |
 
 ## 仓库里的文档
 

@@ -33,12 +33,16 @@ body{margin:0}
     <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
   </header>
 </div>
-<!-- 页面不存在：不属于任何一站，导航里没有当前页；只给三站入口，不放搜索框 -->
-<sc-if value="{{isNotFound}}" hint-placeholder-val="{{ true }}">
+<!-- 页面不存在、退订成功、退订链接失效：不属于任何一站，导航里没有当前页；一句话说明，下面是三站入口，不放搜索框。
+     退订的两种是 /unsubscribe 页点「确认退订」之后原位显示的结果（PRD「订阅的细则」第 9 条、ADR-0004 (c)），不要求登录：
+     退订成功给「重新订阅」（描边次按钮，不做成唯一的实心主按钮：退订不挽留；POST 带链接里的退订令牌，不让人重填邮箱，接口怎么认令牌实现时补进 ADR-0004；提交算重新同意，第 15 条），退订链接失效给联系邮箱，不说这个地址在不在名单里（联审 E-04） -->
+<sc-if value="{{isPaperPage}}" hint-placeholder-val="{{ true }}">
   <section class="vc-band vc-band-paper" data-first-screen="">
     <div class="vc-container vc-band-body">
-      <h1 class="vc-type-title-1">{{p.nfTitle}}</h1>
-      <p class="vc-type-lead vc-sub">{{p.nfLead}}</p>
+      <h1 class="vc-type-title-1">{{pageTitle}}</h1>
+      <p class="vc-type-lead vc-sub">{{pageLead}}</p>
+      <sc-if value="{{unsubDone}}" hint-placeholder-val="{{ false }}"><form class="vc-band-form" method="post" action="{{p.resubAction}}"><input type="hidden" name="token" value="{{unsubToken}}"><button class="btn vc-btn-quiet" type="submit">{{p.resub}}</button></form></sc-if>
+      <sc-if value="{{unsubBad}}" hint-placeholder-val="{{ false }}"><p class="vc-contact-address"><span class="mono">{{site.contactEmail}}</span><a class="btn vc-btn-action" href="{{unsubMail}}">{{p.writeUs}}</a></p></sc-if>
     </div>
   </section>
   <main class="vc-container vc-section-tight">
@@ -70,6 +74,7 @@ body{margin:0}
           <a href="{{c.collabHref}}" aria-current="{{collabCur}}" onClick="{{showCollab}}">{{c.collab}}</a>
         </div>
         <a class="vc-quick" href="{{c.learnHref}}">{{c.learn}}</a>
+        <sc-if value="{{hasWords}}" hint-placeholder-val="{{ false }}"><a class="vc-quick" href="{{wordsHref}}">{{c.words}}</a></sc-if>
       </div>
       <sc-if value="{{isHist}}" hint-placeholder-val="{{ true }}">
         <div class="vc-ruler">
@@ -125,18 +130,19 @@ body{margin:0}
                 <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
                 <ol class="vc-era-list">
                   <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
-                    <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
+                    <li class="vc-ms{{m.target}}" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
                       <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
                         <details class="vc-ms-fold" data-expand="inline">
                             <summary class="vc-ms-sum">
                               <span class="vc-row-lead">{{m.year}}</span>
                               <h3 id="{{m.slug}}-t" class="row-title vc-serif">{{m.title}}</h3>
                               <span class="vc-ms-what">{{m.what}}</span>
+                              <sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><span class="vc-ms-has"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2.5h8M2 6h8M2 9.5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>{{c.hasPost}}</span></sc-if>
                             </summary>
                             <div class="vc-ms-more">
                               <p class="vc-row-line"><b>{{c.whyLabel}}</b>{{m.why}}</p>
                               <p class="vc-row-foot">{{m.kind}} · {{c.checkedLabel}} <time datetime="{{checkedIso}}">{{checkedText}}</time></p>
-                              <p class="vc-ms-links"><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
+                              <p class="vc-ms-links"><sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.postHref}}">{{c.readPost}}</a></sc-if><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
                             </div>
                         </details>
                       </sc-if>
@@ -146,11 +152,12 @@ body{margin:0}
                               <span class="vc-row-lead">{{m.year}}</span>
                               <h3 id="{{m.slug}}-t" class="row-title vc-serif">{{m.title}}</h3>
                               <span class="vc-ms-what">{{m.what}}</span>
+                              <sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><span class="vc-ms-has"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2.5h8M2 6h8M2 9.5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>{{c.hasPost}}</span></sc-if>
                             </summary>
                             <div class="vc-ms-more">
                               <p class="vc-row-line"><b>{{c.whyLabel}}</b>{{m.why}}</p>
                               <p class="vc-row-foot">{{m.kind}} · {{c.checkedLabel}} <time datetime="{{checkedIso}}">{{checkedText}}</time></p>
-                              <p class="vc-ms-links"><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
+                              <p class="vc-ms-links"><sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.postHref}}">{{c.readPost}}</a></sc-if><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
                             </div>
                         </details>
                       </sc-if>
@@ -256,9 +263,8 @@ body{margin:0}
 <article aria-labelledby="art-title">
   <nav class="vc-crumb" aria-label="{{u.crumbLabel}}"><a href="{{t.mindHref}}">{{t.mind}}</a><span aria-hidden="true">/</span><a href="{{u.lineHref}}">{{u.line}}</a><span aria-hidden="true">/</span><span>{{u.layer}}</span></nav>
   <sc-if value="{{noEnglish}}" hint-placeholder-val="{{ false }}">
-    <div class="vc-notice vc-notice-action vc-read-wide" role="note">
-      <p><strong>{{u.noEnTitle}}</strong>{{u.noEnBody}}</p>
-      <a class="btn vc-btn-action" href="{{u.srcHref}}">{{u.noEnCta}}</a>
+    <div class="vc-notice vc-notice-line vc-read-wide" role="note">
+      <p><strong>{{u.noEnTitle}}</strong>{{u.noEnBody}}<a href="{{u.srcHref}}">{{u.noEnCta}}</a>{{u.noEnEnd}}</p>
     </div>
   </sc-if>
   <header class="vc-read-head">
@@ -280,29 +286,29 @@ body{margin:0}
     </div>
   </header>
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
-    <figure class="vc-video vc-read-wide">
+    <figure class="vc-video vc-read-wide" id="video">
       <div class="vc-video-frame" data-video="">
-        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{videoLang}}">{{vc.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
           <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
           <span class="vc-playbar-label">{{u.video}}</span>
           <span class="mono">{{videoTime}}</span>
-          <span class="vc-playbar-space"></span>
-          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="false">{{u.capt}}</button>
+          <input type="range" class="vc-playbar-seek" min="0" max="100" value="0" aria-label="{{u.seek}}" aria-valuetext="{{videoTime}}">
+          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="{{ccOn}}">{{u.capt}}</button>
         </div>
       </div>
       <figcaption>{{voice}}</figcaption>
       <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
         <summary>{{u.transcript}}</summary>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </details>
     </figure>
   </sc-if>
   <sc-if value="{{videoLoading}}" hint-placeholder-val="{{ false }}">
-    <figure class="vc-video vc-read-wide">
+    <figure class="vc-video vc-read-wide" id="video">
       <sc-if value="{{videoSlow}}" hint-placeholder-val="{{ false }}">
         <div class="vc-loading-slow" role="status"><p>{{u.loading}}</p><button type="button" class="btn vc-btn-quiet">{{u.retry}}</button></div>
       </sc-if>
@@ -311,13 +317,13 @@ body{margin:0}
       <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
         <summary>{{u.transcript}}</summary>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </details>
     </figure>
   </sc-if>
   <sc-if value="{{videoFailed}}" hint-placeholder-val="{{ false }}">
-    <figure class="vc-video">
+    <figure class="vc-video" id="video">
       <div class="vc-notice vc-notice-action vc-read-wide" role="alert">
         <p><strong>{{u.videoFailTitle}}</strong>{{u.videoFailBody}}</p>
         <button type="button" class="btn vc-btn-quiet">{{u.retry}}</button>
@@ -325,7 +331,7 @@ body{margin:0}
       <section class="vc-transcript-open vc-read-col" id="transcript" aria-labelledby="transcript-t">
         <h2 id="transcript-t" class="kicker">{{u.transcript}}</h2>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </section>
     </figure>
@@ -384,18 +390,22 @@ body{margin:0}
 </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"page":{"editor":"enum","options":["页面不存在","加载中","加载超过 10 秒","视频无法播放","文章暂无英文版","订阅失败","网络断开"],"default":"页面不存在"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":1760}}'>
+<script type="text/x-dc" data-dc-script data-props='{"page":{"editor":"enum","options":["页面不存在","加载中","加载超过 10 秒","视频无法播放","文章暂无英文版","订阅失败","网络断开","退订成功","退订链接失效"],"default":"页面不存在"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":1760}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
-const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com', wordsUrl: '' };
+/* 去 Veli 的地址（/body、/app、/auth/*）只从 veliHref 出，一律带来源参数（velicoach-mono map/repos.md、PRD F10）：主站固定 velicoach；Veli 自己的页面传 pageSource()，沿用当前页的来源。rebuild.sh 第 6 步扫出不带参数的这类链接 */
+const VELI_SOURCE = 'velicoach';
+function veliHref(path, source) { const [p, h] = path.split('#'); return p + '?utm_source=' + encodeURIComponent(source || VELI_SOURCE) + (h ? '#' + h : ''); }
+function pageSource() { try { return new URLSearchParams(window.location.search).get('utm_source'); } catch (e) { return null; } }
 const SHELL = {
   zh: {
-    home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
+    home: '/', homeLabel: 'Velicoach 首页', bodyHref: veliHref('/body'), mindHref: '/mind', buildHref: '/build',
     navLabel: '三站', body: '站稳', mind: '看清', build: '动手',
     langLabel: '语言', langSwitch: '切换到英文，现在是中文', otherLang: 'en',
     subTitle: '订阅', subNote: '每周日一封：一读、一练、一个项目。可一键退订。', privacy: '隐私政策',
     subscribe: '订阅', subBusy: '正在订阅', subDone: '已订阅，每周日见', emailLabel: '邮箱', emailPh: '你的邮箱', collapse: '收起',
-    subAction: '/api/site/subscribe', errFormat: '邮箱格式不对', errRate: '提交太频繁，一小时后再试', errDown: '订阅暂时不可用，稍后再试',
+    subAction: '/api/site/subscribe', errFormat: '邮箱格式不对', errRate: '提交太频繁，请一小时后再试', errDown: '订阅暂时不可用，请稍后再试',
     rssRow: '用 RSS 订阅更新',
     footerLabel: '页脚', about: '关于', contact: '联系', copyright: '版权与转载', health: '健康数据政策', disclaimerLink: '健康免责', terms: '服务条款',
     aboutHref: '/about', contactHref: '/about#contact', copyrightHref: '/legal/copyright', privacyHref: '/legal/privacy', healthHref: '/data-usage', disclaimerHref: '/legal/health-disclaimer', termsHref: '/legal/terms', feedHref: '/feed.xml',
@@ -403,12 +413,12 @@ const SHELL = {
     disclaimer: '威利不是医生。有伤病或疼痛，先停下来，问医生。',
   },
   en: {
-    home: '/en/', homeLabel: 'Velicoach home', bodyHref: '/en/body', mindHref: '/en/mind', buildHref: '/en/build',
+    home: '/en/', homeLabel: 'Velicoach home', bodyHref: veliHref('/en/body'), mindHref: '/en/mind', buildHref: '/en/build',
     navLabel: 'Stations', body: 'Body', mind: 'Mind', build: 'Build',
     langLabel: 'Language', langSwitch: 'Switch to Chinese, currently English', otherLang: 'zh-CN',
     subTitle: 'Newsletter', subNote: 'Every Sunday: one read, one workout, one project. One-click unsubscribe. ', privacy: 'Privacy policy',
     subscribe: 'Subscribe', subBusy: 'Subscribing', subDone: 'Subscribed. See you Sunday.', emailLabel: 'Email', emailPh: 'Your email', collapse: 'Close',
-    subAction: '/api/site/subscribe', errFormat: 'That email doesn’t look right.', errRate: 'Too many tries. Wait an hour.', errDown: 'Sign-up is down. Try again later.',
+    subAction: '/api/site/subscribe', errFormat: 'That email doesn’t look right.', errRate: 'Too many tries. Try again in an hour.', errDown: 'Sign-up is down. Try again later.',
     rssRow: 'Follow updates by RSS',
     footerLabel: 'Footer', about: 'About', contact: 'Contact', copyright: 'Copyright and reuse', health: 'Health data policy', disclaimerLink: 'Health disclaimer', terms: 'Terms',
     aboutHref: '/en/about', contactHref: '/en/about#contact', copyrightHref: '/en/legal/copyright', privacyHref: '/en/legal/privacy', healthHref: '/en/data-usage', disclaimerHref: '/en/legal/health-disclaimer', termsHref: '/en/legal/terms', feedHref: '/en/feed.xml',
@@ -460,13 +470,13 @@ const ART_UI = {
     dtApplies: '适用于', applies: 'Harness 工程，和具体模型无关', dtRights: '授权', rights: '讲解和摘要，不是全文翻译', dtOrigin: '起草', origin: '智能体起草，独立评审',
     dtLength: '时长', readTime: '12 分钟', hasVideo: '有 3 分钟视频',
     toc: '目录', tocPractice: '练习', notesLabel: '注释', backToText: '回到正文',
-    play: '播放 3 分钟视频', video: '3 分钟视频', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
+    play: '播放 3 分钟视频', video: '3 分钟视频', seek: '播放进度', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
     videoFailTitle: '视频没能播放。', videoFailBody: '文字稿讲的是同一件事，就在下面。', retry: '重试',
     loading: '正在加载视频',
-    noEnTitle: '', noEnBody: '', noEnCta: '',
+    noEnTitle: '', noEnBody: '', noEnBodyNoVideo: '', noEnCta: '', noEnEnd: '',
     next: '接着读', nextLead: '下一篇', nextKind: '人机协作 · Harness 工程', nextTitle: 'Claude Code 团队如何做 Code Review', nextHref: '/mind/claude-code-review',
     allLine: '人机协作的全部文章',
-    workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: '/app',
+    workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: veliHref('/app'),
     toBuild: '去动手一站', toBuildLine: '把这个练习带过去，和智能体一起做一遍。',
     colophon: '更新记录和版权', changes: '更新记录', change2: '补充两处数字的来源说明', change1: '发布',
     source: '原文和授权', sourcePre: '原文：《', sourcePost: '》，Zack Deveau，Shopify Engineering，2026 年 7 月 29 日，英文。',
@@ -483,13 +493,13 @@ const ART_UI = {
     dtApplies: 'Applies to', applies: 'Harness engineering, any model', dtRights: 'Rights', rights: 'Summary and commentary, not a translation', dtOrigin: 'Drafting', origin: 'AI-drafted, independently reviewed',
     dtLength: 'Length', readTime: '9 min read', hasVideo: '3-minute video',
     toc: 'Contents', tocPractice: 'Exercise', notesLabel: 'Notes', backToText: 'Back to the text',
-    play: 'Play the 3-minute video', video: '3-minute video', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
+    play: 'Play the 3-minute video', video: '3-minute video', seek: 'Playback position', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
     videoFailTitle: 'The video didn’t play. ', videoFailBody: 'The transcript below covers the same ground.', retry: 'Try again',
     loading: 'Loading the video',
-    noEnTitle: 'This piece is only in Chinese for now. ', noEnBody: 'Our Chinese write-up is below. The original post is in English.', noEnCta: 'Read the original',
+    noEnTitle: 'Only in Chinese for now. ', noEnBody: 'The 3-minute video has English narration and captions; the write-up below is in Chinese, and ', noEnBodyNoVideo: 'The write-up below is in Chinese, and ', noEnCta: 'the original post', noEnEnd: ' is in English.',
     next: 'Keep reading', nextLead: 'Next', nextKind: 'Human–AI collaboration · Harness engineering', nextTitle: 'How the Claude Code team does code review', nextHref: '/en/mind/claude-code-review',
     allLine: 'Everything in Human–AI collaboration',
-    workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: '/app',
+    workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: veliHref('/app'),
     toBuild: 'Go to Build', toBuildLine: 'Take this exercise with you and run it with an agent.',
     colophon: 'Changes and rights', changes: 'Changes', change2: 'Added sources for two figures', change1: 'Published',
     source: 'Source and rights', sourcePre: 'Original: “', sourcePost: '” by Zack Deveau, Shopify Engineering, July 29, 2026.',
@@ -499,7 +509,8 @@ const ART_UI = {
   },
 };
 /* 正文沿用旧稿，不改；视频第一幕的标题和文字稿来自仓库 src/content/explainers.ts 的 shopify-harness。
-   「我们的判断」、视频封面的眉标、文字稿每一幕的小标是界面字（ART_UI），跟页面语言走，不跟内容语言走：「暂无英文版」的英文页上它们是英文 */
+   「我们的判断」、视频封面的眉标、文字稿每一幕的小标是界面字（ART_UI），跟页面语言走，不跟内容语言走：「暂无英文版」的英文页上它们是英文。
+   视频也跟页面语言走（第一幕的标题、文字稿、旁白，explainers.ts 两种语言都有）：「暂无英文版」的英文页放英文旁白，字幕默认打开（联审 C-06） */
 const ART_CONTENT = {
   zh: {
     title: '比模型更耐久的 Harness',
@@ -598,36 +609,40 @@ function articleVals(v, o) {
   u.reportHref = mail(u.reportSubject); g.reportHref = mail(g.reportSubject); u.srcHref = ART_SRC;
   const media = isLog ? '没有视频' : (o.media || '正常');
   const hasVideo = media !== '没有视频';
+  if (!(hasVideo && media !== '视频无法播放')) u.noEnBody = u.noEnBodyNoVideo;
   const scrolled = !!o.scrolled;
   const atVideo = scrolled && hasVideo && o.scrollAt === '视频';
   const frame = o.frame || '封面';
   const readTime = noEnglish ? '12 min read, in Chinese' : u.readTime;
   return {
     u, g, c: ART_CONTENT[CL], contentLang: CL === 'en' ? 'en' : 'zh-CN',
-    scenes: ART_CONTENT[CL].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
+    vc: ART_CONTENT[L], videoLang: L === 'en' ? 'en' : 'zh-CN', ccOn: noEnglish ? 'true' : 'false',
+    scenes: ART_CONTENT[L].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
     isArticle: !isLog, isLog, noEnglish,
     curMind: isLog ? 'false' : 'page', curBuild: isLog ? 'page' : 'false',
     artClass: scrolled ? 'is-scrolled' : '', atTop: !scrolled, scrolled, atVideo,
     videoOk: media === '正常', videoLoading: media === '视频加载中' || media === '视频加载超过 10 秒', videoSlow: media === '视频加载超过 10 秒', videoQuick: media === '视频加载中', videoFailed: media === '视频无法播放',
     length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
-    videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
-    voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
+    videoTime: u.videoTime,
+    voice: u.voice,
     frameText: frame !== '最暗一帧', frameKey: { '最亮一帧': 'brightest', '最暗一帧': 'darkest' }[frame] || 'cover', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
   };
 }
 /* ── 看清首页的数据和取值：/mind（AI 发展史）和 /mind/collaboration（人机协作）。Mind 和 States 两块画板共用这一份（States 由 pa-out/build.py 把同一份标记和这份数据拼进去）── */
 const MIND_NOW_YEAR = 2026;            // 时间尺的右端：画板核对的这一年
 const MIND_CHECKED = '2026-11-04';     // 里程碑的最后核对日期
+/* WordS（种星词）的地址在站点配置 SITE_CONFIG.wordsUrl：空着就不显示入口（PRD 第 3 节，联审 C-01）。画板属性「已配置」用这个示例子域名，实际地址等 WordS 上线后写进站点配置 */
+const MIND_WORDS_SAMPLE = 'https://words.velicoach.com/';
 const MIND_COPY = {
   zh: {
     lead: '写给想跟上 AI 的人：AI 是怎么一步步走到今天的，人和智能体（agent）又该怎么一起工作。',
     linesLabel: '内容线', hist: 'AI 发展史', collab: '人机协作', histHref: '/mind', collabHref: '/mind/collaboration',
-    learn: '学习路径 →', learnHref: '/mind/learn', learnBase: '/mind/learn#', postBase: '/mind/',
+    learn: '学习路径 →', words: '种星词：记英语单词 ↗', learnHref: '/mind/learn', learnBase: '/mind/learn#', postBase: '/mind/',
     rulerNote: (a, b) => `一格一个时代，宽度按年数，圆点是里程碑。前两个时代走了 ${a} 年，后三个时代到今年一共 ${b} 年。`,
     rulerAlt: (parts) => `时间尺：1950 年到 ${MIND_NOW_YEAR} 年，五个时代按年数排开。${parts}。`, rulerPart: (n, y) => `${n} ${y} 年`, rulerSep: '，',
     histIntro: '只收让路线拐弯的事：它之前大家怎么做，它之后为什么换了做法。点开一条，看它为什么是转折，再去读原始论文或文章。',
     checked: '发现错误，', report: '直接告诉我们', checkedEnd: '。',
-    routeLabel: '这个时代的路线：', whyLabel: '为什么是转折', checkedLabel: '最后核对', source: '读原文', follow: '跟着学：',
+    routeLabel: '这个时代的路线：', whyLabel: '为什么是转折', checkedLabel: '最后核对', source: '读原文', follow: '跟着学：', hasPost: '有站内讲解', readPost: '读站内讲解',
     indexLabel: '时代索引', jumpLabel: '跳到某个时代', erasLabel: '五个时代', open: '至今', toIndex: '时代索引 ↑', toIndexLabel: '回到时代索引',
     offline: '网络断开了。已经打开的内容可以接着读；重新连上以后，这条提示会自己消失。',
     kinds: { paper: '论文', event: '事件', product: '产品', essay: '文章', code: '代码' },
@@ -644,12 +659,12 @@ const MIND_COPY = {
   en: {
     lead: 'For anyone who wants to keep up with AI: how it got here, step by step, and how people and agents can work together.',
     linesLabel: 'Content lines', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration',
-    learn: 'Learning path →', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
+    learn: 'Learning path →', words: 'WordS: English vocabulary for kids ↗', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
     rulerNote: (a, b) => `One block per era, drawn to scale. Each dot is a milestone. The first two eras took ${a} years; the last three have taken ${b}\u00a0so\u00a0far.`,
     rulerAlt: (parts) => `Time ruler from 1950 to ${MIND_NOW_YEAR}, five eras drawn to scale: ${parts}.`, rulerPart: (n, y) => `${n}, ${y} years`, rulerSep: '; ',
     histIntro: 'Only the turns: how people worked before, and why they switched after. Open a row to see why it mattered, then read the original paper or post. ',
     checked: 'Found a mistake? ', report: 'Tell us', checkedEnd: '.',
-    routeLabel: 'The road in this era: ', whyLabel: 'Why it mattered', checkedLabel: 'Last checked', source: 'Read the original', follow: 'Learn it: ',
+    routeLabel: 'The road in this era: ', whyLabel: 'Why it mattered', checkedLabel: 'Last checked', source: 'Read the original', follow: 'Learn it: ', hasPost: 'Explained on this site', readPost: 'Read our explainer',
     indexLabel: 'Era index', jumpLabel: 'Jump to an era', erasLabel: 'Five eras', open: 'now', toIndex: 'Eras ↑', toIndexLabel: 'Back to the list of eras',
     offline: 'You’re offline. Keep reading what’s already open. This notice clears once you reconnect.',
     kinds: { paper: 'Paper', event: 'Event', product: 'Product', essay: 'Essay', code: 'Code' },
@@ -738,7 +753,7 @@ const MILESTONES = [
   { slug: 'building-effective-agents-2024', year: 2024, type: 'essay', url: 'https://www.anthropic.com/engineering/building-effective-agents', step: 'building-effective-agents',
     zh: ['Anthropic《Building effective agents》', '把工作流和智能体分开，给出几种简单、能组合的搭法。', 'Anthropic 的建议是先用最简单的搭法，不够用再加，而不是一上来就用更全的框架。'],
     en: ['Anthropic, “Building effective agents”', 'Separates workflows from agents and lays out a few simple, composable patterns.', 'Anthropic’s advice: start with the simplest pattern that works and add only when it falls short, instead of reaching for a bigger framework.'] },
-  { slug: 'claude-code-2025', year: 2025, type: 'product', url: 'https://www.anthropic.com/news/claude-3-7-sonnet', step: 'anthropic-academy',
+  { slug: 'claude-code-2025', year: 2025, type: 'product', url: 'https://www.anthropic.com/news/claude-3-7-sonnet', step: 'anthropic-academy', post: 'claude-code-review',
     zh: ['Anthropic：Claude Code（随 Claude 3.7 Sonnet 发布）', 'Claude Code 这类编程智能体自己调用工具、检查结果，能把一件事从头做完。', '人的工作从写每一行，转到写清目标和验收结果。'],
     en: ['Anthropic, Claude Code (released with Claude 3.7 Sonnet)', 'Coding agents such as Claude Code call tools, check their own results, and finish a task end to end.', 'People’s work shifts from writing every line to stating the goal and checking the result.'] },
   { slug: 'context-engineering-2025', year: 2025, type: 'essay', url: 'https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus',
@@ -816,12 +831,14 @@ function mindVals(self, v, o) {
     const list = MILESTONES.filter((m) => m.year >= e.start && m.year <= end);
     const seen = {};
     const items = list.map((m, k) => {
-      const open = o.expand === '展开一条' && m.slug === MIND_OPEN_SLUG;
+      const arrive = o.expand === '从链接到达';
+      const open = (o.expand === '展开一条' || arrive) && m.slug === MIND_OPEN_SLUG;
       return {
         slug: m.slug, year: m.year, url: m.url, kind: c.kinds[m.type], title: m[L][0], what: m[L][1], why: m[L][2],
-        gap: k === 0 ? 0 : m.year - list[k - 1].year, open, closed: !open,
+        gap: k === 0 ? 0 : m.year - list[k - 1].year, open, closed: !open, target: open && arrive ? ' is-target' : '',
         srcLabel: c.source + (v.en ? ': ' : '：') + m[L][0],
         hasStep: !!m.step, stepHref: c.learnBase + (m.step || ''), stepLabel: m.step ? c.follow + STEP_NAMES[m.step][L] : '',
+        hasPost: !!m.post, postHref: c.postBase + (m.post || ''),
       };
     });
     const dots = list.map((m) => { const n = seen[m.year] = (seen[m.year] || 0) + 1; return { left: (((m.year - e.start) + 0.25 * n) / span * 100).toFixed(2) + '%' }; });
@@ -855,6 +872,7 @@ function mindVals(self, v, o) {
     rulerAlt: c.rulerAlt(eras.map((e) => c.rulerPart(e.name, e.span)).join(c.rulerSep)),
     paradigms, layers, nest: Object.assign({}, paradigms.map((p) => ({ name: p.name, when: p.when }))),
     isOffline: offline, bandClass: offline ? 'is-offline' : '',
+    ...(() => { const w = o.words === '已配置（示例地址）' ? MIND_WORDS_SAMPLE : SITE_CONFIG.wordsUrl; return { hasWords: !!w, wordsHref: w || '' }; })(),
   };
 }
 /* 页面状态画板：页面不存在是自己的一页；网络断开、订阅失败就是看清首页换状态（mindVals）；
@@ -863,10 +881,14 @@ const ST_COPY = {
   zh: {
     nfTitle: '这一页不在这里', nfLead: '地址可能输错了，也可能这篇已经撤下或换了位置。从三站里选一个进去。',
     bodyLine: '每周两次力量训练。', mindLine: '读懂 AI 从哪里来。', buildLine: '和智能体一起做出东西。',
+    unsubTitle: '已退订', unsubLead: '以后不再给你发每周日的邮件。改了主意，点下面重新订阅就行。', resub: '重新订阅', resubAction: '/api/site/subscribe',
+    badTitle: '这个退订链接已失效', badLead: '链接可能过期了，也可能不完整。要退订，点最新一封邮件底部的「退订」，或者写信告诉我们。', writeUs: '写信给我们', badSubject: '退订',
   },
   en: {
     nfTitle: 'This page isn’t here', nfLead: 'The link may be mistyped, or the piece was taken down or moved. Pick one of the three stations to carry on.',
     bodyLine: 'Strength training, twice a week.', mindLine: 'Understand where AI came from.', buildLine: 'Make things with agents.',
+    unsubTitle: 'You’re unsubscribed', unsubLead: 'We won’t send the Sunday email anymore. Changed your mind? Subscribe again below.', resub: 'Subscribe again', resubAction: '/api/site/subscribe',
+    badTitle: 'This unsubscribe link no longer works', badLead: 'It may have expired or been cut short. To unsubscribe, use the link at the bottom of our latest email, or write to us.', writeUs: 'Write to us', badSubject: 'Unsubscribe',
   },
 };
 class Component extends DCLogic {
@@ -877,16 +899,22 @@ class Component extends DCLogic {
     const VIDEO = { '加载中': '视频加载中', '加载超过 10 秒': '视频加载超过 10 秒', '视频无法播放': '视频无法播放' };
     const inArticle = !!VIDEO[page] || noEnglish;
     const isNotFound = page === '页面不存在';
-    const v = shellVals(self, inArticle || isNotFound ? 'paper' : 'ink', isNotFound ? '/' : inArticle ? '/mind/shopify-harness' : '/mind');
+    const unsubDone = page === '退订成功', unsubBad = page === '退订链接失效';
+    const isPaperPage = isNotFound || unsubDone || unsubBad;
+    const v = shellVals(self, inArticle || isPaperPage ? 'paper' : 'ink', isNotFound ? '/' : unsubDone || unsubBad ? '/unsubscribe' : inArticle ? '/mind/shopify-harness' : '/mind');
+    const p = ST_COPY[v.en ? 'en' : 'zh'];
     const a = articleVals(v, { kind: '文章', media: VIDEO[page] || '正常', english: noEnglish ? '暂无英文版' : '有英文版' });
     const m = mindVals(this, v, { line: 'AI 发展史（/mind）', network: page === '网络断开' ? '离线' : '在线', expand: '全部收起' });
     /* 订阅失败：页底订阅一定在，默认给「格式不对」，另两种原因用属性 subscribe 切换 */
     const subFail = page === '订阅失败';
     const sub = subFail && !v.subHasError ? { subOn: true, formShown: true, barDone: false, subHasError: true, subError: v.t.errFormat, subInvalid: 'true', subValue: 'name@', subButton: v.t.subscribe, subBusy: 'false' } : (subFail ? { subOn: true } : {});
     return {
-      ...v, ...m, ...a, ...sub, c: inArticle ? a.c : m.c, p: ST_COPY[v.en ? 'en' : 'zh'],
-      curMind: isNotFound ? 'false' : 'page', curBuild: 'false',
-      isNotFound, inArticle, inList: !isNotFound && !inArticle,
+      ...v, ...m, ...a, ...sub, c: inArticle ? a.c : m.c, p,
+      curMind: isPaperPage ? 'false' : 'page', curBuild: 'false',
+      isPaperPage, unsubDone, unsubBad, inArticle, inList: !isPaperPage && !inArticle,
+      pageTitle: unsubDone ? p.unsubTitle : unsubBad ? p.badTitle : p.nfTitle, pageLead: unsubDone ? p.unsubLead : unsubBad ? p.badLead : p.nfLead,
+      unsubToken: (() => { try { return new URLSearchParams(window.location.search).get('token') || ''; } catch (e) { return ''; } })(),
+      unsubMail: 'mailto:' + SITE_CONFIG.contactEmail + '?subject=' + encodeURIComponent(p.badSubject),
     };
   }
   componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }

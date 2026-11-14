@@ -226,6 +226,10 @@ token 在 `tokens.json`。画板共用的样式表 `canvas.css` 的变量部分�
 | 视频和播放条、收起的块 | `vc-video*`、`vc-playbar*`、`vc-fold`、`vc-toc`、`vc-transcript*` | 文章页 |
 | 文末各段 | `vc-part`（`vc-part-rule`）加 `vc-practice`、`vc-next`、`vc-contact`、`vc-colophon` | 文章、单条开发日志、关于页 |
 | 阅读版式、侧注和脚注 | `vc-prose`、`vc-sidenote`、`vc-footnotes`、`vc-ref-side`、`vc-ref-foot` | 文章、单条开发日志、关于页的正文 |
+| 智能体起草的小标记 | `vc-origin`；文章元信息里的「起草」一栏带 `data-origin="ai"` | 文章卡、首页「最新」强调卡句末；文章页元信息 |
+| 带码的展开层 | `vc-pop vc-pop-code` > `vc-pop-opts` + `vc-start-code` + `vc-pop-note` | 首页首屏、站稳页的「开始训练」（宽度 ≥ 1180px 且能悬停时） |
+| 联系地址 | `vc-contact-address` | 关于页「联系」 |
+| 不带链接的提交号 | `vc-row-ref`（仓库不公开时；公开仓库用 `vc-quick`） | 动手页、项目页的开发日志行 |
 | 提示条、加载占位、断网提示 | `vc-notice`（`vc-notice-action`）、`vc-skeleton-media`、`vc-loading-slow`、`vc-offline` | 页面状态 |
 | 首屏、定位句、动效区和静态线稿 | `vc-hero*`、`vc-half*`、`vc-hero-tag*`、`vc-hero-stage`、`vc-still*`、`vc-orb-*` | 首页（桌面、平板、手机、折叠屏是同一份标记） |
 | 论点三行（每行一个因果，行不是链接）、最新（区块标题「最新 / Latest」，类名沿用 `vc-week*`） | `vc-claim-*`、`vc-week*` | 首页首屏以下 |

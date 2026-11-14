@@ -28,7 +28,7 @@ def segrow(label, items, name, extra=''):
     cells = ''.join(f'<td>{seg(items, 0, c, name, extra)}</td>' for _, c in STATES)
     return f'<tr><th scope="row">{label}</th>{cells}<td>{na("各项总能切换")}</td></tr>'
 
-ROW_MAIN = '<a class="vc-row-main {c}" href="#row" style="--vc-row-lead: 44px; margin-inline: 0; width: 240px;"><span class="vc-row-lead">2017</span><span class="vc-row-body"><span class="row-title vc-serif">Transformer</span></span></a>'
+ROW_MAIN = '<a class="vc-row-main vc-sheet-row {c}" href="#row" style="--vc-row-lead: 44px;"><span class="vc-row-lead">2017</span><span class="vc-row-body"><span class="row-title vc-serif">Transformer</span></span></a>'
 paper = [
  row('主按钮 .btn.vc-btn-action', '<button type="button" class="btn vc-btn-action {c}">开始训练</button>', '<button type="button" class="btn vc-btn-action" disabled>正在订阅</button>'),
  row('次按钮 .btn.vc-btn-quiet', '<button type="button" class="btn vc-btn-quiet {c}">订阅</button>', '<button type="button" class="btn vc-btn-quiet" disabled>正在订阅</button>'),
@@ -36,24 +36,24 @@ paper = [
  row('文字入口 .vc-quick', '<a class="vc-quick {c}" href="#q">为什么是肌肉</a>', '去不了就不放'),
  row('导航项 .vc-nav-link', '<a class="vc-nav-link {c}" href="#nav">动手</a>', '导航不禁用'),
  row('导航项 · 当前页', '<a class="vc-nav-link {c}" href="#nav" aria-current="page">看清</a>', '导航不禁用'),
- row('站标 .home', '<span class="vc-nav vc-nav-paper" style="display: inline-flex; padding: var(--space-1);"><a class="home {c}" href="#home" aria-label="Velicoach 首页">' + LEAF + '<span class="vc-wordmark">Velicoach</span></a></span>', '站标总能回首页'),
+ row('站标 .home', '<span class="vc-nav vc-nav-paper vc-sheet-inline" style="padding: var(--space-1);"><a class="home {c}" href="#home" aria-label="Velicoach 首页">' + LEAF + '<span class="vc-wordmark">Velicoach</span></a></span>', '站标总能回首页'),
  segrow('分段控件 .seg（语言）', ['中文', 'EN'], '语言'),
  segrow('分段控件 .seg（外观）', ['自动', '浅色', '深色'], '外观'),
  segrow('分段控件 .seg.vc-seg-tabs（内容线，16px）', ['AI 发展史', '人机协作'], '内容线', '" style="font-size: var(--type-body);'),
- row('语言按钮 .vc-lang-one（窄于 360px）', '<a class="vc-lang-one {c}" href="#lang" aria-label="切换到英文，现在是中文" style="display: inline-flex;"><span lang="zh-CN" style="font-weight: 700;">中</span><span aria-hidden="true">/</span><span lang="en">EN</span></a>', '两种语言总能切换'),
+ row('语言按钮 .vc-lang-one（窄于 360px）', '<a class="vc-lang-one vc-sheet-inline {c}" href="#lang" aria-label="切换到英文，现在是中文"><span lang="zh-CN" data-on="true">中</span><span aria-hidden="true">/</span><span lang="en" data-on="false">EN</span></a>', '两种语言总能切换'),
  row('图标按钮 .icon-btn（收起）', '<button type="button" class="icon-btn {c}" aria-label="收起">' + CLOSE + '</button>', '展开层总能收起'),
- row('输入框 .vc-field', '<input class="vc-field {c}" type="email" aria-label="邮箱" placeholder="你的邮箱" style="width: 180px;">', '<input class="vc-field" type="email" aria-label="邮箱" placeholder="你的邮箱" style="width: 180px;" disabled>'),
- row('输入框 · 出错', '<span style="display: grid; gap: var(--space-2);"><input class="vc-field {c}" type="email" aria-label="邮箱" aria-invalid="true" value="name@" style="width: 180px;"><span class="vc-error">邮箱格式不对</span></span>', '出错时仍可改'),
+ row('输入框 .vc-field', '<input class="vc-field vc-sheet-field {c}" type="email" aria-label="邮箱" placeholder="你的邮箱">', '<input class="vc-field vc-sheet-field" type="email" aria-label="邮箱" placeholder="你的邮箱" disabled>'),
+ row('输入框 · 出错', '<span class="vc-sheet-stack" style="gap: var(--space-2);"><input class="vc-field vc-sheet-field {c}" type="email" aria-label="邮箱" aria-invalid="true" value="name@"><span class="vc-error">邮箱格式不对</span></span>', '出错时仍可改'),
  row('页脚链接 .vc-footer-links a', '<span class="vc-footer-links" style="font-size: var(--type-footnote);"><a class="{c}" href="#f">隐私政策</a></span>', '页脚链接总能点'),
  row('面包屑 .vc-crumb a', '<span class="vc-crumb"><a class="{c}" href="#c">人机协作</a></span>', '上一级总能回'),
  row('RSS 行 .vc-rss-row', '<a class="vc-rss-row vc-surface-solid {c}" href="#rss">' + RSS + '<span>用 RSS 订阅更新</span></a>', 'RSS 总能订'),
  row('整行可点的行 .vc-row-main', ROW_MAIN, '行总能打开'),
- row('里程碑的开关 .vc-ms-sum（整行点开、收起）', '<details class="vc-ms-fold" style="width: 280px;"><summary class="vc-ms-sum {c}" style="--vc-row-lead: 44px; margin-inline: 0;"><span class="vc-row-lead">2017</span><span class="row-title vc-serif">Transformer</span></summary></details>', '行总能点开'),
- row('时代跳转 .vc-era-jump a', '<span class="vc-era-jump" style="display: flex;"><a class="{c}" href="#era">深度学习</a></span>', '时代总能跳到'),
- row('时代索引 .vc-era-index a', '<span class="vc-era-index" style="position: static; width: 196px;"><a class="{c}" href="#era"><span>深度学习</span><span class="mono">2012–2016</span></a></span>', '时代总能跳到'),
- row('时代索引 · 当前时代', '<span class="vc-era-index" style="position: static; width: 196px;"><a class="{c}" href="#era" aria-current="true"><span>智能体</span><span class="mono">2023–</span></a></span>', '时代总能跳到'),
- row('步骤的开关 .vc-step-sum（整行点开、收起）', '<details class="vc-step-fold" style="width: 280px;"><summary class="vc-step-sum {c}" style="grid-template-columns: var(--space-6) minmax(0, 1fr) auto; margin-inline: 0;"><span class="vc-step-n">1.1</span><span class="vc-step-name">CS50x</span></summary></details>', '行总能点开'),
- row('三站入口 .vc-station（站稳）', '<a class="vc-station vc-station-body {c}" href="#b" style="min-height: var(--space-9); width: 196px;"><span class="vc-station-name">站稳</span></a>', '三站总能去'),
+ row('里程碑的开关 .vc-ms-sum（整行点开、收起）', '<details class="vc-ms-fold vc-sheet-fold"><summary class="vc-ms-sum vc-sheet-flush {c}" style="--vc-row-lead: 44px;"><span class="vc-row-lead">2017</span><span class="row-title vc-serif">Transformer</span></summary></details>', '行总能点开'),
+ row('时代跳转 .vc-era-jump a', '<span class="vc-era-jump vc-sheet-flex"><a class="{c}" href="#era">深度学习</a></span>', '时代总能跳到'),
+ row('时代索引 .vc-era-index a', '<span class="vc-era-index vc-sheet-static vc-sheet-tile"><a class="{c}" href="#era"><span>深度学习</span><span class="mono">2012–2016</span></a></span>', '时代总能跳到'),
+ row('时代索引 · 当前时代', '<span class="vc-era-index vc-sheet-static vc-sheet-tile"><a class="{c}" href="#era" aria-current="true"><span>智能体</span><span class="mono">2023–</span></a></span>', '时代总能跳到'),
+ row('步骤的开关 .vc-step-sum（整行点开、收起）', '<details class="vc-step-fold vc-sheet-fold"><summary class="vc-step-sum vc-sheet-flush {c}" style="grid-template-columns: var(--space-6) minmax(0, 1fr) auto;"><span class="vc-step-n">1.1</span><span class="vc-step-name">CS50x</span></summary></details>', '行总能点开'),
+ row('三站入口 .vc-station（站稳）', '<a class="vc-station vc-station-body vc-sheet-tile {c}" href="#b" style="min-height: var(--space-9);"><span class="vc-station-name">站稳</span></a>', '三站总能去'),
 ]
 ink = [
  row('墨底主按钮 .btn.vc-btn-on-ink', '<button type="button" class="btn vc-btn-on-ink {c}">读最新文章</button>', '<button type="button" class="btn vc-btn-on-ink" disabled>读最新文章</button>'),
@@ -65,14 +65,14 @@ ink = [
  segrow('分段控件 .seg（语言）', ['中文', 'EN'], '语言'),
  segrow('分段控件 .seg.vc-seg-tabs（内容线，16px）', ['AI 发展史', '人机协作'], '内容线', '" style="font-size: var(--type-body);'),
  row('暂停按钮 .icon-btn.vc-surface-ink', '<button type="button" class="icon-btn vc-surface-ink {c}" aria-label="暂停首页动画">' + PAUSE + '</button>', '动画随时能停'),
- row('「动手」圆 .orb（带 1px 亮边）', '<a class="orb {c}" href="#build"><span style="font-weight: 600;">然后动手</span><span style="font-size: var(--type-footnote); color: var(--vc-on-moss-2);">看开发日志</span></a>', '开发日志总能看'),
- row('三站入口 .vc-station（看清）', '<a class="vc-station vc-station-mind {c}" href="#m" style="min-height: var(--space-9); width: 196px;"><span class="vc-station-name">看清</span></a>', '三站总能去'),
+ row('「动手」圆 .orb（带 1px 亮边）', '<a class="orb {c}" href="#build"><span class="vc-sheet-orb-name">然后动手</span><span style="font-size: var(--type-footnote); color: var(--vc-on-moss-2);">看开发日志</span></a>', '开发日志总能看'),
+ row('三站入口 .vc-station（看清）', '<a class="vc-station vc-station-mind vc-sheet-tile {c}" href="#m" style="min-height: var(--space-9);"><span class="vc-station-name">看清</span></a>', '三站总能去'),
 ]
 moss = [
  row('苔绿底主按钮 .btn.vc-btn-on-moss', '<button type="button" class="btn vc-btn-on-moss {c}">读最新开发日志</button>', '<button type="button" class="btn vc-btn-on-moss" disabled>读最新开发日志</button>'),
  row('文字入口 .vc-quick', '<a class="vc-quick {c}" href="#q">看这条日志</a>', '去不了就不放'),
  row('导航项 · 当前页', '<a class="vc-nav-link {c}" href="#nav" aria-current="page">动手</a>', '导航不禁用'),
- row('三站入口 .vc-station（动手）', '<a class="vc-station vc-station-build {c}" href="#b" style="min-height: var(--space-9); width: 196px;"><span class="vc-station-name">动手</span></a>', '三站总能去'),
+ row('三站入口 .vc-station（动手）', '<a class="vc-station vc-station-build vc-sheet-tile {c}" href="#b" style="min-height: var(--space-9);"><span class="vc-station-name">动手</span></a>', '三站总能去'),
 ]
 
 def nav(cls, cur, attrs=''):
@@ -80,7 +80,7 @@ def nav(cls, cur, attrs=''):
     return (f'<header class="{cls}"{attrs}><a class="home" href="#home" aria-label="Velicoach 首页">{LEAF}<span class="vc-wordmark">Velicoach</span></a>'
             f'<nav class="vc-nav-links" aria-label="三站">{link("站稳")}{link("看清")}{link("动手")}</nav>'
             '<div class="seg vc-nav-lang" role="group" aria-label="语言"><a href="#zh" lang="zh-CN" aria-current="true">中文</a><a href="#en" lang="en" aria-current="false">EN</a></div>'
-            '<a class="vc-lang-one" href="#en" aria-label="切换到英文，现在是中文"><span lang="zh-CN" style="font-weight: 700;">中</span><span aria-hidden="true">/</span><span lang="en">EN</span></a></header>')
+            '<a class="vc-lang-one" href="#en" aria-label="切换到英文，现在是中文"><span lang="zh-CN" data-on="true">中</span><span aria-hidden="true">/</span><span lang="en" data-on="false">EN</span></a></header>')
 
 NOTE = '每周日一封：一读、一练、一个项目。可一键退订。<a href="#privacy">隐私政策</a>'
 def form(idp, btn, state):
@@ -120,7 +120,7 @@ def sm(name, **swap):
 def down(h):
     """标题降一级：样张放在「h2 区块」下面，页面上的 h2、h3 在这里是 h3、h4。"""
     return re.sub(r'<(/?)h([23])\b', lambda m: f'<{m.group(1)}h{int(m.group(2)) + 1}', h)
-RULER = INK + sm('ruler', **{'<nav class="vc-era-jump" id="eras"': '<nav class="vc-era-jump" style="display: flex;"'}) + '</div>'
+RULER = INK + sm('ruler', **{'<nav class="vc-era-jump" id="eras"': '<nav class="vc-era-jump vc-sheet-flex"'}) + '</div>'
 NEST = INK + sm('nest') + '</div>'
 PATH = INK + sm('path') + '</div>'
 PARADIGM = down(sm('paradigm')) + down(sm('paradigm_tool'))
@@ -136,7 +136,7 @@ FACTS = MOSS + sm('facts') + '</div>'
 DEFLIST = sm('deflist')
 DEFNUM = sm('deflist_numbered')
 EMPTY = sm('empty')
-TAG = ('<div style="position: relative; display: grid; grid-template-columns: 1fr 1fr; height: var(--space-10); border-radius: var(--radius-lg); overflow: hidden; --seam: 50%;"><div style="background: var(--vc-hero-body);"></div><div style="background: var(--vc-ink);"></div>'
+TAG = ('<div class="vc-sheet-seam"><div style="background: var(--vc-hero-body);"></div><div style="background: var(--vc-ink);"></div>'
   + sm('tag', **{'<h1 id="vc-hero-tag" class="vc-hero-tag vc-type-lead" data-edge="free">': '<p class="vc-hero-tag vc-type-lead" style="top: calc(50% - var(--space-3));">', '</h1>': '</p>'}) + '</div>')
 CLAIM = down(sm('claim_title')) + down(sm('claim'))
 STUDY = down(sm('study'))
@@ -162,8 +162,8 @@ MORE = f'''
 {lab('判断块 .vc-take', TAKE, False)}
 {lab('收起的块 .vc-fold（目录 .vc-toc）', FOLD, False)}
 {lab('视频和播放条 .vc-video > .vc-video-frame > .vc-video-shot + .vc-playbar（玻璃，背后是视频画面）；下面是收起的文字稿 .vc-fold', VIDEO)}
-{lab('加载中的灰块 .vc-loading（超过 10 秒加一行 .vc-loading-slow）；列表页 .vc-loading-rows', '<div style="display: grid; gap: var(--space-5);">' + LOADING + LOADROWS + '</div>', False)}
-{lab('提示条的两种排法 .vc-notice.vc-notice-action、.vc-notice.vc-notice-block', '<div style="display: grid; gap: var(--space-4);">' + NOTICES + '</div>')}
+{lab('加载中的灰块 .vc-loading（超过 10 秒加一行 .vc-loading-slow）；列表页 .vc-loading-rows', '<div class="vc-sheet-stack" style="gap: var(--space-5);">' + LOADING + LOADROWS + '</div>', False)}
+{lab('提示条的两种排法 .vc-notice.vc-notice-action、.vc-notice.vc-notice-block', '<div class="vc-sheet-stack" style="gap: var(--space-4);">' + NOTICES + '</div>')}
 </div>
 </section>
 
@@ -214,6 +214,21 @@ body{{margin:0}}
 .vc-sheet-sample{{display:grid;gap:var(--space-3);min-width:0;align-content:start}}
 .vc-sheet-sample-wide{{grid-column:1 / -1}}
 .vc-sheet-label{{margin:0;overflow-wrap:anywhere;text-wrap:pretty;font-family:var(--font-mono);font-size:var(--type-meta-mono);letter-spacing:var(--tracking-meta-mono);color:var(--vc-faint)}}
+.vc-page .vc-sheet-inline{{display:inline-flex}}
+.vc-page .vc-sheet-flex{{display:flex}}
+.vc-page .vc-sheet-static{{position:static}}
+.vc-page .vc-sheet-auto{{width:auto}}
+.vc-page .vc-sheet-flush{{margin-inline:0}}
+.vc-page .vc-sheet-field{{width:180px}}
+.vc-page .vc-sheet-tile{{width:196px}}
+.vc-page .vc-sheet-row{{width:240px;margin-inline:0}}
+.vc-page .vc-sheet-fold{{width:280px}}
+.vc-sheet-stack{{display:grid}}
+.vc-sheet-orb-name{{font-weight:600}}
+.vc-sheet-seam{{position:relative;display:grid;grid-template-columns:1fr 1fr;height:var(--space-10);border-radius:var(--radius-lg);overflow:hidden;--seam:50%}}
+.vc-sheet-glass-stage{{position:relative;overflow:hidden;border-radius:var(--radius-lg);padding:var(--space-4);background:var(--vc-paper-surface);box-shadow:0 0 0 1px var(--vc-paper-line)}}
+.vc-sheet-glass-stage > p{{margin:0}}
+.vc-sheet-glass-pin{{position:sticky;top:0;display:flex;justify-content:center;margin-top:calc(-1 * (var(--nav-height) + var(--space-7)));padding-bottom:var(--space-5)}}
 .vc-sheet-swatch{{display:flex;justify-content:center;padding:var(--space-5) var(--space-4);border-radius:var(--radius-lg)}}
 .vc-sheet-type{{display:grid;grid-template-columns:320px minmax(0,1fr);gap:var(--space-5);align-items:baseline;padding-block:var(--space-3);border-top:1px solid var(--vc-line)}}
 @media (max-width: 1179px){{.vc-sheet-type{{grid-template-columns:minmax(0,1fr);gap:var(--space-1)}}}}
@@ -222,7 +237,7 @@ body{{margin:0}}
 </helmet>
 <div class="vc-page" data-theme="{{{{themeAttr}}}}" lang="zh-CN" data-board="doc">
 <header class="vc-container" style="padding-top: var(--space-8); padding-bottom: var(--space-5);">
-<div style="display: grid; gap: var(--space-3); max-width: var(--text-max);">
+<div class="vc-sheet-stack" style="gap: var(--space-3); max-width: var(--text-max);">
 <p class="vc-type-meta-mono vc-faint">设计系统 v1.1 · 2026-11-12</p>
 <h1 class="vc-type-title-2">控件状态和组件样张</h1>
 <p class="vc-type-body vc-sub">一套叠加层用在所有底色上：悬停叠一层 <span class="mono">vc-state-hover</span>，按下叠 <span class="mono">vc-state-press</span>、内容下移 1px、不缩放；焦点是 2px 焦点色外圈，墨底、苔绿底和强调面上自动换成浅的一档。触屏没有悬停；焦点只在键盘操作时出现。能不禁用就不禁用，去不了的入口直接不放，所以禁用一列很多是「—」。往下是外壳（导航、订阅、页脚）和内容组件的样张，页面画板只引用这些类。</p>
@@ -251,7 +266,7 @@ body{{margin:0}}
 {labeled('导航 · 纸底 .vc-nav.vc-nav-paper（首页左半、关于、404）', '<div class="vc-sheet-swatch" style="background: var(--vc-hero-body);">' + nav('vc-nav vc-nav-paper', '站稳') + '</div>', True)}
 {labeled('导航 · 墨底 .vc-nav.vc-nav-ink（看清首屏）', '<div class="vc-sheet-swatch" style="background: var(--vc-ink);">' + nav('vc-nav vc-nav-ink', '看清') + '</div>', True)}
 {labeled('导航 · 苔绿底 .vc-nav.vc-nav-moss（动手首屏）', '<div class="vc-sheet-swatch" style="background: var(--vc-moss-hero);">' + nav('vc-nav vc-nav-moss', '动手') + '</div>', True)}
-{labeled('导航 · 吸顶玻璃 .vc-nav.lg（滚过首屏，压过正文）', '<div style="position: relative; overflow: hidden; border-radius: var(--radius-lg); padding: var(--space-4); background: var(--vc-paper-surface); box-shadow: 0 0 0 1px var(--vc-paper-line);"><p class="vc-type-body-reading" style="margin: 0;">上下文工程要回答的问题是：模型每一步该看到哪些信息。看到的太少，它只能猜；看到的太多，重点被淹没，成本也跟着涨。吸顶的导航压在这样的正文上，背后的字要糊成色块，导航上的字照样读得清。所以吸顶玻璃的模糊用 20px 一档，比压在视频上的小块玻璃重得多；系统要求降低透明度时，换成同色的实色面。</p><div style="position: sticky; top: 0; display: flex; justify-content: center; margin-top: calc(-1 * (var(--nav-height) + var(--space-7))); padding-bottom: var(--space-5);">' + nav('vc-nav lg', '看清', ' data-backdrop="scroll" data-lens=""') + '</div></div>', True)}
+{labeled('导航 · 吸顶玻璃 .vc-nav.lg（滚过首屏，压过正文）', '<div class="vc-sheet-glass-stage"><p class="vc-type-body-reading">上下文工程要回答的问题是：模型每一步该看到哪些信息。看到的太少，它只能猜；看到的太多，重点被淹没，成本也跟着涨。吸顶的导航压在这样的正文上，背后的字要糊成色块，导航上的字照样读得清。所以吸顶玻璃的模糊用 20px 一档，比压在视频上的小块玻璃重得多；系统要求降低透明度时，换成同色的实色面。</p><div class="vc-sheet-glass-pin">' + nav('vc-nav lg', '看清', ' data-backdrop="scroll" data-lens=""') + '</div></div>', True)}
 {labeled('订阅条 · 收起 .vc-subbar', '<div class="vc-sheet-swatch" style="background: var(--vc-ink);">' + subbar(0, 'closed') + '</div>')}
 {labeled('RSS 行 .vc-rss-row（订阅的上线开关关着时，订阅条的位置换成它）', '<div class="vc-sheet-swatch" style="background: var(--vc-ink);"><a class="vc-rss-row vc-surface-solid" href="#rss">' + RSS + '<span>用 RSS 订阅更新</span></a></div>')}
 {labeled('订阅条 · 填写邮箱 .is-open', '<div class="vc-sheet-swatch" style="background: var(--vc-ink);">' + subbar(1, 'open') + '</div>')}
@@ -316,7 +331,7 @@ body{{margin:0}}
 <div class="vc-sheet-sample vc-sheet-sample-wide"><p class="vc-sheet-label">三站入口小色带 .vc-stations（404）</p>
 <div class="vc-stations"><a class="vc-station vc-station-body" href="/body"><span class="vc-station-name">站稳</span><span class="vc-station-line">每周两次力量训练。</span></a><a class="vc-station vc-station-mind" href="/mind"><span class="vc-station-name">看清</span><span class="vc-station-line">读懂 AI 从哪里来。</span></a><a class="vc-station vc-station-build" href="/build"><span class="vc-station-name">动手</span><span class="vc-station-line">和智能体一起做出东西。</span></a></div></div>
 <div class="vc-sheet-sample"><p class="vc-sheet-label">原地展开的卡片 .vc-pop（挂在 .vc-pop-anchor 上；这里为了看清楚摆在流里）</p>
-<div class="vc-pop" data-pop="" style="position: static; width: auto;"><div class="vc-pop-opts"><a class="opt" href="/auth/google">用 Google 开始训练</a><a class="opt" href="/auth/apple">用 Apple 开始训练</a></div><p class="vc-pop-note">第一练 12 分钟。在 Veli 登录过的人直接到今天的安排；按 Esc 收起。</p></div></div>
+<div class="vc-pop vc-sheet-static vc-sheet-auto" data-pop=""><div class="vc-pop-opts"><a class="opt" href="/auth/google">用 Google 开始训练</a><a class="opt" href="/auth/apple">用 Apple 开始训练</a></div><p class="vc-pop-note">第一练 12 分钟。在 Veli 登录过的人直接到今天的安排；按 Esc 收起。</p></div></div>
 <div class="vc-sheet-sample"><p class="vc-sheet-label">面包屑 .vc-crumb</p>
 <nav class="vc-crumb" aria-label="所在位置"><a href="/mind">看清</a><span aria-hidden="true">/</span><a href="/mind/collaboration">人机协作</a></nav></div>
 </div>
@@ -347,7 +362,7 @@ body{{margin:0}}
 {form('page-sub', 'vc-btn-action', '')}
 </section>
 <footer class="vc-footer vc-container">
-<nav class="vc-footer-links" aria-label="页脚"><a href="#about">关于</a><a href="#contact">联系</a><a href="#copyright">版权与转载</a><a href="#privacy">隐私政策</a><a href="#health">健康数据政策</a><a href="#disclaimer">健康免责</a><a href="#terms">服务条款</a><a href="#feed">RSS</a></nav>
+<nav class="vc-footer-links" aria-label="页脚"><a href="#about">关于</a><a href="#contact">联系</a><a href="#copyright">版权与转载</a><a href="#privacy">隐私政策</a><a href="#health">健康数据政策</a><a href="#disclaimer">健康免责</a><a href="#terms">服务条款</a><a href="#rss">RSS</a></nav>
 <div class="vc-footer-tools"><div class="seg" role="group" aria-label="外观"><button type="button" aria-pressed="{{{{themeAuto}}}}" onClick="{{{{setAuto}}}}">自动</button><button type="button" aria-pressed="{{{{themeLight}}}}" onClick="{{{{setLight}}}}">浅色</button><button type="button" aria-pressed="{{{{themeDark}}}}" onClick="{{{{setDark}}}}">深色</button></div><div class="seg" role="group" aria-label="语言"><a href="#zh" lang="zh-CN" aria-current="true">中文</a><a href="#en" lang="en" aria-current="false">EN</a></div></div>
 <p class="vc-footer-note">威利不是医生。有伤病或疼痛，先停下来，问医生。</p>
 </footer>

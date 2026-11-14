@@ -30,7 +30,7 @@ body{margin:0}
         <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
         <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
       </div>
-      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
     </header>
   </div>
   <section class="vc-band vc-band-ink" data-first-screen="">
@@ -194,7 +194,7 @@ function shellVals(self, station, path) {
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
     zhHref, enHref, otherHref: en ? zhHref : enHref,
-    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
     toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
     themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',

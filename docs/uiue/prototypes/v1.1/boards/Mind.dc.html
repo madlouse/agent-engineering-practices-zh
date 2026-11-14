@@ -30,7 +30,7 @@ body{margin:0}
         <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
         <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
       </div>
-      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
     </header>
   </div>
   <sc-if value="{{isOffline}}" hint-placeholder-val="{{ false }}">
@@ -57,12 +57,12 @@ body{margin:0}
           <div role="img" aria-label="{{rulerAlt}}">
             <div class="vc-ruler-bar" aria-hidden="true">
               <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
-                <span class="vc-ruler-seg" style="flex: {{e.span}} 0 0;"><sc-for list="{{e.dots}}" as="d" hint-placeholder-count="4"><i class="vc-ruler-dot" style="left: {{d.left}};"></i></sc-for></span>
+                <span class="vc-ruler-seg" style="--vc-ruler-span: {{e.span}};"><sc-for list="{{e.dots}}" as="d" hint-placeholder-count="4"><i class="vc-ruler-dot" style="--vc-ruler-at: {{d.left}};"></i></sc-for></span>
               </sc-for>
             </div>
             <div class="vc-ruler-years" aria-hidden="true">
               <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
-                <span class="{{e.yearClass}}" style="flex: {{e.span}} 0 0;">{{e.start}}</span>
+                <span class="{{e.yearClass}}" style="--vc-ruler-span: {{e.span}};">{{e.start}}</span>
               </sc-for>
             </div>
           </div>
@@ -155,8 +155,8 @@ body{margin:0}
                 <div class="vc-loading-row">
                   <span class="vc-skeleton" style="width: var(--space-7); height: var(--space-4);"></span>
                   <span class="vc-loading-row-body">
-                    <span class="vc-skeleton" style="width: {{k.w1}}; height: var(--space-5);"></span>
-                    <span class="vc-skeleton" style="width: {{k.w2}}; height: var(--space-4);"></span>
+                    <span class="{{k.c1}}" style="height: var(--space-5);"></span>
+                    <span class="{{k.c2}}" style="height: var(--space-4);"></span>
                   </span>
                 </div>
               </sc-for>
@@ -350,7 +350,7 @@ function shellVals(self, station, path) {
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
     zhHref, enHref, otherHref: en ? zhHref : enHref,
-    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
     toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
     themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',
@@ -396,7 +396,7 @@ const MIND_COPY = {
     lead: 'For anyone who wants to keep up with AI: how it got here, step by step, and how people and agents can work together.',
     linesLabel: 'Content lines', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration',
     learn: 'Learning path →', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
-    rulerNote: (a, b) => `One block per era, drawn to scale. Each dot is a milestone. The first two eras took ${a} years; the last three have taken ${b} so far.`,
+    rulerNote: (a, b) => `One block per era, drawn to scale. Each dot is a milestone. The first two eras took ${a} years; the last three have taken ${b}\u00a0so\u00a0far.`,
     rulerAlt: (parts) => `Time ruler from 1950 to ${MIND_NOW_YEAR}, five eras drawn to scale: ${parts}.`, rulerPart: (n, y) => `${n}, ${y} years`, rulerSep: '; ',
     histIntro: 'Only the turns: how people worked before, and why they switched after. Open a row to see why it mattered, then read the original paper or post. ',
     checked: 'Found a mistake? ', report: 'Tell us', checkedEnd: '.',
@@ -610,7 +610,7 @@ function mindVals(self, v, o) {
     paradigms, layers, nest: Object.assign({}, paradigms.map((p) => ({ name: p.name, when: p.when }))),
     listLoaded: loaded, listLoading: load === '加载中' || load === '加载超过 10 秒', listSlow: load === '加载超过 10 秒', listQuick: load === '加载中', listFailed: load === '加载失败',
     isOffline: offline, bandClass: offline ? 'is-offline' : '',
-    skeletons: [['62%', '88%'], ['48%', '76%'], ['70%', '84%'], ['40%', '68%'], ['56%', '90%']].map(([w1, w2]) => ({ w1, w2 })),
+    skeletons: [[62, 88], [48, 76], [70, 84], [40, 68], [56, 90]].map(([w1, w2]) => ({ c1: 'vc-skeleton vc-skeleton-w-' + w1, c2: 'vc-skeleton vc-skeleton-w-' + w2 })),
   };
 }
 class Component extends DCLogic {

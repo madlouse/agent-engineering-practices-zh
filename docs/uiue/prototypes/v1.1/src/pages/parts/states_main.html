@@ -15,12 +15,12 @@
   </main>
 </sc-if>
 
-<!-- 加载中、加载超过 10 秒、内容加载失败、网络断开、订阅失败：就是看清首页本身（mind-out/src/Mind.body.html 的同一份标记，build.py 拼进来），只换状态；不另写一份色带和列表 -->
+<!-- 网络断开、订阅失败：就是看清首页本身（mind-out/src/Mind.body.html 的同一份标记，build.py 拼进来），只换状态；不另写一份色带和列表 -->
 <sc-if value="{{inList}}" hint-placeholder-val="{{ false }}">
 <!--@MIND-->
 </sc-if>
 
-<!-- 视频无法播放、文章暂无英文版：文章页的开头一段（整页见文章页画板的同名属性） -->
+<!-- 加载中、加载超过 10 秒、视频无法播放、文章暂无英文版：文章页的开头一段（整页见文章页画板的同名属性） -->
 <sc-if value="{{inArticle}}" hint-placeholder-val="{{ false }}">
 <main class="vc-container vc-read">
 <article aria-labelledby="art-title">

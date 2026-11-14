@@ -99,17 +99,16 @@ body{margin:0}
       <p class="vc-type-lead vc-intro">{{c.histIntro}}{{c.checked}}<a href="{{t.contactHref}}">{{c.report}}</a>{{c.checkedEnd}}</p>
       <div class="vc-with-aside">
         <div>
-          <sc-if value="{{listLoaded}}" hint-placeholder-val="{{ true }}">
-            <div class="vc-timeline">
-              <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
-                <section class="vc-era" id="{{e.id}}" aria-labelledby="{{e.id}}-name">
-                  <div class="vc-era-bar"><h2 id="{{e.id}}-name" class="vc-era-name">{{e.name}}</h2><p class="vc-era-years">{{e.years}}</p><a class="vc-quick vc-quick-small vc-era-up" href="#eras" aria-label="{{c.toIndexLabel}}">{{c.toIndex}}</a></div>
-                  <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
-                  <ol class="vc-era-list">
-                    <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
-                      <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
-                        <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
-                          <details class="vc-ms-fold" data-expand="inline">
+          <div class="vc-timeline">
+            <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
+              <section class="vc-era" id="{{e.id}}" aria-labelledby="{{e.id}}-name">
+                <div class="vc-era-bar"><h2 id="{{e.id}}-name" class="vc-era-name">{{e.name}}</h2><p class="vc-era-years">{{e.years}}</p><a class="vc-quick vc-quick-small vc-era-up" href="#eras" aria-label="{{c.toIndexLabel}}">{{c.toIndex}}</a></div>
+                <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
+                <ol class="vc-era-list">
+                  <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
+                    <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
+                      <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
+                        <details class="vc-ms-fold" data-expand="inline">
                             <summary class="vc-ms-sum">
                               <span class="vc-row-lead">{{m.year}}</span>
                               <h3 id="{{m.slug}}-t" class="row-title vc-serif">{{m.title}}</h3>
@@ -120,10 +119,10 @@ body{margin:0}
                               <p class="vc-row-foot">{{m.kind}} · {{c.checkedLabel}} <time datetime="{{checkedIso}}">{{checkedText}}</time></p>
                               <p class="vc-ms-links"><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
                             </div>
-                          </details>
-                        </sc-if>
-                        <sc-if value="{{m.open}}" hint-placeholder-val="{{ false }}">
-                          <details class="vc-ms-fold" data-expand="inline" open>
+                        </details>
+                      </sc-if>
+                      <sc-if value="{{m.open}}" hint-placeholder-val="{{ false }}">
+                        <details class="vc-ms-fold" data-expand="inline" open>
                             <summary class="vc-ms-sum">
                               <span class="vc-row-lead">{{m.year}}</span>
                               <h3 id="{{m.slug}}-t" class="row-title vc-serif">{{m.title}}</h3>
@@ -134,41 +133,14 @@ body{margin:0}
                               <p class="vc-row-foot">{{m.kind}} · {{c.checkedLabel}} <time datetime="{{checkedIso}}">{{checkedText}}</time></p>
                               <p class="vc-ms-links"><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
                             </div>
-                          </details>
-                        </sc-if>
-                      </li>
-                    </sc-for>
-                  </ol>
-                </section>
-              </sc-for>
-            </div>
-          </sc-if>
-          <sc-if value="{{listLoading}}" hint-placeholder-val="{{ false }}">
-            <h2 class="vc-sr-only">{{c.hist}}</h2>
-            <sc-if value="{{listSlow}}" hint-placeholder-val="{{ false }}">
-              <div class="vc-loading-slow" role="status"><p>{{c.loading}}</p><button type="button" class="btn vc-btn-quiet">{{c.retry}}</button></div>
-            </sc-if>
-            <sc-if value="{{listQuick}}" hint-placeholder-val="{{ false }}"><p class="vc-sr-only" role="status">{{c.loading}}</p></sc-if>
-            <div class="vc-loading vc-loading-rows" aria-hidden="true">
-              <span class="vc-skeleton" style="width: var(--space-10); height: var(--space-5);"></span>
-              <sc-for list="{{skeletons}}" as="k" hint-placeholder-count="5">
-                <div class="vc-loading-row">
-                  <span class="vc-skeleton" style="width: var(--space-7); height: var(--space-4);"></span>
-                  <span class="vc-loading-row-body">
-                    <span class="{{k.c1}}" style="height: var(--space-5);"></span>
-                    <span class="{{k.c2}}" style="height: var(--space-4);"></span>
-                  </span>
-                </div>
-              </sc-for>
-            </div>
-          </sc-if>
-          <sc-if value="{{listFailed}}" hint-placeholder-val="{{ false }}">
-            <div class="vc-notice vc-notice-block" role="alert">
-              <h2 class="vc-type-title-3">{{c.failTitle}}</h2>
-              <p class="vc-sub">{{c.failBody}}</p>
-              <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{c.retry}}</button><a class="vc-quick" href="{{c.learnHref}}">{{c.toLearn}}</a></div>
-            </div>
-          </sc-if>
+                        </details>
+                      </sc-if>
+                    </li>
+                  </sc-for>
+                </ol>
+              </section>
+            </sc-for>
+          </div>
         </div>
         <aside aria-label="{{c.indexLabel}}">
           <nav class="vc-era-index" aria-label="{{c.erasLabel}}">
@@ -304,8 +276,10 @@ body{margin:0}
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"line":{"editor":"enum","options":["AI 发展史（/mind）","人机协作（/mind/collaboration）"],"default":"AI 发展史（/mind）"},"expand":{"editor":"enum","options":["全部收起","展开一条"],"default":"全部收起"},"load":{"editor":"enum","options":["正常","加载中","加载超过 10 秒","加载失败"],"default":"正常"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":4200}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"line":{"editor":"enum","options":["AI 发展史（/mind）","人机协作（/mind/collaboration）"],"default":"AI 发展史（/mind）"},"expand":{"editor":"enum","options":["全部收起","展开一条"],"default":"全部收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":4200}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+/* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
 const SHELL = {
   zh: {
     home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
@@ -349,6 +323,7 @@ function shellVals(self, station, path) {
   const busy = sub === '正在订阅';
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
+    site: SITE_CONFIG, contactMail: 'mailto:' + SITE_CONFIG.contactEmail, privacyMail: 'mailto:' + SITE_CONFIG.privacyEmail,
     zhHref, enHref, otherHref: en ? zhHref : enHref,
     zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
@@ -379,7 +354,6 @@ const MIND_COPY = {
     checked: '发现错误，', report: '直接告诉我们', checkedEnd: '。',
     routeLabel: '这个时代的路线：', whyLabel: '为什么是转折', checkedLabel: '最后核对', source: '读原文', follow: '跟着学：',
     indexLabel: '时代索引', jumpLabel: '跳到某个时代', erasLabel: '五个时代', open: '至今', toIndex: '时代索引 ↑', toIndexLabel: '回到时代索引',
-    loading: '正在加载里程碑', retry: '重试', failTitle: '里程碑这部分没加载出来', failBody: '可能是网络慢了一下。页面其余部分不受影响，学习路径照常可以看。', toLearn: '去学习路径',
     offline: '网络断开了。已经打开的内容可以接着读；重新连上以后，这条提示会自己消失。',
     kinds: { paper: '论文', event: '事件', product: '产品', essay: '文章', code: '代码' },
     nestAlt: '五种工程范式一层包一层：提示词工程在最里面，往外依次是上下文工程、Harness 工程、Loop 工程、Graph 工程。',
@@ -402,7 +376,6 @@ const MIND_COPY = {
     checked: 'Found a mistake? ', report: 'Tell us', checkedEnd: '.',
     routeLabel: 'The road in this era: ', whyLabel: 'Why it mattered', checkedLabel: 'Last checked', source: 'Read the original', follow: 'Learn it: ',
     indexLabel: 'Era index', jumpLabel: 'Jump to an era', erasLabel: 'Five eras', open: 'now', toIndex: 'Eras ↑', toIndexLabel: 'Back to the list of eras',
-    loading: 'Loading milestones', retry: 'Try again', failTitle: 'The milestones didn’t load', failBody: 'The connection may have dropped for a moment. The rest of the page still works, including the learning path.', toLearn: 'Go to the learning path',
     offline: 'You’re offline. Keep reading what’s already open. This notice clears once you reconnect.',
     kinds: { paper: 'Paper', event: 'Event', product: 'Product', essay: 'Essay', code: 'Code' },
     nestAlt: 'Five engineering paradigms, each wrapping the one before: prompt engineering at the center, then context, harness, loop, and graph engineering.',
@@ -552,7 +525,7 @@ const CARDS = [
     zh: ['pstack', 'poteto（Lauren Tan）公开的一组技能和原则：让智能体把工作拆成能验证的小步，做完自己证明它能用。', '装进编程智能体；任务开始时加载对应的原则，要求它对着真实的结果验证过才算完成。', '想让智能体长时间自己跑，又要信得过结果的人。'],
     en: ['pstack', 'A public set of skills and principles from poteto (Lauren Tan): the agent breaks work into small verifiable steps and proves the result works.', 'Install it in your coding agent and load the matching principle at the start of a task, so nothing counts as done until it is checked against the real result.', 'People who want agents to run on their own for a long time and still trust what comes back.'] },
 ];
-/* v：shellVals() 的结果；o：{ line, load, network, expand }。load：正常 / 加载中 / 加载超过 10 秒 / 加载失败（只影响里程碑列表，色带、时间尺的格子和时代索引照常）；
+/* v：shellVals() 的结果；o：{ line, network, expand }。看清首页和列表在构建时静态生成，没有加载中和加载失败（PRD 第 527 版「页面状态」）；
    network：在线 / 离线；expand：全部收起 / 展开一条（展开 Transformer 那一条，看原地展开的样子） */
 const MIND_OPEN_SLUG = 'transformer-2017';
 function mindVals(self, v, o) {
@@ -560,8 +533,6 @@ function mindVals(self, v, o) {
   const c = MIND_COPY[L];
   const line = o.line || 'AI 发展史（/mind）';
   const isCollab = line.indexOf('人机协作') === 0;
-  const load = isCollab ? '正常' : (o.load || '正常');
-  const loaded = load === '正常';
   const fmt = (iso) => v.en ? new Date(iso + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : iso;
   /* 时代、里程碑、时间尺 */
   const eras = ERAS.map((e, i) => {
@@ -578,7 +549,7 @@ function mindVals(self, v, o) {
         hasStep: !!m.step, stepHref: c.learnBase + (m.step || ''), stepLabel: m.step ? c.follow + STEP_NAMES[m.step][L] : '',
       };
     });
-    const dots = loaded ? list.map((m) => { const n = seen[m.year] = (seen[m.year] || 0) + 1; return { left: (((m.year - e.start) + 0.25 * n) / span * 100).toFixed(2) + '%' }; }) : [];
+    const dots = list.map((m) => { const n = seen[m.year] = (seen[m.year] || 0) + 1; return { left: (((m.year - e.start) + 0.25 * n) / span * 100).toFixed(2) + '%' }; });
     return {
       id: e.id, name: e[L][0], route: e[L][1], start: e.start, span, items, dots,
       years: e.end ? `${e.start}–${e.end}` : `${e.start}–`, yearClass: i > 2 ? 'is-tight' : '', current: i === 0 ? 'true' : 'false',
@@ -608,16 +579,14 @@ function mindVals(self, v, o) {
     rulerNote: c.rulerNote(first, rest),
     rulerAlt: c.rulerAlt(eras.map((e) => c.rulerPart(e.name, e.span)).join(c.rulerSep)),
     paradigms, layers, nest: Object.assign({}, paradigms.map((p) => ({ name: p.name, when: p.when }))),
-    listLoaded: loaded, listLoading: load === '加载中' || load === '加载超过 10 秒', listSlow: load === '加载超过 10 秒', listQuick: load === '加载中', listFailed: load === '加载失败',
     isOffline: offline, bandClass: offline ? 'is-offline' : '',
-    skeletons: [[62, 88], [48, 76], [70, 84], [40, 68], [56, 90]].map(([w1, w2]) => ({ c1: 'vc-skeleton vc-skeleton-w-' + w1, c2: 'vc-skeleton vc-skeleton-w-' + w2 })),
   };
 }
 class Component extends DCLogic {
   renderVals() {
     const P = (k, d) => (this.state && this.state[k]) ?? this.props[k] ?? d;
     const v = shellVals(this, 'ink', '/mind');
-    return { ...v, ...mindVals(this, v, { line: P('line', 'AI 发展史（/mind）'), load: P('load', '正常'), network: P('network', '在线'), expand: P('expand', '全部收起') }) };
+    return { ...v, ...mindVals(this, v, { line: P('line', 'AI 发展史（/mind）'), network: P('network', '在线'), expand: P('expand', '全部收起') }) };
   }
   componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }
 }

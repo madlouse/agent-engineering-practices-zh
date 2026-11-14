@@ -24,7 +24,8 @@
   <section class="vc-part vc-contact vc-read-col" id="contact" aria-labelledby="contact-t">
     <h2 id="contact-t" class="vc-type-title-3-serif">{{c.contactTitle}}</h2>
     <p class="vc-type-body-reading">{{c.contact}}</p>
-    <a class="btn vc-btn-action" href="mailto:">{{c.contactCta}}</a>
+    <p class="vc-contact-address"><span class="mono">{{site.contactEmail}}</span><a class="btn vc-btn-action" href="{{contactMail}}">{{c.contactCta}}</a></p>
+    <p class="vc-type-footnote vc-sub">{{c.privacyPre}}<a href="{{privacyMail}}">{{site.privacyEmail}}</a>{{c.privacyEnd}}</p>
   </section>
   <nav class="vc-part vc-next" aria-labelledby="start-t">
     <h2 id="start-t" class="vc-type-title-3">{{c.startTitle}}</h2>

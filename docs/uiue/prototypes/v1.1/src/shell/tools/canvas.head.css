@@ -181,7 +181,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .icon-btn { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); padding: 0; border: 0; border-radius: var(--radius-pill); color: inherit; cursor: pointer; }
 .icon-btn:not(.lg):not([class*="surface"]) { background-color: transparent; }
 /* 提示条的面（vc-paper-surface）和页面底色只差 1.1:1，所以一圈 1px 的 vc-text-3 描边把它和页面分开（对页面底浅色 4.75:1、深色 6.68:1；设计系统：相邻色面 ≥ 1.8:1 或有描边）。
-   输入框 input.vc-field、错误说明 p.vc-error、提示条 .vc-notice（图标 + 一句话；两种排法见「9. 内容组件」）、骨架块 span.vc-skeleton（默认整宽；高度写在 style 里，只用 token；宽度用 .vc-skeleton-w-NN，NN 是百分比；16:9 的媒体占位加 .vc-skeleton-media） */
+   输入框 input.vc-field、错误说明 p.vc-error、提示条 .vc-notice（图标 + 一句话；两种排法见「9. 内容组件」）、骨架块 span.vc-skeleton（默认整宽；视频加载中的 16:9 占位加 .vc-skeleton-media） */
 .vc-field { min-height: var(--control-height); min-width: 0; padding: 0 var(--space-4); border: 1px solid var(--vc-paper-line); border-radius: var(--radius-pill); background: var(--vc-paper-surface); color: var(--vc-text); font: inherit; font-size: var(--type-body); }
 .vc-field::placeholder { color: var(--vc-text-3); }
 .vc-field[aria-invalid="true"] { border-color: var(--vc-error-ctx); }
@@ -189,17 +189,6 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-notice { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-text-3); font-size: var(--type-body); }
 .vc-skeleton { display: block; width: 100%; border-radius: var(--radius-sm); background: var(--vc-state-selected); }
 .vc-skeleton-media { aspect-ratio: 16 / 9; border-radius: var(--radius-lg); }
-.vc-skeleton-w-40 { width: 40%; }
-.vc-skeleton-w-48 { width: 48%; }
-.vc-skeleton-w-56 { width: 56%; }
-.vc-skeleton-w-62 { width: 62%; }
-.vc-skeleton-w-64 { width: 64%; }
-.vc-skeleton-w-68 { width: 68%; }
-.vc-skeleton-w-70 { width: 70%; }
-.vc-skeleton-w-76 { width: 76%; }
-.vc-skeleton-w-84 { width: 84%; }
-.vc-skeleton-w-88 { width: 88%; }
-.vc-skeleton-w-90 { width: 90%; }
 /* 实色浮层面：订阅条、RSS 行、原地展开的卡片、纸底导航用 vc-surface-solid；压在平涂墨色上的浮动控件（暂停按钮）用 vc-surface-ink（V5：平涂底色上不用玻璃） */
 .vc-surface-solid { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-solid-line), var(--shadow-pop); }
 .vc-surface-ink { background-color: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-ink-line); }
@@ -455,6 +444,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-row-go { text-decoration: underline; text-underline-offset: 4px; color: var(--vc-sub); }
 .vc-row-more { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); margin: calc(-1 * var(--space-2)) 0 var(--space-2); padding-left: calc(var(--vc-row-lead, 72px) + var(--space-5)); }
 .vc-row-more .vc-quick { font-size: var(--type-footnote); }
+.vc-row-ref { display: inline-flex; align-items: center; min-height: var(--size-tap-min); font-size: var(--type-footnote); color: var(--vc-sub); }
 @media (max-width: 743px) {
   .vc-row-main { grid-template-columns: minmax(0, 1fr); }
   .vc-row-more { padding-left: 0; }
@@ -629,7 +619,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   .vc-path a { border-top: 1px solid var(--vc-line); }
 }
 /* 开发日志的行（动手页 #devlog、项目页；同一个组件）：li.vc-row.vc-log，结构同「整行可点的行」：日期带年份（2026-11-04）、项目、做了什么（.row-title）、
-   .vc-row-line「分工」「下一步」；PR 或提交的链接放在 p.vc-row-more */
+   .vc-row-line「分工」「下一步」；PR 或提交放在 p.vc-row-more：仓库公开时是 a.vc-quick，不公开时是 span.vc-row-ref（只写提交号、不带链接，PRD F19） */
 .vc-log { --vc-row-lead: 112px; }
 
 /* 项目卡（动手页「在做的项目」）：article.vc-card.vc-project > p.vc-status（开发中）+ h3.vc-type-title-3 + p（一句话说明）+ p.vc-project-links > a.vc-quick ×2（看开发日志、打开产品）。
@@ -736,7 +726,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 文末各段（阅读页正文以后的每一段）：.vc-part 和上一段隔 64（手机 48）；上面要一道 2px 线的加 .vc-part-rule。文章的顺序：练习 → 接着读 → 更新记录、版权和法务小字。
    练习：section.vc-part.vc-part-rule.vc-practice.vc-read-col#practice > p.kicker + h2.vc-type-title-3-serif + p.vc-type-body-reading
    接着读：nav.vc-part.vc-next.vc-read-wide > h2.vc-type-title-3 + ol.vc-rows（相关的一篇）+ p.vc-row-more（这条线的全部）+ div.vc-next-go > a.vc-station ×2（今天的训练、去动手一站）；关于页的「从哪里开始」是 h2 + .vc-stations
-   联系：section.vc-part.vc-contact.vc-read-col#contact > h2 + p.vc-type-body-reading + a.btn.vc-btn-action（手机上整宽）
+   联系：section.vc-part.vc-contact.vc-read-col#contact > h2 + p.vc-type-body-reading + p.vc-contact-address（span.mono 地址，点一下选中整串，可复制 + a.btn.vc-btn-action，手机上整宽）+ p 隐私邮箱一行；两个地址都从站点配置取（PRD F23）
    文末小字：section.vc-part.vc-colophon.vc-read-col > h2.vc-sr-only + h3 + ul > li（time.mono + span）+ p …+ p.vc-colophon-report（报告错误：一句话 + a.vc-quick.vc-quick-small） */
 .vc-part { margin-top: var(--space-8); }
 .vc-part-rule { padding-top: var(--space-5); border-top: 2px solid var(--vc-text); }
@@ -748,6 +738,8 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-next-go { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin-top: var(--space-5); }
 .vc-contact { display: grid; justify-items: start; gap: var(--space-3); scroll-margin-top: var(--vc-sticky-top); }
 .vc-contact p { color: var(--vc-sub); }
+.vc-contact-address { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); margin: 0; }
+.vc-contact-address .mono { color: var(--vc-text); user-select: all; }
 .vc-colophon { display: grid; gap: var(--space-3); padding-top: var(--space-5); border-top: 1px solid var(--vc-line); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-sub); }
 .vc-colophon :is(h3, p, ul) { margin: 0; }
 .vc-colophon h2 { font-size: inherit; }
@@ -759,18 +751,12 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-colophon p { overflow-wrap: anywhere; text-wrap: pretty; }
 .vc-colophon p a:not(.vc-quick) { color: var(--vc-accent); }
 .vc-colophon-report { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-3); }
-/* 加载中的占位（保持版式，不转圈）：div.vc-loading[aria-hidden] > span.vc-skeleton ×n（高度写在 style 里，只用 token；宽度用 .vc-skeleton-w-NN）。
-   列表页的占位加 .vc-loading-rows：> span.vc-skeleton + div.vc-loading-row ×n > span.vc-skeleton + span.vc-loading-row-body > span.vc-skeleton ×2。
-   超过 10 秒：占位上方一行 div.vc-loading-slow[role=status] > p（正在加载什么）+ button.btn.vc-btn-quiet（重试） */
-.vc-loading { display: grid; gap: var(--space-3); padding-top: var(--space-3); }
-.vc-loading-rows { gap: var(--space-5); padding-top: 0; }
-.vc-loading-row { display: grid; grid-template-columns: var(--space-8) minmax(0, 1fr); gap: var(--space-5); padding-top: var(--space-4); border-top: 1px solid var(--vc-line); }
-.vc-loading-row-body { display: grid; gap: var(--space-3); }
+/* 加载只发生在视频（页面和列表都静态生成）：视频框的位置先放 span.vc-skeleton.vc-skeleton-media[aria-hidden]，不转圈。
+   超过 10 秒：占位上方一行 div.vc-loading-slow[role=status] > p（正在加载视频）+ button.btn.vc-btn-quiet（重试） */
 .vc-loading-slow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin: var(--space-3) 0; }
 .vc-loading-slow p { margin: 0; font-weight: 600; }
 @media (max-width: 743px) {
   .vc-read { padding-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-5)); padding-bottom: var(--space-7); }
-  .vc-loading-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
   .vc-band + .vc-read { padding-top: var(--space-7); }
   .vc-video-shot { padding: 0 var(--space-4) var(--space-8); gap: var(--space-2); }
   .vc-video-title { font-size: var(--type-title-3-serif); line-height: var(--leading-title-3-serif); }
@@ -819,18 +805,13 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-ref-foot { display: none; }
 @media (max-width: 1179px) { .vc-sidenote, .vc-ref-side { display: none; } .vc-prose .vc-footnotes { display: block; } .vc-ref-foot { display: inline; } }
 
-/* 提示条的两种排法。
-   提示加一个动作（视频无法播放、文章暂无英文版）：div.vc-notice.vc-notice-action[role=alert|note] > p（strong 说发生了什么 + 接下来能做什么）+ a 或 button.btn；文字在左、按钮在右，放不下时按钮折到下一行，手机上按钮整宽。
-   整块的提示（内容加载失败）：div.vc-notice.vc-notice-block[role=alert] > h1|h3.vc-type-title-3 + p.vc-sub + div.vc-notice-actions > button.btn.vc-btn-action（重试）+ a.vc-quick（另一条出路） */
+/* 提示加一个动作（视频无法播放、文章暂无英文版）：div.vc-notice.vc-notice-action[role=alert|note] > p（strong 说发生了什么 + 接下来能做什么）+ a 或 button.btn；
+   文字在左、按钮在右，放不下时按钮折到下一行，手机上按钮整宽。 */
 .vc-notice svg { flex: none; }
 .vc-notice-action { flex-wrap: wrap; justify-content: space-between; padding: var(--space-4) var(--space-5); }
 .vc-notice-action p { margin: 0; flex: 1 1 16em; text-wrap: pretty; }
 .vc-notice-action strong { font-weight: 600; }
-.vc-notice-block { flex-direction: column; align-items: flex-start; padding: var(--space-5); }
-.vc-notice-block :is(h1, h2, h3, p) { margin: 0; text-wrap: pretty; }
-.vc-notice-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); }
 .vc-crumb + .vc-notice-action { margin-top: var(--space-3); }
-.vc-crumb + .vc-notice-block { margin-top: var(--space-5); }
 /* 提示条和下面的标题区隔 32px（一个组间距），不贴着标题 */
 .vc-notice + .vc-read-head { margin-top: var(--space-6); }
 @media (max-width: 743px) { .vc-notice-action .btn { width: 100%; } }

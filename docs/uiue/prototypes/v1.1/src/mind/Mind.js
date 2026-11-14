@@ -12,7 +12,6 @@ const MIND_COPY = {
     checked: '发现错误，', report: '直接告诉我们', checkedEnd: '。',
     routeLabel: '这个时代的路线：', whyLabel: '为什么是转折', checkedLabel: '最后核对', source: '读原文', follow: '跟着学：',
     indexLabel: '时代索引', jumpLabel: '跳到某个时代', erasLabel: '五个时代', open: '至今', toIndex: '时代索引 ↑', toIndexLabel: '回到时代索引',
-    loading: '正在加载里程碑', retry: '重试', failTitle: '里程碑这部分没加载出来', failBody: '可能是网络慢了一下。页面其余部分不受影响，学习路径照常可以看。', toLearn: '去学习路径',
     offline: '网络断开了。已经打开的内容可以接着读；重新连上以后，这条提示会自己消失。',
     kinds: { paper: '论文', event: '事件', product: '产品', essay: '文章', code: '代码' },
     nestAlt: '五种工程范式一层包一层：提示词工程在最里面，往外依次是上下文工程、Harness 工程、Loop 工程、Graph 工程。',
@@ -35,7 +34,6 @@ const MIND_COPY = {
     checked: 'Found a mistake? ', report: 'Tell us', checkedEnd: '.',
     routeLabel: 'The road in this era: ', whyLabel: 'Why it mattered', checkedLabel: 'Last checked', source: 'Read the original', follow: 'Learn it: ',
     indexLabel: 'Era index', jumpLabel: 'Jump to an era', erasLabel: 'Five eras', open: 'now', toIndex: 'Eras ↑', toIndexLabel: 'Back to the list of eras',
-    loading: 'Loading milestones', retry: 'Try again', failTitle: 'The milestones didn’t load', failBody: 'The connection may have dropped for a moment. The rest of the page still works, including the learning path.', toLearn: 'Go to the learning path',
     offline: 'You’re offline. Keep reading what’s already open. This notice clears once you reconnect.',
     kinds: { paper: 'Paper', event: 'Event', product: 'Product', essay: 'Essay', code: 'Code' },
     nestAlt: 'Five engineering paradigms, each wrapping the one before: prompt engineering at the center, then context, harness, loop, and graph engineering.',
@@ -185,7 +183,7 @@ const CARDS = [
     zh: ['pstack', 'poteto（Lauren Tan）公开的一组技能和原则：让智能体把工作拆成能验证的小步，做完自己证明它能用。', '装进编程智能体；任务开始时加载对应的原则，要求它对着真实的结果验证过才算完成。', '想让智能体长时间自己跑，又要信得过结果的人。'],
     en: ['pstack', 'A public set of skills and principles from poteto (Lauren Tan): the agent breaks work into small verifiable steps and proves the result works.', 'Install it in your coding agent and load the matching principle at the start of a task, so nothing counts as done until it is checked against the real result.', 'People who want agents to run on their own for a long time and still trust what comes back.'] },
 ];
-/* v：shellVals() 的结果；o：{ line, load, network, expand }。load：正常 / 加载中 / 加载超过 10 秒 / 加载失败（只影响里程碑列表，色带、时间尺的格子和时代索引照常）；
+/* v：shellVals() 的结果；o：{ line, network, expand }。看清首页和列表在构建时静态生成，没有加载中和加载失败（PRD 第 527 版「页面状态」）；
    network：在线 / 离线；expand：全部收起 / 展开一条（展开 Transformer 那一条，看原地展开的样子） */
 const MIND_OPEN_SLUG = 'transformer-2017';
 function mindVals(self, v, o) {
@@ -193,8 +191,6 @@ function mindVals(self, v, o) {
   const c = MIND_COPY[L];
   const line = o.line || 'AI 发展史（/mind）';
   const isCollab = line.indexOf('人机协作') === 0;
-  const load = isCollab ? '正常' : (o.load || '正常');
-  const loaded = load === '正常';
   const fmt = (iso) => v.en ? new Date(iso + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : iso;
   /* 时代、里程碑、时间尺 */
   const eras = ERAS.map((e, i) => {
@@ -211,7 +207,7 @@ function mindVals(self, v, o) {
         hasStep: !!m.step, stepHref: c.learnBase + (m.step || ''), stepLabel: m.step ? c.follow + STEP_NAMES[m.step][L] : '',
       };
     });
-    const dots = loaded ? list.map((m) => { const n = seen[m.year] = (seen[m.year] || 0) + 1; return { left: (((m.year - e.start) + 0.25 * n) / span * 100).toFixed(2) + '%' }; }) : [];
+    const dots = list.map((m) => { const n = seen[m.year] = (seen[m.year] || 0) + 1; return { left: (((m.year - e.start) + 0.25 * n) / span * 100).toFixed(2) + '%' }; });
     return {
       id: e.id, name: e[L][0], route: e[L][1], start: e.start, span, items, dots,
       years: e.end ? `${e.start}–${e.end}` : `${e.start}–`, yearClass: i > 2 ? 'is-tight' : '', current: i === 0 ? 'true' : 'false',
@@ -241,8 +237,6 @@ function mindVals(self, v, o) {
     rulerNote: c.rulerNote(first, rest),
     rulerAlt: c.rulerAlt(eras.map((e) => c.rulerPart(e.name, e.span)).join(c.rulerSep)),
     paradigms, layers, nest: Object.assign({}, paradigms.map((p) => ({ name: p.name, when: p.when }))),
-    listLoaded: loaded, listLoading: load === '加载中' || load === '加载超过 10 秒', listSlow: load === '加载超过 10 秒', listQuick: load === '加载中', listFailed: load === '加载失败',
     isOffline: offline, bandClass: offline ? 'is-offline' : '',
-    skeletons: [[62, 88], [48, 76], [70, 84], [40, 68], [56, 90]].map(([w1, w2]) => ({ c1: 'vc-skeleton vc-skeleton-w-' + w1, c2: 'vc-skeleton vc-skeleton-w-' + w2 })),
   };
 }

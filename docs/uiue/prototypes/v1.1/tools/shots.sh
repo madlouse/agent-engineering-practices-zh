@@ -34,7 +34,6 @@ shot Main Main-focus-orb-1440 1440x900 --props '{"theme":"浅色","focus":"接�
 shot Main Main-390x664 390x664 --props '{"theme":"浅色"}' &
 shot Mind Mind-expand-1440 1440x900 --props '{"theme":"浅色","expand":"展开一条"}' &
 shot Mind Mind-expand-390 390x844 --props '{"theme":"浅色","expand":"展开一条"}' &
-shot Mind Mind-load加载失败-1440 1440x900 --props '{"theme":"浅色","load":"加载失败"}' &
 shot Mind Mind-network离线-390 390x844 --props '{"theme":"浅色","network":"离线"}' &
 shot Main Main-en-1440 1440x900 --props '{"theme":"浅色","lang":"English"}' &
 shot Mind Mind-en-1440-dark 1440x900 --props '{"theme":"深色","lang":"English"}' &
@@ -42,12 +41,12 @@ shot Article Article-en-1440 1440x900 --props '{"theme":"浅色","lang":"English
 shot Article Article-sticky-1440 1440x900 --props '{"theme":"浅色","nav":"吸顶"}' &
 shot Body Body-open-1440 1440x900 --props '{"theme":"浅色","startMenu":"展开"}' &
 wait
-for pg in 加载中 "加载超过 10 秒" 内容加载失败 视频无法播放 文章暂无英文版 订阅失败 网络断开; do
+for pg in 加载中 "加载超过 10 秒" 视频无法播放 文章暂无英文版 订阅失败 网络断开; do
   n=$(echo "$pg" | tr -d ' ')
   shot States "States-$n-1440" 1440x900 --props "{\"theme\":\"浅色\",\"page\":\"$pg\"}" &
   shot States "States-$n-390" 390x844 --props "{\"theme\":\"浅色\",\"page\":\"$pg\"}" &
 done
-for a in '"media":"视频无法播放"' '"load":"加载中"' '"load":"加载失败"' '"english":"暂无英文版"'; do
+for a in '"media":"视频无法播放"' '"media":"视频加载中"' '"media":"视频加载超过 10 秒"' '"english":"暂无英文版"'; do
   n=$(echo "$a" | tr -d '":' ); shot Article "Article-$n-1440" 1440x900 --props "{\"theme\":\"浅色\",$a}" &
 done
 shot Project Project-empty-1440 1440x900 --props '{"theme":"浅色","devlog":"还没有日志"}' &

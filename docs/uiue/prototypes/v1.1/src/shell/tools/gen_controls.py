@@ -131,8 +131,7 @@ TAKE = down(sm('take'))
 FOLD = sm('toc')
 VIDEO = sm('video')
 LOADING = sm('loading_slow') + sm('loading')
-LOADROWS = sm('loading_rows')
-NOTICES = sm('notice_action') + sm('notice_block')
+NOTICES = sm('notice_action')
 HOWTO = MOSS + down(sm('howto')) + '</div>'
 FACTS = MOSS + sm('facts') + '</div>'
 DEFLIST = sm('deflist')
@@ -164,8 +163,8 @@ MORE = f'''
 {lab('判断块 .vc-take', TAKE, False)}
 {lab('收起的块 .vc-fold（目录 .vc-toc）', FOLD, False)}
 {lab('视频和播放条 .vc-video > .vc-video-frame > .vc-video-shot + .vc-playbar（玻璃，背后是视频画面）；下面是收起的文字稿 .vc-fold', VIDEO)}
-{lab('加载中的灰块 .vc-loading（超过 10 秒加一行 .vc-loading-slow）；列表页 .vc-loading-rows', '<div class="vc-sheet-stack" style="gap: var(--space-5);">' + LOADING + LOADROWS + '</div>', False)}
-{lab('提示条的两种排法 .vc-notice.vc-notice-action、.vc-notice.vc-notice-block', '<div class="vc-sheet-stack" style="gap: var(--space-4);">' + NOTICES + '</div>')}
+{lab('视频加载中的灰块 .vc-skeleton.vc-skeleton-media（超过 10 秒加一行 .vc-loading-slow）', '<div class="vc-sheet-stack" style="gap: var(--space-5);">' + LOADING + '</div>', False)}
+{lab('提示条加一个动作 .vc-notice.vc-notice-action', '<div class="vc-sheet-stack" style="gap: var(--space-4);">' + NOTICES + '</div>')}
 </div>
 </section>
 

@@ -46,6 +46,7 @@ MOUNT = "componentDidMount() { if (window.LiquidGlass) document.querySelectorAll
 # 开发日志：一份数据，动手页列全部，项目页按项目筛。链接只用核对过存在的（gh api，2026-11-12；复评后对照本地 git log 又核了一遍标题和出处）。
 # refs 是这一条引的 PR 或提交，可以有几个：(kind, repo, ref)。标题和首页、单条日志样张（../pages/parts/article_data.js）里的同一条一致
 REPO = 'https://github.com/madlouse/velicoach'
+PUBLIC_REPOS = {'velicoach'}   # 不公开的仓库只写提交号、不带链接（PRD F19，联审 D-01）；thin-muscle-coach 不公开
 LOGS = [
  dict(slug='cold-review', iso='2026-11-04', proj='velicoach', refs=[('commit', 'velicoach', '98a80d4')],
   zh=('合并前，一位没参与制作的评审找出 11 处问题：10 处当场改完，基线里失败的测试另开一张票',
@@ -75,7 +76,7 @@ LOGS = [
   en=('The home page’s leaf-and-web animation is back in the design file: about 6,000 points morph between a leaf and a web.',
       'The product owner noticed it was gone. An agent traced the cause (the design tool couldn’t load three.js, so the last version showed static dots) and redrew it directly in WebGL2.',
       'Build the same animation with three.js on the live site, and have review screenshots cover each of its states.')),
- dict(slug='one-domain', iso='2026-11-04', proj='velicoach', refs=[('pr', 'thin-muscle-coach', '84')],   # 路由表在 Veli 的仓库：thin-muscle-coach PR #84（ADR-0032），2026-11-04 合并
+ dict(slug='one-domain', iso='2026-11-04', proj='velicoach', refs=[('commit', 'thin-muscle-coach', 'eb70c77')],   # 路由表在 Veli 的仓库：thin-muscle-coach PR #84 的合并提交（ADR-0032），2026-11-04 合并
   zh=('两个产品共用一个域名：按路径分给主站和 Veli',
       '产品负责人定哪些地址归主站、哪些归 Veli；智能体在 Veli 的仓库里写路由表和分流规则。',
       '主站接管根域名，其余地址转给 Veli。'),
@@ -94,10 +95,12 @@ def logs(lang):
         refs = []
         for kind, repo, ref in l['refs']:
             root = 'https://github.com/madlouse/' + repo
+            linked = repo in PUBLIC_REPOS
+            assert linked or kind == 'commit', '不公开的仓库只能写提交号'
             if kind == 'commit':
-                refs.append(dict(href=root + '/commit/' + ref, label=repo + (' 提交 ' if lang == 'zh' else ' commit ') + ref))
+                refs.append(dict(linked=linked, plain=not linked, href=root + '/commit/' + ref if linked else '', label=repo + (' 提交 ' if lang == 'zh' else ' commit ') + ref))
             else:
-                refs.append(dict(href=root + '/pull/' + ref, label=repo + ' PR #' + ref))
+                refs.append(dict(linked=True, plain=False, href=root + '/pull/' + ref, label=repo + ' PR #' + ref))
         out.append(dict(id='log-' + l['slug'], tid='log-' + l['slug'] + '-t', href=base + '/build/' + l['proj'] + '/' + l['slug'],
             iso=l['iso'], date=l['iso'] if lang == 'zh' else '%s %d, %s' % (MONTH[int(m)-1], int(d), y),
             project=PROJ[l['proj']][lang], title=title, split=split, next=nxt, refs=refs))
@@ -114,7 +117,7 @@ LOG_ROWS = '''<ol class="vc-rows">
                 <p class="vc-row-line"><b>{{c.nextLabel}}</b>{{ l.next }}</p>
               </div>
             </a>
-            <p class="vc-row-more"><sc-for list="{{ l.refs }}" as="r" hint-placeholder-count="1"><a class="vc-quick" href="{{ r.href }}">{{ r.label }}</a></sc-for></p>
+            <p class="vc-row-more"><sc-for list="{{ l.refs }}" as="r" hint-placeholder-count="1"><sc-if value="{{ r.linked }}" hint-placeholder-val="{{ true }}"><a class="vc-quick" href="{{ r.href }}">{{ r.label }}</a></sc-if><sc-if value="{{ r.plain }}" hint-placeholder-val="{{ false }}"><span class="vc-row-ref">{{ r.label }}</span></sc-if></sc-for></p>
           </li>
         </sc-for>
       </ol>'''

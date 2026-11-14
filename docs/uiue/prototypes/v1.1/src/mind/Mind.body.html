@@ -64,58 +64,30 @@
       <p class="vc-type-lead vc-intro">{{c.histIntro}}{{c.checked}}<a href="{{t.contactHref}}">{{c.report}}</a>{{c.checkedEnd}}</p>
       <div class="vc-with-aside">
         <div>
-          <sc-if value="{{listLoaded}}" hint-placeholder-val="{{ true }}">
-            <div class="vc-timeline">
-              <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
-                <section class="vc-era" id="{{e.id}}" aria-labelledby="{{e.id}}-name">
-                  <div class="vc-era-bar"><h2 id="{{e.id}}-name" class="vc-era-name">{{e.name}}</h2><p class="vc-era-years">{{e.years}}</p><a class="vc-quick vc-quick-small vc-era-up" href="#eras" aria-label="{{c.toIndexLabel}}">{{c.toIndex}}</a></div>
-                  <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
-                  <ol class="vc-era-list">
-                    <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
-                      <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
-                        <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
-                          <details class="vc-ms-fold" data-expand="inline">
+          <div class="vc-timeline">
+            <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
+              <section class="vc-era" id="{{e.id}}" aria-labelledby="{{e.id}}-name">
+                <div class="vc-era-bar"><h2 id="{{e.id}}-name" class="vc-era-name">{{e.name}}</h2><p class="vc-era-years">{{e.years}}</p><a class="vc-quick vc-quick-small vc-era-up" href="#eras" aria-label="{{c.toIndexLabel}}">{{c.toIndex}}</a></div>
+                <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
+                <ol class="vc-era-list">
+                  <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
+                    <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
+                      <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
+                        <details class="vc-ms-fold" data-expand="inline">
 <!--@MS-->
-                          </details>
-                        </sc-if>
-                        <sc-if value="{{m.open}}" hint-placeholder-val="{{ false }}">
-                          <details class="vc-ms-fold" data-expand="inline" open>
+                        </details>
+                      </sc-if>
+                      <sc-if value="{{m.open}}" hint-placeholder-val="{{ false }}">
+                        <details class="vc-ms-fold" data-expand="inline" open>
 <!--@MS-->
-                          </details>
-                        </sc-if>
-                      </li>
-                    </sc-for>
-                  </ol>
-                </section>
-              </sc-for>
-            </div>
-          </sc-if>
-          <sc-if value="{{listLoading}}" hint-placeholder-val="{{ false }}">
-            <h2 class="vc-sr-only">{{c.hist}}</h2>
-            <sc-if value="{{listSlow}}" hint-placeholder-val="{{ false }}">
-              <div class="vc-loading-slow" role="status"><p>{{c.loading}}</p><button type="button" class="btn vc-btn-quiet">{{c.retry}}</button></div>
-            </sc-if>
-            <sc-if value="{{listQuick}}" hint-placeholder-val="{{ false }}"><p class="vc-sr-only" role="status">{{c.loading}}</p></sc-if>
-            <div class="vc-loading vc-loading-rows" aria-hidden="true">
-              <span class="vc-skeleton" style="width: var(--space-10); height: var(--space-5);"></span>
-              <sc-for list="{{skeletons}}" as="k" hint-placeholder-count="5">
-                <div class="vc-loading-row">
-                  <span class="vc-skeleton" style="width: var(--space-7); height: var(--space-4);"></span>
-                  <span class="vc-loading-row-body">
-                    <span class="{{k.c1}}" style="height: var(--space-5);"></span>
-                    <span class="{{k.c2}}" style="height: var(--space-4);"></span>
-                  </span>
-                </div>
-              </sc-for>
-            </div>
-          </sc-if>
-          <sc-if value="{{listFailed}}" hint-placeholder-val="{{ false }}">
-            <div class="vc-notice vc-notice-block" role="alert">
-              <h2 class="vc-type-title-3">{{c.failTitle}}</h2>
-              <p class="vc-sub">{{c.failBody}}</p>
-              <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{c.retry}}</button><a class="vc-quick" href="{{c.learnHref}}">{{c.toLearn}}</a></div>
-            </div>
-          </sc-if>
+                        </details>
+                      </sc-if>
+                    </li>
+                  </sc-for>
+                </ol>
+              </section>
+            </sc-for>
+          </div>
         </div>
         <aside aria-label="{{c.indexLabel}}">
           <nav class="vc-era-index" aria-label="{{c.erasLabel}}">

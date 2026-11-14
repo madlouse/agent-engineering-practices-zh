@@ -2,6 +2,16 @@
 
 新的在上面。每条写清：决定、理由、改了哪里。产品层面的决定同时记在 `docs/prd/decisions.md`。
 
+## 2026-11-14 · 「开始训练」改成 Google 主按钮加邮箱文字入口（#164，主频道定）
+
+跨仓库契约 velicoach-mono#7、velicoach-mono#8 定了去 Veli 的地址：Google `/auth/google?utm_source=velicoach`，Veli 网页版 `/app?utm_source=velicoach`，码编 `https://velicoach.com/body?utm_source=velicoach_qr`。Veli B1 的登录是 Google 和邮箱，Apple 在 B2。主频道 2026-11-14 在 #164 上定了三条，画板按此画：
+
+- **决定**：宽度 < 1180px 或触屏时，实心主按钮就是「用 Google 开始训练」，直达 `/auth/google`；旁边（手机上是下面）一个文字入口「用邮箱开始」，进 `/app`，由 Veli 处理邮箱登录。宽度 ≥ 1180px 且能悬停时，主按钮仍进 `/app`，展开层里是「用 Google 开始训练」选项、「用邮箱开始」文字入口和扫码。不按设备排先后，Apple 等 Veli B2 再加，主站各处都不出现 Apple。
+- **理由**：只有 Google 一种第三方登录时，按钮直接写清点了得到什么，核心场景少一个判断；邮箱是 Veli 已经支持的第二条路，做成文字入口不和主按钮抢，也保住了 A-01 在手机上省出的那一行。在 Veli 登录过的人点任何一个入口都直接到今天的训练（Veli #289）。
+- **取代**：本文件和设计系统里「去 Veli 的方式按设备定主次」「第二个去处是同尺寸的描边按钮」的说法；`docs/handoff/2026-11-12.md` 第 15 条是当时的记录，不改原文。
+- **改了哪里**：`boards/Main.dc.html`（删 `device` 属性和 `authFirst`、`authSecond`）、`src/build/body.py` 和 `body_copy.json`（删 `device`，首屏、展开层和页底「第一练」三处）、`canvas.head.css`（`.vc-hero-direct` 改成按钮加文字入口，删描边按钮那一档）、`gen_controls.py` 和 `controls_samples.json`（`pop_code`、`.vc-pop`、选项样张）；码加 `data-encodes` 写明编的地址。设计系统「首页首屏」「页面外壳」「原地展开」、技能 `velicoach-layout` 第 3 节、`coverage.md` F10 和步数表。
+- **举一反三**：问题类别同上一条：外部契约改了，画板、设计系统、技能和样张里同一件事的说法要一起跟。检索 `rg -n -i 'apple|device=|authFirst|vc-btn-quiet' docs/uiue .grok/skills/velicoach-layout`，除设计语言（Apple HIG、`-apple-system` 字体栈）和历史记录（评审报告、研究、`brief.md`、本文件旧条目）外全部改了。PRD 第 528 版（步数表、F10、监测 `start_training` 的 `option` 改成 app / google / email / qr）等 #153 合并后开。
+
 ## 2026-11-14 · 里程碑 1 联审的 P0 和五项决定落到画板（#162，主频道定）
 
 PRD 第 527 版（#153）把联审的三条 P0 写成验收、五项待定的事定了下来。决定和理由在 `docs/prd/decisions.md` 2026-11-14 各条，这里只记画板和设计系统怎么落、改了哪里。B-01 的设计决定另记在 #153 的同日一条里。

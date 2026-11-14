@@ -1,14 +1,8 @@
   <section class="vc-band vc-band-ink" data-first-screen="">
     <div class="vc-container vc-band-body">
-      <nav class="vc-crumb" aria-label="{{c.crumbLabel}}"><a href="{{t.mindHref}}">{{t.mind}}</a><span aria-hidden="true">/</span><a href="{{c.histHref}}">{{c.hist}}</a><span aria-hidden="true">/</span><span>{{c.title}}</span></nav>
+      <nav class="vc-crumb" aria-label="{{c.crumbLabel}}"><a href="{{t.mindHref}}">{{t.mind}}</a><span aria-hidden="true">/</span><span>{{c.title}}</span></nav>
       <h1 class="vc-type-title-1-serif">{{c.title}}</h1>
       <p class="vc-type-lead vc-sub">{{c.lead}}</p>
-      <div class="vc-band-switch">
-        <div class="seg vc-seg-tabs" role="group" aria-label="{{c.linesLabel}}">
-          <a href="{{c.histHref}}" aria-current="true">{{c.hist}}</a>
-          <a href="{{c.collabHref}}" aria-current="false">{{c.collab}}</a>
-        </div>
-      </div>
       <nav class="vc-path" aria-label="{{c.pathLabel}}">
         <sc-for list="{{levels}}" as="lv" hint-placeholder-count="4">
           <a href="#{{lv.id}}"><span class="mono">{{lv.n}}</span><span class="vc-path-name">{{lv.name}}</span><span class="vc-path-count">{{lv.count}}</span></a>

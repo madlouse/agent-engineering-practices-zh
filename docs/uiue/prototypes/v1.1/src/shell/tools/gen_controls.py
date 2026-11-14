@@ -130,9 +130,9 @@ META = sm('meta')
 TAKE = down(sm('take'))
 FOLD = sm('toc')
 VIDEO = sm('video')
+POPCODE = sm('pop_code', **{'class="vc-pop vc-pop-code"': 'class="vc-pop vc-pop-code vc-sheet-static vc-sheet-auto"'})
 LOADING = sm('loading_slow') + sm('loading')
-LOADROWS = sm('loading_rows')
-NOTICES = sm('notice_action') + sm('notice_block')
+NOTICES = sm('notice_action')
 HOWTO = MOSS + down(sm('howto')) + '</div>'
 FACTS = MOSS + sm('facts') + '</div>'
 DEFLIST = sm('deflist')
@@ -164,8 +164,8 @@ MORE = f'''
 {lab('判断块 .vc-take', TAKE, False)}
 {lab('收起的块 .vc-fold（目录 .vc-toc）', FOLD, False)}
 {lab('视频和播放条 .vc-video > .vc-video-frame > .vc-video-shot + .vc-playbar（玻璃，背后是视频画面）；下面是收起的文字稿 .vc-fold', VIDEO)}
-{lab('加载中的灰块 .vc-loading（超过 10 秒加一行 .vc-loading-slow）；列表页 .vc-loading-rows', '<div class="vc-sheet-stack" style="gap: var(--space-5);">' + LOADING + LOADROWS + '</div>', False)}
-{lab('提示条的两种排法 .vc-notice.vc-notice-action、.vc-notice.vc-notice-block', '<div class="vc-sheet-stack" style="gap: var(--space-4);">' + NOTICES + '</div>')}
+{lab('视频加载中的灰块 .vc-skeleton.vc-skeleton-media（超过 10 秒加一行 .vc-loading-slow）', '<div class="vc-sheet-stack" style="gap: var(--space-5);">' + LOADING + '</div>', False)}
+{lab('提示条加一个动作 .vc-notice.vc-notice-action', '<div class="vc-sheet-stack" style="gap: var(--space-4);">' + NOTICES + '</div>')}
 </div>
 </section>
 
@@ -334,6 +334,14 @@ body{{margin:0}}
 <div class="vc-stations"><a class="vc-station vc-station-body" href="/body"><span class="vc-station-name">站稳</span><span class="vc-station-line">每周两次力量训练。</span></a><a class="vc-station vc-station-mind" href="/mind"><span class="vc-station-name">看清</span><span class="vc-station-line">读懂 AI 从哪里来。</span></a><a class="vc-station vc-station-build" href="/build"><span class="vc-station-name">动手</span><span class="vc-station-line">和智能体一起做出东西。</span></a></div></div>
 <div class="vc-sheet-sample"><p class="vc-sheet-label">原地展开的卡片 .vc-pop（挂在 .vc-pop-anchor 上；这里为了看清楚摆在流里）</p>
 <div class="vc-pop vc-sheet-static vc-sheet-auto" data-pop=""><div class="vc-pop-opts"><a class="opt" href="/auth/google">用 Google 开始训练</a><a class="opt" href="/auth/apple">用 Apple 开始训练</a></div><p class="vc-pop-note">第一练 12 分钟。在 Veli 登录过的人直接到今天的安排；按 Esc 收起。</p></div></div>
+<div class="vc-sheet-sample"><p class="vc-sheet-label">带码的展开层 .vc-pop.vc-pop-code（首页首屏、站稳页的「开始训练」，宽度 ≥ 1180px 且能悬停时）</p>
+{POPCODE}</div>
+<div class="vc-sheet-sample"><p class="vc-sheet-label">智能体起草的小标记 .vc-origin（卡片和强调卡直接显示智能体起草的摘要时，句末一个；文章元信息里是「起草」一栏，带 data-origin="ai"）</p>
+<p class="vc-row-line">Shopify 用测试证明漏洞，而不是收集模型给出的候选清单。<span class="vc-origin" data-origin="ai" title="智能体起草，独立评审"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>智能体起草</span></p></div>
+<div class="vc-sheet-sample"><p class="vc-sheet-label">联系地址 .vc-contact-address（关于页「联系」；地址从站点配置取，点一下选中整串）</p>
+<p class="vc-contact-address"><span class="mono">hello@velicoach.com</span><a class="btn vc-btn-action" href="mailto:hello@velicoach.com">写信给我们</a></p></div>
+<div class="vc-sheet-sample"><p class="vc-sheet-label">不带链接的提交号 .vc-row-ref（开发日志里不公开仓库的提交；公开仓库仍是 a.vc-quick）</p>
+<p class="vc-row-more"><span class="vc-row-ref">thin-muscle-coach 提交 eb70c77</span></p></div>
 <div class="vc-sheet-sample"><p class="vc-sheet-label">面包屑 .vc-crumb</p>
 <nav class="vc-crumb" aria-label="所在位置"><a href="/mind">看清</a><span aria-hidden="true">/</span><a href="/mind/collaboration">人机协作</a></nav></div>
 </div>

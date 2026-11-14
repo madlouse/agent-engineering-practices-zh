@@ -56,8 +56,8 @@ body{margin:0}
       <p class="vc-type-lead vc-hero-lead vc-hero-lead-short">{{c.bodyLeadShort}}</p>
       <div class="vc-hero-actions">
         <div class="vc-pop-anchor" onMouseEnter="{{openStart}}" onMouseLeave="{{closeLater}}">
-          <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="vc-start-opts" onFocus="{{openStart}}"><span>{{c.start}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
-          <div id="vc-start-opts" class="vc-pop {{startClass}}" data-pop="" role="group" aria-label="{{c.startMenu}}">
+          <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="vc-start-opts" onFocus="{{focusStart}}"><span>{{c.start}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+          <div id="vc-start-opts" class="vc-pop vc-pop-code{{startClass}}" data-pop="" role="group" aria-label="{{c.startMenu}}">
             <div class="vc-pop-opts">
               <a class="opt" href="{{c.authHref}}">{{authFirst}}</a>
               <a class="opt" href="{{c.authHref}}">{{authSecond}}</a>
@@ -70,6 +70,7 @@ body{margin:0}
         <div class="vc-hero-direct" role="group" aria-label="{{c.startMenu}}">
           <a class="btn vc-btn-action" href="{{c.authHref}}">{{authFirst}}</a>
           <a class="btn vc-btn-quiet" href="{{c.authHref}}">{{authSecond}}</a>
+          <a class="vc-quick vc-hero-alt" href="{{c.authHref}}">{{authSecond}}</a>
         </div>
       </div>
       <p class="vc-hero-quick"><a class="vc-quick" href="#why-muscle">{{c.whyMuscle}}</a></p>
@@ -219,7 +220,7 @@ body{margin:0}
       <article class="vc-feature" aria-labelledby="vc-week-read">
         <p class="kicker">{{c.latest}}</p>
         <h3 id="vc-week-read" class="vc-type-title-2-serif">{{c.articleTitle}}</h3>
-        <p class="vc-type-lead">{{c.articleLine}}</p>
+        <p class="vc-type-lead">{{c.articleLine}}<span class="vc-origin" data-origin="ai" title="{{c.originLabel}}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>{{c.originShort}}</span></p>
         <div class="vc-feature-actions">
           <a class="btn vc-btn-on-ink" href="{{c.articleHref}}">{{c.read}}</a>
           <p class="vc-type-meta-mono"><span class="vc-nowrap"><time datetime="{{c.articleIso}}">{{c.articleDate}}</time> ·</span> <span class="vc-nowrap">{{c.articleLength}} ·</span> <span class="vc-nowrap">{{c.articleVideo}}</span></p>
@@ -295,6 +296,8 @@ body{margin:0}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["收起","填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"收起"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"start":{"editor":"enum","options":["收起","展开"],"default":"收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"motion":{"editor":"enum","options":["正常","减弱动态效果","无 WebGL"],"default":"正常"},"focus":{"editor":"enum","options":["无","接缝上的圆"],"default":"无"},"device":{"editor":"enum","options":["其他","苹果"],"default":"其他"},"$preview":{"width":820,"height":3570}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+/* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
 const SHELL = {
   zh: {
     home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
@@ -338,6 +341,7 @@ function shellVals(self, station, path) {
   const busy = sub === '正在订阅';
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
+    site: SITE_CONFIG, contactMail: 'mailto:' + SITE_CONFIG.contactEmail, privacyMail: 'mailto:' + SITE_CONFIG.privacyEmail,
     zhHref, enHref, otherHref: en ? zhHref : enHref,
     zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
@@ -385,7 +389,7 @@ const COPY = {
       { topic: '情绪 · 力量训练', metric: '', effect: 'g = −0.49', claim: '达到重度抑郁诊断标准的人做力量训练，抑郁症状可能比对照组轻，效应量中等。证据可信度很低，结论还可能变。', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: '随机对照试验的网状荟萃分析', sample: '218 项试验、14,170 人', certainty: '很低', grade: 1, seen: '2026-11-10' },
     ],
     weekTitle: '最新', latest: '最新文章',
-    articleTitle: '比模型更耐久的 Harness', articleLine: 'Shopify 团队用测试证明漏洞，而不是收集模型给出的候选清单。',
+    articleTitle: '比模型更耐久的 Harness', articleLine: 'Shopify 团队用测试证明漏洞，而不是收集模型给出的候选清单。', originLabel: '智能体起草，独立评审', originShort: '智能体起草',
     articleHref: '/mind/shopify-harness', articleIso: '2026-10-31', articleDate: '2026-10-31', articleLength: '12 分钟', articleVideo: '附 3 分钟视频',
     logLabel: '最新的开发日志', logDate: '2026-11-04', logProject: 'Velicoach 主站', logHref: '/build/velicoach/cold-review',
     logTitle: '合并前，一位没参与制作的评审找出 11\u00A0处问题：10 处当场改完，基线里失败的测试另开一张票',
@@ -418,7 +422,7 @@ const COPY = {
       { topic: 'Mood · strength training', metric: '', effect: 'g = −0.49', claim: 'In people who meet the criteria for major depression, strength training may ease symptoms compared with controls, a moderate effect. Certainty is very low.', year: '2024', journal: 'The BMJ', url: 'https://doi.org/10.1136/bmj-2023-075847', type: 'Network meta-analysis of randomized trials', sample: '218 trials, 14,170 people', certainty: 'Very low', grade: 1, seen: '2026-11-10' },
     ],
     weekTitle: 'Latest', latest: 'Latest read',
-    articleTitle: 'A harness that outlasts the model', articleLine: 'Shopify’s team proves each vulnerability with a test instead of collecting a model’s list of candidates.',
+    articleTitle: 'A harness that outlasts the model', articleLine: 'Shopify’s team proves each vulnerability with a test instead of collecting a model’s list of candidates.', originLabel: 'AI-drafted, independently reviewed', originShort: 'AI-drafted',
     articleHref: '/en/mind/shopify-harness', articleIso: '2026-10-31', articleDate: 'Oct 31, 2026', articleLength: '9 min', articleVideo: 'with a 3-minute video',
     logLabel: 'Latest devlog entry', logDate: 'Nov 4, 2026', logProject: 'Velicoach', logHref: '/en/build/velicoach/cold-review',
     logTitle: 'A reviewer who wasn’t involved found 11 issues before the merge: 10 fixed on the spot, the failing baseline tests moved to their own ticket.',
@@ -477,7 +481,13 @@ class Component extends DCLogic {
   componentDidMount() {
     if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
     // 展开的选项都能退出：Esc、点外面；Esc 同时回到五五分
-    this.onEsc = (e) => { if (e.key === 'Escape') { clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' }); } };
+    /* Esc 收起；焦点在展开层里时回到「开始训练」，这一次聚焦不再展开（重新聚焦或重新悬停才展开） */
+    this.onEsc = (e) => {
+      if (e.key !== 'Escape') return;
+      const a = document.activeElement, btn = document.querySelector('.vc-hero .vc-pop-anchor > .btn');
+      clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' });
+      if (btn && a && a !== btn && a.closest && a.closest('.vc-pop-anchor')) { this.skipFocusOpen = true; btn.focus(); }
+    };
     this.onOutside = (e) => { if (this.pick('start', '收起') === '展开' && !(e.target.closest && e.target.closest('.vc-pop-anchor'))) this.setState({ start: '收起' }); };
     this.onMove = (e) => { this.ptr = { x: e.clientX, y: e.clientY }; };
     document.addEventListener('keydown', this.onEsc);
@@ -641,8 +651,9 @@ class Component extends DCLogic {
       lean: st.lean || '', leanBody: lean('body', true), leanMind: lean('mind', true), leanBodyNow: lean('body', false), leanMindNow: lean('mind', false),
       leanNone: () => { clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ lean: '', start: '收起' }); },
       heroClass: 'vc-hero' + (offline ? ' is-offline' : ''), offline,
-      startClass: open ? '' : 'is-closed', startExpanded: open ? 'true' : 'false',
+      startClass: open ? '' : ' is-closed', startExpanded: open ? 'true' : 'false',
       openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '展开' }), this.hoverIntent()); },
+      focusStart: () => { if (this.skipFocusOpen) { this.skipFocusOpen = false; return; } clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '展开' }), this.hoverIntent()); },
       closeLater: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '收起' }), 300); },
       onKey: (e) => { if (e.key === 'Escape') { clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' }); } },
       claims: c.claims.map((x) => ({ ...x, chip: 'vc-claim-chip vc-claim-chip-' + x.id })),

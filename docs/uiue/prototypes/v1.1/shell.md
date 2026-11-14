@@ -75,6 +75,8 @@ class Component extends DCLogic {
 
 ```js
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+/* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
 const SHELL = {
   zh: {
     home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
@@ -118,6 +120,7 @@ function shellVals(self, station, path) {
   const busy = sub === '正在订阅';
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
+    site: SITE_CONFIG, contactMail: 'mailto:' + SITE_CONFIG.contactEmail, privacyMail: 'mailto:' + SITE_CONFIG.privacyEmail,
     zhHref, enHref, otherHref: en ? zhHref : enHref,
     zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },

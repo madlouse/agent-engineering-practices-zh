@@ -2,7 +2,7 @@ class Component extends DCLogic {
   renderVals() {
     const P = (k, d) => (this.state && this.state[k]) ?? this.props[k] ?? d;
     const v = shellVals(this, 'ink', '/mind');
-    return { ...v, ...mindVals(this, v, { line: P('line', 'AI 发展史（/mind）'), load: P('load', '正常'), network: P('network', '在线'), expand: P('expand', '全部收起') }) };
+    return { ...v, ...mindVals(this, v, { line: P('line', 'AI 发展史（/mind）'), network: P('network', '在线'), expand: P('expand', '全部收起') }) };
   }
   componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }
 }

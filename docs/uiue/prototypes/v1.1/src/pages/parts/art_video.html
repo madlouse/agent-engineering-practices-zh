@@ -20,6 +20,21 @@
       </details>
     </figure>
   </sc-if>
+  <sc-if value="{{videoLoading}}" hint-placeholder-val="{{ false }}">
+    <figure class="vc-video vc-read-wide">
+      <sc-if value="{{videoSlow}}" hint-placeholder-val="{{ false }}">
+        <div class="vc-loading-slow" role="status"><p>{{u.loading}}</p><button type="button" class="btn vc-btn-quiet">{{u.retry}}</button></div>
+      </sc-if>
+      <sc-if value="{{videoQuick}}" hint-placeholder-val="{{ false }}"><p class="vc-sr-only" role="status">{{u.loading}}</p></sc-if>
+      <span class="vc-skeleton vc-skeleton-media" aria-hidden="true"></span>
+      <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
+        <summary>{{u.transcript}}</summary>
+        <div class="vc-transcript">
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+        </div>
+      </details>
+    </figure>
+  </sc-if>
   <sc-if value="{{videoFailed}}" hint-placeholder-val="{{ false }}">
     <figure class="vc-video">
       <div class="vc-notice vc-notice-action vc-read-wide" role="alert">

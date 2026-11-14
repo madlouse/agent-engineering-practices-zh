@@ -59,7 +59,8 @@ body{margin:0}
   <section class="vc-part vc-contact vc-read-col" id="contact" aria-labelledby="contact-t">
     <h2 id="contact-t" class="vc-type-title-3-serif">{{c.contactTitle}}</h2>
     <p class="vc-type-body-reading">{{c.contact}}</p>
-    <a class="btn vc-btn-action" href="mailto:">{{c.contactCta}}</a>
+    <p class="vc-contact-address"><span class="mono">{{site.contactEmail}}</span><a class="btn vc-btn-action" href="{{contactMail}}">{{c.contactCta}}</a></p>
+    <p class="vc-type-footnote vc-sub">{{c.privacyPre}}<a href="{{privacyMail}}">{{site.privacyEmail}}</a>{{c.privacyEnd}}</p>
   </section>
   <nav class="vc-part vc-next" aria-labelledby="start-t">
     <h2 id="start-t" class="vc-type-title-3">{{c.startTitle}}</h2>
@@ -119,6 +120,8 @@ body{margin:0}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":2530}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+/* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
 const SHELL = {
   zh: {
     home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
@@ -162,6 +165,7 @@ function shellVals(self, station, path) {
   const busy = sub === '正在订阅';
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
+    site: SITE_CONFIG, contactMail: 'mailto:' + SITE_CONFIG.contactEmail, privacyMail: 'mailto:' + SITE_CONFIG.privacyEmail,
     zhHref, enHref, otherHref: en ? zhHref : enHref,
     zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
@@ -196,6 +200,7 @@ const COPY = {
       { n: '4', q: '错了怎么纠正', a: '每篇文章末尾有纠错入口，你也可以直接写信。改正后记进那一篇的更新记录。产品负责人可以撤下任何一篇；撤下后，那个地址显示「页面不存在」，首页和 RSS 随之更新。' },
     ],
     contactTitle: '联系', contact: '发现错误、想转载，或者想告诉我们一件事，都可以写信。', contactCta: '写信给我们',
+    privacyPre: '隐私相关的请求，例如删除订阅数据，请写到 ', privacyEnd: '。',
     startTitle: '从一站开始', bodyLine: '每周两次力量训练。', mindLine: '读懂 AI 从哪里来。', buildLine: '和智能体一起做出东西。',
   },
   en: {
@@ -214,6 +219,7 @@ const COPY = {
       { n: '4', q: 'How we correct mistakes', a: 'Every article ends with a link for corrections, or you can email us. Each fix is logged in that article’s change list. The product owner can take down any piece. After that its URL shows “Page not found,” and the home page and RSS update to match.' },
     ],
     contactTitle: 'Contact', contact: 'Found a mistake, want to republish something, or have something to tell us? Email us.', contactCta: 'Email us',
+    privacyPre: 'For privacy requests, such as deleting your newsletter data, email ', privacyEnd: '.',
     startTitle: 'Start at a station', bodyLine: 'Strength training, twice a week.', mindLine: 'Understand where AI came from.', buildLine: 'Make things with agents.',
   },
 };

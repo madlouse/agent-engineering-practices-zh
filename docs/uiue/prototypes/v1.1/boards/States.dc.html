@@ -33,9 +33,9 @@ body{margin:0}
     <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
   </header>
 </div>
-<!-- 页面不存在、退订成功、退订失效：不属于任何一站，导航里没有当前页；一句话说明，下面是三站入口，不放搜索框。
+<!-- 页面不存在、退订成功、退订链接失效：不属于任何一站，导航里没有当前页；一句话说明，下面是三站入口，不放搜索框。
      退订的两种是 /unsubscribe 页点「确认退订」之后原位显示的结果（PRD「订阅的细则」第 9 条、ADR-0004 (c)），不要求登录：
-     退订成功给「重新订阅」（POST，算重新同意，第 15 条），退订失效给联系邮箱，不说这个地址在不在名单里（联审 E-04） -->
+     退订成功给「重新订阅」（POST，算重新同意，第 15 条），退订链接失效给联系邮箱，不说这个地址在不在名单里（联审 E-04） -->
 <sc-if value="{{isPaperPage}}" hint-placeholder-val="{{ true }}">
   <section class="vc-band vc-band-paper" data-first-screen="">
     <div class="vc-container vc-band-body">
@@ -391,7 +391,7 @@ body{margin:0}
 </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"page":{"editor":"enum","options":["页面不存在","加载中","加载超过 10 秒","视频无法播放","文章暂无英文版","订阅失败","网络断开","退订成功","退订失效"],"default":"页面不存在"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":1760}}'>
+<script type="text/x-dc" data-dc-script data-props='{"page":{"editor":"enum","options":["页面不存在","加载中","加载超过 10 秒","视频无法播放","文章暂无英文版","订阅失败","网络断开","退订成功","退订链接失效"],"default":"页面不存在"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":1760}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
 const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com', wordsUrl: '' };
@@ -895,7 +895,7 @@ class Component extends DCLogic {
     const VIDEO = { '加载中': '视频加载中', '加载超过 10 秒': '视频加载超过 10 秒', '视频无法播放': '视频无法播放' };
     const inArticle = !!VIDEO[page] || noEnglish;
     const isNotFound = page === '页面不存在';
-    const unsubDone = page === '退订成功', unsubBad = page === '退订失效';
+    const unsubDone = page === '退订成功', unsubBad = page === '退订链接失效';
     const isPaperPage = isNotFound || unsubDone || unsubBad;
     const v = shellVals(self, inArticle || isPaperPage ? 'paper' : 'ink', isNotFound ? '/' : unsubDone || unsubBad ? '/unsubscribe' : inArticle ? '/mind/shopify-harness' : '/mind');
     const p = ST_COPY[v.en ? 'en' : 'zh'];

@@ -22,7 +22,7 @@ class Component extends DCLogic {
     const VIDEO = { '加载中': '视频加载中', '加载超过 10 秒': '视频加载超过 10 秒', '视频无法播放': '视频无法播放' };
     const inArticle = !!VIDEO[page] || noEnglish;
     const isNotFound = page === '页面不存在';
-    const unsubDone = page === '退订成功', unsubBad = page === '退订失效';
+    const unsubDone = page === '退订成功', unsubBad = page === '退订链接失效';
     const isPaperPage = isNotFound || unsubDone || unsubBad;
     const v = shellVals(self, inArticle || isPaperPage ? 'paper' : 'ink', isNotFound ? '/' : unsubDone || unsubBad ? '/unsubscribe' : inArticle ? '/mind/shopify-harness' : '/mind');
     const p = ST_COPY[v.en ? 'en' : 'zh'];

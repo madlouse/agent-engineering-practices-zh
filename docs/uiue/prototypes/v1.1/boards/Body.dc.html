@@ -46,9 +46,9 @@ body{margin:0}
   .vc-bodypage-actions { display: grid; width: 100%; }
   .vc-bodypage-list li { grid-template-columns: minmax(0, 1fr); }
   .vc-bodypage-start { display: grid; }
-  /* 图缩到手机宽度后，星期的字放大到缩放后约 13px */
+  /* 图缩到手机宽度后约是原来的 13/40：星期的字取脚注字号再放大 40/13，缩放后约等于脚注字号 */
   .vc-bodypage-branch svg { overflow: visible; margin-top: var(--space-4); }
-  .vc-bodypage-branch text { font-size: 40px; }
+  .vc-bodypage-branch text { font-size: calc(var(--type-footnote) * 40 / 13); }
 }
 </style>
 </helmet>
@@ -68,7 +68,7 @@ body{margin:0}
         <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
         <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
       </div>
-      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
     </header>
   </div>
   <main>
@@ -227,7 +227,7 @@ function shellVals(self, station, path) {
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
     zhHref, enHref, otherHref: en ? zhHref : enHref,
-    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
     toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
     themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',

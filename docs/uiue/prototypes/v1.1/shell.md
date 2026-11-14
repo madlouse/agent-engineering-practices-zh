@@ -119,7 +119,7 @@ function shellVals(self, station, path) {
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
     zhHref, enHref, otherHref: en ? zhHref : enHref,
-    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
     toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
     themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',
@@ -138,7 +138,7 @@ function shellVals(self, station, path) {
 
 `shellVals(self, station, path)` 的第三个参数是这一页的中文地址：首页 `'/'`，看清 `'/mind'`，学习路径 `'/mind/learn'`，文章 `'/mind/<slug>'`，关于 `'/about'`，动手 `'/build'`，项目页 `'/build/<项目>'`，站稳 `'/body'`；页面状态这块画板写 `'/'`。英文地址是前面加 `/en`（首页 `/en/`）。
 
-`shellVals()` 给模板的值：`t`（外壳文案）、`en`、`langAttr`、`zhHref` `enHref` `otherHref`（本页两种语言的地址，导航和页脚的语言控件用）、`themeAttr`、`navClass`、语言和外观控件的 `zhOn` `enOn` `zhW` `enW` `themeAuto` `themeLight` `themeDark` 和各自的处理函数、订阅的 `subOn` `rssRow` `barClosed` `barOpen` `barDone` `formShown` `subButton` `subBusy` `subHasError` `subError` `subInvalid` `subValue` `openSub` `closeSub`。
+`shellVals()` 给模板的值：`t`（外壳文案）、`en`、`langAttr`、`zhHref` `enHref` `otherHref`（本页两种语言的地址，导航和页脚的语言控件用）、`themeAttr`、`navClass`、语言和外观控件的 `zhOn` `enOn`（也用在窄屏语言按钮两个字的 `data-on` 上）`themeAuto` `themeLight` `themeDark` 和各自的处理函数、订阅的 `subOn` `rssRow` `barClosed` `barOpen` `barDone` `formShown` `subButton` `subBusy` `subHasError` `subError` `subInvalid` `subValue` `openSub` `closeSub`。
 
 ## 3. 导航
 
@@ -158,7 +158,7 @@ function shellVals(self, station, path) {
       <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
       <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
     </div>
-    <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+    <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
   </header>
 </div>
 ```

@@ -30,7 +30,7 @@ body{margin:0}
       <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
       <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
     </div>
-    <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+    <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
   </header>
 </div>
 <main class="vc-container vc-read {{artClass}}">
@@ -118,14 +118,14 @@ body{margin:0}
   </sc-if>
   <h1 class="vc-sr-only">{{u.loading}}</h1>
   <div class="vc-loading" aria-hidden="true">
-    <span class="vc-skeleton" style="width: 62%; height: var(--space-7);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-5);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 76%; height: var(--space-5);"></span>
-    <span class="vc-skeleton vc-read-wide" style="width: 100%; height: var(--space-8); margin-top: var(--space-3);"></span>
-    <span class="vc-skeleton vc-read-wide" style="width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-lg); margin-top: var(--space-5);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-4); margin-top: var(--space-6);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-4);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 64%; height: var(--space-4);"></span>
+    <span class="vc-skeleton vc-skeleton-w-62" style="height: var(--space-7);"></span>
+    <span class="vc-skeleton vc-read-col" style="height: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-col vc-skeleton-w-76" style="height: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-wide" style="height: var(--space-8); margin-top: var(--space-3);"></span>
+    <span class="vc-skeleton vc-read-wide vc-skeleton-media" style="margin-top: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-col" style="height: var(--space-4); margin-top: var(--space-6);"></span>
+    <span class="vc-skeleton vc-read-col" style="height: var(--space-4);"></span>
+    <span class="vc-skeleton vc-read-col vc-skeleton-w-64" style="height: var(--space-4);"></span>
   </div>
 </sc-if>
 <sc-if value="{{loadFailed}}" hint-placeholder-val="{{ false }}">
@@ -210,13 +210,13 @@ body{margin:0}
   </sc-if>
   <h1 class="vc-sr-only">{{g.loading}}</h1>
   <div class="vc-loading" aria-hidden="true">
-    <span class="vc-skeleton" style="width: 62%; height: var(--space-7);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-5);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 76%; height: var(--space-5);"></span>
-    <span class="vc-skeleton vc-read-wide" style="width: 100%; height: var(--space-8); margin-top: var(--space-3);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-4); margin-top: var(--space-6);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 100%; height: var(--space-4);"></span>
-    <span class="vc-skeleton vc-read-col" style="width: 64%; height: var(--space-4);"></span>
+    <span class="vc-skeleton vc-skeleton-w-62" style="height: var(--space-7);"></span>
+    <span class="vc-skeleton vc-read-col" style="height: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-col vc-skeleton-w-76" style="height: var(--space-5);"></span>
+    <span class="vc-skeleton vc-read-wide" style="height: var(--space-8); margin-top: var(--space-3);"></span>
+    <span class="vc-skeleton vc-read-col" style="height: var(--space-4); margin-top: var(--space-6);"></span>
+    <span class="vc-skeleton vc-read-col" style="height: var(--space-4);"></span>
+    <span class="vc-skeleton vc-read-col vc-skeleton-w-64" style="height: var(--space-4);"></span>
   </div>
 </sc-if>
 <sc-if value="{{loadFailed}}" hint-placeholder-val="{{ false }}">
@@ -348,7 +348,7 @@ function shellVals(self, station, path) {
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
     zhHref, enHref, otherHref: en ? zhHref : enHref,
-    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
     toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
     themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',

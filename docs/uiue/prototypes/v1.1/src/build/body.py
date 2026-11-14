@@ -37,9 +37,9 @@ CSS = '''/* 参考画板：站稳页是 Veli 的落地页，由 Veli 仓库实�
   .vc-bodypage-actions { display: grid; width: 100%; }
   .vc-bodypage-list li { grid-template-columns: minmax(0, 1fr); }
   .vc-bodypage-start { display: grid; }
-  /* 图缩到手机宽度后，星期的字放大到缩放后约 13px */
+  /* 图缩到手机宽度后约是原来的 13/40：星期的字取脚注字号再放大 40/13，缩放后约等于脚注字号 */
   .vc-bodypage-branch svg { overflow: visible; margin-top: var(--space-4); }
-  .vc-bodypage-branch text { font-size: 40px; }
+  .vc-bodypage-branch text { font-size: calc(var(--type-footnote) * 40 / 13); }
 }'''
 BODY = '''<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
 ''' + indent(nav('body'), 2) + '''

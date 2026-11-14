@@ -411,13 +411,25 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .icon-btn { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: var(--control-height); height: var(--control-height); padding: 0; border: 0; border-radius: var(--radius-pill); color: inherit; cursor: pointer; }
 .icon-btn:not(.lg):not([class*="surface"]) { background-color: transparent; }
 /* 提示条的面（vc-paper-surface）和页面底色只差 1.1:1，所以一圈 1px 的 vc-text-3 描边把它和页面分开（对页面底浅色 4.75:1、深色 6.68:1；设计系统：相邻色面 ≥ 1.8:1 或有描边）。
-   输入框 input.vc-field、错误说明 p.vc-error、提示条 .vc-notice（图标 + 一句话；两种排法见「9. 内容组件」）、骨架块 span.vc-skeleton（宽高写在 style 里） */
+   输入框 input.vc-field、错误说明 p.vc-error、提示条 .vc-notice（图标 + 一句话；两种排法见「9. 内容组件」）、骨架块 span.vc-skeleton（默认整宽；高度写在 style 里，只用 token；宽度用 .vc-skeleton-w-NN，NN 是百分比；16:9 的媒体占位加 .vc-skeleton-media） */
 .vc-field { min-height: var(--control-height); min-width: 0; padding: 0 var(--space-4); border: 1px solid var(--vc-paper-line); border-radius: var(--radius-pill); background: var(--vc-paper-surface); color: var(--vc-text); font: inherit; font-size: var(--type-body); }
 .vc-field::placeholder { color: var(--vc-text-3); }
 .vc-field[aria-invalid="true"] { border-color: var(--vc-error-ctx); }
 .vc-error { margin: 0; color: var(--vc-error-ctx); font-size: var(--type-footnote); line-height: var(--leading-footnote); }
 .vc-notice { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-text-3); font-size: var(--type-body); }
-.vc-skeleton { display: block; border-radius: var(--radius-sm); background: var(--vc-state-selected); }
+.vc-skeleton { display: block; width: 100%; border-radius: var(--radius-sm); background: var(--vc-state-selected); }
+.vc-skeleton-media { aspect-ratio: 16 / 9; border-radius: var(--radius-lg); }
+.vc-skeleton-w-40 { width: 40%; }
+.vc-skeleton-w-48 { width: 48%; }
+.vc-skeleton-w-56 { width: 56%; }
+.vc-skeleton-w-62 { width: 62%; }
+.vc-skeleton-w-64 { width: 64%; }
+.vc-skeleton-w-68 { width: 68%; }
+.vc-skeleton-w-70 { width: 70%; }
+.vc-skeleton-w-76 { width: 76%; }
+.vc-skeleton-w-84 { width: 84%; }
+.vc-skeleton-w-88 { width: 88%; }
+.vc-skeleton-w-90 { width: 90%; }
 /* 实色浮层面：订阅条、RSS 行、原地展开的卡片、纸底导航用 vc-surface-solid；压在平涂墨色上的浮动控件（暂停按钮）用 vc-surface-ink（V5：平涂底色上不用玻璃） */
 .vc-surface-solid { background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line), var(--shadow-pop); }
 .vc-surface-ink { background-color: var(--vc-ink-surface); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-ink-line); }
@@ -456,6 +468,8 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-leaf-vein { stroke: var(--vc-leaf-vein); }
 .vc-nav-links { display: flex; gap: 2px; }
 .vc-lang-one { display: none; align-items: center; justify-content: center; gap: var(--space-1); min-height: var(--control-height); min-width: var(--control-height); padding: 0 var(--space-2); border: 0; border-radius: var(--radius-pill); background-color: var(--vc-state-hover); color: inherit; font: inherit; font-size: var(--type-footnote); text-decoration: none; cursor: pointer; }
+.vc-lang-one [data-on] { font-weight: 400; }
+.vc-lang-one [data-on="true"] { font-weight: 700; }
 @media (max-width: 743px) {
   .vc-nav { padding: var(--space-1); gap: 0; }
   .vc-nav-lang a { padding: 0 var(--space-2); }   /* 手机上语言控件收紧，文字加长 35% 时导航在 390 宽里也放得下 */
@@ -701,17 +715,17 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 
 /* 数据图（时间尺、套叠图）：只用 token 颜色，不可点，不加动效；整张图是一个 role="img"，aria-label 写出图里的全部信息（文字等价物），里面的元素 aria-hidden。图下一行 p.vc-type-footnote 说怎么读 */
 /* 时间尺（看清首页墨色色带底部，AI 发展史一段）：五格按年数分宽度，圆点是里程碑，看得出路线在加速。
-   .vc-ruler > div[role=img][aria-label] > .vc-ruler-bar > span.vc-ruler-seg ×5（style="flex: 年数 0 0"）> i.vc-ruler-dot ×n（style="left: 百分比"）
-     + .vc-ruler-years > span ×5（起始年份；手机上后两格放不下，加 .is-tight 藏起来，只留前三格的年份）
+   .vc-ruler > div[role=img][aria-label] > .vc-ruler-bar > span.vc-ruler-seg ×5（style="--vc-ruler-span: 年数"）> i.vc-ruler-dot ×n（style="--vc-ruler-at: 百分比"）
+     + .vc-ruler-years > span ×5（style="--vc-ruler-span: 年数"，和上面的段一样宽；起始年份；手机上后两格放不下，加 .is-tight 藏起来，只留前三格的年份）
    + p.vc-type-footnote.vc-ruler-note + nav.vc-era-jump */
 .vc-ruler { display: grid; gap: var(--space-3); padding-top: var(--space-7); }
 .vc-ruler-bar, .vc-ruler-years { display: flex; gap: 2px; }
 .vc-ruler-bar { height: var(--space-5); }
-.vc-ruler-seg { position: relative; min-width: 0; background: color-mix(in srgb, var(--vc-on-ink) 14%, transparent); }
+.vc-ruler-seg { position: relative; flex: var(--vc-ruler-span) 0 0; min-width: 0; background: color-mix(in srgb, var(--vc-on-ink) 14%, transparent); }
 .vc-ruler-seg:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
-.vc-ruler-dot { position: absolute; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: var(--vc-accent); }
+.vc-ruler-dot { position: absolute; left: var(--vc-ruler-at); top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: var(--vc-accent); }
 .vc-ruler-years { position: relative; padding-top: var(--space-2); font-size: var(--type-meta-mono); line-height: var(--leading-meta-mono); letter-spacing: var(--vc-mono-track); color: var(--vc-faint); white-space: nowrap; }
-.vc-ruler-years > span { min-width: 0; }
+.vc-ruler-years > span { flex: var(--vc-ruler-span) 0 0; min-width: 0; }
 .vc-ruler-note { max-width: var(--text-max); text-wrap: pretty; }
 @media (max-width: 743px) {
   .vc-ruler { padding-top: var(--space-6); }
@@ -826,7 +840,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 @media (max-width: 1179px) { .vc-project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 743px) { .vc-project-grid { grid-template-columns: minmax(0, 1fr); } }
 
-/* 强调卡（首页「最新」一幕的最新文章，一页最多一张）：article.vc-feature > p.kicker（最新文章）+ h3.vc-type-title-2-serif + p.vc-type-lead + .vc-feature-actions > a.btn.vc-btn-on-ink（读最新文章）+ p.vc-type-meta-mono（时长 · 3 分钟视频）
+/* 强调卡（首页「最新」一幕的最新文章，一页最多一张）：article.vc-feature > p.kicker（最新文章）+ h3.vc-type-title-2-serif + p.vc-type-lead + .vc-feature-actions > a.btn.vc-btn-on-ink（读最新文章）+ p.vc-type-meta-mono > span.vc-nowrap ×3（日期 ·、时长 ·、3 分钟视频：窄屏只在三段之间折行，最后一行不会只剩一个字）
    面用 vc-accent-surface：浅色下是墨色面；深色下比页面底高一档（≥ 1.3:1）并加 1px vc-accent-line 描边 */
 .vc-feature { display: grid; align-content: start; gap: var(--space-4); padding: var(--space-7); border-radius: var(--radius-xl); background: var(--vc-accent-surface); color: var(--vc-on-ink); box-shadow: inset 0 0 0 1px var(--vc-accent-line); }
 .vc-feature .kicker { color: var(--vc-cinnabar); }
@@ -944,7 +958,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-colophon p { overflow-wrap: anywhere; text-wrap: pretty; }
 .vc-colophon p a:not(.vc-quick) { color: var(--vc-accent); }
 .vc-colophon-report { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--space-3); }
-/* 加载中的占位（保持版式，不转圈）：div.vc-loading[aria-hidden] > span.vc-skeleton ×n（宽高写在 style 里，只用 token）。
+/* 加载中的占位（保持版式，不转圈）：div.vc-loading[aria-hidden] > span.vc-skeleton ×n（高度写在 style 里，只用 token；宽度用 .vc-skeleton-w-NN）。
    列表页的占位加 .vc-loading-rows：> span.vc-skeleton + div.vc-loading-row ×n > span.vc-skeleton + span.vc-loading-row-body > span.vc-skeleton ×2。
    超过 10 秒：占位上方一行 div.vc-loading-slow[role=status] > p（正在加载什么）+ button.btn.vc-btn-quiet（重试） */
 .vc-loading { display: grid; gap: var(--space-3); padding-top: var(--space-3); }

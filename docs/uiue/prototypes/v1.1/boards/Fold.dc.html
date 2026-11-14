@@ -32,7 +32,7 @@ body{margin:0}
         <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
         <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
       </div>
-      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
     </header>
   </div>
 
@@ -187,7 +187,7 @@ body{margin:0}
         <p class="vc-type-lead">{{c.articleLine}}</p>
         <div class="vc-feature-actions">
           <a class="btn vc-btn-on-ink" href="{{c.articleHref}}">{{c.read}}</a>
-          <p class="vc-type-meta-mono"><time datetime="{{c.articleIso}}">{{c.articleDate}}</time> · {{c.articleMeta}}</p>
+          <p class="vc-type-meta-mono"><span class="vc-nowrap"><time datetime="{{c.articleIso}}">{{c.articleDate}}</time> ·</span> <span class="vc-nowrap">{{c.articleLength}} ·</span> <span class="vc-nowrap">{{c.articleVideo}}</span></p>
         </div>
       </article>
       <div class="vc-week-log">
@@ -304,7 +304,7 @@ function shellVals(self, station, path) {
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
     zhHref, enHref, otherHref: en ? zhHref : enHref,
-    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
     toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
     themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',
@@ -350,7 +350,7 @@ const COPY = {
     ],
     weekTitle: '最新', latest: '最新文章',
     articleTitle: '比模型更耐久的 Harness', articleLine: 'Shopify 团队用测试证明漏洞，而不是收集模型给出的候选清单。',
-    articleHref: '/mind/shopify-harness', articleIso: '2026-10-31', articleDate: '2026-10-31', articleMeta: '12 分钟 · 附 3 分钟视频',
+    articleHref: '/mind/shopify-harness', articleIso: '2026-10-31', articleDate: '2026-10-31', articleLength: '12 分钟', articleVideo: '附 3 分钟视频',
     logLabel: '最新的开发日志', logDate: '2026-11-04', logProject: 'Velicoach 主站', logHref: '/build/velicoach/cold-review',
     logTitle: '合并前，一位没参与制作的评审找出 11\u00A0处问题：10 处当场改完，基线里失败的测试另开一张票',
     logLine: '基线测试是红的、命令参数不对、漏了订阅的用户数据。评审没看过写作过程，所以看得出来。',
@@ -383,7 +383,7 @@ const COPY = {
     ],
     weekTitle: 'Latest', latest: 'Latest read',
     articleTitle: 'A harness that outlasts the model', articleLine: 'Shopify’s team proves each vulnerability with a test instead of collecting a model’s list of candidates.',
-    articleHref: '/en/mind/shopify-harness', articleIso: '2026-10-31', articleDate: 'Oct 31, 2026', articleMeta: '9 min · with a 3-minute video',
+    articleHref: '/en/mind/shopify-harness', articleIso: '2026-10-31', articleDate: 'Oct 31, 2026', articleLength: '9 min', articleVideo: 'with a 3-minute video',
     logLabel: 'Latest devlog entry', logDate: 'Nov 4, 2026', logProject: 'Velicoach', logHref: '/en/build/velicoach/cold-review',
     logTitle: 'A reviewer who wasn’t involved found 11 issues before the merge: 10 fixed on the spot, the failing baseline tests moved to their own ticket.',
     logLine: 'The baseline tests were red, a command flag was wrong, and subscriber data was missing. The reviewer never saw the drafting, so the gaps stood out.',

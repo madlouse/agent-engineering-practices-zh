@@ -1256,9 +1256,9 @@ a.vc-row-main[href^="http"] .row-title::after, a.vc-card-link[href^="http"] .row
   .vc-hero-fact, .vc-hero-quick { display: none; }
   .vc-hero-sub { bottom: var(--space-3); }
 }
-/* 矮的手机竖屏和横屏的窄档（宽 < 744、高 < 600，例如 667×375）：首屏不设 560 的下限；叶与网收起，接缝两行只留「动手」圆的高度（各 40px）。
+/* 手机横屏的窄档（宽 < 744、高 < 600 且横放，例如 667×375；320×568 这类矮竖屏不进这一档）：首屏不设 560 的下限；叶与网收起，接缝两行只留「动手」圆的高度（各 40px）。
    这一档仍是上下拼接，看清一半落在视口下面，要滚一屏，留给关口四的真机检查（联审 E-01） */
-@media (max-width: 743px) and (max-height: 599px) {
+@media (max-width: 743px) and (max-height: 599px) and (orientation: landscape) {
   .vc-hero { min-height: 100svh; grid-template-rows: auto calc(var(--space-7) - var(--space-2)) calc(var(--space-7) - var(--space-2)) auto auto; }
   .vc-still, .vc-hero-gl, .vc-hero-pause { display: none; }
 }

@@ -1002,7 +1002,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   .vc-playbar-label { display: none; }
   .vc-next-go { grid-template-columns: minmax(0, 1fr); }
   .vc-part { margin-top: var(--space-7); }
-  .vc-contact .btn { width: 100%; }
+  .vc-contact .btn { width: 100%; flex: 1 1 100%; }
 }
 /* 阅读版式（文章、单条开发日志、关于页的正文）：.vc-prose 套在正文外面，里面直接写 h2、h3、p、ul、ol、blockquote、pre、figure、table。
    中文 17px、行高 1.8、版心 640px（每行约 37 字）；英文 17px、行高 1.45、版心 580px（每行约 68 个字符）。段距 24px；标题上方的距离是下方的两倍 */

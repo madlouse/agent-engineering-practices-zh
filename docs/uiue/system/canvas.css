@@ -930,9 +930,10 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-take { display: grid; gap: var(--space-2); margin-top: var(--space-6); padding-left: var(--space-4); border-left: 2px solid var(--vc-accent); }
 .vc-take .kicker, .vc-practice .kicker { color: var(--vc-accent); }
 /* 3 分钟视频：figure.vc-video.vc-read-wide > div.vc-video-frame[data-video]（16:9；真实页面里 .vc-video-shot 的位置是 <video>）
-     > div.vc-video-shot（封面：p.kicker + p.vc-video-title；最亮的一帧加 .is-bright）+ span.vc-video-scrim + div.vc-playbar.lg.lg-on-dark[data-backdrop="video"][data-lens]
-   + figcaption（谁的声音、多长）+ details.vc-fold.vc-read-col#transcript（文字稿）。
-   播放条是玻璃（背后是视频画面）：button.icon-btn.vc-playbar-play + span.vc-playbar-label + span.mono（时长）+ span.vc-playbar-space + button.vc-quick.vc-quick-small.vc-playbar-cc（字幕）。
+     > div.vc-video-shot（封面：p.kicker + p.vc-video-title；最亮的一帧加 .is-bright）+ span.vc-video-scrim + button.vc-video-cover + div.vc-playbar.lg.lg-on-dark[data-backdrop="video"][data-lens]
+   + figcaption（谁的声音、多长）+ details.vc-fold.vc-read-col#transcript（文字稿）。figure 带 id="video"，社交链接直达这里。
+   整个画面都能点：button.vc-video-cover 铺满画面、压在播放条下面，点了就是播放；它不进 Tab 顺序、读屏不读，键盘和读屏用播放条上的播放按钮。
+   播放条是玻璃（背后是视频画面）：button.icon-btn.vc-playbar-play + span.vc-playbar-label + span.mono（已播 / 总长）+ input.vc-playbar-seek[type=range]（进度，可拖动）+ button.vc-quick.vc-quick-small.vc-playbar-cc（字幕）。
    播放条下面压暗一段：视频读不出像素，最亮的一帧上白字也够 4.5:1（liquid-glass.md §4） */
 .vc-video { margin: var(--space-6) 0 0; }
 .vc-video-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-lg); background: var(--vc-ink); color: var(--vc-on-ink); box-shadow: 0 0 0 1px var(--vc-accent-line); }
@@ -945,7 +946,8 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-video-frame .vc-playbar { --lg-density: 1; position: absolute; z-index: 1; left: var(--space-4); right: var(--space-4); bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-3); min-height: var(--nav-height); padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1); border-radius: var(--radius-pill); color: var(--vc-on-ink); font-size: var(--type-footnote); line-height: var(--leading-footnote); white-space: nowrap; }
 .vc-playbar .icon-btn.vc-playbar-play { background-color: var(--vc-on-ink); color: var(--vc-ink); }
 .vc-playbar-label { font-weight: 600; }
-.vc-playbar-space { flex: 1; }
+.vc-video-cover { position: absolute; inset: 0; padding: 0; border: 0; background: none; cursor: pointer; }
+.vc-playbar-seek { flex: 1; align-self: stretch; min-width: var(--space-8); margin: 0; accent-color: var(--vc-on-ink); cursor: pointer; }
 .vc-playbar .vc-playbar-cc { justify-content: center; padding: 0 var(--space-2); border: 0; background: none; color: inherit; font-family: inherit; cursor: pointer; }
 .vc-video figcaption { margin-top: var(--space-2); font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-faint); }
 /* 收起的块（目录、文字稿）：details.vc-fold[data-expand="inline"] > summary（44px 高，右侧一个折角）+ 内容。
@@ -1002,6 +1004,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   .vc-video-title { font-size: var(--type-title-3-serif); line-height: var(--leading-title-3-serif); }
   .vc-video-frame .vc-playbar { left: var(--space-2); right: var(--space-2); bottom: var(--space-2); gap: var(--space-2); padding-right: var(--space-1); }
   .vc-playbar-label { display: none; }
+  .vc-playbar-seek { min-width: var(--space-6); }
   .vc-next-go { grid-template-columns: minmax(0, 1fr); }
   .vc-part { margin-top: var(--space-7); }
   .vc-contact .vc-contact-address { justify-self: stretch; }

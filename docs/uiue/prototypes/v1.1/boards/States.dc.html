@@ -280,15 +280,16 @@ body{margin:0}
     </div>
   </header>
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
-    <figure class="vc-video vc-read-wide">
+    <figure class="vc-video vc-read-wide" id="video">
       <div class="vc-video-frame" data-video="">
         <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
+        <button type="button" class="vc-video-cover" tabindex="-1" aria-hidden="true"></button>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
           <button type="button" class="icon-btn vc-playbar-play" aria-label="{{u.play}}"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 2.5 L13 8 L4 13.5 Z" fill="currentColor"></path></svg></button>
           <span class="vc-playbar-label">{{u.video}}</span>
           <span class="mono">{{videoTime}}</span>
-          <span class="vc-playbar-space"></span>
+          <input type="range" class="vc-playbar-seek" min="0" max="100" value="0" aria-label="{{u.seek}}" aria-valuetext="{{videoTime}}">
           <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="false">{{u.capt}}</button>
         </div>
       </div>
@@ -302,7 +303,7 @@ body{margin:0}
     </figure>
   </sc-if>
   <sc-if value="{{videoLoading}}" hint-placeholder-val="{{ false }}">
-    <figure class="vc-video vc-read-wide">
+    <figure class="vc-video vc-read-wide" id="video">
       <sc-if value="{{videoSlow}}" hint-placeholder-val="{{ false }}">
         <div class="vc-loading-slow" role="status"><p>{{u.loading}}</p><button type="button" class="btn vc-btn-quiet">{{u.retry}}</button></div>
       </sc-if>
@@ -317,7 +318,7 @@ body{margin:0}
     </figure>
   </sc-if>
   <sc-if value="{{videoFailed}}" hint-placeholder-val="{{ false }}">
-    <figure class="vc-video">
+    <figure class="vc-video" id="video">
       <div class="vc-notice vc-notice-action vc-read-wide" role="alert">
         <p><strong>{{u.videoFailTitle}}</strong>{{u.videoFailBody}}</p>
         <button type="button" class="btn vc-btn-quiet">{{u.retry}}</button>
@@ -460,7 +461,7 @@ const ART_UI = {
     dtApplies: '适用于', applies: 'Harness 工程，和具体模型无关', dtRights: '授权', rights: '讲解和摘要，不是全文翻译', dtOrigin: '起草', origin: '智能体起草，独立评审',
     dtLength: '时长', readTime: '12 分钟', hasVideo: '有 3 分钟视频',
     toc: '目录', tocPractice: '练习', notesLabel: '注释', backToText: '回到正文',
-    play: '播放 3 分钟视频', video: '3 分钟视频', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
+    play: '播放 3 分钟视频', video: '3 分钟视频', seek: '播放进度', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
     videoFailTitle: '视频没能播放。', videoFailBody: '文字稿讲的是同一件事，就在下面。', retry: '重试',
     loading: '正在加载视频',
     noEnTitle: '', noEnBody: '', noEnCta: '',
@@ -483,7 +484,7 @@ const ART_UI = {
     dtApplies: 'Applies to', applies: 'Harness engineering, any model', dtRights: 'Rights', rights: 'Summary and commentary, not a translation', dtOrigin: 'Drafting', origin: 'AI-drafted, independently reviewed',
     dtLength: 'Length', readTime: '9 min read', hasVideo: '3-minute video',
     toc: 'Contents', tocPractice: 'Exercise', notesLabel: 'Notes', backToText: 'Back to the text',
-    play: 'Play the 3-minute video', video: '3-minute video', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
+    play: 'Play the 3-minute video', video: '3-minute video', seek: 'Playback position', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
     videoFailTitle: 'The video didn’t play. ', videoFailBody: 'The transcript below covers the same ground.', retry: 'Try again',
     loading: 'Loading the video',
     noEnTitle: 'This piece is only in Chinese for now. ', noEnBody: 'Our Chinese write-up is below. The original post is in English.', noEnCta: 'Read the original',

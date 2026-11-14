@@ -141,7 +141,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 
 **2026-11-13 起只由主频道合并（产品负责人定，velicoach-mono 工程规范「分支和合并」）：** 下表的合并条件和合并脚本里的检查是合并前要过的关，动手合并的只有主频道；推进器、观察者、主会话和子 Agent 做到预览 READY、交审核线评审为止，不调合并脚本、不点合并，接着做不依赖它的事。冷评审由审核线派出并贴出；PR 作者会话不派、不贴，只按评审结论修改（§7「评审结论评论」）；下表的「冷评审 pass」指审核线贴出的结论。表里写「产品负责人确认」「产品负责人合并」「`owner:merge`」的，都由主频道代他判断；只有撤不回、花钱、对外发声（含站上内容的发布）三类由主频道去问他。要他定的取舍在 PR 或 issue 评论起一行「待主频道定：」。
 
-产品负责人：「让用户确认其实要有一套对应的规则，不是什么都要用户去合并。」照 Veli `agent-gitflow.md` §5.3、§5.4 改（§9）。合并进集成分支一律用合并脚本；脚本判定 base、类别、要几份评审（`merge-gates.mjs`、`review-markers.mjs`，测试在两份 `.test.mjs`），合并前在「PR + 最新目标分支」上重跑 `npm test`、`check:terms`、`check:vague`（命令取自目标分支）。任何 PR 都不能关 #13（`PROTECTED_ISSUES`）。
+产品负责人：「让用户确认其实要有一套对应的规则，不是什么都要用户去合并。」照 Veli `agent-gitflow.md` §5.3、§5.4 改（§9）。合并进集成分支一律用合并脚本；脚本判定 base、类别、要几份评审（`merge-gates.mjs`、`review-markers.mjs`，测试在两份 `.test.mjs`），合并前在「PR + 最新目标分支」上重跑 `npm test`、`check:terms`、`check:vague`、`check:voice`、`check:research-metric`（命令取自目标分支；`check:research-metric` 是 2026-11-13 主频道定的，单独一个提交，可单独回退）。任何 PR 都不能关 #13（`PROTECTED_ISSUES`）。
 
 | PR | 合并条件 | 谁合并 |
 |---|---|---|
@@ -235,6 +235,7 @@ PRD、技能、术语表、设计系统、画板和需求追踪由主会话改�
 | 页面 | `python .grok/skills/design-bar/scripts/check_page.py <预览地址> --out <目录> --dark --widths 320,375,744,1180 --targets-up-to 1180 --project-config docs/uiue/design-bar.json`：三种版式和 320px、浅色深色的截图，溢出、小字、对比度、所有宽度的可点区域、焦点、控制台报错，并查样式里有没有 `prefers-reduced-motion`。减弱动态效果和键盘操作它不走，界面票的验收里写明怎么手工验证。在 Vercel Sandbox 里对预览部署跑：云端会话本机的代理不放行 `*.vercel.app`，本机容器访问不到预览；沙箱的网络策略放行出站，里面装 Chromium、检出本仓库后照上面的命令跑。预览的登录保护目前关闭（需求第 104 条），所以不带任何凭据。做法和一次实际运行见 #121 的评论 6850816869。M3 订阅表单第一次上预览之前重新打开预览的登录保护，届时另开票解决有保护时怎么跑 | `reviewer`（界面票）；里程碑关口 |
 | token | `npm run check:tokens`（跑 `python .grok/skills/design-bar/scripts/lint_tokens.py src --project-config docs/uiue/design-bar.json --tokens <token 文件>`，排除的目录写在 `design-bar.json` 的 `lint-tokens.exclude`；这条 npm 命令由票 #22 加） | `reviewer`（界面票） |
 | 画板 | `python .grok/skills/design-bar/scripts/verify_canvas.py <画板目录> --out <目录> --themes light,dark,pseudo --project-config docs/uiue/design-bar.json`（`--out` 必填；本站把相邻大色面的最低对比从技能通用的 1.3:1 提到 1.8:1，写在 `docs/uiue/design-bar.json`；配置只许收紧，比通用下限松的值脚本报错退出；`docs/uiue/design-bar.json` 和 `docs/uiue/shell.json` 是门槛文件，和本节命令一样：票的 PR 不能改，其他 PR 改了按 b 类要两份评审（`scripts/merge-gates.mjs` 的 `GATE_FILES`）；依据是设计系统「浅色与深色」：深色下品牌两半 ≥ 1.8:1。深色下有意只隔约 1.3:1 的两处，墨色色带和强调面对页面底，都带 1px 描边，边界画出来的面检查不报） | 关口三 a；改了画板的票 |
+| 研究卡大数字 | `npm run check:research-metric`（扫 `src` 和画板目录 `docs/uiue/prototypes/v1.1/boards`）：带 `data-research-metric` 的元素，最近的研究卡要带 `data-credibility`，取值合法且是高或中（`quality-terms` T8）。只查写死在标记里的属性；按数据渲染的由 #52 的数据检查查。合并脚本合并前重跑 | `reviewer`（界面票）、`design-reviewer`；合并脚本 |
 | 内容 | 出处逐条打开核对；授权状态；`velicoach-content` 的审核清单；中英两版都在。研究卡另查：出处链到论文原文，措辞和研究类型相符（`npm run check:research`，站点票 #52 交付；交付前逐张人工核对） | `content-reviewer` |
 
 ## 8. 先慢后快

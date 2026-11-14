@@ -114,7 +114,7 @@ echo "▶ 在 PR #$PR（$head@${sha:0:7}，类别 $category）+ 最新 $TARGET �
 # 检查命令取自目标分支的 package.json，不用 PR 自己的版本
 base_script() { git show "$tgt:package.json" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{const v=JSON.parse(d).scripts[process.argv[1]];if(!v)process.exit(1);console.log(v)})' "$1"; }
 checks=()
-for s in test check:terms check:vague check:voice; do
+for s in test check:terms check:vague check:voice check:research-metric; do
   cmd=$(base_script "$s") || fail "$TARGET 的 package.json 里没有 $s"
   checks+=("$cmd")
 done

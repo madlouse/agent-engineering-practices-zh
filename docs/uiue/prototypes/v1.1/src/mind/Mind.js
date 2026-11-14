@@ -22,7 +22,7 @@ const MIND_COPY = {
     layerIntro: { eng: '从提示词到多个智能体组成的系统，每一层都在解决上一层留下的问题。', org: '智能体进到团队以后，分工和组织怎样跟着改。', me: '一个人怎样用智能体安排自己的工作和生活。' },
     usesLoop: '用到的工程：Loop 工程', devlog: '我们自己的实践：开发日志', devlogHref: '/build#devlog',
     alsoManus: '另见：《用 Manus 重建 Manus》里的闭环',
-    factWhat: '是什么', factHow: '怎么用', factWho: '适合谁', published: '发布于',
+    factWhat: '是什么', factHow: '怎么用', factWho: '适合谁', published: '发布于', originLabel: '智能体起草，独立评审', originShort: '智能体起草',
     typePost: '文章', typeTool: '工具', typeSkill: '技能', langOf: { zh: '原文中文', en: '原文英文' }, cardLang: { en: '英文' }, video: '3 分钟视频', sep: ' · ',
   },
   en: {
@@ -45,7 +45,7 @@ const MIND_COPY = {
     layerIntro: { eng: 'From prompts to systems of several agents, each layer solves a problem the last one left open.', org: 'How teams and organizations change once agents join the work.', me: 'How one person uses agents to run their work and life.' },
     usesLoop: 'Engineering layer used: Loop engineering', devlog: 'Our own practice: the devlog', devlogHref: '/en/build#devlog',
     alsoManus: 'See also: the closed loop in “Rebuilding Manus with Manus”',
-    factWhat: 'What it is', factHow: 'How to use it', factWho: 'Who it’s for', published: 'Published',
+    factWhat: 'What it is', factHow: 'How to use it', factWho: 'Who it’s for', published: 'Published', originLabel: 'AI-drafted, independently reviewed', originShort: 'AI-drafted',
     typePost: 'Article', typeTool: 'Tool', typeSkill: 'Skill', langOf: { zh: 'Original in Chinese', en: 'Original in English' }, cardLang: { en: 'English' }, video: '3-minute video', sep: ' · ',
   },
 };
@@ -220,7 +220,7 @@ function mindVals(self, v, o) {
   const first = eras[0].span + eras[1].span;
   const rest = eras.slice(2).reduce((s, e) => s + e.span, 0);
   /* 人机协作 */
-  const post = (p) => ({ isPost: true, isCard: false, slug: p.slug, href: c.postBase + p.slug, title: p[L][0], dek: p[L][1], date: p.date, dateText: fmt(p.date),
+  const post = (p) => ({ isPost: true, isCard: false, slug: p.slug, href: c.postBase + p.slug, title: p[L][0], dek: p[L][1], ai: p.ai !== false, date: p.date, dateText: fmt(p.date),
     meta: [c.typePost, c.langOf[p.lang]].concat(p.video ? [c.video] : []).join(c.sep) });
   const card = (k) => ({ isPost: false, isCard: true, slug: k.slug, href: k.url, title: k[L][0], what: k[L][1], how: k[L][2], who: k[L][3],
     meta: [k.type === 'tool' ? c.typeTool : c.typeSkill, c.cardLang[k.lang]].join(c.sep) });

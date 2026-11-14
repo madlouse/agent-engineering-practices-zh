@@ -57,6 +57,7 @@ body{margin:0}
         <div><dt>{{u.dtChecked}}</dt><dd><time datetime="2026-11-04">{{u.dChecked}}</time></dd></div>
         <div><dt>{{u.dtApplies}}</dt><dd>{{u.applies}}</dd></div>
         <div><dt>{{u.dtRights}}</dt><dd>{{u.rights}}</dd></div>
+        <div data-origin="ai"><dt>{{u.dtOrigin}}</dt><dd>{{u.origin}}</dd></div>
         <div><dt>{{u.dtLength}}</dt><dd>{{length}}</dd></div>
       </dl>
     </div>
@@ -410,7 +411,7 @@ const ART_UI = {
     metaWho: '谁写的、什么时候', metaCheck: '我们核对了什么',
     dtAuthor: '作者', author: 'Zack Deveau，Shopify Engineering', dtOriginal: '原文', dOriginal: '2026-07-29', readOriginal: '读原文',
     dtPublished: '发布', dPublished: '2026-10-31', dtChecked: '最后核对', dChecked: '2026-11-04',
-    dtApplies: '适用于', applies: 'Harness 工程，和具体模型无关', dtRights: '授权', rights: '讲解和摘要，不是全文翻译',
+    dtApplies: '适用于', applies: 'Harness 工程，和具体模型无关', dtRights: '授权', rights: '讲解和摘要，不是全文翻译', dtOrigin: '起草', origin: '智能体起草，独立评审',
     dtLength: '时长', readTime: '12 分钟', hasVideo: '有 3 分钟视频',
     toc: '目录', tocPractice: '练习', notesLabel: '注释', backToText: '回到正文',
     play: '播放 3 分钟视频', video: '3 分钟视频', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
@@ -433,7 +434,7 @@ const ART_UI = {
     metaWho: 'Author and dates', metaCheck: 'What we checked',
     dtAuthor: 'Author', author: 'Zack Deveau, Shopify Engineering', dtOriginal: 'Original', dOriginal: 'Jul 29, 2026', readOriginal: 'Read the original',
     dtPublished: 'Published', dPublished: 'Oct 31, 2026', dtChecked: 'Last checked', dChecked: 'Nov 4, 2026',
-    dtApplies: 'Applies to', applies: 'Harness engineering, any model', dtRights: 'Rights', rights: 'Summary and commentary, not a translation',
+    dtApplies: 'Applies to', applies: 'Harness engineering, any model', dtRights: 'Rights', rights: 'Summary and commentary, not a translation', dtOrigin: 'Drafting', origin: 'AI-drafted, independently reviewed',
     dtLength: 'Length', readTime: '9 min read', hasVideo: '3-minute video',
     toc: 'Contents', tocPractice: 'Exercise', notesLabel: 'Notes', backToText: 'Back to the text',
     play: 'Play the 3-minute video', video: '3-minute video', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',

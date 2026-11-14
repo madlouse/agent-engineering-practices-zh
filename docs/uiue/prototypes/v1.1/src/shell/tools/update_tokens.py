@@ -90,7 +90,6 @@ tok('size','text-max-en')['value'] = '580px'
 tok('size','text-max-en')['usage'] = '英文正文的版心。英文正文 17px、行高 1.45，每行约 68 个字符（A6：60–75）。中文仍用 text-max 640px、17px、行高 1.8，每行约 37 字。'
 tok('size','breakpoint-tablet')['usage'] = '平板版式的起点：iPad mini 竖屏的宽度。低于它是手机版式。媒体查询里写死同值，并注明来自此 token。'
 insert_after('size','breakpoint-desktop',[('name','breakpoint-nav-compact'),('value','360px'),('usage','导航窄于它时，语言分段控件收成一个按钮「中 / EN」。站标的叶子不收。')])
-insert_after('size','breakpoint-nav-compact',[('name','breakpoint-fold-half'),('value','860px'),('usage','折叠屏半屏窄于它时，语言分段控件同样收成一个按钮（PRD F06）。要读两块屏的宽度，随折痕对齐在 v2 启用；v1 只按 breakpoint-nav-compact 判。')])
 tok('size','nav-height')['usage'] = '胶囊导航的高度：44px 的控件加上下各 4px 内边距。'
 tok('size','sidenote-width')['usage'] = '看清文章的侧注宽度。只在桌面版式（1180px 以上）出现，和正文之间隔 space-7；手机和平板放回文末作脚注。'
 

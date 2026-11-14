@@ -161,6 +161,10 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 文字入口 a.vc-quick：快捷入口、页内跳转、行尾的「读原文」。下划线文字，44px 高、至少 44px 宽；13px 的加 .vc-quick-small */
 .vc-quick { display: inline-flex; align-items: center; min-height: var(--size-tap-min); min-width: var(--size-tap-min); font-size: var(--type-body); text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 5px; text-decoration-thickness: 1px; }
 .vc-quick-small { font-size: var(--type-footnote); }
+/* 智能体起草的小标记（PRD F16、quality-terms T11「图标加文字」）：卡片、列表直接显示智能体起草的摘要文字时，句末一个记号 span.vc-origin：
+   图标加几个字「智能体起草」（英文 AI-drafted），title 写全「智能体起草，独立评审」；文章页元信息「起草」一栏写全，不显示摘要的位置不加 */
+.vc-origin { display: inline-flex; align-items: center; gap: var(--space-1); margin-inline-start: var(--space-2); font-size: var(--type-footnote); color: var(--vc-sub); white-space: nowrap; }
+.vc-origin svg { width: 0.8em; height: 0.8em; flex: none; }
 /* 分段控件 .seg：语言、外观（13px）；内容线切换加 .vc-seg-tabs（16px）。里面是 a 或 button。
    选中的一项标 aria-current="true|page"、aria-pressed="true" 或 aria-selected="true"，实色面加粗；面的颜色随底色变（--vc-seg-on） */
 .seg { display: inline-flex; padding: 0; border-radius: var(--radius-pill); background: var(--vc-state-hover); font-size: var(--type-footnote); }
@@ -210,6 +214,10 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-pop-opts { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--space-2); }
 .vc-pop-note { margin: 0; font-size: var(--type-footnote); line-height: var(--leading-footnote); color: var(--vc-text-2); text-wrap: pretty; }
 @media (max-width: 743px) { .vc-pop-opts { grid-auto-flow: row; } }
+/* 带码的展开层（首页首屏、站稳页的「开始训练」）：.vc-pop.vc-pop-code > .vc-pop-opts + svg.vc-start-code + p.vc-pop-note。两个去处上下排在左，右边是在手机上打开的码，说明占满下面一行 */
+.vc-pop-code { grid-template-columns: auto auto; align-items: start; gap: var(--space-2) var(--space-3); padding: var(--space-3); }
+.vc-pop-code .vc-pop-opts { grid-auto-flow: row; }
+.vc-pop-code .vc-pop-note { grid-column: 1 / -1; max-width: 24em; }
 /* 选项（展开卡片里的一项，或触屏上直接摆出的去处）：48px 高，写「方式 + 结果」（「用 Google 开始训练」） */
 .opt { display: flex; align-items: center; justify-content: center; white-space: nowrap; min-height: var(--space-7); padding: 0 var(--space-4); border-radius: var(--radius); background: var(--vc-paper-surface); color: var(--vc-text); box-shadow: 0 0 0 1px var(--vc-paper-line); text-decoration: none; font-size: var(--type-body); font-weight: 500; transition: background var(--duration-fast) var(--ease-out); }
 /* 状态点加文字（项目的「开发中」）：胶囊只给真正的状态，这里是一个点加字，不只靠颜色 */
@@ -834,7 +842,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
      + div.vc-half.vc-half-body.vc-half-start + div.vc-half.vc-half-mind.vc-half-end（两半）+ div.vc-hero-seam > a.orb + [button.icon-btn.vc-surface-ink.vc-hero-pause] + [div.vc-notice.vc-hero-notice] + div.vc-hero-sub > .vc-subbar-slot
    每一半：[p.kicker.vc-hero-station 站名小标，只有英文版有] + h2.vc-type-hero[-serif].vc-hero-title + p.vc-type-lead.vc-hero-lead ×2 + div.vc-hero-actions + p.vc-hero-quick > a.vc-quick …
    站稳一半的主操作 div.vc-hero-actions > div.vc-pop-anchor（a.btn.vc-btn-action + div.vc-pop）+ p.vc-hero-fact（一行事实）
-     + div.vc-hero-direct[role=group] > a.btn.vc-btn-action + a.btn.vc-btn-quiet（触屏和平板直接摆出的两个去处：第一个实心、第二个描边）
+     + div.vc-hero-direct[role=group] > a.btn.vc-btn-action + a.btn.vc-btn-quiet + a.vc-quick.vc-hero-alt（触屏和平板直接摆出的两个去处：第一个实心、第二个描边；手机上第二个换成同一去处的文字入口 .vc-hero-alt）
    两半的说明各写两份：p.vc-hero-lead（桌面、平板）和 p.vc-hero-lead.vc-hero-lead-short（手机上的一行：站稳留「每周两次力量训练。」，看清留受众那半句），同一时刻只显示一份
    断点 743px、1179px、359px 来自 breakpoint-tablet、breakpoint-desktop、breakpoint-nav-compact；959px 是平板档里两半各自放得下一行两个选项的宽度 */
 .vc-hero { --tag-h: calc(var(--type-title-3) * var(--leading-title-3)); --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-4) + var(--tag-h) + var(--space-2)); --hero-foot: calc(var(--space-5) + var(--space-10) + var(--space-6)); --stage-max: calc(var(--space-10) * 2.5); --title-box: calc(var(--type-hero) * var(--leading-hero-serif)); position: relative; display: grid; grid-template-columns: var(--seam) minmax(0, 1fr); grid-template-rows: minmax(var(--space-8), 1fr) auto; min-height: clamp(640px, 100svh, 960px); padding-top: var(--hero-top); overflow: clip; transition: grid-template-columns var(--duration-lean) var(--ease-out); }
@@ -860,12 +868,11 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 .vc-hero-actions { align-self: stretch; display: flex; align-items: center; gap: var(--space-2) var(--space-4); min-height: var(--control-height-lg); margin-top: var(--space-6); }
 .vc-hero-fact { margin: 0; color: var(--vc-sub); white-space: nowrap; }
 .vc-hero-direct { display: none; }
+.vc-hero-alt { display: none; }
 .vc-hero-quick { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); margin: var(--space-2) 0 0; }
 /* 「开始训练」的选项（有悬停的桌面）：在按钮右边、和按钮同一行展开（.vc-pop，收起时加 .is-closed），占的是那行事实的位置，事实写进卡片的说明里；
-   卡片顶边比按钮高 24px，离上面的说明 ≥ 8px，不压标题、说明、快捷入口和订阅条。两个去处上下排，右侧 svg.vc-start-code 是在手机上打开的码 */
-.vc-hero .vc-pop { left: calc(100% + var(--space-3)); top: calc(-1 * var(--space-5)); grid-template-columns: auto auto; align-items: start; gap: var(--space-2) var(--space-3); padding: var(--space-3); }
-.vc-hero .vc-pop-opts { grid-auto-flow: row; }
-.vc-hero .vc-pop-note { grid-column: 1 / -1; max-width: 24em; }
+   卡片顶边比按钮高 24px，离上面的说明 ≥ 8px，不压标题、说明、快捷入口和订阅条。卡片内的排法见 .vc-pop-code */
+.vc-hero .vc-pop { left: calc(100% + var(--space-3)); top: calc(-1 * var(--space-5)); }
 .vc-start-code { width: calc(var(--space-9) + var(--space-2)); height: calc(var(--space-9) + var(--space-2)); padding: var(--space-1); border-radius: var(--radius-sm); background: var(--vc-paper-surface); box-shadow: 0 0 0 1px var(--vc-paper-line); color: var(--vc-text); }
 /* 接缝上的一层：「动手」圆在叶和网中间，尺寸跟着动效区的高度走。a.orb > [span.vc-orb-station 英文版的站名] + span.vc-orb-title + span.vc-orb-sub > span.vc-orb-long + span.vc-orb-short（圆小的时候换短的一句）。
    暂停按钮也在这一层：动效区的右下角、贴着网（它管的就是这块动效），44px 实色墨面；倾斜时不动。手机上在动效区左下角（右边是「动手」圆），叶与网收起时一起收起 */
@@ -916,13 +923,13 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 }
 /* 手机：上下拼接，接缝是一条横线。从上到下：定位句、「先站稳」一半、叶（纸色一半里，接缝上方）、接缝和「动手」圆（靠右）、网（墨色一半里，接缝下方）、「再看清」一半、订阅条。
    叶和网在同一条竖轴上居中：叶从接缝往上长（可以伸进快捷入口那一行右边的空处），网从接缝往下长；动效区的高度按 3:5 分给接缝上、下。
-   整屏只有一个实心主按钮（站稳的第一个去处），「读最新文章」降成描边；两半的说明各留一行（站稳「每周两次力量训练。」，看清只留受众那半句）。
-   首屏放不下时先收第二层入口，最后才收那一句说明。顺序：
-     1. 高度 < 820（紧凑排法，真机竖屏带工具栏时都是这一档）：两半的快捷入口（「为什么是肌肉」是本页锚点，往下滚就是；「AI 发展史」「人机协作」从导航的「看清」进）、那行事实、看清的那半句；
+   整屏只有一个实心主按钮（站稳的第一个去处），第二个去处降成文字入口 a.vc-quick.vc-hero-alt（描边按钮在手机上不显示，省出一行），「读最新文章」降成描边；两半的说明各留一行（站稳「每周两次力量训练。」，看清只留受众那半句「写给想跟上 AI 的人。」）。
+   首屏回答三件事（PRD F01、quality-terms U2）：定位句、受众词（看清那半句）、主操作在任何高度都留在首屏，390×664、320×568 两个尺寸逐项判。放不下时先收第二层入口。顺序：
+     1. 高度 < 820（紧凑排法，真机竖屏带工具栏时都是这一档）：两半的快捷入口（「为什么是肌肉」是本页锚点，往下滚就是；「AI 发展史」「人机协作」从导航的「看清」进）、那行事实；
         接缝改在动效区正中（--seam-yn 50），叶和网各占一半，定位句上面的间距收到 12px；
      2. 叶与网放不下各 64px（space-8）时整块收起，不缩到 64px 以下：紧凑排法动效区 < 144px，完整排法 < 128px；暂停按钮跟着收起；
-     3. 高度 ≤ 600：定位句只留给读屏，标题缩一档；
-     4. 站稳的那一句说明留到最后：首屏最小高度 560px 以内都不收。主操作（两个去处、「读最新文章」）和订阅条任何高度都不收 */
+     3. 高度 ≤ 600：标题缩一档；
+     4. 定位句、两半的那一句说明、主操作（两个去处、「读最新文章」）和订阅条任何高度都不收 */
 @media (max-width: 743px) {
   .vc-hero { --seam-yn: 37.5; --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-5) + var(--tag-h) + var(--space-1)); grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 3fr) minmax(0, 5fr) auto auto; min-height: clamp(560px, 100svh, 844px); }
   .vc-hero-paper { grid-column: 1 / 2; grid-row: 1 / 3; }
@@ -935,7 +942,9 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   .vc-hero-tag .vc-hero-tag-paper { clip-path: none; }
   .vc-hero-tag .vc-hero-tag-ink { display: none; }
   .vc-hero-lead { display: none; min-height: 0; margin-top: var(--space-2); }
-  .vc-half-body .vc-hero-lead-short { display: block; }
+  .vc-hero-lead-short { display: block; }
+  .vc-hero-direct .vc-btn-quiet { display: none; }
+  .vc-hero-alt { display: inline-flex; justify-self: start; }
   .vc-hero-actions { margin-top: var(--space-3); }
   .vc-hero-direct { grid-auto-flow: row; max-width: none; }
   .vc-hero-quick { margin-top: var(--space-1); }
@@ -961,7 +970,6 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   @container (max-height: 127px) { .vc-still, .vc-hero-gl, .vc-hero-pause { display: none; } }
 }
 @container (max-height: 47px) { .vc-still, .vc-hero-gl, .vc-hero-pause { display: none; } }
-@media (max-width: 743px) and (min-height: 820px) { .vc-half-mind .vc-hero-lead-short { display: block; } }
 /* 手机的紧凑排法（高度 < 820）：没有快捷入口那一行，叶不再往上伸，叶和网各自贴着接缝、留 8px */
 @media (max-width: 743px) and (max-height: 819px) {
   .vc-hero { --seam-yn: 50; --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-3) + var(--tag-h) + var(--space-1)); grid-template-rows: auto minmax(0, 1fr) minmax(0, 1fr) auto auto; }
@@ -970,10 +978,6 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   .vc-hero-seam > *, .vc-hero-stage > * { --s: min(50cqh - var(--space-2), var(--space-9)); --net-h: min(50cqh - var(--space-2), var(--space-9)); }
   .vc-hero-gl { top: 0; height: 100%; }
   @container (max-height: 143px) { .vc-still, .vc-hero-gl, .vc-hero-pause { display: none; } }
-}
-@media (max-width: 743px) and (max-height: 600px) {
-  .vc-hero { --hero-top: calc(var(--nav-height) + var(--vc-nav-top) + var(--space-3)); }
-  .vc-hero-tag { clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; }
 }
 @media (max-width: 743px) and (max-height: 600px), (max-width: 359px) {
   .vc-hero { --title-box: calc(var(--type-title-1) * var(--leading-hero-serif)); }

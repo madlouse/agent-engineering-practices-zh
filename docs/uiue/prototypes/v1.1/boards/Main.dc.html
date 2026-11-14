@@ -56,7 +56,7 @@ body{margin:0}
       <div class="vc-hero-actions">
         <div class="vc-pop-anchor" onMouseEnter="{{openStart}}" onMouseLeave="{{closeLater}}">
           <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="vc-start-opts" onFocus="{{focusStart}}"><span>{{c.start}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
-          <div id="vc-start-opts" class="vc-pop vc-pop-code {{startClass}}" data-pop="" role="group" aria-label="{{c.startMenu}}">
+          <div id="vc-start-opts" class="vc-pop vc-pop-code{{startClass}}" data-pop="" role="group" aria-label="{{c.startMenu}}">
             <div class="vc-pop-opts">
               <a class="opt" href="{{c.authHref}}">{{authFirst}}</a>
               <a class="opt" href="{{c.authHref}}">{{authSecond}}</a>
@@ -650,7 +650,7 @@ class Component extends DCLogic {
       lean: st.lean || '', leanBody: lean('body', true), leanMind: lean('mind', true), leanBodyNow: lean('body', false), leanMindNow: lean('mind', false),
       leanNone: () => { clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ lean: '', start: '收起' }); },
       heroClass: 'vc-hero' + (offline ? ' is-offline' : ''), offline,
-      startClass: open ? '' : 'is-closed', startExpanded: open ? 'true' : 'false',
+      startClass: open ? '' : ' is-closed', startExpanded: open ? 'true' : 'false',
       openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '展开' }), this.hoverIntent()); },
       focusStart: () => { if (this.skipFocusOpen) { this.skipFocusOpen = false; return; } clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '展开' }), this.hoverIntent()); },
       closeLater: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '收起' }), 300); },

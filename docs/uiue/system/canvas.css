@@ -401,7 +401,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
 /* 文字入口 a.vc-quick：快捷入口、页内跳转、行尾的「读原文」。下划线文字，44px 高、至少 44px 宽；13px 的加 .vc-quick-small */
 .vc-quick { display: inline-flex; align-items: center; min-height: var(--size-tap-min); min-width: var(--size-tap-min); font-size: var(--type-body); text-decoration: underline; text-decoration-color: currentColor; text-underline-offset: 5px; text-decoration-thickness: 1px; }
 .vc-quick-small { font-size: var(--type-footnote); }
-/* 智能体起草的小标记（PRD F16、quality-terms T11「图标加文字」）：卡片、列表直接显示智能体起草的摘要文字时，句末一个记号 span.vc-origin：
+/* 智能体起草的小标记（PRD F16、quality-terms T11「图标加文字」）：卡片、列表直接显示智能体起草的摘要文字时，句末一个记号 span.vc-origin[data-origin="ai"]：
    图标加几个字「智能体起草」（英文 AI-drafted），title 写全「智能体起草，独立评审」；文章页元信息「起草」一栏写全，不显示摘要的位置不加 */
 .vc-origin { display: inline-flex; align-items: center; gap: var(--space-1); margin-inline-start: var(--space-2); font-size: var(--type-footnote); color: var(--vc-sub); white-space: nowrap; }
 .vc-origin svg { width: 0.8em; height: 0.8em; flex: none; }
@@ -1004,6 +1004,7 @@ a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; 
   .vc-playbar-label { display: none; }
   .vc-next-go { grid-template-columns: minmax(0, 1fr); }
   .vc-part { margin-top: var(--space-7); }
+  .vc-contact .vc-contact-address { justify-self: stretch; }
   .vc-contact .btn { width: 100%; flex: 1 1 100%; }
 }
 /* 阅读版式（文章、单条开发日志、关于页的正文）：.vc-prose 套在正文外面，里面直接写 h2、h3、p、ul、ol、blockquote、pre、figure、table。

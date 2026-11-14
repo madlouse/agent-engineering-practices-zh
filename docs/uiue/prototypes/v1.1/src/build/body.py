@@ -56,7 +56,7 @@ BODY = '''<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
           <p class="vc-type-lead">{{c.lead}}</p>
           <div class="vc-bodypage-actions">
             <div class="vc-pop-anchor vc-bodypage-start-anchor" onMouseEnter="{{openStart}}" onMouseLeave="{{closeLater}}">
-              <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="bo-start-options" onFocus="{{openStart}}"><span>{{c.cta}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+              <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="bo-start-options" onFocus="{{focusStart}}"><span>{{c.cta}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
               <div id="bo-start-options" class="{{popClass}}" data-pop="" role="group" aria-label="{{c.startGroup}}">
                 <div class="vc-pop-opts"><a class="opt" href="{{a1.href}}">{{a1.label}}</a><a class="opt" href="{{a2.href}}">{{a2.label}}</a></div>
                 <svg class="vc-start-code" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
@@ -149,12 +149,13 @@ const LISTS = %s;
 class Component extends DCLogic {
   componentDidMount() {
     if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
-    // 展开层打开时，Esc 在页面任何位置都能关上；关上后焦点回到「开始训练」
+    // 展开层打开时，Esc 在页面任何位置都能关上；焦点在展开层里时回到「开始训练」，这一次聚焦不再展开（重新聚焦或重新悬停才展开）
     this.onKey = (e) => {
       if (e.key !== 'Escape' || !this.isOpen()) return;
       clearTimeout(this.timer);
       this.setState({ open: false });
-      const btn = document.querySelector('.vc-bodypage-start-anchor .btn'); if (btn) btn.focus();
+      const btn = document.querySelector('.vc-bodypage-start-anchor .btn');
+      if (btn && document.activeElement !== btn) { this.skipFocusOpen = true; btn.focus(); }
     };
     this.onOutside = (e) => { if (this.isOpen() && !(e.target.closest && e.target.closest('.vc-pop-anchor'))) this.setState({ open: false }); };
     document.addEventListener('keydown', this.onKey);
@@ -174,6 +175,7 @@ class Component extends DCLogic {
       ...v, c: COPY[k], ...LISTS[k], a1: apple ? ap : g, a2: apple ? g : ap,
       startExpanded: open ? 'true' : 'false', popClass: open ? 'vc-pop vc-pop-code' : 'vc-pop vc-pop-code is-closed',
       openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },
+      focusStart: () => { if (this.skipFocusOpen) { this.skipFocusOpen = false; return; } clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },
       closeLater: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: false }), 300); },
     };
   }

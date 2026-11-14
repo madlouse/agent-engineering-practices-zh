@@ -52,6 +52,7 @@ body{margin:0}
           <a href="{{c.collabHref}}" aria-current="{{collabCur}}" onClick="{{showCollab}}">{{c.collab}}</a>
         </div>
         <a class="vc-quick" href="{{c.learnHref}}">{{c.learn}}</a>
+        <sc-if value="{{hasWords}}" hint-placeholder-val="{{ false }}"><a class="vc-quick" href="{{wordsHref}}">{{c.words}}</a></sc-if>
       </div>
       <sc-if value="{{isHist}}" hint-placeholder-val="{{ true }}">
         <div class="vc-ruler">
@@ -279,10 +280,10 @@ body{margin:0}
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"line":{"editor":"enum","options":["AI 发展史（/mind）","人机协作（/mind/collaboration）"],"default":"AI 发展史（/mind）"},"expand":{"editor":"enum","options":["全部收起","展开一条","从链接到达"],"default":"全部收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":4320}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"line":{"editor":"enum","options":["AI 发展史（/mind）","人机协作（/mind/collaboration）"],"default":"AI 发展史（/mind）"},"expand":{"editor":"enum","options":["全部收起","展开一条","从链接到达"],"default":"全部收起"},"words":{"editor":"enum","options":["未配置","已配置（示例地址）"],"default":"未配置"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":4320}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
-const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com', wordsUrl: '' };
 const SHELL = {
   zh: {
     home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
@@ -346,11 +347,13 @@ function shellVals(self, station, path) {
 /* ── 看清首页的数据和取值：/mind（AI 发展史）和 /mind/collaboration（人机协作）。Mind 和 States 两块画板共用这一份（States 由 pa-out/build.py 把同一份标记和这份数据拼进去）── */
 const MIND_NOW_YEAR = 2026;            // 时间尺的右端：画板核对的这一年
 const MIND_CHECKED = '2026-11-04';     // 里程碑的最后核对日期
+/* WordS（种星词）的地址在站点配置 SITE_CONFIG.wordsUrl：空着就不显示入口（PRD 第 3 节，联审 C-01）。画板属性「已配置」用这个示例子域名，实际地址等 WordS 上线后写进站点配置 */
+const MIND_WORDS_SAMPLE = 'https://words.velicoach.com/';
 const MIND_COPY = {
   zh: {
     lead: '写给想跟上 AI 的人：AI 是怎么一步步走到今天的，人和智能体（agent）又该怎么一起工作。',
     linesLabel: '内容线', hist: 'AI 发展史', collab: '人机协作', histHref: '/mind', collabHref: '/mind/collaboration',
-    learn: '学习路径 →', learnHref: '/mind/learn', learnBase: '/mind/learn#', postBase: '/mind/',
+    learn: '学习路径 →', words: '种星词：记英语单词 ↗', learnHref: '/mind/learn', learnBase: '/mind/learn#', postBase: '/mind/',
     rulerNote: (a, b) => `一格一个时代，宽度按年数，圆点是里程碑。前两个时代走了 ${a} 年，后三个时代到今年一共 ${b} 年。`,
     rulerAlt: (parts) => `时间尺：1950 年到 ${MIND_NOW_YEAR} 年，五个时代按年数排开。${parts}。`, rulerPart: (n, y) => `${n} ${y} 年`, rulerSep: '，',
     histIntro: '只收让路线拐弯的事：它之前大家怎么做，它之后为什么换了做法。点开一条，看它为什么是转折，再去读原始论文或文章。',
@@ -372,7 +375,7 @@ const MIND_COPY = {
   en: {
     lead: 'For anyone who wants to keep up with AI: how it got here, step by step, and how people and agents can work together.',
     linesLabel: 'Content lines', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration',
-    learn: 'Learning path →', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
+    learn: 'Learning path →', words: 'WordS: English vocabulary for kids ↗', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
     rulerNote: (a, b) => `One block per era, drawn to scale. Each dot is a milestone. The first two eras took ${a} years; the last three have taken ${b}\u00a0so\u00a0far.`,
     rulerAlt: (parts) => `Time ruler from 1950 to ${MIND_NOW_YEAR}, five eras drawn to scale: ${parts}.`, rulerPart: (n, y) => `${n}, ${y} years`, rulerSep: '; ',
     histIntro: 'Only the turns: how people worked before, and why they switched after. Open a row to see why it mattered, then read the original paper or post. ',
@@ -585,6 +588,7 @@ function mindVals(self, v, o) {
     rulerAlt: c.rulerAlt(eras.map((e) => c.rulerPart(e.name, e.span)).join(c.rulerSep)),
     paradigms, layers, nest: Object.assign({}, paradigms.map((p) => ({ name: p.name, when: p.when }))),
     isOffline: offline, bandClass: offline ? 'is-offline' : '',
+    ...(() => { const w = o.words === '已配置（示例地址）' ? MIND_WORDS_SAMPLE : SITE_CONFIG.wordsUrl; return { hasWords: !!w, wordsHref: w || '' }; })(),
   };
 }
 class Component extends DCLogic {

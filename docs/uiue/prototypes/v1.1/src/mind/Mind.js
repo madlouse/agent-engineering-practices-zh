@@ -1,11 +1,13 @@
 /* ── 看清首页的数据和取值：/mind（AI 发展史）和 /mind/collaboration（人机协作）。Mind 和 States 两块画板共用这一份（States 由 pa-out/build.py 把同一份标记和这份数据拼进去）── */
 const MIND_NOW_YEAR = 2026;            // 时间尺的右端：画板核对的这一年
 const MIND_CHECKED = '2026-11-04';     // 里程碑的最后核对日期
+/* WordS（种星词）的地址在站点配置 SITE_CONFIG.wordsUrl：空着就不显示入口（PRD 第 3 节，联审 C-01）。画板属性「已配置」用这个示例子域名，实际地址等 WordS 上线后写进站点配置 */
+const MIND_WORDS_SAMPLE = 'https://words.velicoach.com/';
 const MIND_COPY = {
   zh: {
     lead: '写给想跟上 AI 的人：AI 是怎么一步步走到今天的，人和智能体（agent）又该怎么一起工作。',
     linesLabel: '内容线', hist: 'AI 发展史', collab: '人机协作', histHref: '/mind', collabHref: '/mind/collaboration',
-    learn: '学习路径 →', learnHref: '/mind/learn', learnBase: '/mind/learn#', postBase: '/mind/',
+    learn: '学习路径 →', words: '种星词：记英语单词 ↗', learnHref: '/mind/learn', learnBase: '/mind/learn#', postBase: '/mind/',
     rulerNote: (a, b) => `一格一个时代，宽度按年数，圆点是里程碑。前两个时代走了 ${a} 年，后三个时代到今年一共 ${b} 年。`,
     rulerAlt: (parts) => `时间尺：1950 年到 ${MIND_NOW_YEAR} 年，五个时代按年数排开。${parts}。`, rulerPart: (n, y) => `${n} ${y} 年`, rulerSep: '，',
     histIntro: '只收让路线拐弯的事：它之前大家怎么做，它之后为什么换了做法。点开一条，看它为什么是转折，再去读原始论文或文章。',
@@ -27,7 +29,7 @@ const MIND_COPY = {
   en: {
     lead: 'For anyone who wants to keep up with AI: how it got here, step by step, and how people and agents can work together.',
     linesLabel: 'Content lines', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration',
-    learn: 'Learning path →', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
+    learn: 'Learning path →', words: 'WordS: English vocabulary for kids ↗', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
     rulerNote: (a, b) => `One block per era, drawn to scale. Each dot is a milestone. The first two eras took ${a} years; the last three have taken ${b}\u00a0so\u00a0far.`,
     rulerAlt: (parts) => `Time ruler from 1950 to ${MIND_NOW_YEAR}, five eras drawn to scale: ${parts}.`, rulerPart: (n, y) => `${n}, ${y} years`, rulerSep: '; ',
     histIntro: 'Only the turns: how people worked before, and why they switched after. Open a row to see why it mattered, then read the original paper or post. ',
@@ -240,5 +242,6 @@ function mindVals(self, v, o) {
     rulerAlt: c.rulerAlt(eras.map((e) => c.rulerPart(e.name, e.span)).join(c.rulerSep)),
     paradigms, layers, nest: Object.assign({}, paradigms.map((p) => ({ name: p.name, when: p.when }))),
     isOffline: offline, bandClass: offline ? 'is-offline' : '',
+    ...(() => { const w = o.words === '已配置（示例地址）' ? MIND_WORDS_SAMPLE : SITE_CONFIG.wordsUrl; return { hasWords: !!w, wordsHref: w || '' }; })(),
   };
 }

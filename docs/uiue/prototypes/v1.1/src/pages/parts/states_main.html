@@ -1,9 +1,13 @@
-<!-- 页面不存在：不属于任何一站，导航里没有当前页；只给三站入口，不放搜索框 -->
-<sc-if value="{{isNotFound}}" hint-placeholder-val="{{ true }}">
+<!-- 页面不存在、退订成功、退订失效：不属于任何一站，导航里没有当前页；一句话说明，下面是三站入口，不放搜索框。
+     退订的两种是 /unsubscribe 页点「确认退订」之后原位显示的结果（PRD「订阅的细则」第 9 条、ADR-0004 (c)），不要求登录：
+     退订成功给「重新订阅」（POST，算重新同意，第 15 条），退订失效给联系邮箱，不说这个地址在不在名单里（联审 E-04） -->
+<sc-if value="{{isPaperPage}}" hint-placeholder-val="{{ true }}">
   <section class="vc-band vc-band-paper" data-first-screen="">
     <div class="vc-container vc-band-body">
-      <h1 class="vc-type-title-1">{{p.nfTitle}}</h1>
-      <p class="vc-type-lead vc-sub">{{p.nfLead}}</p>
+      <h1 class="vc-type-title-1">{{pageTitle}}</h1>
+      <p class="vc-type-lead vc-sub">{{pageLead}}</p>
+      <sc-if value="{{unsubDone}}" hint-placeholder-val="{{ false }}"><form class="vc-band-form" method="post" action="{{p.resubAction}}"><button class="btn vc-btn-action" type="submit">{{p.resub}}</button></form></sc-if>
+      <sc-if value="{{unsubBad}}" hint-placeholder-val="{{ false }}"><p class="vc-contact-address"><span class="mono">{{site.contactEmail}}</span><a class="btn vc-btn-action" href="{{unsubMail}}">{{p.writeUs}}</a></p></sc-if>
     </div>
   </section>
   <main class="vc-container vc-section-tight">

@@ -33,12 +33,16 @@ body{margin:0}
     <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
   </header>
 </div>
-<!-- 页面不存在：不属于任何一站，导航里没有当前页；只给三站入口，不放搜索框 -->
-<sc-if value="{{isNotFound}}" hint-placeholder-val="{{ true }}">
+<!-- 页面不存在、退订成功、退订失效：不属于任何一站，导航里没有当前页；一句话说明，下面是三站入口，不放搜索框。
+     退订的两种是 /unsubscribe 页点「确认退订」之后原位显示的结果（PRD「订阅的细则」第 9 条、ADR-0004 (c)），不要求登录：
+     退订成功给「重新订阅」（POST，算重新同意，第 15 条），退订失效给联系邮箱，不说这个地址在不在名单里（联审 E-04） -->
+<sc-if value="{{isPaperPage}}" hint-placeholder-val="{{ true }}">
   <section class="vc-band vc-band-paper" data-first-screen="">
     <div class="vc-container vc-band-body">
-      <h1 class="vc-type-title-1">{{p.nfTitle}}</h1>
-      <p class="vc-type-lead vc-sub">{{p.nfLead}}</p>
+      <h1 class="vc-type-title-1">{{pageTitle}}</h1>
+      <p class="vc-type-lead vc-sub">{{pageLead}}</p>
+      <sc-if value="{{unsubDone}}" hint-placeholder-val="{{ false }}"><form class="vc-band-form" method="post" action="{{p.resubAction}}"><button class="btn vc-btn-action" type="submit">{{p.resub}}</button></form></sc-if>
+      <sc-if value="{{unsubBad}}" hint-placeholder-val="{{ false }}"><p class="vc-contact-address"><span class="mono">{{site.contactEmail}}</span><a class="btn vc-btn-action" href="{{unsubMail}}">{{p.writeUs}}</a></p></sc-if>
     </div>
   </section>
   <main class="vc-container vc-section-tight">
@@ -70,6 +74,7 @@ body{margin:0}
           <a href="{{c.collabHref}}" aria-current="{{collabCur}}" onClick="{{showCollab}}">{{c.collab}}</a>
         </div>
         <a class="vc-quick" href="{{c.learnHref}}">{{c.learn}}</a>
+        <sc-if value="{{hasWords}}" hint-placeholder-val="{{ false }}"><a class="vc-quick" href="{{wordsHref}}">{{c.words}}</a></sc-if>
       </div>
       <sc-if value="{{isHist}}" hint-placeholder-val="{{ true }}">
         <div class="vc-ruler">
@@ -386,10 +391,10 @@ body{margin:0}
 </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"page":{"editor":"enum","options":["页面不存在","加载中","加载超过 10 秒","视频无法播放","文章暂无英文版","订阅失败","网络断开"],"default":"页面不存在"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":1760}}'>
+<script type="text/x-dc" data-dc-script data-props='{"page":{"editor":"enum","options":["页面不存在","加载中","加载超过 10 秒","视频无法播放","文章暂无英文版","订阅失败","网络断开","退订成功","退订失效"],"default":"页面不存在"},"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":1760}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
-const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com', wordsUrl: '' };
 const SHELL = {
   zh: {
     home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
@@ -622,11 +627,13 @@ function articleVals(v, o) {
 /* ── 看清首页的数据和取值：/mind（AI 发展史）和 /mind/collaboration（人机协作）。Mind 和 States 两块画板共用这一份（States 由 pa-out/build.py 把同一份标记和这份数据拼进去）── */
 const MIND_NOW_YEAR = 2026;            // 时间尺的右端：画板核对的这一年
 const MIND_CHECKED = '2026-11-04';     // 里程碑的最后核对日期
+/* WordS（种星词）的地址在站点配置 SITE_CONFIG.wordsUrl：空着就不显示入口（PRD 第 3 节，联审 C-01）。画板属性「已配置」用这个示例子域名，实际地址等 WordS 上线后写进站点配置 */
+const MIND_WORDS_SAMPLE = 'https://words.velicoach.com/';
 const MIND_COPY = {
   zh: {
     lead: '写给想跟上 AI 的人：AI 是怎么一步步走到今天的，人和智能体（agent）又该怎么一起工作。',
     linesLabel: '内容线', hist: 'AI 发展史', collab: '人机协作', histHref: '/mind', collabHref: '/mind/collaboration',
-    learn: '学习路径 →', learnHref: '/mind/learn', learnBase: '/mind/learn#', postBase: '/mind/',
+    learn: '学习路径 →', words: '种星词：记英语单词 ↗', learnHref: '/mind/learn', learnBase: '/mind/learn#', postBase: '/mind/',
     rulerNote: (a, b) => `一格一个时代，宽度按年数，圆点是里程碑。前两个时代走了 ${a} 年，后三个时代到今年一共 ${b} 年。`,
     rulerAlt: (parts) => `时间尺：1950 年到 ${MIND_NOW_YEAR} 年，五个时代按年数排开。${parts}。`, rulerPart: (n, y) => `${n} ${y} 年`, rulerSep: '，',
     histIntro: '只收让路线拐弯的事：它之前大家怎么做，它之后为什么换了做法。点开一条，看它为什么是转折，再去读原始论文或文章。',
@@ -648,7 +655,7 @@ const MIND_COPY = {
   en: {
     lead: 'For anyone who wants to keep up with AI: how it got here, step by step, and how people and agents can work together.',
     linesLabel: 'Content lines', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration',
-    learn: 'Learning path →', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
+    learn: 'Learning path →', words: 'WordS: English vocabulary for kids ↗', learnHref: '/en/mind/learn', learnBase: '/en/mind/learn#', postBase: '/en/mind/',
     rulerNote: (a, b) => `One block per era, drawn to scale. Each dot is a milestone. The first two eras took ${a} years; the last three have taken ${b}\u00a0so\u00a0far.`,
     rulerAlt: (parts) => `Time ruler from 1950 to ${MIND_NOW_YEAR}, five eras drawn to scale: ${parts}.`, rulerPart: (n, y) => `${n}, ${y} years`, rulerSep: '; ',
     histIntro: 'Only the turns: how people worked before, and why they switched after. Open a row to see why it mattered, then read the original paper or post. ',
@@ -861,6 +868,7 @@ function mindVals(self, v, o) {
     rulerAlt: c.rulerAlt(eras.map((e) => c.rulerPart(e.name, e.span)).join(c.rulerSep)),
     paradigms, layers, nest: Object.assign({}, paradigms.map((p) => ({ name: p.name, when: p.when }))),
     isOffline: offline, bandClass: offline ? 'is-offline' : '',
+    ...(() => { const w = o.words === '已配置（示例地址）' ? MIND_WORDS_SAMPLE : SITE_CONFIG.wordsUrl; return { hasWords: !!w, wordsHref: w || '' }; })(),
   };
 }
 /* 页面状态画板：页面不存在是自己的一页；网络断开、订阅失败就是看清首页换状态（mindVals）；
@@ -869,10 +877,14 @@ const ST_COPY = {
   zh: {
     nfTitle: '这一页不在这里', nfLead: '地址可能输错了，也可能这篇已经撤下或换了位置。从三站里选一个进去。',
     bodyLine: '每周两次力量训练。', mindLine: '读懂 AI 从哪里来。', buildLine: '和智能体一起做出东西。',
+    unsubTitle: '已退订', unsubLead: '以后不再给你发每周日的邮件。改了主意，点下面重新订阅就行。', resub: '重新订阅', resubAction: '/api/site/subscribe',
+    badTitle: '这个退订链接已失效', badLead: '链接可能过期了，也可能不完整。要退订，点最新一封邮件底部的「退订」，或者写信告诉我们。', writeUs: '写信给我们', badSubject: '退订',
   },
   en: {
     nfTitle: 'This page isn’t here', nfLead: 'The link may be mistyped, or the piece was taken down or moved. Pick one of the three stations to carry on.',
     bodyLine: 'Strength training, twice a week.', mindLine: 'Understand where AI came from.', buildLine: 'Make things with agents.',
+    unsubTitle: 'You’re unsubscribed', unsubLead: 'We won’t send the Sunday email anymore. Changed your mind? Subscribe again below.', resub: 'Subscribe again', resubAction: '/api/site/subscribe',
+    badTitle: 'This unsubscribe link no longer works', badLead: 'It may have expired or been cut short. To unsubscribe, use the link at the bottom of our latest email, or write to us.', writeUs: 'Write to us', badSubject: 'Unsubscribe',
   },
 };
 class Component extends DCLogic {
@@ -883,16 +895,21 @@ class Component extends DCLogic {
     const VIDEO = { '加载中': '视频加载中', '加载超过 10 秒': '视频加载超过 10 秒', '视频无法播放': '视频无法播放' };
     const inArticle = !!VIDEO[page] || noEnglish;
     const isNotFound = page === '页面不存在';
-    const v = shellVals(self, inArticle || isNotFound ? 'paper' : 'ink', isNotFound ? '/' : inArticle ? '/mind/shopify-harness' : '/mind');
+    const unsubDone = page === '退订成功', unsubBad = page === '退订失效';
+    const isPaperPage = isNotFound || unsubDone || unsubBad;
+    const v = shellVals(self, inArticle || isPaperPage ? 'paper' : 'ink', isNotFound ? '/' : unsubDone || unsubBad ? '/unsubscribe' : inArticle ? '/mind/shopify-harness' : '/mind');
+    const p = ST_COPY[v.en ? 'en' : 'zh'];
     const a = articleVals(v, { kind: '文章', media: VIDEO[page] || '正常', english: noEnglish ? '暂无英文版' : '有英文版' });
     const m = mindVals(this, v, { line: 'AI 发展史（/mind）', network: page === '网络断开' ? '离线' : '在线', expand: '全部收起' });
     /* 订阅失败：页底订阅一定在，默认给「格式不对」，另两种原因用属性 subscribe 切换 */
     const subFail = page === '订阅失败';
     const sub = subFail && !v.subHasError ? { subOn: true, formShown: true, barDone: false, subHasError: true, subError: v.t.errFormat, subInvalid: 'true', subValue: 'name@', subButton: v.t.subscribe, subBusy: 'false' } : (subFail ? { subOn: true } : {});
     return {
-      ...v, ...m, ...a, ...sub, c: inArticle ? a.c : m.c, p: ST_COPY[v.en ? 'en' : 'zh'],
-      curMind: isNotFound ? 'false' : 'page', curBuild: 'false',
-      isNotFound, inArticle, inList: !isNotFound && !inArticle,
+      ...v, ...m, ...a, ...sub, c: inArticle ? a.c : m.c, p,
+      curMind: isPaperPage ? 'false' : 'page', curBuild: 'false',
+      isNotFound, isPaperPage, unsubDone, unsubBad, inArticle, inList: !isPaperPage && !inArticle,
+      pageTitle: unsubDone ? p.unsubTitle : unsubBad ? p.badTitle : p.nfTitle, pageLead: unsubDone ? p.unsubLead : unsubBad ? p.badLead : p.nfLead,
+      unsubMail: 'mailto:' + SITE_CONFIG.contactEmail + '?subject=' + encodeURIComponent(p.badSubject),
     };
   }
   componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }

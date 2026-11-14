@@ -16,6 +16,7 @@
           <a href="{{c.collabHref}}" aria-current="{{collabCur}}" onClick="{{showCollab}}">{{c.collab}}</a>
         </div>
         <a class="vc-quick" href="{{c.learnHref}}">{{c.learn}}</a>
+        <sc-if value="{{hasWords}}" hint-placeholder-val="{{ false }}"><a class="vc-quick" href="{{wordsHref}}">{{c.words}}</a></sc-if>
       </div>
       <sc-if value="{{isHist}}" hint-placeholder-val="{{ true }}">
         <div class="vc-ruler">

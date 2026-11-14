@@ -13,6 +13,7 @@ BOARDS = {
     'Tablet': ('Main', '首页 · 平板 · Velicoach', 820, 3570),
     'Mobile': ('Main', '首页 · 手机 · Velicoach', 390, 4210),
     'Fold': ('Main', '首页 · 折叠屏内屏 · Velicoach', 984, 3460),
+    'Landscape': ('Main', '首页 · 手机横屏首屏 · Velicoach', 844, 390),   # 只看首屏：预览高度就是视口高度，高 < 600 的规则才生效（联审 E-01）
     'MindMobile': ('Mind', '看清 · 手机 · Velicoach', 390, 4320),
     'LearnMobile': ('Learn', '学习路径 · 手机 · Velicoach', 390, 3110),
     'ArticleMobile': ('Article', '文章页 · 手机 · Velicoach', 390, 4560),

@@ -83,7 +83,7 @@ ART_EXTRA = [
     ('english', ['有英文版', '暂无英文版'], '有英文版'),
     ('scrollAt', ['正文中段', '视频'], '正文中段'),
 ]
-ST_EXTRA = [('page', ['页面不存在', '加载中', '加载超过 10 秒', '视频无法播放', '文章暂无英文版', '订阅失败', '网络断开'], '页面不存在')]
+ST_EXTRA = [('page', ['页面不存在', '加载中', '加载超过 10 秒', '视频无法播放', '文章暂无英文版', '订阅失败', '网络断开', '退订成功', '退订失效'], '页面不存在')]
 files = {
     'Article.dc.html': page('比模型更耐久的 Harness · 看清 · Velicoach', nav('dynamic') + '\n' + include(P('art_main.html')), P('article_data.js') + '\n' + P('article.js'), props(ART_EXTRA, 1440, 3750)),
     'States.dc.html': page('页面状态 · Velicoach', nav('dynamic') + '\n' + include(P('states_main.html')), P('article_data.js') + '\n' + MIND_JS + '\n' + P('states.js'), props(ST_EXTRA, 1440, 1760)),

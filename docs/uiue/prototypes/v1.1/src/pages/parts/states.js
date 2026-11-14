@@ -4,10 +4,14 @@ const ST_COPY = {
   zh: {
     nfTitle: '这一页不在这里', nfLead: '地址可能输错了，也可能这篇已经撤下或换了位置。从三站里选一个进去。',
     bodyLine: '每周两次力量训练。', mindLine: '读懂 AI 从哪里来。', buildLine: '和智能体一起做出东西。',
+    unsubTitle: '已退订', unsubLead: '以后不再给你发每周日的邮件。改了主意，点下面重新订阅就行。', resub: '重新订阅', resubAction: '/api/site/subscribe',
+    badTitle: '这个退订链接已失效', badLead: '链接可能过期了，也可能不完整。要退订，点最新一封邮件底部的「退订」，或者写信告诉我们。', writeUs: '写信给我们', badSubject: '退订',
   },
   en: {
     nfTitle: 'This page isn’t here', nfLead: 'The link may be mistyped, or the piece was taken down or moved. Pick one of the three stations to carry on.',
     bodyLine: 'Strength training, twice a week.', mindLine: 'Understand where AI came from.', buildLine: 'Make things with agents.',
+    unsubTitle: 'You’re unsubscribed', unsubLead: 'We won’t send the Sunday email anymore. Changed your mind? Subscribe again below.', resub: 'Subscribe again', resubAction: '/api/site/subscribe',
+    badTitle: 'This unsubscribe link no longer works', badLead: 'It may have expired or been cut short. To unsubscribe, use the link at the bottom of our latest email, or write to us.', writeUs: 'Write to us', badSubject: 'Unsubscribe',
   },
 };
 class Component extends DCLogic {
@@ -18,16 +22,21 @@ class Component extends DCLogic {
     const VIDEO = { '加载中': '视频加载中', '加载超过 10 秒': '视频加载超过 10 秒', '视频无法播放': '视频无法播放' };
     const inArticle = !!VIDEO[page] || noEnglish;
     const isNotFound = page === '页面不存在';
-    const v = shellVals(self, inArticle || isNotFound ? 'paper' : 'ink', isNotFound ? '/' : inArticle ? '/mind/shopify-harness' : '/mind');
+    const unsubDone = page === '退订成功', unsubBad = page === '退订失效';
+    const isPaperPage = isNotFound || unsubDone || unsubBad;
+    const v = shellVals(self, inArticle || isPaperPage ? 'paper' : 'ink', isNotFound ? '/' : unsubDone || unsubBad ? '/unsubscribe' : inArticle ? '/mind/shopify-harness' : '/mind');
+    const p = ST_COPY[v.en ? 'en' : 'zh'];
     const a = articleVals(v, { kind: '文章', media: VIDEO[page] || '正常', english: noEnglish ? '暂无英文版' : '有英文版' });
     const m = mindVals(this, v, { line: 'AI 发展史（/mind）', network: page === '网络断开' ? '离线' : '在线', expand: '全部收起' });
     /* 订阅失败：页底订阅一定在，默认给「格式不对」，另两种原因用属性 subscribe 切换 */
     const subFail = page === '订阅失败';
     const sub = subFail && !v.subHasError ? { subOn: true, formShown: true, barDone: false, subHasError: true, subError: v.t.errFormat, subInvalid: 'true', subValue: 'name@', subButton: v.t.subscribe, subBusy: 'false' } : (subFail ? { subOn: true } : {});
     return {
-      ...v, ...m, ...a, ...sub, c: inArticle ? a.c : m.c, p: ST_COPY[v.en ? 'en' : 'zh'],
-      curMind: isNotFound ? 'false' : 'page', curBuild: 'false',
-      isNotFound, inArticle, inList: !isNotFound && !inArticle,
+      ...v, ...m, ...a, ...sub, c: inArticle ? a.c : m.c, p,
+      curMind: isPaperPage ? 'false' : 'page', curBuild: 'false',
+      isNotFound, isPaperPage, unsubDone, unsubBad, inArticle, inList: !isPaperPage && !inArticle,
+      pageTitle: unsubDone ? p.unsubTitle : unsubBad ? p.badTitle : p.nfTitle, pageLead: unsubDone ? p.unsubLead : unsubBad ? p.badLead : p.nfLead,
+      unsubMail: 'mailto:' + SITE_CONFIG.contactEmail + '?subject=' + encodeURIComponent(p.badSubject),
     };
   }
   componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }

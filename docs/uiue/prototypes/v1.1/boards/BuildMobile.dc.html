@@ -77,9 +77,9 @@ body{margin:0}
         <sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
           <article class="vc-card vc-project">
             <p class="vc-status">{{c.status}}</p>
-            <h3 class="vc-type-title-3">{{ p.name }}</h3>
+            <h3 class="vc-type-title-3"><a class="vc-project-name" href="{{ p.logHref }}">{{ p.name }}</a></h3>
             <p class="vc-sub">{{ p.line }}</p>
-            <p class="vc-project-links"><a class="vc-quick" href="{{ p.logHref }}" aria-label="{{ p.logLabel }}">{{c.projLog}}</a><sc-if value="{{ p.hasOpen }}" hint-placeholder-val="{{ true }}"><a class="vc-quick" href="{{ p.href }}" aria-label="{{ p.openLabel }}">{{c.projOpen}}</a></sc-if></p>
+            <sc-if value="{{ p.hasOpen }}" hint-placeholder-val="{{ true }}"><p class="vc-project-links"><a class="vc-quick" href="{{ p.href }}" aria-label="{{ p.openLabel }}">{{ p.openText }}</a></p></sc-if>
           </article>
         </sc-for>
       </div>
@@ -158,7 +158,7 @@ body{margin:0}
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":4450}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
-const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com', wordsUrl: '' };
 const SHELL = {
   zh: {
     home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
@@ -230,7 +230,6 @@ const COPY = {
   "projTitle": "在做的项目",
   "projLead": "三个项目都在开发中，进度写在各自的开发日志里。",
   "status": "开发中",
-  "projLog": "看开发日志",
   "projOpen": "打开产品",
   "logTitle": "开发日志",
   "logLead": "这座站是和智能体一起做的。每条写做成了什么、和智能体怎么分工、下一步。",
@@ -246,7 +245,6 @@ const COPY = {
   "projTitle": "What we’re building",
   "projLead": "Three projects, all in development. Each one keeps its own devlog.",
   "status": "In development",
-  "projLog": "Read the devlog",
   "projOpen": "Open the product",
   "logTitle": "Devlog",
   "logLead": "We build this site with agents. Each entry says what got done, who did what, and what’s next.",
@@ -293,7 +291,7 @@ const LISTS = {
     "logHref": "/build/veli",
     "href": "/body",
     "hasOpen": true,
-    "logLabel": "看开发日志：Veli",
+    "openText": "打开产品 →",
     "openLabel": "打开产品：Veli"
    },
    {
@@ -302,7 +300,7 @@ const LISTS = {
     "logHref": "/build/velicoach",
     "href": "",
     "hasOpen": false,
-    "logLabel": "看开发日志：Velicoach 主站",
+    "openText": "打开产品 →",
     "openLabel": "打开产品：Velicoach 主站"
    },
    {
@@ -311,7 +309,7 @@ const LISTS = {
     "logHref": "/build/agent-skills",
     "href": "https://github.com/madlouse/velicoach/tree/HEAD/.grok/skills",
     "hasOpen": true,
-    "logLabel": "看开发日志：智能体技能库",
+    "openText": "打开产品 ↗",
     "openLabel": "打开产品：智能体技能库"
    }
   ],
@@ -463,7 +461,7 @@ const LISTS = {
     "logHref": "/en/build/veli",
     "href": "/en/body",
     "hasOpen": true,
-    "logLabel": "Read the devlog: Veli",
+    "openText": "Open the product →",
     "openLabel": "Open the product: Veli"
    },
    {
@@ -472,7 +470,7 @@ const LISTS = {
     "logHref": "/en/build/velicoach",
     "href": "",
     "hasOpen": false,
-    "logLabel": "Read the devlog: Velicoach",
+    "openText": "Open the product →",
     "openLabel": "Open the product: Velicoach"
    },
    {
@@ -481,7 +479,7 @@ const LISTS = {
     "logHref": "/en/build/agent-skills",
     "href": "https://github.com/madlouse/velicoach/tree/HEAD/.grok/skills",
     "hasOpen": true,
-    "logLabel": "Read the devlog: Agent skills library",
+    "openText": "Open the product ↗",
     "openLabel": "Open the product: Agent skills library"
    }
   ],

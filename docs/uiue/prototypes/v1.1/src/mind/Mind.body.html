@@ -124,7 +124,7 @@
                     <a class="vc-card vc-card-link" href="{{p.href}}" aria-labelledby="{{p.slug}}-t">
                       <p class="vc-row-kind">{{p.meta}}</p>
                       <h4 id="{{p.slug}}-t" class="row-title vc-serif">{{p.title}}</h4>
-                      <p class="vc-row-line">{{p.dek}}<sc-if value="{{p.ai}}" hint-placeholder-val="{{ true }}"><span class="vc-origin" title="{{c.originLabel}}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>{{c.originShort}}</span></sc-if></p>
+                      <p class="vc-row-line">{{p.dek}}<sc-if value="{{p.ai}}" hint-placeholder-val="{{ true }}"><span class="vc-origin" data-origin="ai" title="{{c.originLabel}}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>{{c.originShort}}</span></sc-if></p>
                       <p class="vc-row-foot">{{c.published}} <time datetime="{{p.date}}">{{p.dateText}}</time></p>
                     </a>
                   </sc-if>
@@ -165,7 +165,7 @@
                   <a class="vc-card vc-card-link" href="{{p.href}}" aria-labelledby="{{p.slug}}-t">
                     <p class="vc-row-kind">{{p.meta}}</p>
                     <h3 id="{{p.slug}}-t" class="row-title vc-serif">{{p.title}}</h3>
-                    <p class="vc-row-line">{{p.dek}}<sc-if value="{{p.ai}}" hint-placeholder-val="{{ true }}"><span class="vc-origin" title="{{c.originLabel}}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>{{c.originShort}}</span></sc-if></p>
+                    <p class="vc-row-line">{{p.dek}}<sc-if value="{{p.ai}}" hint-placeholder-val="{{ true }}"><span class="vc-origin" data-origin="ai" title="{{c.originLabel}}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>{{c.originShort}}</span></sc-if></p>
                     <p class="vc-row-foot">{{c.published}} <time datetime="{{p.date}}">{{p.dateText}}</time></p>
                   </a>
                 </li>

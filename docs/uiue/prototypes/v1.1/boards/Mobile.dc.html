@@ -56,7 +56,7 @@ body{margin:0}
       <p class="vc-type-lead vc-hero-lead vc-hero-lead-short">{{c.bodyLeadShort}}</p>
       <div class="vc-hero-actions">
         <div class="vc-pop-anchor" onMouseEnter="{{openStart}}" onMouseLeave="{{closeLater}}">
-          <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="vc-start-opts" onFocus="{{openStart}}"><span>{{c.start}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+          <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="vc-start-opts" onFocus="{{focusStart}}"><span>{{c.start}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
           <div id="vc-start-opts" class="vc-pop vc-pop-code {{startClass}}" data-pop="" role="group" aria-label="{{c.startMenu}}">
             <div class="vc-pop-opts">
               <a class="opt" href="{{c.authHref}}">{{authFirst}}</a>
@@ -220,7 +220,7 @@ body{margin:0}
       <article class="vc-feature" aria-labelledby="vc-week-read">
         <p class="kicker">{{c.latest}}</p>
         <h3 id="vc-week-read" class="vc-type-title-2-serif">{{c.articleTitle}}</h3>
-        <p class="vc-type-lead">{{c.articleLine}}<span class="vc-origin" title="{{c.originLabel}}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>{{c.originShort}}</span></p>
+        <p class="vc-type-lead">{{c.articleLine}}<span class="vc-origin" data-origin="ai" title="{{c.originLabel}}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>{{c.originShort}}</span></p>
         <div class="vc-feature-actions">
           <a class="btn vc-btn-on-ink" href="{{c.articleHref}}">{{c.read}}</a>
           <p class="vc-type-meta-mono"><span class="vc-nowrap"><time datetime="{{c.articleIso}}">{{c.articleDate}}</time> ·</span> <span class="vc-nowrap">{{c.articleLength}} ·</span> <span class="vc-nowrap">{{c.articleVideo}}</span></p>
@@ -481,7 +481,13 @@ class Component extends DCLogic {
   componentDidMount() {
     if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
     // 展开的选项都能退出：Esc、点外面；Esc 同时回到五五分
-    this.onEsc = (e) => { if (e.key === 'Escape') { clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' }); } };
+    /* Esc 收起；焦点在展开层里时回到「开始训练」，这一次聚焦不再展开（重新聚焦或重新悬停才展开） */
+    this.onEsc = (e) => {
+      if (e.key !== 'Escape') return;
+      clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' });
+      const a = document.activeElement, btn = document.querySelector('.vc-hero .vc-pop-anchor > .btn');
+      if (btn && a && a !== btn && a.closest && a.closest('.vc-pop-anchor')) { this.skipFocusOpen = true; btn.focus(); }
+    };
     this.onOutside = (e) => { if (this.pick('start', '收起') === '展开' && !(e.target.closest && e.target.closest('.vc-pop-anchor'))) this.setState({ start: '收起' }); };
     this.onMove = (e) => { this.ptr = { x: e.clientX, y: e.clientY }; };
     document.addEventListener('keydown', this.onEsc);
@@ -647,6 +653,7 @@ class Component extends DCLogic {
       heroClass: 'vc-hero' + (offline ? ' is-offline' : ''), offline,
       startClass: open ? '' : 'is-closed', startExpanded: open ? 'true' : 'false',
       openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '展开' }), this.hoverIntent()); },
+      focusStart: () => { if (this.skipFocusOpen) { this.skipFocusOpen = false; return; } clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '展开' }), this.hoverIntent()); },
       closeLater: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ start: '收起' }), 300); },
       onKey: (e) => { if (e.key === 'Escape') { clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' }); } },
       claims: c.claims.map((x) => ({ ...x, chip: 'vc-claim-chip vc-claim-chip-' + x.id })),

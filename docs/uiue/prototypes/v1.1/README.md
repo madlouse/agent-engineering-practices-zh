@@ -1,6 +1,6 @@
 # 画板源：Velicoach 主站 · UI v1.1
 
-在线画布「Velicoach 主站 · UI v1.1」（地址见 `docs/README.md`）的 18 块画板，和生成它们的脚本、源片段。2026-11-12 第三轮小修以后的版本；2026-11-13 关口票 #94 把画板的 token 检查清到 0、改了两处孤字成行（`docs/uiue/decisions.md` 同日一节），同日的设计 v1.2 打磨（奖项级评审，`decisions.md` 同日一节）改了首页首屏、首屏以下两幕、导航和订阅成功的反馈，新增 token `delay-hover-intent`；这次没有浏览器，`controls_samples.json` 里论点行、研究卡、定位句三个样张是手工改的，设备画板的高度没有重量，都待在 Sandbox 里重跑 `extract_samples.py` 和 `gen_device_boards.py --measure` 核对。这一版仓库比在线画布和在线设计系统新，在线画布由主会话照下面「发布到在线画布」重新发布一次以后才一致（样式表 `canvas.css` 有改动，要重新上传）。
+在线画布「Velicoach 主站 · UI v1.1」（地址见 `docs/README.md`）的 18 块画板，和生成它们的脚本、源片段。2026-11-12 第三轮小修以后的版本；2026-11-13 关口票 #94 把画板的 token 检查清到 0、改了两处孤字成行（`docs/uiue/decisions.md` 同日一节），同日的设计 v1.2 打磨（奖项级评审，`decisions.md` 同日一节）改了首页首屏、首屏以下两幕、导航和订阅成功的反馈，新增 token `delay-hover-intent`；这次没有浏览器，`controls_samples.json` 里论点行、研究卡、定位句三个样张是手工改的，设备画板的高度没有重量，都待在 Sandbox 里重跑 `extract_samples.py` 和 `gen_device_boards.py --measure` 核对。2026-11-14 里程碑 1 联审落画板（#162）同样没有浏览器，`controls_samples.json` 里 `meta`、`paradigm`、`video`、`study`、`loading`、`loading_slow`、`notice_action` 七个样张是手改的，按验证线程在沙箱里重跑 `extract_samples.py` 的逐键比对改齐（`docs/uiue/decisions.md` 同日一节）；下次有浏览器时重跑一次，以脚本取出的为准。这一版仓库比在线画布和在线设计系统新，在线画布由主会话照下面「发布到在线画布」重新发布一次以后才一致（样式表 `canvas.css` 有改动，要重新上传）。
 
 设计语言的唯一来源仍是在线设计系统，仓库副本在 `docs/uiue/system/`；这里放的是画板。每条设计决定的理由在 `docs/uiue/decisions.md`「2026-11-12 · 设计 v1.1」，画了什么在 `docs/uiue/coverage.md`。
 

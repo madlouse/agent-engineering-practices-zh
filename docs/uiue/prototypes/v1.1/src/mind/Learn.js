@@ -74,17 +74,23 @@ class Component extends DCLogic {
     const L = v.en ? 'en' : 'zh';
     const c = COPY[L];
     const fmt = (iso) => v.en ? new Date(iso + 'T00:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' }) : iso;
-    const expand = (this.state && this.state.expand) ?? this.props.expand ?? '全部收起';   /* 展开一条：展开「Agentic AI」那一步，看原地展开的样子 */
+    const expand = (this.state && this.state.expand) ?? this.props.expand ?? '全部收起';   /* 展开一条：展开「Agentic AI」那一步，看原地展开的样子；从链接到达：同一步展开并标出（/mind/learn#agentic-ai，联审 C-08） */
     const levels = LEVELS.map((lv, i) => ({
       id: 'level-' + (i + 1), n: c.lvN(i + 1), name: lv[L][0], head: c.lvN(i + 1) + c.sep + lv[L][0], goal: lv[L][1], count: c.count(lv.steps.length),
       steps: lv.steps.map((s, k) => ({
         slug: s.slug, n: (i + 1) + '.' + (k + 1), url: s.url, name: s[L][0], why: s[L][3], level: s[L][4], check: s[L][5],
-        open: expand === '展开一条' && s.slug === 'agentic-ai', closed: !(expand === '展开一条' && s.slug === 'agentic-ai'), openLabel: c.openCourse + (v.en ? ': ' : '：') + s[L][0],
+        open: expand !== '全部收起' && s.slug === 'agentic-ai', closed: !(expand !== '全部收起' && s.slug === 'agentic-ai'), target: expand === '从链接到达' && s.slug === 'agentic-ai' ? ' is-target' : '', openLabel: c.openCourse + (v.en ? ': ' : '：') + s[L][0],
         factList: [s[L][1], s[L][2], s[L][6] || c.hours(s.hours)].map((t, k) => ({ t: k ? '·\u00a0' + t : t })),   /* 间隔号跟着后一项走，不会单独落在行尾 */
         hasMs: !!s.ms, msHref: c.msBase + (s.ms || ''), msLabel: s.ms ? c.related + MS_NAMES[s.ms][L] : '',
       })),
     }));
     return { ...v, c, levels, checkedIso: CHECKED, checkedText: fmt(CHECKED) };
   }
-  componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }
+  componentDidMount() {
+    if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
+    /* 从别的页带锚点进来（/mind#<里程碑>、/mind/learn#<步骤>）：那一条原地展开并标出，滚到它（联审 C-08） */
+    const id = decodeURIComponent((location.hash || '').slice(1));
+    const t = id && document.getElementById(id);
+    if (t && t.matches('.vc-ms, .vc-step')) { const d = t.querySelector('details'); if (d) d.open = true; t.classList.add('is-target'); t.scrollIntoView({ block: 'start' }); }
+  }
 }

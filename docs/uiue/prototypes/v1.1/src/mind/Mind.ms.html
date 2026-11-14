@@ -2,9 +2,10 @@
                               <span class="vc-row-lead">{{m.year}}</span>
                               <h3 id="{{m.slug}}-t" class="row-title vc-serif">{{m.title}}</h3>
                               <span class="vc-ms-what">{{m.what}}</span>
+                              <sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><span class="vc-ms-has"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2.5h8M2 6h8M2 9.5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>{{c.hasPost}}</span></sc-if>
                             </summary>
                             <div class="vc-ms-more">
                               <p class="vc-row-line"><b>{{c.whyLabel}}</b>{{m.why}}</p>
                               <p class="vc-row-foot">{{m.kind}} · {{c.checkedLabel}} <time datetime="{{checkedIso}}">{{checkedText}}</time></p>
-                              <p class="vc-ms-links"><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
+                              <p class="vc-ms-links"><sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.postHref}}">{{c.readPost}}</a></sc-if><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
                             </div>

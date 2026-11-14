@@ -13,7 +13,7 @@ const ART_UI = {
     play: '播放 3 分钟视频', video: '3 分钟视频', seek: '播放进度', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
     videoFailTitle: '视频没能播放。', videoFailBody: '文字稿讲的是同一件事，就在下面。', retry: '重试',
     loading: '正在加载视频',
-    noEnTitle: '', noEnBody: '', noEnCta: '',
+    noEnTitle: '', noEnBody: '', noEnCta: '', noEnEnd: '',
     next: '接着读', nextLead: '下一篇', nextKind: '人机协作 · Harness 工程', nextTitle: 'Claude Code 团队如何做 Code Review', nextHref: '/mind/claude-code-review',
     allLine: '人机协作的全部文章',
     workout: '今天的训练', workoutLine: '读完了，站起来练一练。第一次来，第一练 12 分钟；已经在练的，接着今天这一练。', workoutHref: '/app',
@@ -36,7 +36,7 @@ const ART_UI = {
     play: 'Play the 3-minute video', video: '3-minute video', seek: 'Playback position', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
     videoFailTitle: 'The video didn’t play. ', videoFailBody: 'The transcript below covers the same ground.', retry: 'Try again',
     loading: 'Loading the video',
-    noEnTitle: 'This piece is only in Chinese for now. ', noEnBody: 'Our Chinese write-up is below. The original post is in English.', noEnCta: 'Read the original',
+    noEnTitle: 'Only in Chinese for now. ', noEnBody: 'The 3-minute video has English narration and captions; the write-up below is in Chinese, and ', noEnCta: 'the original post', noEnEnd: ' is in English.',
     next: 'Keep reading', nextLead: 'Next', nextKind: 'Human–AI collaboration · Harness engineering', nextTitle: 'How the Claude Code team does code review', nextHref: '/en/mind/claude-code-review',
     allLine: 'Everything in Human–AI collaboration',
     workout: 'Today’s workout', workoutLine: 'Done reading? Get up and train. New here: your first session takes 12 minutes. Already training: pick up today’s.', workoutHref: '/app',
@@ -49,7 +49,8 @@ const ART_UI = {
   },
 };
 /* 正文沿用旧稿，不改；视频第一幕的标题和文字稿来自仓库 src/content/explainers.ts 的 shopify-harness。
-   「我们的判断」、视频封面的眉标、文字稿每一幕的小标是界面字（ART_UI），跟页面语言走，不跟内容语言走：「暂无英文版」的英文页上它们是英文 */
+   「我们的判断」、视频封面的眉标、文字稿每一幕的小标是界面字（ART_UI），跟页面语言走，不跟内容语言走：「暂无英文版」的英文页上它们是英文。
+   视频也跟页面语言走（第一幕的标题、文字稿、旁白，explainers.ts 两种语言都有）：「暂无英文版」的英文页放英文旁白，字幕默认打开（联审 C-06） */
 const ART_CONTENT = {
   zh: {
     title: '比模型更耐久的 Harness',
@@ -154,14 +155,15 @@ function articleVals(v, o) {
   const readTime = noEnglish ? '12 min read, in Chinese' : u.readTime;
   return {
     u, g, c: ART_CONTENT[CL], contentLang: CL === 'en' ? 'en' : 'zh-CN',
-    scenes: ART_CONTENT[CL].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
+    vc: ART_CONTENT[L], videoLang: L === 'en' ? 'en' : 'zh-CN', ccOn: noEnglish ? 'true' : 'false',
+    scenes: ART_CONTENT[L].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
     isArticle: !isLog, isLog, noEnglish,
     curMind: isLog ? 'false' : 'page', curBuild: isLog ? 'page' : 'false',
     artClass: scrolled ? 'is-scrolled' : '', atTop: !scrolled, scrolled, atVideo,
     videoOk: media === '正常', videoLoading: media === '视频加载中' || media === '视频加载超过 10 秒', videoSlow: media === '视频加载超过 10 秒', videoQuick: media === '视频加载中', videoFailed: media === '视频无法播放',
     length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
-    videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
-    voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
+    videoTime: u.videoTime,
+    voice: u.voice,
     frameText: frame !== '最暗一帧', frameKey: { '最亮一帧': 'brightest', '最暗一帧': 'darkest' }[frame] || 'cover', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
   };
 }

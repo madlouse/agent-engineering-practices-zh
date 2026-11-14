@@ -1,7 +1,7 @@
   <sc-if value="{{videoOk}}" hint-placeholder-val="{{ true }}">
     <figure class="vc-video vc-read-wide" id="video">
       <div class="vc-video-frame" data-video="">
-        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{contentLang}}">{{c.shotTitle}}</p></sc-if></div>
+        <div class="vc-video-shot {{frameClass}}" data-frame="{{frameKey}}" aria-hidden="{{frameHidden}}"><sc-if value="{{frameText}}" hint-placeholder-val="{{ true }}"><p class="kicker">{{u.shotKicker}}</p><p class="vc-video-title" lang="{{videoLang}}">{{vc.shotTitle}}</p></sc-if></div>
         <span class="vc-video-scrim" aria-hidden="true"></span>
         <button type="button" class="vc-video-cover" tabindex="-1" aria-hidden="true"></button>
         <div class="vc-playbar lg lg-on-dark" data-backdrop="video" data-lens="">
@@ -9,14 +9,14 @@
           <span class="vc-playbar-label">{{u.video}}</span>
           <span class="mono">{{videoTime}}</span>
           <input type="range" class="vc-playbar-seek" min="0" max="100" value="0" aria-label="{{u.seek}}" aria-valuetext="{{videoTime}}">
-          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="false">{{u.capt}}</button>
+          <button type="button" class="vc-quick vc-quick-small vc-playbar-cc" aria-pressed="{{ccOn}}">{{u.capt}}</button>
         </div>
       </div>
       <figcaption>{{voice}}</figcaption>
       <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
         <summary>{{u.transcript}}</summary>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </details>
     </figure>
@@ -31,7 +31,7 @@
       <details class="vc-fold vc-read-col" id="transcript" data-expand="inline">
         <summary>{{u.transcript}}</summary>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </details>
     </figure>
@@ -45,7 +45,7 @@
       <section class="vc-transcript-open vc-read-col" id="transcript" aria-labelledby="transcript-t">
         <h2 id="transcript-t" class="kicker">{{u.transcript}}</h2>
         <div class="vc-transcript">
-          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{contentLang}}">{{s.say}}</span></p></sc-for>
+          <sc-for list="{{scenes}}" as="s" hint-placeholder-count="5"><p><b>{{s.k}}</b><span lang="{{videoLang}}">{{s.say}}</span></p></sc-for>
         </div>
       </section>
     </figure>

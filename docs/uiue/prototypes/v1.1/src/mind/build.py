@@ -61,8 +61,8 @@ body{{margin:0}}
 
 COMMON = '"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},'
 TAIL = '"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},'
-LINE = '"line":{"editor":"enum","options":["AI 发展史（/mind）","人机协作（/mind/collaboration）"],"default":"AI 发展史（/mind）"},"expand":{"editor":"enum","options":["全部收起","展开一条"],"default":"全部收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},'
+LINE = '"line":{"editor":"enum","options":["AI 发展史（/mind）","人机协作（/mind/collaboration）"],"default":"AI 发展史（/mind）"},"expand":{"editor":"enum","options":["全部收起","展开一条","从链接到达"],"default":"全部收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},'
 
 page('Mind', '看清 · Velicoach', '{' + COMMON + LINE + TAIL + '"$preview":{"width":1440,"height":4200}}')
-page('Learn', '学习路径 · 看清 · Velicoach', '{' + COMMON + '"expand":{"editor":"enum","options":["全部收起","展开一条"],"default":"全部收起"},' + TAIL + '"$preview":{"width":1440,"height":2720}}')
+page('Learn', '学习路径 · 看清 · Velicoach', '{' + COMMON + '"expand":{"editor":"enum","options":["全部收起","展开一条","从链接到达"],"default":"全部收起"},' + TAIL + '"$preview":{"width":1440,"height":2720}}')
 print('ok')

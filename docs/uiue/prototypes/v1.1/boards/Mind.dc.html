@@ -106,18 +106,19 @@ body{margin:0}
                 <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
                 <ol class="vc-era-list">
                   <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
-                    <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
+                    <li class="vc-ms{{m.target}}" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
                       <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
                         <details class="vc-ms-fold" data-expand="inline">
                             <summary class="vc-ms-sum">
                               <span class="vc-row-lead">{{m.year}}</span>
                               <h3 id="{{m.slug}}-t" class="row-title vc-serif">{{m.title}}</h3>
                               <span class="vc-ms-what">{{m.what}}</span>
+                              <sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><span class="vc-ms-has"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2.5h8M2 6h8M2 9.5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>{{c.hasPost}}</span></sc-if>
                             </summary>
                             <div class="vc-ms-more">
                               <p class="vc-row-line"><b>{{c.whyLabel}}</b>{{m.why}}</p>
                               <p class="vc-row-foot">{{m.kind}} · {{c.checkedLabel}} <time datetime="{{checkedIso}}">{{checkedText}}</time></p>
-                              <p class="vc-ms-links"><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
+                              <p class="vc-ms-links"><sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.postHref}}">{{c.readPost}}</a></sc-if><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
                             </div>
                         </details>
                       </sc-if>
@@ -127,11 +128,12 @@ body{margin:0}
                               <span class="vc-row-lead">{{m.year}}</span>
                               <h3 id="{{m.slug}}-t" class="row-title vc-serif">{{m.title}}</h3>
                               <span class="vc-ms-what">{{m.what}}</span>
+                              <sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><span class="vc-ms-has"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 2.5h8M2 6h8M2 9.5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>{{c.hasPost}}</span></sc-if>
                             </summary>
                             <div class="vc-ms-more">
                               <p class="vc-row-line"><b>{{c.whyLabel}}</b>{{m.why}}</p>
                               <p class="vc-row-foot">{{m.kind}} · {{c.checkedLabel}} <time datetime="{{checkedIso}}">{{checkedText}}</time></p>
-                              <p class="vc-ms-links"><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
+                              <p class="vc-ms-links"><sc-if value="{{m.hasPost}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.postHref}}">{{c.readPost}}</a></sc-if><a class="vc-quick vc-quick-small" href="{{m.url}}" aria-label="{{m.srcLabel}}">{{c.source}}</a><sc-if value="{{m.hasStep}}" hint-placeholder-val="{{ false }}"><a class="vc-quick vc-quick-small" href="{{m.stepHref}}">{{m.stepLabel}}</a></sc-if></p>
                             </div>
                         </details>
                       </sc-if>
@@ -276,7 +278,7 @@ body{margin:0}
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"line":{"editor":"enum","options":["AI 发展史（/mind）","人机协作（/mind/collaboration）"],"default":"AI 发展史（/mind）"},"expand":{"editor":"enum","options":["全部收起","展开一条"],"default":"全部收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":4200}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"line":{"editor":"enum","options":["AI 发展史（/mind）","人机协作（/mind/collaboration）"],"default":"AI 发展史（/mind）"},"expand":{"editor":"enum","options":["全部收起","展开一条","从链接到达"],"default":"全部收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":4200}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
 const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
@@ -352,7 +354,7 @@ const MIND_COPY = {
     rulerAlt: (parts) => `时间尺：1950 年到 ${MIND_NOW_YEAR} 年，五个时代按年数排开。${parts}。`, rulerPart: (n, y) => `${n} ${y} 年`, rulerSep: '，',
     histIntro: '只收让路线拐弯的事：它之前大家怎么做，它之后为什么换了做法。点开一条，看它为什么是转折，再去读原始论文或文章。',
     checked: '发现错误，', report: '直接告诉我们', checkedEnd: '。',
-    routeLabel: '这个时代的路线：', whyLabel: '为什么是转折', checkedLabel: '最后核对', source: '读原文', follow: '跟着学：',
+    routeLabel: '这个时代的路线：', whyLabel: '为什么是转折', checkedLabel: '最后核对', source: '读原文', follow: '跟着学：', hasPost: '有站内讲解', readPost: '读站内讲解',
     indexLabel: '时代索引', jumpLabel: '跳到某个时代', erasLabel: '五个时代', open: '至今', toIndex: '时代索引 ↑', toIndexLabel: '回到时代索引',
     offline: '网络断开了。已经打开的内容可以接着读；重新连上以后，这条提示会自己消失。',
     kinds: { paper: '论文', event: '事件', product: '产品', essay: '文章', code: '代码' },
@@ -374,7 +376,7 @@ const MIND_COPY = {
     rulerAlt: (parts) => `Time ruler from 1950 to ${MIND_NOW_YEAR}, five eras drawn to scale: ${parts}.`, rulerPart: (n, y) => `${n}, ${y} years`, rulerSep: '; ',
     histIntro: 'Only the turns: how people worked before, and why they switched after. Open a row to see why it mattered, then read the original paper or post. ',
     checked: 'Found a mistake? ', report: 'Tell us', checkedEnd: '.',
-    routeLabel: 'The road in this era: ', whyLabel: 'Why it mattered', checkedLabel: 'Last checked', source: 'Read the original', follow: 'Learn it: ',
+    routeLabel: 'The road in this era: ', whyLabel: 'Why it mattered', checkedLabel: 'Last checked', source: 'Read the original', follow: 'Learn it: ', hasPost: 'Explained on this site', readPost: 'Read our explainer',
     indexLabel: 'Era index', jumpLabel: 'Jump to an era', erasLabel: 'Five eras', open: 'now', toIndex: 'Eras ↑', toIndexLabel: 'Back to the list of eras',
     offline: 'You’re offline. Keep reading what’s already open. This notice clears once you reconnect.',
     kinds: { paper: 'Paper', event: 'Event', product: 'Product', essay: 'Essay', code: 'Code' },
@@ -463,7 +465,7 @@ const MILESTONES = [
   { slug: 'building-effective-agents-2024', year: 2024, type: 'essay', url: 'https://www.anthropic.com/engineering/building-effective-agents', step: 'building-effective-agents',
     zh: ['Anthropic《Building effective agents》', '把工作流和智能体分开，给出几种简单、能组合的搭法。', 'Anthropic 的建议是先用最简单的搭法，不够用再加，而不是一上来就用更全的框架。'],
     en: ['Anthropic, “Building effective agents”', 'Separates workflows from agents and lays out a few simple, composable patterns.', 'Anthropic’s advice: start with the simplest pattern that works and add only when it falls short, instead of reaching for a bigger framework.'] },
-  { slug: 'claude-code-2025', year: 2025, type: 'product', url: 'https://www.anthropic.com/news/claude-3-7-sonnet', step: 'anthropic-academy',
+  { slug: 'claude-code-2025', year: 2025, type: 'product', url: 'https://www.anthropic.com/news/claude-3-7-sonnet', step: 'anthropic-academy', post: 'claude-code-review',
     zh: ['Anthropic：Claude Code（随 Claude 3.7 Sonnet 发布）', 'Claude Code 这类编程智能体自己调用工具、检查结果，能把一件事从头做完。', '人的工作从写每一行，转到写清目标和验收结果。'],
     en: ['Anthropic, Claude Code (released with Claude 3.7 Sonnet)', 'Coding agents such as Claude Code call tools, check their own results, and finish a task end to end.', 'People’s work shifts from writing every line to stating the goal and checking the result.'] },
   { slug: 'context-engineering-2025', year: 2025, type: 'essay', url: 'https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus',
@@ -541,12 +543,14 @@ function mindVals(self, v, o) {
     const list = MILESTONES.filter((m) => m.year >= e.start && m.year <= end);
     const seen = {};
     const items = list.map((m, k) => {
-      const open = o.expand === '展开一条' && m.slug === MIND_OPEN_SLUG;
+      const arrive = o.expand === '从链接到达';
+      const open = (o.expand === '展开一条' || arrive) && m.slug === MIND_OPEN_SLUG;
       return {
         slug: m.slug, year: m.year, url: m.url, kind: c.kinds[m.type], title: m[L][0], what: m[L][1], why: m[L][2],
-        gap: k === 0 ? 0 : m.year - list[k - 1].year, open, closed: !open,
+        gap: k === 0 ? 0 : m.year - list[k - 1].year, open, closed: !open, target: open && arrive ? ' is-target' : '',
         srcLabel: c.source + (v.en ? ': ' : '：') + m[L][0],
         hasStep: !!m.step, stepHref: c.learnBase + (m.step || ''), stepLabel: m.step ? c.follow + STEP_NAMES[m.step][L] : '',
+        hasPost: !!m.post, postHref: c.postBase + (m.post || ''),
       };
     });
     const dots = list.map((m) => { const n = seen[m.year] = (seen[m.year] || 0) + 1; return { left: (((m.year - e.start) + 0.25 * n) / span * 100).toFixed(2) + '%' }; });
@@ -588,7 +592,13 @@ class Component extends DCLogic {
     const v = shellVals(this, 'ink', '/mind');
     return { ...v, ...mindVals(this, v, { line: P('line', 'AI 发展史（/mind）'), network: P('network', '在线'), expand: P('expand', '全部收起') }) };
   }
-  componentDidMount() { if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el)); }
+  componentDidMount() {
+    if (window.LiquidGlass) document.querySelectorAll('.lg[data-lens]').forEach((el) => window.LiquidGlass.attachLens(el));
+    /* 从别的页带锚点进来（/mind#<里程碑>、/mind/learn#<步骤>）：那一条原地展开并标出，滚到它（联审 C-08） */
+    const id = decodeURIComponent((location.hash || '').slice(1));
+    const t = id && document.getElementById(id);
+    if (t && t.matches('.vc-ms, .vc-step')) { const d = t.querySelector('details'); if (d) d.open = true; t.classList.add('is-target'); t.scrollIntoView({ block: 'start' }); }
+  }
 }
 </script>
 </body>

@@ -10,7 +10,7 @@ const MIND_COPY = {
     rulerAlt: (parts) => `时间尺：1950 年到 ${MIND_NOW_YEAR} 年，五个时代按年数排开。${parts}。`, rulerPart: (n, y) => `${n} ${y} 年`, rulerSep: '，',
     histIntro: '只收让路线拐弯的事：它之前大家怎么做，它之后为什么换了做法。点开一条，看它为什么是转折，再去读原始论文或文章。',
     checked: '发现错误，', report: '直接告诉我们', checkedEnd: '。',
-    routeLabel: '这个时代的路线：', whyLabel: '为什么是转折', checkedLabel: '最后核对', source: '读原文', follow: '跟着学：',
+    routeLabel: '这个时代的路线：', whyLabel: '为什么是转折', checkedLabel: '最后核对', source: '读原文', follow: '跟着学：', hasPost: '有站内讲解', readPost: '读站内讲解',
     indexLabel: '时代索引', jumpLabel: '跳到某个时代', erasLabel: '五个时代', open: '至今', toIndex: '时代索引 ↑', toIndexLabel: '回到时代索引',
     offline: '网络断开了。已经打开的内容可以接着读；重新连上以后，这条提示会自己消失。',
     kinds: { paper: '论文', event: '事件', product: '产品', essay: '文章', code: '代码' },
@@ -32,7 +32,7 @@ const MIND_COPY = {
     rulerAlt: (parts) => `Time ruler from 1950 to ${MIND_NOW_YEAR}, five eras drawn to scale: ${parts}.`, rulerPart: (n, y) => `${n}, ${y} years`, rulerSep: '; ',
     histIntro: 'Only the turns: how people worked before, and why they switched after. Open a row to see why it mattered, then read the original paper or post. ',
     checked: 'Found a mistake? ', report: 'Tell us', checkedEnd: '.',
-    routeLabel: 'The road in this era: ', whyLabel: 'Why it mattered', checkedLabel: 'Last checked', source: 'Read the original', follow: 'Learn it: ',
+    routeLabel: 'The road in this era: ', whyLabel: 'Why it mattered', checkedLabel: 'Last checked', source: 'Read the original', follow: 'Learn it: ', hasPost: 'Explained on this site', readPost: 'Read our explainer',
     indexLabel: 'Era index', jumpLabel: 'Jump to an era', erasLabel: 'Five eras', open: 'now', toIndex: 'Eras ↑', toIndexLabel: 'Back to the list of eras',
     offline: 'You’re offline. Keep reading what’s already open. This notice clears once you reconnect.',
     kinds: { paper: 'Paper', event: 'Event', product: 'Product', essay: 'Essay', code: 'Code' },
@@ -121,7 +121,7 @@ const MILESTONES = [
   { slug: 'building-effective-agents-2024', year: 2024, type: 'essay', url: 'https://www.anthropic.com/engineering/building-effective-agents', step: 'building-effective-agents',
     zh: ['Anthropic《Building effective agents》', '把工作流和智能体分开，给出几种简单、能组合的搭法。', 'Anthropic 的建议是先用最简单的搭法，不够用再加，而不是一上来就用更全的框架。'],
     en: ['Anthropic, “Building effective agents”', 'Separates workflows from agents and lays out a few simple, composable patterns.', 'Anthropic’s advice: start with the simplest pattern that works and add only when it falls short, instead of reaching for a bigger framework.'] },
-  { slug: 'claude-code-2025', year: 2025, type: 'product', url: 'https://www.anthropic.com/news/claude-3-7-sonnet', step: 'anthropic-academy',
+  { slug: 'claude-code-2025', year: 2025, type: 'product', url: 'https://www.anthropic.com/news/claude-3-7-sonnet', step: 'anthropic-academy', post: 'claude-code-review',
     zh: ['Anthropic：Claude Code（随 Claude 3.7 Sonnet 发布）', 'Claude Code 这类编程智能体自己调用工具、检查结果，能把一件事从头做完。', '人的工作从写每一行，转到写清目标和验收结果。'],
     en: ['Anthropic, Claude Code (released with Claude 3.7 Sonnet)', 'Coding agents such as Claude Code call tools, check their own results, and finish a task end to end.', 'People’s work shifts from writing every line to stating the goal and checking the result.'] },
   { slug: 'context-engineering-2025', year: 2025, type: 'essay', url: 'https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus',
@@ -199,12 +199,14 @@ function mindVals(self, v, o) {
     const list = MILESTONES.filter((m) => m.year >= e.start && m.year <= end);
     const seen = {};
     const items = list.map((m, k) => {
-      const open = o.expand === '展开一条' && m.slug === MIND_OPEN_SLUG;
+      const arrive = o.expand === '从链接到达';
+      const open = (o.expand === '展开一条' || arrive) && m.slug === MIND_OPEN_SLUG;
       return {
         slug: m.slug, year: m.year, url: m.url, kind: c.kinds[m.type], title: m[L][0], what: m[L][1], why: m[L][2],
-        gap: k === 0 ? 0 : m.year - list[k - 1].year, open, closed: !open,
+        gap: k === 0 ? 0 : m.year - list[k - 1].year, open, closed: !open, target: open && arrive ? ' is-target' : '',
         srcLabel: c.source + (v.en ? ': ' : '：') + m[L][0],
         hasStep: !!m.step, stepHref: c.learnBase + (m.step || ''), stepLabel: m.step ? c.follow + STEP_NAMES[m.step][L] : '',
+        hasPost: !!m.post, postHref: c.postBase + (m.post || ''),
       };
     });
     const dots = list.map((m) => { const n = seen[m.year] = (seen[m.year] || 0) + 1; return { left: (((m.year - e.start) + 0.25 * n) / span * 100).toFixed(2) + '%' }; });

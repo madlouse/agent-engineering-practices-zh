@@ -71,7 +71,7 @@
                 <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
                 <ol class="vc-era-list">
                   <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
-                    <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
+                    <li class="vc-ms{{m.target}}" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
                       <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
                         <details class="vc-ms-fold" data-expand="inline">
 <!--@MS-->

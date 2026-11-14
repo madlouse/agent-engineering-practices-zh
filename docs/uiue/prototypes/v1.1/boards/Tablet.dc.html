@@ -484,8 +484,8 @@ class Component extends DCLogic {
     /* Esc 收起；焦点在展开层里时回到「开始训练」，这一次聚焦不再展开（重新聚焦或重新悬停才展开） */
     this.onEsc = (e) => {
       if (e.key !== 'Escape') return;
-      clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' });
       const a = document.activeElement, btn = document.querySelector('.vc-hero .vc-pop-anchor > .btn');
+      clearTimeout(this.timer); clearTimeout(this.leanTimer); this.setState({ start: '收起', lean: '' });
       if (btn && a && a !== btn && a.closest && a.closest('.vc-pop-anchor')) { this.skipFocusOpen = true; btn.focus(); }
     };
     this.onOutside = (e) => { if (this.pick('start', '收起') === '展开' && !(e.target.closest && e.target.closest('.vc-pop-anchor'))) this.setState({ start: '收起' }); };

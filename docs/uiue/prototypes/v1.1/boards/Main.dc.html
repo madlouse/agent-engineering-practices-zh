@@ -49,9 +49,8 @@ body{margin:0}
     </div>
 
     <div class="vc-half vc-half-body vc-half-start" onMouseEnter="{{leanBody}}" onFocus="{{leanBodyNow}}">
-      <a class="vc-half-link" href="{{t.bodyHref}}" tabindex="-1" aria-hidden="true"></a>
       <sc-if value="{{en}}" hint-placeholder-val="{{ false }}"><p class="kicker vc-hero-station">{{t.body}}</p></sc-if>
-      <h2 class="vc-type-hero vc-hero-title"><a class="vc-hero-title-link" href="{{t.bodyHref}}">{{c.bodyTitle}}</a></h2>
+      <h2 class="vc-type-hero vc-hero-title"><a class="vc-hero-title-link" href="{{t.bodyHref}}"><span class="vc-hero-title-text">{{c.bodyTitle}}</span></a></h2>
       <p class="vc-type-lead vc-hero-lead">{{c.bodyLead}}</p>
       <p class="vc-type-lead vc-hero-lead vc-hero-lead-short">{{c.bodyLeadShort}}</p>
       <div class="vc-hero-actions">
@@ -76,9 +75,8 @@ body{margin:0}
     </div>
 
     <div class="vc-half vc-half-mind vc-half-end" onMouseEnter="{{leanMind}}" onFocus="{{leanMindNow}}">
-      <a class="vc-half-link" href="{{t.mindHref}}" tabindex="-1" aria-hidden="true"></a>
       <sc-if value="{{en}}" hint-placeholder-val="{{ false }}"><p class="kicker vc-hero-station">{{t.mind}}</p></sc-if>
-      <h2 class="vc-type-hero-serif vc-hero-title"><a class="vc-hero-title-link" href="{{t.mindHref}}">{{c.mindTitle}}</a></h2>
+      <h2 class="vc-type-hero-serif vc-hero-title"><a class="vc-hero-title-link" href="{{t.mindHref}}"><span class="vc-hero-title-text">{{c.mindTitle}}</span></a></h2>
       <p class="vc-type-lead vc-hero-lead">{{c.mindLead}}</p>
       <p class="vc-type-lead vc-hero-lead vc-hero-lead-short">{{c.mindLeadShort}}</p>
       <div class="vc-hero-actions">
@@ -371,7 +369,7 @@ const COPY = {
     start: '开始训练', fact: '第一练 12 分钟', startMenu: '开始训练的方式', google: '用 Google 开始训练', email: '用邮箱开始',
     startNote: '第一练 12 分钟。登录在 Veli 里完成；扫右边的码，可以在手机上打开。', codeLabel: '扫码在手机上打开 Veli 开始训练', codeTarget: 'https://velicoach.com' + veliHref('/body', 'velicoach_qr'),
     appHref: veliHref('/app'), googleHref: veliHref('/auth/google'), emailHref: veliHref('/app'), whyMuscle: '为什么是肌肉',
-    mindTitle: '再看清', mindLead: '写给想跟上 AI 的人：AI 怎么一步步走到今天，人和智能体（agent）怎么协作。', mindLeadShort: '写给想跟上 AI 的人。',
+    mindTitle: '再看清', mindLead: '写给想跟上 AI 的人：AI 怎么走到今天，人和智能体（agent）怎么协作。', mindLeadShort: '写给想跟上 AI 的人。',
     read: '读最新文章', hist: 'AI 发展史', collab: '人机协作', histHref: '/mind', collabHref: '/mind/collaboration',
     orbTitle: '然后动手', orbLong: '看开发日志', orbShort: '开发日志', orbLabel: '然后动手：看开发日志', devlogHref: '/build#devlog',
     pause: '暂停首页动画', play: '播放首页动画',

@@ -206,6 +206,7 @@ body{{margin:0}}
 /* 只属于这块样张页的版式（状态表、样张的格子和标签）：它是设计系统的说明页，不是产品页面，所以不放进共享样式表 */
 .vc-sheet{{padding:var(--space-7) var(--gutter)}}
 .vc-sheet-scroll{{overflow-x:auto}}
+.vc-sheet-scroll td>:is(.btn,.opt){{white-space:nowrap}}
 .vc-sheet table{{border-collapse:collapse;width:100%;min-width:1320px;table-layout:fixed}}
 .vc-sheet th,.vc-sheet td{{text-align:left;vertical-align:middle;padding:var(--space-3) var(--space-4) var(--space-3) 0;border-top:1px solid var(--vc-line)}}
 .vc-sheet thead th{{border-top:0;font-size:var(--type-footnote);font-weight:600;color:var(--vc-sub)}}

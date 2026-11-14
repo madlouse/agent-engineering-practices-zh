@@ -20,20 +20,10 @@
   </section>
 <!--@PART:art_video-->
 </sc-if>
-<sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}">
-<!--@PART:art_crumb-->
-<!--@PART:art_loading-->
-</sc-if>
-<sc-if value="{{loadFailed}}" hint-placeholder-val="{{ false }}">
-<!--@PART:art_crumb-->
-  <div class="vc-notice vc-notice-block vc-read-col" role="alert">
-    <h1 class="vc-type-title-3">{{u.failTitle}}</h1>
-    <p class="vc-sub">{{u.failBody}}</p>
-    <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{u.retry}}</button><a class="vc-quick" href="{{u.srcHref}}">{{u.readOriginal}}</a></div>
-  </div>
-</sc-if>
-<sc-if value="{{isLoaded}}" hint-placeholder-val="{{ true }}">
   <sc-if value="{{scrolled}}" hint-placeholder-val="{{ false }}"><h1 class="vc-sr-only" lang="{{contentLang}}">{{c.title}}</h1></sc-if>
+  <sc-if value="{{atVideo}}" hint-placeholder-val="{{ false }}">
+<!--@PART:art_video-->
+  </sc-if>
   <div class="vc-prose vc-read-body" lang="{{contentLang}}">
     <p>{{c.p1}}</p>
     <p>{{c.p1b}}</p>
@@ -80,7 +70,6 @@
     <p>{{u.cite}}<a href="{{u.citeHref}}">{{u.citeUrl}}</a></p>
     <p class="vc-colophon-report"><span>{{u.report}}</span><a class="vc-quick vc-quick-small" href="{{u.reportHref}}">{{u.reportLink}}</a></p>
   </section>
-</sc-if>
 </article>
 </sc-if>
 <sc-if value="{{isLog}}" hint-placeholder-val="{{ false }}">
@@ -94,24 +83,11 @@
       <dl class="vc-meta-row" aria-label="{{g.metaLabel}}">
         <div><dt>{{g.dtDate}}</dt><dd><time datetime="2026-11-04">{{g.dDate}}</time></dd></div>
         <div><dt>{{g.dtProject}}</dt><dd><a href="{{g.projectHref}}">{{g.project}}</a></dd></div>
-        <div><dt>{{g.dtPr}}</dt><dd><a href="{{g.prHref}}">{{g.pr}}</a></dd></div>
+        <div><dt>{{g.dtPr}}</dt><dd><span class="mono">{{g.pr}}</span></dd></div>
       </dl>
     </div>
   </header>
 </sc-if>
-<sc-if value="{{isLoading}}" hint-placeholder-val="{{ false }}">
-<!--@PART:log_crumb-->
-<!--@PART:log_loading-->
-</sc-if>
-<sc-if value="{{loadFailed}}" hint-placeholder-val="{{ false }}">
-<!--@PART:log_crumb-->
-  <div class="vc-notice vc-notice-block vc-read-col" role="alert">
-    <h1 class="vc-type-title-3">{{g.failTitle}}</h1>
-    <p class="vc-sub">{{g.failBody}}</p>
-    <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{u.retry}}</button><a class="vc-quick" href="{{g.projectHref}}">{{g.failAlt}}</a></div>
-  </div>
-</sc-if>
-<sc-if value="{{isLoaded}}" hint-placeholder-val="{{ true }}">
   <sc-if value="{{scrolled}}" hint-placeholder-val="{{ false }}"><h1 class="vc-sr-only">{{g.title}}</h1></sc-if>
   <div class="vc-prose vc-read-body">
     <h2 id="did">{{g.hDid}}</h2>
@@ -122,7 +98,7 @@
     <h2 id="next-step">{{g.hNext}}</h2>
     <p>{{g.nextStep}}</p>
     <h2 id="links">{{g.hLinks}}</h2>
-    <ul><li><a href="{{g.prHref}}">{{g.pr}}</a>{{g.linkNote}}</li></ul>
+    <ul><li><span class="mono">{{g.pr}}</span>{{g.linkNote}}</li></ul>
   </div>
   <nav class="vc-part vc-next vc-read-wide" aria-labelledby="log-next-t">
     <h2 id="log-next-t" class="vc-type-title-3">{{g.next}}</h2>
@@ -135,7 +111,6 @@
     <h2 id="log-colophon-t" class="vc-sr-only">{{g.colophon}}</h2>
     <p class="vc-colophon-report"><span>{{g.report}}</span><a class="vc-quick vc-quick-small" href="{{g.reportHref}}">{{g.reportLink}}</a></p>
   </section>
-</sc-if>
 </article>
 </sc-if>
 </main>

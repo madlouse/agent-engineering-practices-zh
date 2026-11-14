@@ -16,7 +16,7 @@ body{margin:0}
 </helmet>
 <div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
 <div class="vc-nav-wrap">
-  <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+  <header class="{{navClass}}" data-backdrop="scroll">
     <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
       <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
       <span class="vc-wordmark">Velicoach</span>
@@ -30,7 +30,7 @@ body{margin:0}
       <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
       <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
     </div>
-    <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+    <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
   </header>
 </div>
 <section class="vc-band vc-band-paper" data-first-screen="">
@@ -59,7 +59,8 @@ body{margin:0}
   <section class="vc-part vc-contact vc-read-col" id="contact" aria-labelledby="contact-t">
     <h2 id="contact-t" class="vc-type-title-3-serif">{{c.contactTitle}}</h2>
     <p class="vc-type-body-reading">{{c.contact}}</p>
-    <a class="btn vc-btn-action" href="mailto:">{{c.contactCta}}</a>
+    <p class="vc-contact-address"><span class="mono">{{site.contactEmail}}</span><a class="btn vc-btn-action" href="{{contactMail}}">{{c.contactCta}}</a></p>
+    <p class="vc-type-footnote vc-sub">{{c.privacyPre}}<a href="{{privacyMail}}">{{site.privacyEmail}}</a>{{c.privacyEnd}}</p>
   </section>
   <nav class="vc-part vc-next" aria-labelledby="start-t">
     <h2 id="start-t" class="vc-type-title-3">{{c.startTitle}}</h2>
@@ -87,7 +88,7 @@ body{margin:0}
       </form>
     </sc-if>
     <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
-      <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+      <p class="vc-sub-done" role="status"><svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg><span>{{t.subDone}}</span></p>
     </sc-if>
   </section>
 </sc-if>
@@ -119,6 +120,8 @@ body{margin:0}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":1440,"height":2530}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+/* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
 const SHELL = {
   zh: {
     home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
@@ -162,8 +165,9 @@ function shellVals(self, station, path) {
   const busy = sub === '正在订阅';
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
+    site: SITE_CONFIG, contactMail: 'mailto:' + SITE_CONFIG.contactEmail, privacyMail: 'mailto:' + SITE_CONFIG.privacyEmail,
     zhHref, enHref, otherHref: en ? zhHref : enHref,
-    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
     toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
     themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',
@@ -196,16 +200,17 @@ const COPY = {
       { n: '4', q: '错了怎么纠正', a: '每篇文章末尾有纠错入口，你也可以直接写信。改正后记进那一篇的更新记录。产品负责人可以撤下任何一篇；撤下后，那个地址显示「页面不存在」，首页和 RSS 随之更新。' },
     ],
     contactTitle: '联系', contact: '发现错误、想转载，或者想告诉我们一件事，都可以写信。', contactCta: '写信给我们',
+    privacyPre: '隐私相关的请求，例如删除订阅数据，请写到 ', privacyEnd: '。',
     startTitle: '从一站开始', bodyLine: '每周两次力量训练。', mindLine: '读懂 AI 从哪里来。', buildLine: '和智能体一起做出东西。',
   },
   en: {
-    kicker: 'About Velicoach', title: 'An AGI-era training partner',
+    kicker: 'About Velicoach', title: 'A coach for the AGI years',
     lead: 'The faster AI moves, the more it pays to get strong first. Velicoach trains with you on two things: a stronger body, and working well with AI.',
     whoTitle: 'Who we are',
     who: 'Velicoach has three stations, each with one job. Body: get stronger. Mind: understand how AI got here, step by step. Build: make things with agents. Body’s product is Veli, an AI strength coach.',
     whyTitle: 'Why we do this',
     why1: 'AGI is arriving, and it is both exciting and unsettling. We see three problems. Screen time keeps growing and bodies keep declining, yet few people train strength with any system. There is too much AI news to know what to read, what to learn, or which work to hand to an agent. And people who want to build with AI lack methods they can follow and real cases to learn from.',
-    why2: 'So we set out to be a training partner, not a media outlet: we train with you, learn with you, and build with you. We also keep a record of how AI’s direction has changed, and of how we ourselves build things with agents.',
+    why2: 'So we set out to be a coach, not a media outlet: we train with you, learn with you, and build with you. We also keep a record of how AI’s direction has changed, and of how we ourselves build things with agents.',
     keepTitle: 'Who maintains this site',
     keep: [
       { n: '1', q: 'Who maintains it', a: 'One product owner and AI agents maintain this site together.' },
@@ -214,6 +219,7 @@ const COPY = {
       { n: '4', q: 'How we correct mistakes', a: 'Every article ends with a link for corrections, or you can email us. Each fix is logged in that article’s change list. The product owner can take down any piece. After that its URL shows “Page not found,” and the home page and RSS update to match.' },
     ],
     contactTitle: 'Contact', contact: 'Found a mistake, want to republish something, or have something to tell us? Email us.', contactCta: 'Email us',
+    privacyPre: 'For privacy requests, such as deleting your newsletter data, email ', privacyEnd: '.',
     startTitle: 'Start at a station', bodyLine: 'Strength training, twice a week.', mindLine: 'Understand where AI came from.', buildLine: 'Make things with agents.',
   },
 };

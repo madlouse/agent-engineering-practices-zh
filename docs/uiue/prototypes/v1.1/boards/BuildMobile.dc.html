@@ -25,7 +25,7 @@ body{margin:0}
 </helmet>
 <div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
   <div class="vc-nav-wrap">
-    <header class="{{navClass}}" data-backdrop="scroll" data-lens="">
+    <header class="{{navClass}}" data-backdrop="scroll">
       <a class="home" href="{{t.home}}" aria-label="{{t.homeLabel}}">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" d="M12 19.5 L 9.3 7.5 M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg>
         <span class="vc-wordmark">Velicoach</span>
@@ -39,7 +39,7 @@ body{margin:0}
         <a href="{{zhHref}}" lang="zh-CN" hreflang="zh-CN" aria-current="{{zhOn}}" onClick="{{setZh}}">中文</a>
         <a href="{{enHref}}" lang="en" hreflang="en" aria-current="{{enOn}}" onClick="{{setEn}}">EN</a>
       </div>
-      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" style="font-weight: {{zhW}};">中</span><span aria-hidden="true">/</span><span lang="en" style="font-weight: {{enW}};">EN</span></a>
+      <a class="vc-lang-one" href="{{otherHref}}" hreflang="{{t.otherLang}}" aria-label="{{t.langSwitch}}" onClick="{{toggleLang}}"><span lang="zh-CN" data-on="{{zhOn}}">中</span><span aria-hidden="true">/</span><span lang="en" data-on="{{enOn}}">EN</span></a>
     </header>
   </div>
   <main>
@@ -102,7 +102,7 @@ body{margin:0}
                 <p class="vc-row-line"><b>{{c.nextLabel}}</b>{{ l.next }}</p>
               </div>
             </a>
-            <p class="vc-row-more"><sc-for list="{{ l.refs }}" as="r" hint-placeholder-count="1"><a class="vc-quick" href="{{ r.href }}">{{ r.label }}</a></sc-for></p>
+            <p class="vc-row-more"><sc-for list="{{ l.refs }}" as="r" hint-placeholder-count="1"><sc-if value="{{ r.linked }}" hint-placeholder-val="{{ true }}"><a class="vc-quick" href="{{ r.href }}">{{ r.label }}</a></sc-if><sc-if value="{{ r.plain }}" hint-placeholder-val="{{ false }}"><span class="vc-row-ref">{{ r.label }}</span></sc-if></sc-for></p>
           </li>
         </sc-for>
       </ol>
@@ -125,7 +125,7 @@ body{margin:0}
         </form>
       </sc-if>
       <sc-if value="{{barDone}}" hint-placeholder-val="{{ false }}">
-        <p class="vc-sub-done" role="status">{{t.subDone}}</p>
+        <p class="vc-sub-done" role="status"><svg class="vc-sub-leaf" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(45 12 12)"><path class="vc-leaf-body" d="M12 1.5 C 18.5 6.5, 18.5 17.5, 12 22.5 C 5.5 17.5, 5.5 6.5, 12 1.5 Z"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 9.3 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path><path class="vc-leaf-vein" pathLength="1" d="M12 19.5 L 14.7 7.5" fill="none" stroke-width="1.6" stroke-linecap="round"></path></g></svg><span>{{t.subDone}}</span></p>
       </sc-if>
     </section>
   </sc-if>
@@ -157,6 +157,8 @@ body{margin:0}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"填写邮箱"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"$preview":{"width":390,"height":4450}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
+/* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
+const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
 const SHELL = {
   zh: {
     home: '/', homeLabel: 'Velicoach 首页', bodyHref: '/body', mindHref: '/mind', buildHref: '/build',
@@ -200,8 +202,9 @@ function shellVals(self, station, path) {
   const busy = sub === '正在订阅';
   return {
     t, en, langAttr: en ? 'en' : 'zh-CN',
+    site: SITE_CONFIG, contactMail: 'mailto:' + SITE_CONFIG.contactEmail, privacyMail: 'mailto:' + SITE_CONFIG.privacyEmail,
     zhHref, enHref, otherHref: en ? zhHref : enHref,
-    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false', zhW: en ? '400' : '700', enW: en ? '700' : '400',
+    zhOn: en ? 'false' : 'true', enOn: en ? 'true' : 'false',
     setZh: (e) => { e.preventDefault(); self.setState({ lang: '中文' }); }, setEn: (e) => { e.preventDefault(); self.setState({ lang: 'English' }); },
     toggleLang: (e) => { e.preventDefault(); self.setState({ lang: en ? '中文' : 'English' }); },
     themeAttr: theme === '深色' ? 'dark' : theme === '浅色' ? 'light' : '',
@@ -325,6 +328,8 @@ const LISTS = {
     "next": "规范里写的每条命令都实际跑一次；在另开的那张票里把基线的 8 个失败测试修到通过。",
     "refs": [
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/98a80d4",
       "label": "velicoach 提交 98a80d4"
      }
@@ -342,14 +347,20 @@ const LISTS = {
     "next": "用这些规则对照现有设计，找出的四处冲突逐个处理。",
     "refs": [
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/3138a79",
       "label": "velicoach 提交 3138a79"
      },
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/fc7fa5e",
       "label": "velicoach 提交 fc7fa5e"
      },
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/35ab42c",
       "label": "velicoach 提交 35ab42c"
      }
@@ -367,6 +378,8 @@ const LISTS = {
     "next": "按合并后的结论改设计稿，再评一轮，直到两份评审都通过。",
     "refs": [
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/f1ad59f",
       "label": "velicoach 提交 f1ad59f"
      }
@@ -384,6 +397,8 @@ const LISTS = {
     "next": "正式站点用 three.js 实现同一个动效；评审的截图覆盖动效的几个状态。",
     "refs": [
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/53696b1",
       "label": "velicoach 提交 53696b1"
      }
@@ -401,8 +416,10 @@ const LISTS = {
     "next": "主站接管根域名，其余地址转给 Veli。",
     "refs": [
      {
-      "href": "https://github.com/madlouse/thin-muscle-coach/pull/84",
-      "label": "thin-muscle-coach PR #84"
+      "linked": false,
+      "plain": true,
+      "href": "",
+      "label": "thin-muscle-coach 提交 eb70c77"
      }
     ]
    }
@@ -481,6 +498,8 @@ const LISTS = {
     "next": "Run every command the rules mention, and fix the 8 failing baseline tests in their own ticket.",
     "refs": [
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/98a80d4",
       "label": "velicoach commit 98a80d4"
      }
@@ -498,14 +517,20 @@ const LISTS = {
     "next": "Hold the current design against the rules and settle the four conflicts they exposed.",
     "refs": [
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/3138a79",
       "label": "velicoach commit 3138a79"
      },
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/fc7fa5e",
       "label": "velicoach commit fc7fa5e"
      },
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/35ab42c",
       "label": "velicoach commit 35ab42c"
      }
@@ -523,6 +548,8 @@ const LISTS = {
     "next": "Revise the design from the merged list and review again until both reviewers pass it.",
     "refs": [
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/f1ad59f",
       "label": "velicoach commit f1ad59f"
      }
@@ -540,6 +567,8 @@ const LISTS = {
     "next": "Build the same animation with three.js on the live site, and have review screenshots cover each of its states.",
     "refs": [
      {
+      "linked": true,
+      "plain": false,
       "href": "https://github.com/madlouse/velicoach/commit/53696b1",
       "label": "velicoach commit 53696b1"
      }
@@ -557,8 +586,10 @@ const LISTS = {
     "next": "Point the root domain at this site and pass every other path through to Veli.",
     "refs": [
      {
-      "href": "https://github.com/madlouse/thin-muscle-coach/pull/84",
-      "label": "thin-muscle-coach PR #84"
+      "linked": false,
+      "plain": true,
+      "href": "",
+      "label": "thin-muscle-coach commit eb70c77"
      }
     ]
    }

@@ -14,12 +14,12 @@ WANT = {
     'paradigm_tool': ('Mind', {'line': '人机协作（/mind/collaboration）'}, '#prompt-engineering'),
     'path': ('Learn', {}, '.vc-path'), 'level': ('Learn', {'expand': '展开一条'}, '#level-2'),
     'meta': ('Article', {}, '.vc-meta'), 'take': ('Article', {}, '.vc-take'), 'toc': ('Article', {}, '.vc-toc'), 'video': ('Article', {}, 'figure.vc-video'),
-    'loading_slow': ('Article', {'load': '加载超过 10 秒'}, '.vc-loading-slow'), 'loading': ('Article', {'load': '加载超过 10 秒'}, '.vc-loading'),
-    'loading_rows': ('Mind', {'load': '加载中'}, '.vc-loading-rows'),
-    'notice_action': ('Article', {'media': '视频无法播放'}, '.vc-notice-action'), 'notice_block': ('Mind', {'load': '加载失败'}, '.vc-notice-block'),
+    'loading_slow': ('Article', {'media': '视频加载超过 10 秒'}, '.vc-loading-slow'), 'loading': ('Article', {'media': '视频加载超过 10 秒'}, '.vc-skeleton-media'),
+    'notice_action': ('Article', {'media': '视频无法播放'}, '.vc-notice-action'),
     'howto': ('Build', {}, '.vc-howto'), 'facts': ('Project', {}, '.vc-facts'), 'deflist': ('Project', {}, '.vc-deflist'),
     'empty': ('Project', {'devlog': '还没有日志'}, '.vc-empty'), 'deflist_numbered': ('About', {}, '.vc-deflist-numbered'),
-    'study': ('Main', {}, '.vc-study-grid'), 'era_origins': ('Mind', {}, '#era-origins'), 'era_llm_open': ('Mind', {'expand': '展开一条'}, '#era-llm'), 'era_index': ('Mind', {}, '.vc-era-index'),
+    'study': ('Main', {}, '.vc-study-set'), 'era_origins': ('Mind', {}, '#era-origins'), 'era_llm_open': ('Mind', {'expand': '展开一条'}, '#era-llm'), 'era_index': ('Mind', {}, '.vc-era-index'),
+    'pop_code': ('Main', {'start': '展开'}, '#vc-start-opts'),
     'tag': ('Main', {}, '.vc-hero-tag'), 'claim_title': ('Main', {}, '.vc-claim-title'), 'claim': ('Main', {}, '.vc-claim-list'),
 }
 out, cache = {}, {}

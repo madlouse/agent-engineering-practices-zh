@@ -79,10 +79,11 @@ body{{margin:0}}
 '''
 
 ART_EXTRA = [
-    ('kind', ['文章', '开发日志'], '文章'), ('media', ['正常', '视频无法播放', '没有视频'], '正常'), ('frame', ['封面', '最亮一帧', '最暗一帧'], '封面'),
-    ('english', ['有英文版', '暂无英文版'], '有英文版'), ('load', ['正常', '加载中', '加载超过 10 秒', '加载失败'], '正常'),
+    ('kind', ['文章', '开发日志'], '文章'), ('media', ['正常', '视频加载中', '视频加载超过 10 秒', '视频无法播放', '没有视频'], '正常'), ('frame', ['封面', '最亮一帧', '最暗一帧'], '封面'),
+    ('english', ['有英文版', '暂无英文版'], '有英文版'),
+    ('scrollAt', ['正文中段', '视频'], '正文中段'),
 ]
-ST_EXTRA = [('page', ['页面不存在', '加载中', '加载超过 10 秒', '内容加载失败', '视频无法播放', '文章暂无英文版', '订阅失败', '网络断开'], '页面不存在')]
+ST_EXTRA = [('page', ['页面不存在', '加载中', '加载超过 10 秒', '视频无法播放', '文章暂无英文版', '订阅失败', '网络断开'], '页面不存在')]
 files = {
     'Article.dc.html': page('比模型更耐久的 Harness · 看清 · Velicoach', nav('dynamic') + '\n' + include(P('art_main.html')), P('article_data.js') + '\n' + P('article.js'), props(ART_EXTRA, 1440, 3750)),
     'States.dc.html': page('页面状态 · Velicoach', nav('dynamic') + '\n' + include(P('states_main.html')), P('article_data.js') + '\n' + MIND_JS + '\n' + P('states.js'), props(ST_EXTRA, 1440, 1760)),

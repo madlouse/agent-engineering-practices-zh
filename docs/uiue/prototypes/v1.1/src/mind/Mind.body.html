@@ -22,12 +22,12 @@
           <div role="img" aria-label="{{rulerAlt}}">
             <div class="vc-ruler-bar" aria-hidden="true">
               <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
-                <span class="vc-ruler-seg" style="flex: {{e.span}} 0 0;"><sc-for list="{{e.dots}}" as="d" hint-placeholder-count="4"><i class="vc-ruler-dot" style="left: {{d.left}};"></i></sc-for></span>
+                <span class="vc-ruler-seg" style="--vc-ruler-span: {{e.span}};"><sc-for list="{{e.dots}}" as="d" hint-placeholder-count="4"><i class="vc-ruler-dot" style="--vc-ruler-at: {{d.left}};"></i></sc-for></span>
               </sc-for>
             </div>
             <div class="vc-ruler-years" aria-hidden="true">
               <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
-                <span class="{{e.yearClass}}" style="flex: {{e.span}} 0 0;">{{e.start}}</span>
+                <span class="{{e.yearClass}}" style="--vc-ruler-span: {{e.span}};">{{e.start}}</span>
               </sc-for>
             </div>
           </div>
@@ -64,58 +64,30 @@
       <p class="vc-type-lead vc-intro">{{c.histIntro}}{{c.checked}}<a href="{{t.contactHref}}">{{c.report}}</a>{{c.checkedEnd}}</p>
       <div class="vc-with-aside">
         <div>
-          <sc-if value="{{listLoaded}}" hint-placeholder-val="{{ true }}">
-            <div class="vc-timeline">
-              <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
-                <section class="vc-era" id="{{e.id}}" aria-labelledby="{{e.id}}-name">
-                  <div class="vc-era-bar"><h2 id="{{e.id}}-name" class="vc-era-name">{{e.name}}</h2><p class="vc-era-years">{{e.years}}</p><a class="vc-quick vc-quick-small vc-era-up" href="#eras" aria-label="{{c.toIndexLabel}}">{{c.toIndex}}</a></div>
-                  <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
-                  <ol class="vc-era-list">
-                    <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
-                      <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
-                        <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
-                          <details class="vc-ms-fold" data-expand="inline">
+          <div class="vc-timeline">
+            <sc-for list="{{eras}}" as="e" hint-placeholder-count="5">
+              <section class="vc-era" id="{{e.id}}" aria-labelledby="{{e.id}}-name">
+                <div class="vc-era-bar"><h2 id="{{e.id}}-name" class="vc-era-name">{{e.name}}</h2><p class="vc-era-years">{{e.years}}</p><a class="vc-quick vc-quick-small vc-era-up" href="#eras" aria-label="{{c.toIndexLabel}}">{{c.toIndex}}</a></div>
+                <p class="vc-era-route">{{c.routeLabel}}{{e.route}}</p>
+                <ol class="vc-era-list">
+                  <sc-for list="{{e.items}}" as="m" hint-placeholder-count="4">
+                    <li class="vc-ms" id="{{m.slug}}" style="--vc-gap-years: {{m.gap}};">
+                      <sc-if value="{{m.closed}}" hint-placeholder-val="{{ true }}">
+                        <details class="vc-ms-fold" data-expand="inline">
 <!--@MS-->
-                          </details>
-                        </sc-if>
-                        <sc-if value="{{m.open}}" hint-placeholder-val="{{ false }}">
-                          <details class="vc-ms-fold" data-expand="inline" open>
+                        </details>
+                      </sc-if>
+                      <sc-if value="{{m.open}}" hint-placeholder-val="{{ false }}">
+                        <details class="vc-ms-fold" data-expand="inline" open>
 <!--@MS-->
-                          </details>
-                        </sc-if>
-                      </li>
-                    </sc-for>
-                  </ol>
-                </section>
-              </sc-for>
-            </div>
-          </sc-if>
-          <sc-if value="{{listLoading}}" hint-placeholder-val="{{ false }}">
-            <h2 class="vc-sr-only">{{c.hist}}</h2>
-            <sc-if value="{{listSlow}}" hint-placeholder-val="{{ false }}">
-              <div class="vc-loading-slow" role="status"><p>{{c.loading}}</p><button type="button" class="btn vc-btn-quiet">{{c.retry}}</button></div>
-            </sc-if>
-            <sc-if value="{{listQuick}}" hint-placeholder-val="{{ false }}"><p class="vc-sr-only" role="status">{{c.loading}}</p></sc-if>
-            <div class="vc-loading vc-loading-rows" aria-hidden="true">
-              <span class="vc-skeleton" style="width: var(--space-10); height: var(--space-5);"></span>
-              <sc-for list="{{skeletons}}" as="k" hint-placeholder-count="5">
-                <div class="vc-loading-row">
-                  <span class="vc-skeleton" style="width: var(--space-7); height: var(--space-4);"></span>
-                  <span class="vc-loading-row-body">
-                    <span class="vc-skeleton" style="width: {{k.w1}}; height: var(--space-5);"></span>
-                    <span class="vc-skeleton" style="width: {{k.w2}}; height: var(--space-4);"></span>
-                  </span>
-                </div>
-              </sc-for>
-            </div>
-          </sc-if>
-          <sc-if value="{{listFailed}}" hint-placeholder-val="{{ false }}">
-            <div class="vc-notice vc-notice-block" role="alert">
-              <h2 class="vc-type-title-3">{{c.failTitle}}</h2>
-              <p class="vc-sub">{{c.failBody}}</p>
-              <div class="vc-notice-actions"><button type="button" class="btn vc-btn-action">{{c.retry}}</button><a class="vc-quick" href="{{c.learnHref}}">{{c.toLearn}}</a></div>
-            </div>
-          </sc-if>
+                        </details>
+                      </sc-if>
+                    </li>
+                  </sc-for>
+                </ol>
+              </section>
+            </sc-for>
+          </div>
         </div>
         <aside aria-label="{{c.indexLabel}}">
           <nav class="vc-era-index" aria-label="{{c.erasLabel}}">
@@ -152,7 +124,7 @@
                     <a class="vc-card vc-card-link" href="{{p.href}}" aria-labelledby="{{p.slug}}-t">
                       <p class="vc-row-kind">{{p.meta}}</p>
                       <h4 id="{{p.slug}}-t" class="row-title vc-serif">{{p.title}}</h4>
-                      <p class="vc-row-line">{{p.dek}}</p>
+                      <p class="vc-row-line">{{p.dek}}<sc-if value="{{p.ai}}" hint-placeholder-val="{{ true }}"><span class="vc-origin" data-origin="ai" title="{{c.originLabel}}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>{{c.originShort}}</span></sc-if></p>
                       <p class="vc-row-foot">{{c.published}} <time datetime="{{p.date}}">{{p.dateText}}</time></p>
                     </a>
                   </sc-if>
@@ -193,7 +165,7 @@
                   <a class="vc-card vc-card-link" href="{{p.href}}" aria-labelledby="{{p.slug}}-t">
                     <p class="vc-row-kind">{{p.meta}}</p>
                     <h3 id="{{p.slug}}-t" class="row-title vc-serif">{{p.title}}</h3>
-                    <p class="vc-row-line">{{p.dek}}</p>
+                    <p class="vc-row-line">{{p.dek}}<sc-if value="{{p.ai}}" hint-placeholder-val="{{ true }}"><span class="vc-origin" data-origin="ai" title="{{c.originLabel}}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0.8 C 6.5 3.9, 8.1 5.5, 11.2 6 C 8.1 6.5, 6.5 8.1, 6 11.2 C 5.5 8.1, 3.9 6.5, 0.8 6 C 3.9 5.5, 5.5 3.9, 6 0.8 Z" fill="currentColor"></path></svg>{{c.originShort}}</span></sc-if></p>
                     <p class="vc-row-foot">{{c.published}} <time datetime="{{p.date}}">{{p.dateText}}</time></p>
                   </a>
                 </li>

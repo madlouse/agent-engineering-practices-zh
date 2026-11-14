@@ -16,16 +16,17 @@ const COPY = {
       { n: '4', q: '错了怎么纠正', a: '每篇文章末尾有纠错入口，你也可以直接写信。改正后记进那一篇的更新记录。产品负责人可以撤下任何一篇；撤下后，那个地址显示「页面不存在」，首页和 RSS 随之更新。' },
     ],
     contactTitle: '联系', contact: '发现错误、想转载，或者想告诉我们一件事，都可以写信。', contactCta: '写信给我们',
+    privacyPre: '隐私相关的请求，例如删除订阅数据，请写到 ', privacyEnd: '。',
     startTitle: '从一站开始', bodyLine: '每周两次力量训练。', mindLine: '读懂 AI 从哪里来。', buildLine: '和智能体一起做出东西。',
   },
   en: {
-    kicker: 'About Velicoach', title: 'An AGI-era training partner',
+    kicker: 'About Velicoach', title: 'A coach for the AGI years',
     lead: 'The faster AI moves, the more it pays to get strong first. Velicoach trains with you on two things: a stronger body, and working well with AI.',
     whoTitle: 'Who we are',
     who: 'Velicoach has three stations, each with one job. Body: get stronger. Mind: understand how AI got here, step by step. Build: make things with agents. Body’s product is Veli, an AI strength coach.',
     whyTitle: 'Why we do this',
     why1: 'AGI is arriving, and it is both exciting and unsettling. We see three problems. Screen time keeps growing and bodies keep declining, yet few people train strength with any system. There is too much AI news to know what to read, what to learn, or which work to hand to an agent. And people who want to build with AI lack methods they can follow and real cases to learn from.',
-    why2: 'So we set out to be a training partner, not a media outlet: we train with you, learn with you, and build with you. We also keep a record of how AI’s direction has changed, and of how we ourselves build things with agents.',
+    why2: 'So we set out to be a coach, not a media outlet: we train with you, learn with you, and build with you. We also keep a record of how AI’s direction has changed, and of how we ourselves build things with agents.',
     keepTitle: 'Who maintains this site',
     keep: [
       { n: '1', q: 'Who maintains it', a: 'One product owner and AI agents maintain this site together.' },
@@ -34,6 +35,7 @@ const COPY = {
       { n: '4', q: 'How we correct mistakes', a: 'Every article ends with a link for corrections, or you can email us. Each fix is logged in that article’s change list. The product owner can take down any piece. After that its URL shows “Page not found,” and the home page and RSS update to match.' },
     ],
     contactTitle: 'Contact', contact: 'Found a mistake, want to republish something, or have something to tell us? Email us.', contactCta: 'Email us',
+    privacyPre: 'For privacy requests, such as deleting your newsletter data, email ', privacyEnd: '.',
     startTitle: 'Start at a station', bodyLine: 'Strength training, twice a week.', mindLine: 'Understand where AI came from.', buildLine: 'Make things with agents.',
   },
 };

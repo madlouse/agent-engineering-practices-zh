@@ -2,14 +2,14 @@
 const CHECKED = '2026-11-04';     // 步骤的最后核对日期
 const COPY = {
   zh: {
-    crumbLabel: '所在位置', title: '学习路径', hist: 'AI 发展史', collab: '人机协作', histHref: '/mind', collabHref: '/mind/collaboration', linesLabel: '内容线', msBase: '/mind#',
+    crumbLabel: '所在位置', title: '学习路径', msBase: '/mind#',
     lead: '先学会用智能体，再回头弄懂模型。四级排成一条路，每一步都写清为什么学、学到什么程度、怎么检验自己学会了。', openCourse: '打开课程',
     pathLabel: '四级', lvN: (n) => `第 ${n} 级`, count: (n) => `${n} 项`,
     intro: '每级不超过 3 项，后一级默认你学完了前一级。点开一步，看学到什么程度、怎么检验。时间是我们的估计，按每一项从头学到能通过检验来算。',
     goalLabel: '学完能做到：', why: '为什么学', level: '学到什么程度', check: '怎么检验', checkedLabel: '最后核对', related: '相关里程碑：', hours: (h) => `约\u00a0${h}\u00a0小时`, sep: ' · ',
   },
   en: {
-    crumbLabel: 'You are here', title: 'Learning path', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration', linesLabel: 'Content lines', msBase: '/en/mind#',
+    crumbLabel: 'You are here', title: 'Learning path', msBase: '/en/mind#',
     lead: 'Learn to work with agents first, then go back and understand the models. Four levels in one path, and every step says why it’s there, how far to take it, and how to check you’ve got it.', openCourse: 'Open the course',
     pathLabel: 'Four levels', lvN: (n) => `Level ${n}`, count: (n) => (n === 1 ? '1 step' : `${n} steps`),
     intro: 'Each level has three steps at most and assumes you finished the one before. Open a step to see how far to take it and how to check. The hours are our estimate of going from the start to passing the check.',

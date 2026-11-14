@@ -7,12 +7,12 @@ const ART_UI = {
     metaWho: '谁写的、什么时候', metaCheck: '我们核对了什么',
     dtAuthor: '作者', author: 'Zack Deveau，Shopify Engineering', dtOriginal: '原文', dOriginal: '2026-07-29', readOriginal: '读原文',
     dtPublished: '发布', dPublished: '2026-10-31', dtChecked: '最后核对', dChecked: '2026-11-04',
-    dtApplies: '适用于', applies: 'Harness 工程，和具体模型无关', dtRights: '授权', rights: '讲解和摘要，不是全文翻译',
+    dtApplies: '适用于', applies: 'Harness 工程，和具体模型无关', dtRights: '授权', rights: '讲解和摘要，不是全文翻译', dtOrigin: '起草', origin: '智能体起草，独立评审',
     dtLength: '时长', readTime: '12 分钟', hasVideo: '有 3 分钟视频',
     toc: '目录', tocPractice: '练习', notesLabel: '注释', backToText: '回到正文',
     play: '播放 3 分钟视频', video: '3 分钟视频', videoTime: '0:00 / 2:24', capt: '字幕', transcript: '文字稿', voice: '旁白用合成音色「晓晓」。',
     videoFailTitle: '视频没能播放。', videoFailBody: '文字稿讲的是同一件事，就在下面。', retry: '重试',
-    loading: '正在加载文章', failTitle: '这篇文章没加载出来', failBody: '可能是网络不稳。页面其余部分不受影响。可以重试，也可以直接读英文原文。',
+    loading: '正在加载视频',
     noEnTitle: '', noEnBody: '', noEnCta: '',
     next: '接着读', nextLead: '下一篇', nextKind: '人机协作 · Harness 工程', nextTitle: 'Claude Code 团队如何做 Code Review', nextHref: '/mind/claude-code-review',
     allLine: '人机协作的全部文章',
@@ -30,12 +30,12 @@ const ART_UI = {
     metaWho: 'Author and dates', metaCheck: 'What we checked',
     dtAuthor: 'Author', author: 'Zack Deveau, Shopify Engineering', dtOriginal: 'Original', dOriginal: 'Jul 29, 2026', readOriginal: 'Read the original',
     dtPublished: 'Published', dPublished: 'Oct 31, 2026', dtChecked: 'Last checked', dChecked: 'Nov 4, 2026',
-    dtApplies: 'Applies to', applies: 'Harness engineering, any model', dtRights: 'Rights', rights: 'Summary and commentary, not a translation',
+    dtApplies: 'Applies to', applies: 'Harness engineering, any model', dtRights: 'Rights', rights: 'Summary and commentary, not a translation', dtOrigin: 'Drafting', origin: 'AI-drafted, independently reviewed',
     dtLength: 'Length', readTime: '9 min read', hasVideo: '3-minute video',
     toc: 'Contents', tocPractice: 'Exercise', notesLabel: 'Notes', backToText: 'Back to the text',
     play: 'Play the 3-minute video', video: '3-minute video', videoTime: '0:00 / 2:21', capt: 'Captions', transcript: 'Transcript', voice: 'Narrated by Andrew, a synthetic voice.',
     videoFailTitle: 'The video didn’t play. ', videoFailBody: 'The transcript below covers the same ground.', retry: 'Try again',
-    loading: 'Loading the article', failTitle: 'This article didn’t load', failBody: 'The connection may be unstable. The rest of the page still works. Try again, or read the original post on Shopify Engineering.',
+    loading: 'Loading the video',
     noEnTitle: 'This piece is only in Chinese for now. ', noEnBody: 'Our Chinese write-up is below. The original post is in English.', noEnCta: 'Read the original',
     next: 'Keep reading', nextLead: 'Next', nextKind: 'Human–AI collaboration · Harness engineering', nextTitle: 'How the Claude Code team does code review', nextHref: '/en/mind/claude-code-review',
     allLine: 'Everything in Human–AI collaboration',
@@ -104,20 +104,19 @@ const ART_CONTENT = {
     practiceBody: 'Pick one class of bug in your own project, such as broken access control. Write an integration test that fails only when the bug really exists. Then let an agent search, and accept only findings that make the test fail. Count what it proposes and how much of it holds up.',
   },
 };
-/* 单条开发日志（PRD F19，复用文章页的版式）。这一条的出处是 thin-muscle-coach PR #84（路由表，ADR-0032，2026-11-04 合并）；标题、日期和动手页、项目页的同一条日志（build-out/gen/parts.py 的 one-domain）一致。
+/* 单条开发日志（PRD F19，复用文章页的版式）。这一条的出处是 thin-muscle-coach PR #84 的合并提交 eb70c77（路由表，ADR-0032，2026-11-04 合并）；这个仓库不公开，只写提交号、不带链接（PRD F19）；标题、日期和动手页、项目页的同一条日志（build-out/gen/parts.py 的 one-domain）一致。
    字段：字段是日期、项目、做了什么、和智能体怎么分工、下一步、PR 或提交链接 */
 const ART_LOG = {
   zh: {
     crumbLabel: '所在位置', projectHref: '/build/velicoach', project: 'Velicoach 主站',
     title: '两个产品共用一个域名：按路径分给主站和 Veli', dek: '主站和 Veli 按路径分一个域名：哪些地址归主站，哪些归 Veli。',
-    metaLabel: '日期、项目和链接', dtDate: '日期', dDate: '2026-11-04', dtProject: '项目', dtPr: 'PR', pr: 'thin-muscle-coach #84', prHref: 'https://github.com/madlouse/thin-muscle-coach/pull/84',
+    metaLabel: '日期、项目和链接', dtDate: '日期', dDate: '2026-11-04', dtProject: '项目', dtPr: '提交', pr: 'thin-muscle-coach 提交 eb70c77',
     hDid: '做了什么',
     did1: 'velicoach.com 下面有两个产品，各在一个仓库里：主站和 Veli。我们按路径把地址分开。首页、看清、动手和关于归主站。站稳页、Veli 网页版、登录和法务页归 Veli。',
     did2: '规则按顺序匹配，具体的前缀写在前面。英文路径里站稳页和法务页归 Veli，所以它们的规则写在主站的英文路径前面。',
     hSplit: '和智能体怎么分工', split: '产品负责人定哪些地址归主站、哪些归 Veli；智能体写路由表和分流规则。',
     hNext: '下一步', nextStep: '主站接管根域名，其余地址转给 Veli。在那之前，根路径临时跳转到站稳页。',
-    hLinks: 'PR 和提交', linkNote: '：路由表（ADR-0032），在 Veli 的仓库里，已合并。',
-    loading: '正在加载开发日志', failTitle: '这条开发日志没加载出来', failBody: '可能是网络不稳。页面其余部分不受影响。可以重试，也可以先看这个项目的其他日志。', failAlt: '这个项目的全部开发日志',
+    hLinks: 'PR 和提交', linkNote: '：路由表（ADR-0032），在 Veli 的仓库里，已合并。这个仓库不公开，所以只写提交号。',
     next: '接着读', nextDate: '2026-11-04', nextTitle: '首页的「叶与网」动效回到设计稿里：约 6000 个点在叶子和网之间变形', nextHref: '/build/velicoach/home-motion',
     allProject: 'Velicoach 主站的全部开发日志', allLogs: '全部项目的开发日志', allLogsHref: '/build#devlog',
     colophon: '纠错', report: '发现错误或过时的地方？', reportLink: '写信指出', reportSubject: '纠错：https://velicoach.com/build/velicoach/one-domain',
@@ -125,20 +124,19 @@ const ART_LOG = {
   en: {
     crumbLabel: 'Breadcrumb', projectHref: '/en/build/velicoach', project: 'Velicoach',
     title: 'Two products now share one domain, split by path between this site and Veli', dek: 'How the main site and Veli split one domain by path, and which URLs belong to which.',
-    metaLabel: 'Date, project, and links', dtDate: 'Date', dDate: 'Nov 4, 2026', dtProject: 'Project', dtPr: 'PR', pr: 'thin-muscle-coach #84', prHref: 'https://github.com/madlouse/thin-muscle-coach/pull/84',
+    metaLabel: 'Date, project, and links', dtDate: 'Date', dDate: 'Nov 4, 2026', dtProject: 'Project', dtPr: 'Commit', pr: 'thin-muscle-coach commit eb70c77',
     hDid: 'What we did',
     did1: 'velicoach.com hosts two products, each in its own repository: the main site and Veli. We split the URLs by path. The home page, Mind, Build, and About belong to the main site. The Body page, the Veli web app, sign-in, and the legal pages belong to Veli.',
     did2: 'Rules match in order, so the specific prefixes come first. In English, the Body page and the legal pages still belong to Veli, so their rules sit ahead of the main site’s English paths.',
     hSplit: 'How we split the work with agents', split: 'The product owner decided which URLs belong to the main site and which to Veli. Agents wrote the routing table and the rewrite rules.',
     hNext: 'Next', nextStep: 'The main site takes over the root domain and hands every other URL to Veli. Until then, the root path redirects to the Body page.',
-    hLinks: 'Pull requests and commits', linkNote: ': the routing table (ADR-0032), in Veli’s repository, merged.',
-    loading: 'Loading the devlog entry', failTitle: 'This devlog entry didn’t load', failBody: 'The connection may be unstable. The rest of the page still works. Try again, or read the project’s other entries.', failAlt: 'All devlog entries for this project',
+    hLinks: 'Pull requests and commits', linkNote: ': the routing table (ADR-0032), in Veli’s repository, merged. That repository is private, so only the commit hash is shown.',
     next: 'Keep reading', nextDate: 'Nov 4, 2026', nextTitle: 'The home page’s leaf-and-web animation is back in the design file: about 6,000 points morph between a leaf and a web', nextHref: '/en/build/velicoach/home-motion',
     allProject: 'All Velicoach devlog entries', allLogs: 'The devlog for every project', allLogsHref: '/en/build#devlog',
     colophon: 'Corrections', report: 'Spotted an error or something out of date?', reportLink: 'Email a correction', reportSubject: 'Correction: https://velicoach.com/en/build/velicoach/one-domain',
   },
 };
-/* v：shellVals() 的结果；o：{ kind, media, english, load, frame, scrolled }。「暂无英文版」时调用方先把页面语言定成英文 */
+/* v：shellVals() 的结果；o：{ kind, media, english, frame, scrolled, scrollAt }。「暂无英文版」时调用方先把页面语言定成英文 */
 function articleVals(v, o) {
   const L = v.en ? 'en' : 'zh';
   const isLog = o.kind === '开发日志';
@@ -146,13 +144,12 @@ function articleVals(v, o) {
   const CL = noEnglish ? 'zh' : L;
   const u = { ...ART_UI[L] };
   const g = { ...ART_LOG[L] };
-  const mail = (s) => 'mailto:?subject=' + encodeURIComponent(s);
+  const mail = (s) => 'mailto:' + SITE_CONFIG.contactEmail + '?subject=' + encodeURIComponent(s);
   u.reportHref = mail(u.reportSubject); g.reportHref = mail(g.reportSubject); u.srcHref = ART_SRC;
   const media = isLog ? '没有视频' : (o.media || '正常');
   const hasVideo = media !== '没有视频';
-  const load = o.load || '正常';
-  const loaded = load === '正常';
-  const scrolled = !!o.scrolled && loaded;
+  const scrolled = !!o.scrolled;
+  const atVideo = scrolled && hasVideo && o.scrollAt === '视频';
   const frame = o.frame || '封面';
   const readTime = noEnglish ? '12 min read, in Chinese' : u.readTime;
   return {
@@ -160,12 +157,11 @@ function articleVals(v, o) {
     scenes: ART_CONTENT[CL].scenes.map((s, i) => ({ k: u.sceneLabels[i], say: s.say })),
     isArticle: !isLog, isLog, noEnglish,
     curMind: isLog ? 'false' : 'page', curBuild: isLog ? 'page' : 'false',
-    artClass: scrolled ? 'is-scrolled' : '', atTop: loaded && !scrolled, scrolled,
-    isLoaded: loaded, isLoading: load === '加载中' || load === '加载超过 10 秒', isSlow: load === '加载超过 10 秒', loadFailed: load === '加载失败',
-    videoOk: media === '正常', videoFailed: media === '视频无法播放',
+    artClass: scrolled ? 'is-scrolled' : '', atTop: !scrolled, scrolled, atVideo,
+    videoOk: media === '正常', videoLoading: media === '视频加载中' || media === '视频加载超过 10 秒', videoSlow: media === '视频加载超过 10 秒', videoQuick: media === '视频加载中', videoFailed: media === '视频无法播放',
     length: hasVideo ? readTime + ' · ' + u.hasVideo : readTime,
     videoTime: noEnglish ? ART_UI.zh.videoTime : u.videoTime,
     voice: noEnglish ? 'Chinese narration by Xiaoxiao, a synthetic voice.' : u.voice,
-    frameText: frame !== '最暗一帧', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
+    frameText: frame !== '最暗一帧', frameKey: { '最亮一帧': 'brightest', '最暗一帧': 'darkest' }[frame] || 'cover', frameClass: frame === '最亮一帧' ? 'is-bright' : '', frameHidden: frame === '封面' ? 'false' : 'true',
   };
 }

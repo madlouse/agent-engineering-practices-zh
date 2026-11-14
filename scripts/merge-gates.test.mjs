@@ -97,6 +97,37 @@ test("package.json：票可以新增命令，不能改或删已有的", () => {
   } finally { r.cleanup(); }
 });
 
+test("vercel.json：票可以改 rewrites，不能改、删 ignoreCommand、buildCommand、installCommand；不是票的改了按 b", () => {
+  const r = repo();
+  try {
+    r.write("vercel.json", JSON.stringify({ installCommand: "npm install", ignoreCommand: "node scripts/preview-skip.mjs" }));
+    r.git("add", "-A"); r.git("commit", "-q", "--amend", "--no-edit");
+    r.branch("feat/62-rewrites");
+    r.write("vercel.json", JSON.stringify({ installCommand: "npm install", ignoreCommand: "node scripts/preview-skip.mjs", rewrites: [{ source: "/body/:p*", destination: "https://example.invalid/:p*" }] }));
+    assert.equal(r.run(r.commit("rewrites"), "feat/62-rewrites").status, 0, "改 rewrites 放行");
+    r.branch("feat/63-ignore");
+    r.write("vercel.json", JSON.stringify({ installCommand: "npm install", ignoreCommand: "exit 0" }));
+    let res = r.run(r.commit("ignore"), "feat/63-ignore");
+    assert.equal(res.status, 1);
+    assert.match(res.stdout, /vercel\.json 的 ignoreCommand 被改、被删或新增/);
+    r.branch("fix/64-build");
+    r.write("vercel.json", JSON.stringify({ installCommand: "npm install", ignoreCommand: "node scripts/preview-skip.mjs", buildCommand: "true" }));
+    res = r.run(r.commit("build"), "fix/64-build");
+    assert.equal(res.status, 1);
+    assert.match(res.stdout, /vercel\.json 的 buildCommand 被改、被删或新增/);
+    r.branch("content/65-delete");
+    r.git("rm", "-q", "vercel.json");
+    res = r.run(r.commit("delete"), "content/65-delete");
+    assert.equal(res.status, 1);
+    assert.match(res.stdout, /vercel\.json 的 installCommand 被改、被删或新增/);
+    r.branch("chore/vercel");
+    r.write("vercel.json", JSON.stringify({ installCommand: "npm ci", ignoreCommand: "node scripts/preview-skip.mjs" }));
+    res = r.run(r.commit("chore"), "chore/vercel", "类别：a\n");
+    assert.equal(res.status, 0);
+    assert.match(res.stdout, /category=b/);
+  } finally { r.cleanup(); }
+});
+
 test("和分叉点比：base 在票开分支后改了门槛文件，不算票改的", () => {
   const r = repo();
   try {

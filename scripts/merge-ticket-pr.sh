@@ -108,7 +108,24 @@ if $risk_high; then
   [ "$v_security" = "pass" ] || fail "risk:high：没有针对头提交 ${sha:0:7} 的 kind=security 通过记录（现在是 $v_security）。下一步：派一个 security-reviewer 子 Agent 评这个头提交"
 fi
 # 预览部署：由调用方用 Vercel 连接器确认 PR 头提交的预览部署 READY 后，用 PREVIEW_READY_SHA=<该提交> 声明
-[ "${PREVIEW_READY_SHA:-}" = "$sha" ] || fail "没有确认 PR 头 ${sha:0:7} 的 Vercel 预览部署 READY（先查，再用 PREVIEW_READY_SHA=$sha 调用）"
+# why: vercel.json 的 ignoreCommand 让只改文档的提交不出预览，头提交可能没有预览可查
+preview_ready=${PREVIEW_READY_SHA:-}
+preview_basis="头提交 ${sha:0:7}"
+if [ "$preview_ready" != "$sha" ]; then
+  skip_js="$lib_dir/preview-skip.mjs"
+  if ! git show "$tgt:scripts/preview-skip.mjs" > "$skip_js" 2>/dev/null; then
+    fail "没有确认 PR 头 ${sha:0:7} 的 Vercel 预览部署 READY（先查，再用 PREVIEW_READY_SHA=$sha 调用）"
+  elif git diff -z --no-renames --name-only "$tgt...$sha" | node "$skip_js" --stdin; then
+    echo "▶ 整个 PR 只改文档，Vercel 不出预览，不要求预览 READY"
+    preview_basis="$TARGET 最新提交 ${tgt:0:7}（本 PR 只改文档）"
+  elif [[ "$preview_ready" =~ ^[0-9a-f]{40}$ ]] && git merge-base --is-ancestor "$preview_ready" "$sha" 2>/dev/null \
+       && ! git merge-base --is-ancestor "$preview_ready" "$tgt" && git diff -z --no-renames --name-only "$preview_ready" "$sha" | node "$skip_js" --stdin; then
+    echo "▶ 用 ${preview_ready:0:7} 的预览：从它到头提交 ${sha:0:7} 只改了文档"
+    preview_basis="${preview_ready:0:7}（之后只改了文档）"
+  else
+    fail "没有确认 PR 头 ${sha:0:7} 的 Vercel 预览部署 READY；头提交只改了文档时，声明最近一个改了文档以外文件的提交（PREVIEW_READY_SHA=<它的完整 sha>），从它到头提交必须只改文档"
+  fi
+fi
 
 echo "▶ 在 PR #$PR（$head@${sha:0:7}，类别 $category）+ 最新 $TARGET 上重跑检查"
 # 检查命令取自目标分支的 package.json，不用 PR 自己的版本
@@ -131,7 +148,7 @@ if [ -x node_modules/.bin/tsc ] && [ -x node_modules/.bin/eslint ]; then
   tsc --noEmit || fail "类型检查没过"
   eslint . || fail "lint 没过"
 else
-  echo "（本地没装 tsc、eslint：类型检查和 lint 以已确认 READY 的预览构建为准）"
+  echo "（本地没装 tsc、eslint：类型检查和 lint 以 $preview_basis 的 READY 预览构建为准）"
 fi
 cd "$ROOT"
 

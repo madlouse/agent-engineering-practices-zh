@@ -19,7 +19,7 @@ body{margin:0}
 .vc-bodypage-text .vc-type-lead { max-width: var(--text-max); color: var(--vc-sub); }
 .vc-bodypage-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); }
 .vc-bodypage-direct { display: none; }
-/* 「开始训练」的选项在按钮下方展开（.vc-pop.vc-pop-code：两个去处上下排，右边是在手机上打开的码） */
+/* 「开始训练」的选项在按钮下方展开（.vc-pop.vc-pop-code：用 Google 和用邮箱上下排，右边是在手机上打开这一页的码） */
 .vc-bodypage-plan { margin: 0; display: grid; gap: var(--space-3); }
 .vc-bodypage-plan > figcaption { color: var(--vc-sub); }
 .vc-bodypage-card { display: grid; gap: var(--space-4); }
@@ -35,22 +35,24 @@ body{margin:0}
 .vc-bodypage-list h3 { font-family: var(--font-sans); }
 .vc-bodypage-list p { margin: 0; color: var(--vc-sub); text-wrap: pretty; }
 .vc-bodypage-branch { margin: var(--space-4) 0 0; }
-.vc-bodypage-start { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.vc-bodypage-start { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
 .vc-bodypage-start .opt { padding-inline: var(--space-5); }
 /* breakpoint-desktop 1180px */
 @media (max-width: 1179px) { .vc-bodypage-hero { grid-template-columns: minmax(0, 1fr); gap: var(--space-7); } }
-/* 触屏和窄于桌面版式：两个登录方式直接摆在按钮的位置，不用先点开（和首页同一断点；步数表「开始训练」：没登录过 2 步） */
+/* 触屏和窄于桌面版式：「用 Google 开始训练」实心按钮加「用邮箱开始」文字入口直接摆在按钮的位置，不用先点开（和首页同一断点；步数表「开始训练」：没登录过 2 步） */
 @media (max-width: 1179px), (hover: none) {
   .vc-bodypage-start-anchor { display: none; }
-  .vc-bodypage-direct { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--space-2); max-width: 26em; }
+  .vc-bodypage-direct { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); }
 }
-/* breakpoint-tablet 744px：手机上两个去处上下排，占满一行 */
+/* breakpoint-tablet 744px：手机上按钮占满一行，文字入口在它下面 */
 @media (max-width: 743px) {
-  .vc-bodypage-direct { grid-auto-flow: row; width: 100%; max-width: none; }
+  .vc-bodypage-direct { display: grid; gap: var(--space-1); width: 100%; }
+  .vc-bodypage-direct .vc-quick { justify-self: start; }
   .vc-bodypage-text, .vc-bodypage-actions { justify-items: stretch; }
   .vc-bodypage-actions { display: grid; width: 100%; }
   .vc-bodypage-list li { grid-template-columns: minmax(0, 1fr); }
-  .vc-bodypage-start { display: grid; }
+  .vc-bodypage-start { display: grid; justify-items: start; }
+  .vc-bodypage-start .opt { justify-self: stretch; }
   /* 图缩到手机宽度后约是原来的 13/40：星期的字取脚注字号再放大 40/13，缩放后约等于脚注字号 */
   .vc-bodypage-branch svg { overflow: visible; margin-top: var(--space-4); }
   .vc-bodypage-branch text { font-size: calc(var(--type-footnote) * 40 / 13); }
@@ -86,12 +88,12 @@ body{margin:0}
             <div class="vc-pop-anchor vc-bodypage-start-anchor" onMouseEnter="{{openStart}}" onMouseLeave="{{closeLater}}">
               <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="bo-start-options" onFocus="{{focusStart}}"><span>{{c.cta}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
               <div id="bo-start-options" class="{{popClass}}" data-pop="" role="group" aria-label="{{c.startGroup}}">
-                <div class="vc-pop-opts"><a class="opt" href="{{a1.href}}">{{a1.label}}</a><a class="opt" href="{{a2.href}}">{{a2.label}}</a></div>
-                <svg class="vc-start-code" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
+                <div class="vc-pop-opts"><a class="opt" href="{{c.googleHref}}">{{c.google}}</a><a class="vc-quick" href="{{c.emailHref}}">{{c.email}}</a></div>
+                <svg class="vc-start-code" data-encodes="https://velicoach.com/body?utm_source=velicoach_qr" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
                 <p class="vc-pop-note">{{c.popNote}}</p>
               </div>
             </div>
-            <div class="vc-bodypage-direct" role="group" aria-label="{{c.startGroup}}"><a class="btn vc-btn-action" href="{{a1.href}}">{{a1.label}}</a><a class="btn vc-btn-quiet" href="{{a2.href}}">{{a2.label}}</a></div>
+            <div class="vc-bodypage-direct" role="group" aria-label="{{c.startGroup}}"><a class="btn vc-btn-action" href="{{c.googleHref}}">{{c.google}}</a><a class="vc-quick" href="{{c.emailHref}}">{{c.email}}</a></div>
             <a class="vc-quick" href="#how">{{c.how}}</a>
           </div>
         </div>
@@ -156,8 +158,8 @@ body{margin:0}
         <p class="vc-type-body">{{c.firstLead}}</p>
       </div>
       <div class="vc-bodypage-start" role="group" aria-label="{{c.startGroup}}">
-        <a class="opt" href="{{a1.href}}">{{a1.label}}</a>
-        <a class="opt" href="{{a2.href}}">{{a2.label}}</a>
+        <a class="opt" href="{{c.googleHref}}">{{c.google}}</a>
+        <a class="vc-quick" href="{{c.emailHref}}">{{c.email}}</a>
       </div>
     </section>
   </main>
@@ -187,7 +189,7 @@ body{margin:0}
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"startMenu":{"editor":"enum","options":["收起","展开"],"default":"收起"},"device":{"editor":"enum","options":["其他","苹果"],"default":"其他"},"$preview":{"width":1440,"height":2700}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"startMenu":{"editor":"enum","options":["收起","展开"],"default":"收起"},"$preview":{"width":1440,"height":2700}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
 const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
@@ -251,7 +253,7 @@ function shellVals(self, station, path) {
     subValue: sub === '格式不对' ? 'name@' : (busy || err) ? 'name@example.com' : '',
   };
 }
-/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」主按钮直达 /app，鼠标停留或键盘聚焦时原地展开 /auth/google、/auth/apple 和扫码 ── */
+/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」主按钮直达 /app?utm_source=velicoach，鼠标停留或键盘聚焦时原地展开 /auth/google?utm_source=velicoach、用邮箱开始（/app?utm_source=velicoach）和扫码（编 /body?utm_source=velicoach_qr）；Apple 等 Veli B2 再加（#164） ── */
 const COPY = {
  "zh": {
   "what": "练什么",
@@ -261,7 +263,7 @@ const COPY = {
   "cta": "开始训练",
   "startGroup": "开始训练的方式",
   "google": "用 Google 开始训练",
-  "apple": "用 Apple 开始训练",
+  "email": "用邮箱开始",
   "planIntro": "明早 7:10 出门，健身房 6:30 就开了。动作排好了：",
   "planCap": "威利前一晚发来的第一练：六组动作，加上热身和收尾，12 分钟做完。",
   "whatTitle": "练什么：先练三个动作",
@@ -279,11 +281,11 @@ const COPY = {
   "branchCap": "练了力量长一片实心叶，完成一件小事长一片浅色叶；没练的日子只是一个节点，不扣分，也不掉叶子。",
   "firstTitle": "第一练，12 分钟",
   "firstLead": "告诉威利你想练什么、一周有几天，剩下的它来排。",
-  "googleHref": "/auth/google",
-  "appleHref": "/auth/apple",
+  "googleHref": "/auth/google?utm_source=velicoach",
   "popNote": "登录后直接进入今天的安排；第一次来，先确认年龄和数据怎么用，一屏完成。扫右边的码，可以在手机上打开。",
-  "appHref": "/app",
-  "codeLabel": "扫码在手机上打开 Veli"
+  "appHref": "/app?utm_source=velicoach",
+  "codeLabel": "扫码在手机上打开这一页",
+  "emailHref": "/app?utm_source=velicoach"
  },
  "en": {
   "what": "What to train",
@@ -293,7 +295,7 @@ const COPY = {
   "cta": "Start training",
   "startGroup": "Ways to start training",
   "google": "Start training with Google",
-  "apple": "Start training with Apple",
+  "email": "Start with email",
   "planIntro": "You leave at 7:10 tomorrow and the gym opens at 6:30. Your session is ready:",
   "planCap": "Sent by Veli the night before. Your first session: six sets plus a warm-up and a cool-down, done in 12 minutes.",
   "whatTitle": "What to train: three moves first",
@@ -311,11 +313,11 @@ const COPY = {
   "branchCap": "A strength session grows a solid leaf; a small win grows a light one. Days off are just nodes: no penalty, no lost leaves.",
   "firstTitle": "Your first session: 12 minutes",
   "firstLead": "Tell Veli what you want to train and how many days a week. It plans the rest.",
-  "googleHref": "/auth/google",
-  "appleHref": "/auth/apple",
+  "googleHref": "/auth/google?utm_source=velicoach",
   "popNote": "Signing in takes you straight to today’s plan. First time? Confirm your age and how your data is used, all on one screen. Scan the code to open it on your phone.",
-  "appHref": "/app",
-  "codeLabel": "Scan to open Veli on your phone"
+  "appHref": "/app?utm_source=velicoach",
+  "codeLabel": "Scan to open this page on your phone",
+  "emailHref": "/app?utm_source=velicoach"
  }
 };
 const LISTS = {
@@ -468,11 +470,8 @@ class Component extends DCLogic {
     const v = shellVals(this, 'paper', '/body');
     const k = v.en ? 'en' : 'zh';
     const open = this.isOpen();
-    /* 登录方式按设备定主次：苹果设备上「用 Apple」在前，其余设备「用 Google」在前（和首页同一条规则） */
-    const c0 = COPY[k], g = { label: c0.google, href: c0.googleHref }, ap = { label: c0.apple, href: c0.appleHref };
-    const apple = (this.props.device ?? '其他') === '苹果';
     return {
-      ...v, c: COPY[k], ...LISTS[k], a1: apple ? ap : g, a2: apple ? g : ap,
+      ...v, c: COPY[k], ...LISTS[k],
       startExpanded: open ? 'true' : 'false', popClass: open ? 'vc-pop vc-pop-code' : 'vc-pop vc-pop-code is-closed',
       openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },
       focusStart: () => { if (this.skipFocusOpen) { this.skipFocusOpen = false; return; } clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },

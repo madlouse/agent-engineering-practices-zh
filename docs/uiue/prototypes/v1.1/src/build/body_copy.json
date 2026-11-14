@@ -8,7 +8,7 @@
    "cta": "开始训练",
    "startGroup": "开始训练的方式",
    "google": "用 Google 开始训练",
-   "apple": "用 Apple 开始训练",
+   "email": "用邮箱开始",
    "planIntro": "明早 7:10 出门，健身房 6:30 就开了。动作排好了：",
    "planCap": "威利前一晚发来的第一练：六组动作，加上热身和收尾，12 分钟做完。",
    "whatTitle": "练什么：先练三个动作",
@@ -26,11 +26,11 @@
    "branchCap": "练了力量长一片实心叶，完成一件小事长一片浅色叶；没练的日子只是一个节点，不扣分，也不掉叶子。",
    "firstTitle": "第一练，12 分钟",
    "firstLead": "告诉威利你想练什么、一周有几天，剩下的它来排。",
-   "googleHref": "/auth/google",
-   "appleHref": "/auth/apple",
+   "googleHref": "/auth/google?utm_source=velicoach",
    "popNote": "登录后直接进入今天的安排；第一次来，先确认年龄和数据怎么用，一屏完成。扫右边的码，可以在手机上打开。",
-   "appHref": "/app",
-   "codeLabel": "扫码在手机上打开 Veli"
+   "appHref": "/app?utm_source=velicoach",
+   "codeLabel": "扫码在手机上打开这一页",
+   "emailHref": "/app?utm_source=velicoach"
   },
   "en": {
    "what": "What to train",
@@ -40,7 +40,7 @@
    "cta": "Start training",
    "startGroup": "Ways to start training",
    "google": "Start training with Google",
-   "apple": "Start training with Apple",
+   "email": "Start with email",
    "planIntro": "You leave at 7:10 tomorrow and the gym opens at 6:30. Your session is ready:",
    "planCap": "Sent by Veli the night before. Your first session: six sets plus a warm-up and a cool-down, done in 12 minutes.",
    "whatTitle": "What to train: three moves first",
@@ -58,11 +58,11 @@
    "branchCap": "A strength session grows a solid leaf; a small win grows a light one. Days off are just nodes: no penalty, no lost leaves.",
    "firstTitle": "Your first session: 12 minutes",
    "firstLead": "Tell Veli what you want to train and how many days a week. It plans the rest.",
-   "googleHref": "/auth/google",
-   "appleHref": "/auth/apple",
+   "googleHref": "/auth/google?utm_source=velicoach",
    "popNote": "Signing in takes you straight to today’s plan. First time? Confirm your age and how your data is used, all on one screen. Scan the code to open it on your phone.",
-   "appHref": "/app",
-   "codeLabel": "Scan to open Veli on your phone"
+   "appHref": "/app?utm_source=velicoach",
+   "codeLabel": "Scan to open this page on your phone",
+   "emailHref": "/app?utm_source=velicoach"
   }
  },
  "L": {

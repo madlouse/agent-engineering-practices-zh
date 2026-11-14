@@ -10,7 +10,7 @@ CSS = '''/* 参考画板：站稳页是 Veli 的落地页，由 Veli 仓库实�
 .vc-bodypage-text .vc-type-lead { max-width: var(--text-max); color: var(--vc-sub); }
 .vc-bodypage-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); }
 .vc-bodypage-direct { display: none; }
-/* 「开始训练」的选项在按钮下方展开（.vc-pop.vc-pop-code：两个去处上下排，右边是在手机上打开的码） */
+/* 「开始训练」的选项在按钮下方展开（.vc-pop.vc-pop-code：用 Google 和用邮箱上下排，右边是在手机上打开这一页的码） */
 .vc-bodypage-plan { margin: 0; display: grid; gap: var(--space-3); }
 .vc-bodypage-plan > figcaption { color: var(--vc-sub); }
 .vc-bodypage-card { display: grid; gap: var(--space-4); }
@@ -26,22 +26,24 @@ CSS = '''/* 参考画板：站稳页是 Veli 的落地页，由 Veli 仓库实�
 .vc-bodypage-list h3 { font-family: var(--font-sans); }
 .vc-bodypage-list p { margin: 0; color: var(--vc-sub); text-wrap: pretty; }
 .vc-bodypage-branch { margin: var(--space-4) 0 0; }
-.vc-bodypage-start { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.vc-bodypage-start { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-5); }
 .vc-bodypage-start .opt { padding-inline: var(--space-5); }
 /* breakpoint-desktop 1180px */
 @media (max-width: 1179px) { .vc-bodypage-hero { grid-template-columns: minmax(0, 1fr); gap: var(--space-7); } }
-/* 触屏和窄于桌面版式：两个登录方式直接摆在按钮的位置，不用先点开（和首页同一断点；步数表「开始训练」：没登录过 2 步） */
+/* 触屏和窄于桌面版式：「用 Google 开始训练」实心按钮加「用邮箱开始」文字入口直接摆在按钮的位置，不用先点开（和首页同一断点；步数表「开始训练」：没登录过 2 步） */
 @media (max-width: 1179px), (hover: none) {
   .vc-bodypage-start-anchor { display: none; }
-  .vc-bodypage-direct { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--space-2); max-width: 26em; }
+  .vc-bodypage-direct { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-5); }
 }
-/* breakpoint-tablet 744px：手机上两个去处上下排，占满一行 */
+/* breakpoint-tablet 744px：手机上按钮占满一行，文字入口在它下面 */
 @media (max-width: 743px) {
-  .vc-bodypage-direct { grid-auto-flow: row; width: 100%; max-width: none; }
+  .vc-bodypage-direct { display: grid; gap: var(--space-1); width: 100%; }
+  .vc-bodypage-direct .vc-quick { justify-self: start; }
   .vc-bodypage-text, .vc-bodypage-actions { justify-items: stretch; }
   .vc-bodypage-actions { display: grid; width: 100%; }
   .vc-bodypage-list li { grid-template-columns: minmax(0, 1fr); }
-  .vc-bodypage-start { display: grid; }
+  .vc-bodypage-start { display: grid; justify-items: start; }
+  .vc-bodypage-start .opt { justify-self: stretch; }
   /* 图缩到手机宽度后约是原来的 13/40：星期的字取脚注字号再放大 40/13，缩放后约等于脚注字号 */
   .vc-bodypage-branch svg { overflow: visible; margin-top: var(--space-4); }
   .vc-bodypage-branch text { font-size: calc(var(--type-footnote) * 40 / 13); }
@@ -58,12 +60,12 @@ BODY = '''<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
             <div class="vc-pop-anchor vc-bodypage-start-anchor" onMouseEnter="{{openStart}}" onMouseLeave="{{closeLater}}">
               <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="bo-start-options" onFocus="{{focusStart}}"><span>{{c.cta}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
               <div id="bo-start-options" class="{{popClass}}" data-pop="" role="group" aria-label="{{c.startGroup}}">
-                <div class="vc-pop-opts"><a class="opt" href="{{a1.href}}">{{a1.label}}</a><a class="opt" href="{{a2.href}}">{{a2.label}}</a></div>
-                <svg class="vc-start-code" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
+                <div class="vc-pop-opts"><a class="opt" href="{{c.googleHref}}">{{c.google}}</a><a class="vc-quick" href="{{c.emailHref}}">{{c.email}}</a></div>
+                <svg class="vc-start-code" data-encodes="https://velicoach.com/body?utm_source=velicoach_qr" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
                 <p class="vc-pop-note">{{c.popNote}}</p>
               </div>
             </div>
-            <div class="vc-bodypage-direct" role="group" aria-label="{{c.startGroup}}"><a class="btn vc-btn-action" href="{{a1.href}}">{{a1.label}}</a><a class="btn vc-btn-quiet" href="{{a2.href}}">{{a2.label}}</a></div>
+            <div class="vc-bodypage-direct" role="group" aria-label="{{c.startGroup}}"><a class="btn vc-btn-action" href="{{c.googleHref}}">{{c.google}}</a><a class="vc-quick" href="{{c.emailHref}}">{{c.email}}</a></div>
             <a class="vc-quick" href="#how">{{c.how}}</a>
           </div>
         </div>
@@ -128,8 +130,8 @@ BODY = '''<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
         <p class="vc-type-body">{{c.firstLead}}</p>
       </div>
       <div class="vc-bodypage-start" role="group" aria-label="{{c.startGroup}}">
-        <a class="opt" href="{{a1.href}}">{{a1.label}}</a>
-        <a class="opt" href="{{a2.href}}">{{a2.label}}</a>
+        <a class="opt" href="{{c.googleHref}}">{{c.google}}</a>
+        <a class="vc-quick" href="{{c.emailHref}}">{{c.email}}</a>
       </div>
     </section>
   </main>
@@ -139,11 +141,10 @@ BODY = '''<div class="vc-page" data-theme="{{themeAttr}}" lang="{{langAttr}}">
 '''
 P = {k: PROPS[k] for k in ('theme', 'lang', 'nav')}
 P['startMenu'] = {"editor": "enum", "options": ["收起", "展开"], "default": "收起"}
-P['device'] = {"editor": "enum", "options": ["其他", "苹果"], "default": "其他"}
 P['$preview'] = {'width': 1440, 'height': 2700}
 SCRIPT = '''<script type="text/x-dc" data-dc-script data-props='%s'>
 %s
-/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」主按钮直达 /app，鼠标停留或键盘聚焦时原地展开 /auth/google、/auth/apple 和扫码 ── */
+/* ── 站稳页的文案和数据（参考画板：这一页由 Veli 仓库实现）。地址：/body（英文 /en/body）；「开始训练」主按钮直达 /app?utm_source=velicoach，鼠标停留或键盘聚焦时原地展开 /auth/google?utm_source=velicoach、用邮箱开始（/app?utm_source=velicoach）和扫码（编 /body?utm_source=velicoach_qr）；Apple 等 Veli B2 再加（#164） ── */
 const COPY = %s;
 const LISTS = %s;
 class Component extends DCLogic {
@@ -168,11 +169,8 @@ class Component extends DCLogic {
     const v = shellVals(this, 'paper', '/body');
     const k = v.en ? 'en' : 'zh';
     const open = this.isOpen();
-    /* 登录方式按设备定主次：苹果设备上「用 Apple」在前，其余设备「用 Google」在前（和首页同一条规则） */
-    const c0 = COPY[k], g = { label: c0.google, href: c0.googleHref }, ap = { label: c0.apple, href: c0.appleHref };
-    const apple = (this.props.device ?? '其他') === '苹果';
     return {
-      ...v, c: COPY[k], ...LISTS[k], a1: apple ? ap : g, a2: apple ? g : ap,
+      ...v, c: COPY[k], ...LISTS[k],
       startExpanded: open ? 'true' : 'false', popClass: open ? 'vc-pop vc-pop-code' : 'vc-pop vc-pop-code is-closed',
       openStart: () => { clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },
       focusStart: () => { if (this.skipFocusOpen) { this.skipFocusOpen = false; return; } clearTimeout(this.timer); this.timer = setTimeout(() => this.setState({ open: true }), this.hoverIntent()); },

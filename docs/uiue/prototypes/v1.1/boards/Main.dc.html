@@ -59,18 +59,17 @@ body{margin:0}
           <a class="btn vc-btn-action" href="{{c.appHref}}" aria-expanded="{{startExpanded}}" aria-controls="vc-start-opts" onFocus="{{focusStart}}"><span>{{c.start}}</span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M4.5 2.5 L8 6 L4.5 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
           <div id="vc-start-opts" class="vc-pop vc-pop-code {{startClass}}" data-pop="" role="group" aria-label="{{c.startMenu}}">
             <div class="vc-pop-opts">
-              <a class="opt" href="{{authFirstHref}}">{{authFirst}}</a>
-              <a class="opt" href="{{authSecondHref}}">{{authSecond}}</a>
+              <a class="opt" href="{{c.googleHref}}">{{c.google}}</a>
+              <a class="vc-quick" href="{{c.emailHref}}">{{c.email}}</a>
             </div>
-            <svg class="vc-start-code" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
+            <svg class="vc-start-code" data-encodes="https://velicoach.com/body?utm_source=velicoach_qr" role="img" aria-label="{{c.codeLabel}}" viewBox="-4 -4 29 29"><path fill="currentColor" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM8 0h1v2H8zM10 1h2v1h-2zM9 3h2v2H9zM12 4h1v3h-1zM8 6h1v2H8zM10 8h3v1h-3zM0 8h2v1H0zM3 9h3v1H3zM14 8h2v2h-2zM17 9h4v1h-4zM8 10h1v3H8zM10 11h2v2h-2zM13 11h2v1h-2zM16 12h3v2h-3zM20 11h1v3h-1zM8 14h2v2H8zM11 15h3v1h-3zM15 15h1v3h-1zM17 15h2v2h-2zM8 17h1v4H8zM10 18h3v1h-3zM12 20h4v1h-4zM17 19h2v2h-2zM20 17h1v2h-1z"></path></svg>
             <p class="vc-pop-note">{{c.startNote}}</p>
           </div>
         </div>
         <p class="vc-type-body vc-hero-fact">{{c.fact}}</p>
         <div class="vc-hero-direct" role="group" aria-label="{{c.startMenu}}">
-          <a class="btn vc-btn-action" href="{{authFirstHref}}">{{authFirst}}</a>
-          <a class="btn vc-btn-quiet" href="{{authSecondHref}}">{{authSecond}}</a>
-          <a class="vc-quick vc-hero-alt" href="{{authSecondHref}}">{{authSecond}}</a>
+          <a class="btn vc-btn-action" href="{{c.googleHref}}">{{c.google}}</a>
+          <a class="vc-quick vc-hero-alt" href="{{c.emailHref}}">{{c.email}}</a>
         </div>
       </div>
       <p class="vc-hero-quick"><a class="vc-quick" href="#why-muscle">{{c.whyMuscle}}</a></p>
@@ -295,7 +294,7 @@ body{margin:0}
   </footer>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["收起","填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"收起"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"start":{"editor":"enum","options":["收起","展开"],"default":"收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"motion":{"editor":"enum","options":["正常","减弱动态效果","无 WebGL"],"default":"正常"},"focus":{"editor":"enum","options":["无","接缝上的圆"],"default":"无"},"device":{"editor":"enum","options":["其他","苹果"],"default":"其他"},"$preview":{"width":1440,"height":3520}}'>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["自动","浅色","深色"],"default":"自动"},"lang":{"editor":"enum","options":["中文","English"],"default":"中文"},"subscribeGate":{"editor":"enum","options":["开","关"],"default":"开"},"subscribe":{"editor":"enum","options":["收起","填写邮箱","正在订阅","订阅成功","格式不对","提交太频繁","服务不可用"],"default":"收起"},"nav":{"editor":"enum","options":["首屏","吸顶"],"default":"首屏"},"start":{"editor":"enum","options":["收起","展开"],"default":"收起"},"network":{"editor":"enum","options":["在线","离线"],"default":"在线"},"motion":{"editor":"enum","options":["正常","减弱动态效果","无 WebGL"],"default":"正常"},"focus":{"editor":"enum","options":["无","接缝上的圆"],"default":"无"},"$preview":{"width":1440,"height":3520}}'>
 /* ── 外壳：文案和取值，每块页面画板原样照抄（shell.md）── */
 /* 站点配置（PRD F23）：联系邮箱和隐私邮箱只从这里取，页面和邮件不写死；生产构建时任一项为空即构建失败 */
 const SITE_CONFIG = { contactEmail: 'hello@velicoach.com', privacyEmail: 'privacy@velicoach.com' };
@@ -365,9 +364,9 @@ const COPY = {
   zh: {
     tag: 'AGI 路上的陪练',
     bodyTitle: '先站稳', bodyLead: '每周两次力量训练。AI 教练威利替你排好时间和动作。', bodyLeadShort: '每周两次力量训练。',
-    start: '开始训练', fact: '第一练 12 分钟', startMenu: '开始训练的方式', google: '用 Google 开始训练', apple: '用 Apple 开始训练',
-    startNote: '第一练 12 分钟。登录在 Veli 里完成；扫右边的码，可以在手机上打开。', codeLabel: '扫码在手机上打开 Veli',
-    appHref: '/app', googleHref: '/auth/google', appleHref: '/auth/apple', whyMuscle: '为什么是肌肉',
+    start: '开始训练', fact: '第一练 12 分钟', startMenu: '开始训练的方式', google: '用 Google 开始训练', email: '用邮箱开始',
+    startNote: '第一练 12 分钟。登录在 Veli 里完成；扫右边的码，可以在手机上打开。', codeLabel: '扫码在手机上打开站稳页',
+    appHref: '/app?utm_source=velicoach', googleHref: '/auth/google?utm_source=velicoach', emailHref: '/app?utm_source=velicoach', whyMuscle: '为什么是肌肉',
     mindTitle: '再看清', mindLead: '写给想跟上 AI 的人：AI 怎么一步步走到今天，人和智能体（agent）怎么协作。', mindLeadShort: '写给想跟上 AI 的人。',
     read: '读最新文章', hist: 'AI 发展史', collab: '人机协作', histHref: '/mind', collabHref: '/mind/collaboration',
     orbTitle: '然后动手', orbLong: '看开发日志', orbShort: '开发日志', orbLabel: '然后动手：看开发日志', devlogHref: '/build#devlog',
@@ -400,9 +399,9 @@ const COPY = {
   en: {
     tag: 'A coach for the AGI years',
     bodyTitle: 'Get strong', bodyLead: 'Strength training twice a week. Veli, your AI coach, plans the time and the moves.', bodyLeadShort: 'Strength training twice a week.',
-    start: 'Start training', fact: 'First session: 12 minutes', startMenu: 'Ways to start training', google: 'Start training with Google', apple: 'Start training with Apple',
-    startNote: 'First session: 12 minutes. You sign in on Veli. Scan the code to open it on your phone.', codeLabel: 'Scan to open Veli on your phone',
-    appHref: '/app', googleHref: '/auth/google', appleHref: '/auth/apple', whyMuscle: 'Why muscle',
+    start: 'Start training', fact: 'First session: 12 minutes', startMenu: 'Ways to start training', google: 'Start training with Google', email: 'Start with email',
+    startNote: 'First session: 12 minutes. You sign in on Veli. Scan the code to open it on your phone.', codeLabel: 'Scan to open the Body page on your phone',
+    appHref: '/app?utm_source=velicoach', googleHref: '/auth/google?utm_source=velicoach', emailHref: '/app?utm_source=velicoach', whyMuscle: 'Why muscle',
     mindTitle: 'See clearly', mindLead: 'For anyone keeping up with AI: its history, and how people work with agents.', mindLeadShort: 'For anyone keeping up with AI.',
     read: 'Read the latest article', hist: 'History of AI', collab: 'Human–AI collaboration', histHref: '/en/mind', collabHref: '/en/mind/collaboration',
     orbTitle: 'Then build', orbLong: 'Read the devlog', orbShort: 'Devlog', orbLabel: 'Then build: read the devlog', devlogHref: '/en/build#devlog',
@@ -665,9 +664,6 @@ class Component extends DCLogic {
       leafRef: this.leafRef || (this.leafRef = (el) => { this.leafEl = el; }),
       netRef: this.netRef || (this.netRef = (el) => { this.netEl = el; }),
       orbClass: this.pick('focus', '无') === '无' ? 'orb' : 'orb is-focus',
-      /* 登录方式按设备定主次：苹果设备上「用 Apple」在前（手机上是实心主按钮），其余设备「用 Google」在前；两个按钮尺寸相同。实现里按平台判断，画板用属性 device 切换 */
-      authFirst: this.pick('device', '其他') === '苹果' ? c.apple : c.google, authSecond: this.pick('device', '其他') === '苹果' ? c.google : c.apple,
-      authFirstHref: this.pick('device', '其他') === '苹果' ? c.appleHref : c.googleHref, authSecondHref: this.pick('device', '其他') === '苹果' ? c.googleHref : c.appleHref,
       showPause: !still, paused: !!st.paused, playing: !st.paused, pausedAttr: st.paused ? 'true' : 'false',
       pauseLabel: st.paused ? c.play : c.pause,
       togglePause: () => { const p = !st.paused; this.setState({ paused: p }); if (!p && this.resume) setTimeout(this.resume, 0); },

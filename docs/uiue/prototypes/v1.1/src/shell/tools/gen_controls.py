@@ -60,7 +60,7 @@ paper = [
 ink = [
  row('墨底主按钮 .btn.vc-btn-on-ink', '<button type="button" class="btn vc-btn-on-ink {c}">读最新文章</button>', '<button type="button" class="btn vc-btn-on-ink" disabled>读最新文章</button>'),
  row('次按钮 .btn.vc-btn-quiet', '<button type="button" class="btn vc-btn-quiet {c}">订阅</button>', '<button type="button" class="btn vc-btn-quiet" disabled>正在订阅</button>'),
- row('选项 .opt', '<a class="opt {c}" href="#opt">用 Apple 开始训练</a>', '去不了的选项不摆出来'),
+ row('选项 .opt', '<a class="opt {c}" href="#opt">用 Google 开始训练</a>', '去不了的选项不摆出来'),
  row('文字入口 .vc-quick', '<a class="vc-quick {c}" href="#q">AI 发展史</a>', '去不了就不放'),
  row('导航项 .vc-nav-link', '<a class="vc-nav-link {c}" href="#nav">动手</a>', '导航不禁用'),
  row('导航项 · 当前页', '<a class="vc-nav-link {c}" href="#nav" aria-current="page">看清</a>', '导航不禁用'),
@@ -333,7 +333,7 @@ body{{margin:0}}
 <div class="vc-sheet-sample vc-sheet-sample-wide"><p class="vc-sheet-label">三站入口小色带 .vc-stations（404）</p>
 <div class="vc-stations"><a class="vc-station vc-station-body" href="/body"><span class="vc-station-name">站稳</span><span class="vc-station-line">每周两次力量训练。</span></a><a class="vc-station vc-station-mind" href="/mind"><span class="vc-station-name">看清</span><span class="vc-station-line">读懂 AI 从哪里来。</span></a><a class="vc-station vc-station-build" href="/build"><span class="vc-station-name">动手</span><span class="vc-station-line">和智能体一起做出东西。</span></a></div></div>
 <div class="vc-sheet-sample"><p class="vc-sheet-label">原地展开的卡片 .vc-pop（挂在 .vc-pop-anchor 上；这里为了看清楚摆在流里）</p>
-<div class="vc-pop vc-sheet-static vc-sheet-auto" data-pop=""><div class="vc-pop-opts"><a class="opt" href="/auth/google">用 Google 开始训练</a><a class="opt" href="/auth/apple">用 Apple 开始训练</a></div><p class="vc-pop-note">第一练 12 分钟。在 Veli 登录过的人直接到今天的安排；按 Esc 收起。</p></div></div>
+<div class="vc-pop vc-sheet-static vc-sheet-auto" data-pop=""><div class="vc-pop-opts"><a class="opt" href="/auth/google?utm_source=velicoach">用 Google 开始训练</a><a class="vc-quick" href="/app?utm_source=velicoach">用邮箱开始</a></div><p class="vc-pop-note">第一练 12 分钟。在 Veli 登录过的人直接到今天的安排；按 Esc 收起。</p></div></div>
 <div class="vc-sheet-sample"><p class="vc-sheet-label">带码的展开层 .vc-pop.vc-pop-code（首页首屏、站稳页的「开始训练」，宽度 ≥ 1180px 且能悬停时）</p>
 {POPCODE}</div>
 <div class="vc-sheet-sample"><p class="vc-sheet-label">智能体起草的小标记 .vc-origin（卡片和强调卡直接显示智能体起草的摘要时，句末一个；文章元信息里是「起草」一栏，带 data-origin="ai"）</p>

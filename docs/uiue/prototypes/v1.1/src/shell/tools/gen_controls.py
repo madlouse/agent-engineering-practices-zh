@@ -130,7 +130,7 @@ META = sm('meta')
 TAKE = down(sm('take'))
 FOLD = sm('toc')
 VIDEO = sm('video')
-POPCODE = sm('pop_code', **{'class="vc-pop vc-pop-code "': 'class="vc-pop vc-pop-code vc-sheet-static vc-sheet-auto"'})
+POPCODE = sm('pop_code', **{'class="vc-pop vc-pop-code"': 'class="vc-pop vc-pop-code vc-sheet-static vc-sheet-auto"'})
 LOADING = sm('loading_slow') + sm('loading')
 NOTICES = sm('notice_action')
 HOWTO = MOSS + down(sm('howto')) + '</div>'

@@ -153,10 +153,10 @@ class Component extends DCLogic {
     // 展开层打开时，Esc 在页面任何位置都能关上；焦点在展开层里时回到「开始训练」，这一次聚焦不再展开（重新聚焦或重新悬停才展开）
     this.onKey = (e) => {
       if (e.key !== 'Escape' || !this.isOpen()) return;
+      const a = document.activeElement, btn = document.querySelector('.vc-bodypage-start-anchor > .btn');
       clearTimeout(this.timer);
       this.setState({ open: false });
-      const btn = document.querySelector('.vc-bodypage-start-anchor .btn');
-      if (btn && document.activeElement !== btn) { this.skipFocusOpen = true; btn.focus(); }
+      if (btn && a && a !== btn && a.closest && a.closest('.vc-pop-anchor')) { this.skipFocusOpen = true; btn.focus(); }
     };
     this.onOutside = (e) => { if (this.isOpen() && !(e.target.closest && e.target.closest('.vc-pop-anchor'))) this.setState({ open: false }); };
     document.addEventListener('keydown', this.onKey);
